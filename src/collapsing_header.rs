@@ -1,0 +1,102 @@
+use abi_stable::std_types::{
+    RArc, RHashMap,
+    ROption::{self, RNone},
+};
+use egui::Ui;
+use rapidhash::fast::RandomState;
+
+use crate::{
+    elements::{Container, Id, UiContainer},
+    input::PointerState,
+    layout::Layout,
+    response::{InnerResponse, Response},
+    ui::BunnyUi,
+    widget_text::WidgetText,
+};
+
+#[repr(C)]
+pub struct CollapsingHeader {
+    text: WidgetText,
+    default_open: bool,
+    open: ROption<bool>,
+    show_background: bool,
+    indented: bool,
+}
+
+impl CollapsingHeader {
+    pub fn new(text: impl Into<WidgetText>) -> Self {
+        let text = text.into();
+        Self {
+            text,
+            default_open: false,
+            open: RNone,
+            show_background: false,
+            indented: true,
+        }
+    }
+
+    #[inline]
+    pub fn default_open(mut self, open: bool) -> Self {
+        self.default_open = open;
+        self
+    }
+
+    #[inline]
+    pub fn open(mut self, open: Option<bool>) -> Self {
+        self.open = open.into();
+        self
+    }
+
+    #[inline]
+    pub fn show_background(mut self, show_background: bool) -> Self {
+        self.show_background = show_background;
+        self
+    }
+
+    #[inline]
+    pub fn indented(mut self, indented: bool) -> Self {
+        self.indented = indented;
+        self
+    }
+
+    #[inline]
+    pub fn show<R>(
+        self,
+        ui: &mut BunnyUi,
+        add_contents: impl FnOnce(&mut BunnyUi) -> R,
+    ) -> InnerResponse<R> {
+        let mut new = ui.new_child(Some(Layout::default()));
+        let ret = add_contents(&mut new);
+        let response = ui.add_component(Container::CollapsingHeader(CollapsingHeaderComponent {
+            collapsing_header: self,
+            contents: new,
+        }));
+        InnerResponse::new(ret, response)
+    }
+}
+
+#[repr(C)]
+pub struct CollapsingHeaderComponent {
+    collapsing_header: CollapsingHeader,
+    contents: BunnyUi,
+}
+
+impl UiContainer for CollapsingHeaderComponent {
+    fn ui(
+        self,
+        ui: &mut Ui,
+        responses: &mut RHashMap<Id, Response, RandomState>,
+        input: RArc<PointerState>,
+    ) -> egui::Response {
+        let header = egui::CollapsingHeader::new(self.collapsing_header.text)
+            .default_open(self.collapsing_header.default_open)
+            .open(self.collapsing_header.open.into())
+            .show_background(self.collapsing_header.show_background);
+        let resp = if self.collapsing_header.indented {
+            header.show(ui, |ui| self.contents.ui(ui, responses, input))
+        } else {
+            header.show_unindented(ui, |ui| self.contents.ui(ui, responses, input))
+        };
+        resp.header_response
+    }
+}

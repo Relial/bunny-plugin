@@ -1,0 +1,85 @@
+use egui::Color32;
+
+use crate::paint::color::ColorMode;
+
+#[repr(C)]
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct Stroke {
+    pub width: f32,
+    pub color: Color32,
+}
+
+impl Stroke {
+    pub const NONE: Self = Self {
+        width: 0.0,
+        color: Color32::TRANSPARENT,
+    };
+
+    pub fn new(width: impl Into<f32>, color: impl Into<Color32>) -> Self {
+        Self {
+            width: width.into(),
+            color: color.into(),
+        }
+    }
+}
+
+impl From<Stroke> for egui::Stroke {
+    fn from(value: Stroke) -> Self {
+        egui::Stroke {
+            width: value.width,
+            color: value.color,
+        }
+    }
+}
+
+#[repr(C)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum StrokeKind {
+    Inside,
+    Middle,
+    Outside,
+}
+
+impl From<StrokeKind> for egui::StrokeKind {
+    fn from(value: StrokeKind) -> Self {
+        match value {
+            StrokeKind::Inside => Self::Inside,
+            StrokeKind::Middle => Self::Middle,
+            StrokeKind::Outside => Self::Outside,
+        }
+    }
+}
+
+#[repr(C)]
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct PathStroke {
+    pub width: f32,
+    pub color: ColorMode,
+    pub kind: StrokeKind,
+}
+
+impl Default for PathStroke {
+    #[inline]
+    fn default() -> Self {
+        Self::NONE
+    }
+}
+
+impl PathStroke {
+    pub const NONE: Self = Self {
+        width: 0.0,
+        color: ColorMode::TRANSPARENT,
+        kind: StrokeKind::Middle,
+    };
+}
+
+impl From<PathStroke> for egui::epaint::PathStroke {
+    fn from(value: PathStroke) -> Self {
+        let PathStroke { width, color, kind } = value;
+        Self {
+            width,
+            color: color.into(),
+            kind: kind.into(),
+        }
+    }
+}
