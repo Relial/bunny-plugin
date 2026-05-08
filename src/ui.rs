@@ -108,6 +108,16 @@ impl<'a> BunnyUi<'a> {
         self.scope_builder(UiBuilder::new().layout(layout), add_contents)
     }
 
+    pub fn allocate_response(&mut self, desired_size: impl Into<Vec2>, sense: Sense) -> Response {
+        let rect = self.allocate_space(desired_size);
+        self.interact(rect, sense)
+    }
+
+    pub fn allocate_space(&mut self, desired_size: impl Into<Vec2>) -> Rect {
+        let response = self.add_component(MiscComponent::AllocateSpace(desired_size.into()));
+        response.rect
+    }
+
     pub fn allocate_ui<R>(
         &mut self,
         desired_size: impl Into<Vec2>,
@@ -135,6 +145,17 @@ impl<'a> BunnyUi<'a> {
         add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
     ) -> InnerResponse<R> {
         self.scope_builder(UiBuilder::new().max_rect(max_rect), add_contents)
+    }
+
+    pub fn allocate_painter(
+        &mut self,
+        desired_size: impl Into<Vec2>,
+        sense: Sense,
+    ) -> (Response, Painter<'a>) {
+        let response = self.allocate_response(desired_size, sense);
+        let clip_rect = self.max_rect.intersect(response.rect);
+        let painter = self.painter().with_clip_rect(clip_rect);
+        (response, painter)
     }
 
     pub fn add_sized(

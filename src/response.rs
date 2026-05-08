@@ -26,6 +26,14 @@ impl Response {
         }
     }
 
+    pub fn rect_only(rect: Rect) -> Self {
+        Self {
+            rect,
+            interact_rect: rect,
+            ..Default::default()
+        }
+    }
+
     #[inline(always)]
     pub fn clicked(&self) -> bool {
         self.flags.contains(Flags::FAKE_PRIMARY_CLICKED) || self.clicked_by(PointerButton::Primary)

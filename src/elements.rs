@@ -4,7 +4,7 @@ use std::{
 };
 
 use abi_stable::std_types::{RArc, RBox, RHashMap};
-use egui::{Ui, Widget as _};
+use egui::{Ui, Vec2, Widget as _};
 use rapidhash::fast::RandomState;
 
 use crate::{
@@ -126,6 +126,7 @@ pub enum MiscComponent {
     Space(f32),
     Disable,
     EndRow,
+    AllocateSpace(Vec2),
 }
 
 impl UiComponent for MiscComponent {
@@ -143,6 +144,10 @@ impl UiComponent for MiscComponent {
                 ui.end_row();
                 Response::default()
             }
+            MiscComponent::AllocateSpace(size) => {
+                let (_, rect) = ui.allocate_space(size);
+                Response::rect_only(rect)
+            },
         }
     }
 }
