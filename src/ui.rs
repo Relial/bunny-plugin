@@ -9,11 +9,11 @@ use rapidhash::fast::RandomState;
 
 use crate::{
     align::Align,
-    collapsing_header::CollapsingHeader,
-    elements::{
-        AllocateUi, Button, CheckBox, Component, Container, Grid, Id, Label, MiscComponent,
-        ScopeBuilder, Separator, UiContainer, Widget,
+    containers::{
+        allocate_ui::AllocateUi, collapsing_header::CollapsingHeader, grid::Grid,
+        scope_builder::ScopeBuilder,
     },
+    elements::{Component, Container, Id, MiscComponent, UiContainer, Widget},
     input::PointerState,
     layout::Layout,
     paint::paintlist::PaintList,
@@ -21,6 +21,7 @@ use crate::{
     response::{InnerResponse, Response},
     ui_builder::UiBuilder,
     widget_text::{RichText, WidgetText},
+    widgets::{button::Button, checkbox::CheckBox, label::Label, separator::Separator},
 };
 
 #[repr(C)]
@@ -212,7 +213,7 @@ impl<'a> BunnyUi<'a> {
         self.add(Label::new(text.into().weak()))
     }
 
-    pub fn checkbox(&mut self, value: &mut bool, text: impl Into<WidgetText>) -> Response {
+    pub fn checkbox(&mut self, value: &'a mut bool, text: impl Into<WidgetText>) -> Response {
         self.add(CheckBox::new(value, text))
     }
 
@@ -284,17 +285,6 @@ impl<'a> BunnyUi<'a> {
 
     pub fn add_space(&mut self, space: f32) {
         self.add_component(MiscComponent::Space(space));
-    }
-
-    pub fn grid<R>(
-        &mut self,
-        id: impl Hash,
-        add_contents: impl FnOnce(&mut BunnyUi) -> R,
-    ) -> InnerResponse<R> {
-        let mut new = self.new_child(Some(Layout::top_down(Align::Min)));
-        let ret = add_contents(&mut new);
-        let response = self.add_component(Container::Grid(Grid::new(id, new)));
-        InnerResponse::new(ret, response)
     }
 
     pub fn end_row(&mut self) {

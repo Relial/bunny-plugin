@@ -302,6 +302,16 @@ pub enum TextWrapMode {
     Truncate,
 }
 
+impl From<TextWrapMode> for egui::TextWrapMode {
+    fn from(value: TextWrapMode) -> Self {
+        match value {
+            TextWrapMode::Extend => Self::Extend,
+            TextWrapMode::Wrap => Self::Wrap,
+            TextWrapMode::Truncate => Self::Truncate,
+        }
+    }
+}
+
 #[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct TextWrapping {

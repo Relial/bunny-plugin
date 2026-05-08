@@ -100,3 +100,9 @@ impl UiContainer for CollapsingHeaderComponent<'_> {
         resp.header_response
     }
 }
+
+impl<'a> From<CollapsingHeaderComponent<'a>> for Container<'a> {
+    fn from(value: CollapsingHeaderComponent<'a>) -> Self {
+        Self::CollapsingHeader(value)
+    }
+}

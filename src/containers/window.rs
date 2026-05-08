@@ -9,6 +9,7 @@ use rapidhash::fast::RandomState;
 use crate::{
     align::Align2,
     area::Area,
+    containers::scroll_area::{ScrollArea, ScrollBarVisibility, ScrollSource},
     elements::{Container, Id, UiContainer},
     frame::Frame,
     input::PointerState,
@@ -16,7 +17,6 @@ use crate::{
     paint::{corner_radius::CornerRadius, stroke::Stroke},
     resize::Resize,
     response::{InnerResponse, Response},
-    scroll_area::{ScrollArea, ScrollBarVisibility, ScrollSource},
     ui::BunnyUi,
     vec2b::Vec2b,
 };
@@ -411,5 +411,11 @@ impl UiContainer for WindowComponent<'_> {
             self.contents.ui(ui, responses, input.clone());
         });
         inner.map(|i| i.response).unwrap_or_else(|| ui.response())
+    }
+}
+
+impl<'a> From<WindowComponent<'a>> for Container<'a> {
+    fn from(value: WindowComponent<'a>) -> Self {
+        Self::Window(value)
     }
 }
