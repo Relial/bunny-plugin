@@ -12,6 +12,7 @@ use rapidhash::fast::RandomState;
 
 use crate::{
     collapsing_header::CollapsingHeaderComponent,
+    image::Image,
     input::PointerState,
     paint::{corner_radius::CornerRadius, stroke::Stroke},
     response::Response,
@@ -161,16 +162,17 @@ impl<'a> From<WindowComponent<'a>> for Container<'a> {
 }
 
 #[repr(C)]
-pub enum Widget {
+pub enum Widget<'a> {
     Label(Label),
     CheckBox(CheckBox),
     DragValue(DragValue),
     Button(Button),
     Slider(Slider),
     Separator(Separator),
+    Image(RBox<Image<'a>>),
 }
 
-impl egui::Widget for Widget {
+impl egui::Widget for Widget<'_> {
     fn ui(self, ui: &mut Ui) -> egui::Response {
         match self {
             Widget::Label(label) => label.ui(ui),
@@ -179,41 +181,42 @@ impl egui::Widget for Widget {
             Widget::Button(button) => button.ui(ui),
             Widget::Slider(slider) => slider.ui(ui),
             Widget::Separator(separator) => separator.ui(ui),
+            Widget::Image(image) => RBox::into_inner(image).ui(ui),
         }
     }
 }
 
-impl From<Label> for Widget {
+impl From<Label> for Widget<'_> {
     fn from(value: Label) -> Self {
         Self::Label(value)
     }
 }
 
-impl From<CheckBox> for Widget {
+impl From<CheckBox> for Widget<'_> {
     fn from(value: CheckBox) -> Self {
         Self::CheckBox(value)
     }
 }
 
-impl From<DragValue> for Widget {
+impl From<DragValue> for Widget<'_> {
     fn from(value: DragValue) -> Self {
         Self::DragValue(value)
     }
 }
 
-impl From<Button> for Widget {
+impl From<Button> for Widget<'_> {
     fn from(value: Button) -> Self {
         Self::Button(value)
     }
 }
 
-impl From<Slider> for Widget {
+impl From<Slider> for Widget<'_> {
     fn from(value: Slider) -> Self {
         Self::Slider(value)
     }
 }
 
-impl From<Separator> for Widget {
+impl From<Separator> for Widget<'_> {
     fn from(value: Separator) -> Self {
         Self::Separator(value)
     }
@@ -248,7 +251,7 @@ impl UiComponent for MiscComponent {
 #[repr(C)]
 pub enum Component<'a> {
     Container(RBox<Container<'a>>),
-    Widget(Widget),
+    Widget(Widget<'a>),
     MiscComponent(MiscComponent),
 }
 
@@ -273,8 +276,8 @@ impl<'a> From<Container<'a>> for Component<'a> {
     }
 }
 
-impl From<Widget> for Component<'_> {
-    fn from(value: Widget) -> Self {
+impl<'a> From<Widget<'a>> for Component<'a> {
+    fn from(value: Widget<'a>) -> Self {
         Self::Widget(value)
     }
 }

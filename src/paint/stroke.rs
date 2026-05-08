@@ -23,6 +23,16 @@ impl Stroke {
     }
 }
 
+impl<Color> From<(f32, Color)> for Stroke
+where
+    Color: Into<Color32>,
+{
+    #[inline(always)]
+    fn from((width, color): (f32, Color)) -> Self {
+        Self::new(width, color)
+    }
+}
+
 impl From<Stroke> for egui::Stroke {
     fn from(value: Stroke) -> Self {
         egui::Stroke {

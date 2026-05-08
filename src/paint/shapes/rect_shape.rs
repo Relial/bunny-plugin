@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use abi_stable::std_types::{
-    RArc,
+    RBox,
     ROption::{self, RNone, RSome},
 };
 use anyhow::Result;
@@ -27,7 +27,7 @@ pub struct RectShape<'a> {
     pub stroke_kind: StrokeKind,
     pub round_to_pixels: ROption<bool>,
     pub blur_width: f32,
-    pub brush: ROption<RArc<Brush<'a>>>,
+    pub brush: ROption<RBox<Brush<'a>>>,
     pub angle: f32,
 }
 
@@ -99,7 +99,7 @@ impl<'a> RectShape<'a> {
 
     #[inline]
     pub fn with_texture(mut self, fill_texture_loader: ImageLoader<'a>, uv: Rect) -> Self {
-        self.brush = RSome(RArc::new(Brush {
+        self.brush = RSome(RBox::new(Brush {
             fill_texture_loader,
             uv,
         }));
@@ -142,9 +142,8 @@ impl<'a> RectShape<'a> {
             brush,
             angle,
         } = self;
-        let brush: Option<Arc<egui::epaint::Brush>> = if let RSome(brush) = brush
-            && let Ok(egui_brush) = (*brush).clone().to_egui(ctx)
-        {
+        let brush: Option<Arc<egui::epaint::Brush>> = if let RSome(brush) = brush {
+            let egui_brush = RBox::into_inner(brush).to_egui(ctx)?;
             Some(Arc::new(egui_brush))
         } else {
             None
@@ -162,30 +161,3 @@ impl<'a> RectShape<'a> {
         })
     }
 }
-
-// impl<'a> From<RectShape<'a>> for egui::epaint::RectShape {
-//     fn from(value: RectShape<'a>) -> Self {
-//         let RectShape {
-//             rect,
-//             corner_radius,
-//             fill,
-//             stroke,
-//             stroke_kind,
-//             round_to_pixels,
-//             blur_width,
-//             brush,
-//             angle,
-//         } = value;
-//         Self {
-//             rect,
-//             corner_radius: corner_radius.into(),
-//             fill,
-//             stroke: stroke.into(),
-//             stroke_kind: stroke_kind.into(),
-//             round_to_pixels: round_to_pixels.into(),
-//             blur_width,
-//             brush: brush.into(),
-//             angle,
-//         }
-//     }
-// }

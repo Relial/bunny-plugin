@@ -6,3 +6,5 @@ pub mod mesh;
 pub mod brush;
 pub mod text;
 pub mod textures;
+pub mod shape_transform;
+pub mod paintlist;

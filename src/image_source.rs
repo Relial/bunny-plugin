@@ -53,6 +53,15 @@ impl<'a> ImageLoader<'a> {
     }
 }
 
+impl<'a> From<ImageSource<'a>> for ImageLoader<'a> {
+    fn from(value: ImageSource<'a>) -> Self {
+        match value {
+            ImageSource::Uri(uri) => Self::from_uri(uri),
+            ImageSource::Bytes { uri, bytes } => Self::from_bytes(uri, bytes),
+        }
+    }
+}
+
 #[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
 pub enum ImageSource<'a> {

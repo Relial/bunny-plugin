@@ -1,7 +1,10 @@
 use std::hash::Hash;
 
-use abi_stable::std_types::{RArc, RHashMap, RVec, Tuple2};
-use egui::{Color32, Ui, Vec2};
+use abi_stable::{
+    external_types::RRwLock,
+    std_types::{RArc, RHashMap, RVec, Tuple2},
+};
+use egui::{Color32, Rect, Ui, Vec2};
 use rapidhash::fast::RandomState;
 
 use crate::{
@@ -13,6 +16,7 @@ use crate::{
     },
     input::PointerState,
     layout::Layout,
+    paint::paintlist::PaintList,
     painter::Painter,
     response::{InnerResponse, Response},
     ui_builder::UiBuilder,
@@ -22,11 +26,13 @@ use crate::{
 #[repr(C)]
 pub struct BunnyUi<'a> {
     components: RVec<Tuple2<Id, Component<'a>>>,
-    pub painter: Painter<'a>,
     next_salt: u64,
+    painter: Painter<'a>,
     pub layout: Layout,
     last_frame_responses: RArc<RHashMap<Id, Response, RandomState>>,
     input: RArc<PointerState>,
+    max_rect: Rect,
+    pixels_per_point: f32,
 }
 
 impl<'a> BunnyUi<'a> {
@@ -41,21 +47,25 @@ impl<'a> BunnyUi<'a> {
             let resp = Response::new(component.0, egui_resp, new_input.clone());
             new_responses.insert(component.0, resp);
         }
-        self.painter.ui(ui);
     }
 
     pub fn new(
         initial_id: Id,
         last_frame_responses: RArc<RHashMap<Id, Response, RandomState>>,
         last_frame_input: RArc<PointerState>,
+        paint_list: RArc<RRwLock<PaintList<'a>>>,
+        max_rect: Rect,
+        pixels_per_point: f32,
     ) -> Self {
         Self {
             components: RVec::new(),
-            painter: Painter::new(),
             next_salt: initial_id.value(),
+            painter: Painter::new(paint_list, max_rect, pixels_per_point),
             layout: Layout::default(),
             last_frame_responses,
             input: last_frame_input,
+            max_rect,
+            pixels_per_point,
         }
     }
 
@@ -65,11 +75,13 @@ impl<'a> BunnyUi<'a> {
         self.next_salt = next_salt;
         BunnyUi {
             components: RVec::new(),
-            painter: Painter::new(),
             next_salt: id.value(),
+            painter: self.painter.clone(),
             layout: layout.unwrap_or(self.layout),
             last_frame_responses: self.last_frame_responses.clone(),
             input: self.input.clone(),
+            max_rect: self.max_rect,
+            pixels_per_point: self.pixels_per_point,
         }
     }
 
@@ -109,7 +121,7 @@ impl<'a> BunnyUi<'a> {
         &mut self,
         desired_size: impl Into<Vec2>,
         layout: Layout,
-        add_contents: impl FnOnce(&mut BunnyUi) -> R,
+        add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
     ) -> InnerResponse<R> {
         let mut new = self.new_child(Some(layout));
         let ret = add_contents(&mut new);
@@ -118,7 +130,11 @@ impl<'a> BunnyUi<'a> {
         InnerResponse::new(ret, response)
     }
 
-    pub fn add_sized(&mut self, max_size: impl Into<Vec2>, widget: impl Into<Widget>) -> Response {
+    pub fn add_sized(
+        &mut self,
+        max_size: impl Into<Vec2>,
+        widget: impl Into<Widget<'a>>,
+    ) -> Response {
         let layout = Layout::centered_and_justified(self.layout.main_dir);
         self.allocate_ui_with_layout(max_size, layout, |ui| ui.add_component(widget.into()))
             .inner
@@ -139,7 +155,7 @@ impl<'a> BunnyUi<'a> {
             .unwrap_or_default()
     }
 
-    pub fn add(&mut self, widget: impl Into<Widget>) -> Response {
+    pub fn add(&mut self, widget: impl Into<Widget<'a>>) -> Response {
         self.add_component(widget.into())
     }
 
@@ -287,5 +303,13 @@ impl<'a> BunnyUi<'a> {
 
     pub fn input(&self) -> &PointerState {
         &self.input
+    }
+
+    pub fn painter(&self) -> &Painter<'a> {
+        &self.painter
+    }
+
+    pub fn max_rect(&self) -> Rect {
+        self.max_rect
     }
 }

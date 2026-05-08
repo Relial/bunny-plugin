@@ -98,12 +98,12 @@ impl<'a> Shape<'a> {
     }
 
     #[inline]
-    pub fn line(points: &[Pos2], stroke: impl Into<PathStroke>) -> Self {
+    pub fn line(points: impl Into<RVec<Pos2>>, stroke: impl Into<PathStroke>) -> Self {
         Self::Path(PathShape::line(points, stroke))
     }
 
     #[inline]
-    pub fn closed_line(points: &[Pos2], stroke: impl Into<PathStroke>) -> Self {
+    pub fn closed_line(points: impl Into<RVec<Pos2>>, stroke: impl Into<PathStroke>) -> Self {
         Self::Path(PathShape::closed_line(points, stroke))
     }
 
@@ -262,6 +262,17 @@ impl<'a> Shape<'a> {
     pub fn text(pos: Pos2, anchor: Align2, text: &str, font_id: FontId, color: Color32) -> Self {
         let layout_job = LayoutJob::simple_singleline(text, font_id, color);
         let shape = TextShape::new(pos, layout_job, anchor, color);
+        Self::Text(shape)
+    }
+
+    #[inline]
+    pub fn text_with_layout_job(
+        pos: Pos2,
+        anchor: Align2,
+        layout_job: LayoutJob,
+        fallback_color: Color32,
+    ) -> Self {
+        let shape = TextShape::new(pos, layout_job, anchor, fallback_color);
         Self::Text(shape)
     }
 
