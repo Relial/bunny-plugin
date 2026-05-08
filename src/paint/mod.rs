@@ -1,6 +1,5 @@
 pub mod color;
 pub mod corner_radius;
-pub mod painter;
 pub mod stroke;
 pub mod shapes;
 pub mod mesh;

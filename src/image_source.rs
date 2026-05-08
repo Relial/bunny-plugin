@@ -1,10 +1,13 @@
 use std::borrow::Cow;
 
-use abi_stable::std_types::{RCowSlice, RCowStr};
+use abi_stable::std_types::RCowStr;
 use anyhow::Result;
 use egui::{Context, load::TexturePoll};
 
-use crate::{load::SizeHint, paint::textures::TextureOptions};
+use crate::{
+    load::{Bytes, SizeHint},
+    paint::textures::TextureOptions,
+};
 
 #[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
@@ -15,6 +18,34 @@ pub struct ImageLoader<'a> {
 }
 
 impl<'a> ImageLoader<'a> {
+    pub fn new(
+        source: impl Into<ImageSource<'a>>,
+        options: TextureOptions,
+        size_hint: SizeHint,
+    ) -> Self {
+        Self {
+            source: source.into(),
+            texture_options: options,
+            size_hint,
+        }
+    }
+
+    pub fn from_uri(uri: impl Into<RCowStr<'a>>) -> Self {
+        Self {
+            source: ImageSource::from_uri(uri),
+            texture_options: TextureOptions::default(),
+            size_hint: SizeHint::default(),
+        }
+    }
+
+    pub fn from_bytes(uri: impl Into<RCowStr<'static>>, bytes: impl Into<Bytes>) -> Self {
+        Self {
+            source: ImageSource::from_bytes(uri, bytes),
+            texture_options: TextureOptions::default(),
+            size_hint: SizeHint::default(),
+        }
+    }
+
     pub fn to_texture(self, ctx: &Context) -> Result<TexturePoll> {
         let source: egui::ImageSource = self.source.into();
         let res = source.load(ctx, self.texture_options.into(), self.size_hint.into())?;
@@ -26,17 +57,15 @@ impl<'a> ImageLoader<'a> {
 #[derive(Clone, Debug, PartialEq)]
 pub enum ImageSource<'a> {
     Uri(RCowStr<'a>),
-    Bytes {
-        uri: RCowStr<'static>,
-        bytes: RCowSlice<'static, u8>,
-    },
+    Bytes { uri: RCowStr<'static>, bytes: Bytes },
 }
 
-impl ImageSource<'static> {
-    pub fn from_bytes(
-        uri: impl Into<RCowStr<'static>>,
-        bytes: impl Into<RCowSlice<'static, u8>>,
-    ) -> Self {
+impl<'a> ImageSource<'a> {
+    pub fn from_uri(uri: impl Into<RCowStr<'a>>) -> Self {
+        Self::Uri(uri.into())
+    }
+
+    pub fn from_bytes(uri: impl Into<RCowStr<'static>>, bytes: impl Into<Bytes>) -> Self {
         Self::Bytes {
             uri: uri.into(),
             bytes: bytes.into(),
@@ -53,7 +82,7 @@ impl<'a> From<ImageSource<'a>> for egui::ImageSource<'a> {
             }
             ImageSource::Bytes { uri, bytes } => {
                 let uri_cow: Cow<'static, str> = uri.into();
-                let bytes = match bytes {
+                let bytes = match bytes.into_inner() {
                     abi_stable::std_types::RCow::Borrowed(slice) => {
                         egui::load::Bytes::Static(slice.into())
                     }
@@ -104,7 +133,19 @@ impl<'a> From<Cow<'a, str>> for ImageSource<'a> {
     }
 }
 
-impl<T: Into<RCowSlice<'static, u8>>> From<(&'static str, T)> for ImageSource<'static> {
+impl<'a> From<RCowStr<'a>> for ImageSource<'a> {
+    fn from(value: RCowStr<'a>) -> Self {
+        Self::Uri(value)
+    }
+}
+
+impl<'a> From<&RCowStr<'a>> for ImageSource<'a> {
+    fn from(value: &RCowStr<'a>) -> Self {
+        Self::Uri(value.clone())
+    }
+}
+
+impl<T: Into<Bytes>> From<(&'static str, T)> for ImageSource<'static> {
     #[inline]
     fn from((uri, bytes): (&'static str, T)) -> Self {
         Self::Bytes {
@@ -114,7 +155,7 @@ impl<T: Into<RCowSlice<'static, u8>>> From<(&'static str, T)> for ImageSource<'s
     }
 }
 
-impl<T: Into<RCowSlice<'static, u8>>> From<(Cow<'static, str>, T)> for ImageSource<'static> {
+impl<T: Into<Bytes>> From<(Cow<'static, str>, T)> for ImageSource<'static> {
     #[inline]
     fn from((uri, bytes): (Cow<'static, str>, T)) -> Self {
         Self::Bytes {
@@ -124,7 +165,17 @@ impl<T: Into<RCowSlice<'static, u8>>> From<(Cow<'static, str>, T)> for ImageSour
     }
 }
 
-impl<T: Into<RCowSlice<'static, u8>>> From<(String, T)> for ImageSource<'static> {
+impl<T: Into<Bytes>> From<(RCowStr<'static>, T)> for ImageSource<'static> {
+    #[inline]
+    fn from((uri, bytes): (RCowStr<'static>, T)) -> Self {
+        Self::Bytes {
+            uri,
+            bytes: bytes.into(),
+        }
+    }
+}
+
+impl<T: Into<Bytes>> From<(String, T)> for ImageSource<'static> {
     #[inline]
     fn from((uri, bytes): (String, T)) -> Self {
         Self::Bytes {

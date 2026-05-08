@@ -9,6 +9,12 @@ pub struct TextureOptions {
     pub mipmap_mode: ROption<TextureFilter>,
 }
 
+impl Default for TextureOptions {
+    fn default() -> Self {
+        Self::LINEAR
+    }
+}
+
 impl TextureOptions {
     /// Linear magnification and minification.
     pub const LINEAR: Self = Self {

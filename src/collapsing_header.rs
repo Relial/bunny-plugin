@@ -76,12 +76,12 @@ impl CollapsingHeader {
 }
 
 #[repr(C)]
-pub struct CollapsingHeaderComponent {
+pub struct CollapsingHeaderComponent<'a> {
     collapsing_header: CollapsingHeader,
-    contents: BunnyUi,
+    contents: BunnyUi<'a>,
 }
 
-impl UiContainer for CollapsingHeaderComponent {
+impl UiContainer for CollapsingHeaderComponent<'_> {
     fn ui(
         self,
         ui: &mut Ui,

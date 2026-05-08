@@ -11,7 +11,14 @@ use egui::{Color32, Ui, Vec2, Widget as _};
 use rapidhash::fast::RandomState;
 
 use crate::{
-    collapsing_header::CollapsingHeaderComponent, input::PointerState, paint::{corner_radius::CornerRadius, stroke::Stroke}, response::Response, ui::BunnyUi, ui_builder::UiBuilder, widget_text::WidgetText, window::WindowComponent
+    collapsing_header::CollapsingHeaderComponent,
+    input::PointerState,
+    paint::{corner_radius::CornerRadius, stroke::Stroke},
+    response::Response,
+    ui::BunnyUi,
+    ui_builder::UiBuilder,
+    widget_text::WidgetText,
+    window::WindowComponent,
 };
 
 #[repr(C)]
@@ -96,15 +103,15 @@ pub trait UiContainer {
 }
 
 #[repr(C)]
-pub enum Container {
-    CollapsingHeader(CollapsingHeaderComponent),
-    Scope(ScopeBuilder),
-    AllocateUi(AllocateUi),
-    Grid(Grid),
-    Window(WindowComponent),
+pub enum Container<'a> {
+    CollapsingHeader(CollapsingHeaderComponent<'a>),
+    Scope(ScopeBuilder<'a>),
+    AllocateUi(AllocateUi<'a>),
+    Grid(Grid<'a>),
+    Window(WindowComponent<'a>),
 }
 
-impl UiContainer for Container {
+impl UiContainer for Container<'_> {
     fn ui(
         self,
         ui: &mut Ui,
@@ -123,32 +130,32 @@ impl UiContainer for Container {
     }
 }
 
-impl From<CollapsingHeaderComponent> for Container {
-    fn from(value: CollapsingHeaderComponent) -> Self {
+impl<'a> From<CollapsingHeaderComponent<'a>> for Container<'a> {
+    fn from(value: CollapsingHeaderComponent<'a>) -> Self {
         Self::CollapsingHeader(value)
     }
 }
 
-impl From<ScopeBuilder> for Container {
-    fn from(value: ScopeBuilder) -> Self {
+impl<'a> From<ScopeBuilder<'a>> for Container<'a> {
+    fn from(value: ScopeBuilder<'a>) -> Self {
         Self::Scope(value)
     }
 }
 
-impl From<AllocateUi> for Container {
-    fn from(value: AllocateUi) -> Self {
+impl<'a> From<AllocateUi<'a>> for Container<'a> {
+    fn from(value: AllocateUi<'a>) -> Self {
         Self::AllocateUi(value)
     }
 }
 
-impl From<Grid> for Container {
-    fn from(value: Grid) -> Self {
+impl<'a> From<Grid<'a>> for Container<'a> {
+    fn from(value: Grid<'a>) -> Self {
         Self::Grid(value)
     }
 }
 
-impl From<WindowComponent> for Container {
-    fn from(value: WindowComponent) -> Self {
+impl<'a> From<WindowComponent<'a>> for Container<'a> {
+    fn from(value: WindowComponent<'a>) -> Self {
         Self::Window(value)
     }
 }
@@ -239,13 +246,13 @@ impl UiComponent for MiscComponent {
 }
 
 #[repr(C)]
-pub enum Component {
-    Container(RBox<Container>),
+pub enum Component<'a> {
+    Container(RBox<Container<'a>>),
     Widget(Widget),
     MiscComponent(MiscComponent),
 }
 
-impl UiContainer for Component {
+impl UiContainer for Component<'_> {
     fn ui(
         self,
         ui: &mut Ui,
@@ -260,19 +267,19 @@ impl UiContainer for Component {
     }
 }
 
-impl From<Container> for Component {
-    fn from(value: Container) -> Self {
+impl<'a> From<Container<'a>> for Component<'a> {
+    fn from(value: Container<'a>) -> Self {
         Self::Container(RBox::new(value))
     }
 }
 
-impl From<Widget> for Component {
+impl From<Widget> for Component<'_> {
     fn from(value: Widget) -> Self {
         Self::Widget(value)
     }
 }
 
-impl From<MiscComponent> for Component {
+impl From<MiscComponent> for Component<'_> {
     fn from(value: MiscComponent) -> Self {
         Self::MiscComponent(value)
     }
@@ -318,13 +325,13 @@ impl egui::Widget for CheckBox {
 }
 
 #[repr(C)]
-pub struct ScopeBuilder {
-    contents: BunnyUi,
+pub struct ScopeBuilder<'a> {
+    contents: BunnyUi<'a>,
     ui_builder: UiBuilder,
 }
 
-impl ScopeBuilder {
-    pub fn new(ui_builder: UiBuilder, ui: BunnyUi) -> Self {
+impl<'a> ScopeBuilder<'a> {
+    pub fn new(ui_builder: UiBuilder, ui: BunnyUi<'a>) -> Self {
         Self {
             contents: ui,
             ui_builder,
@@ -332,7 +339,7 @@ impl ScopeBuilder {
     }
 }
 
-impl UiContainer for ScopeBuilder {
+impl UiContainer for ScopeBuilder<'_> {
     fn ui(
         self,
         ui: &mut Ui,
@@ -347,14 +354,14 @@ impl UiContainer for ScopeBuilder {
 }
 
 #[repr(C)]
-pub struct AllocateUi {
-    contents: BunnyUi,
+pub struct AllocateUi<'a> {
+    contents: BunnyUi<'a>,
     desired_size: Vec2,
     layout: ROption<crate::layout::Layout>,
 }
 
-impl AllocateUi {
-    pub fn new(desired_size: Vec2, layout: Option<crate::layout::Layout>, ui: BunnyUi) -> Self {
+impl<'a> AllocateUi<'a> {
+    pub fn new(desired_size: Vec2, layout: Option<crate::layout::Layout>, ui: BunnyUi<'a>) -> Self {
         Self {
             contents: ui,
             desired_size,
@@ -363,7 +370,7 @@ impl AllocateUi {
     }
 }
 
-impl UiContainer for AllocateUi {
+impl UiContainer for AllocateUi<'_> {
     fn ui(
         self,
         ui: &mut Ui,
@@ -626,9 +633,9 @@ impl egui::Widget for Separator {
 }
 
 #[repr(C)]
-pub struct Grid {
+pub struct Grid<'a> {
     id: Id,
-    contents: BunnyUi,
+    contents: BunnyUi<'a>,
     num_columns: ROption<usize>,
     min_col_width: ROption<f32>,
     min_row_height: ROption<f32>,
@@ -637,8 +644,8 @@ pub struct Grid {
     striped: bool,
 }
 
-impl Grid {
-    pub fn new(id_salt: impl Hash, ui: BunnyUi) -> Self {
+impl<'a> Grid<'a> {
+    pub fn new(id_salt: impl Hash, ui: BunnyUi<'a>) -> Self {
         Self {
             id: Id::new(id_salt),
             contents: ui,
@@ -652,7 +659,7 @@ impl Grid {
     }
 }
 
-impl UiContainer for Grid {
+impl UiContainer for Grid<'_> {
     fn ui(
         self,
         ui: &mut Ui,

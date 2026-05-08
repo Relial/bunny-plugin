@@ -312,12 +312,12 @@ impl Window {
 }
 
 #[repr(C)]
-pub struct WindowComponent {
-    contents: BunnyUi,
+pub struct WindowComponent<'a> {
+    contents: BunnyUi<'a>,
     window: Window,
 }
 
-impl WindowComponent {
+impl WindowComponent<'_> {
     fn ui_title_bar(&mut self, ui: &mut egui::Ui) {
         let title_bar_height = 24.0;
         let rect = {
@@ -364,7 +364,7 @@ impl WindowComponent {
     }
 }
 
-impl UiContainer for WindowComponent {
+impl UiContainer for WindowComponent<'_> {
     fn ui(
         mut self,
         ui: &mut egui::Ui,

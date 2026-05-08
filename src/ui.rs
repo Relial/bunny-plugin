@@ -13,21 +13,23 @@ use crate::{
     },
     input::PointerState,
     layout::Layout,
+    painter::Painter,
     response::{InnerResponse, Response},
     ui_builder::UiBuilder,
     widget_text::{RichText, WidgetText},
 };
 
 #[repr(C)]
-pub struct BunnyUi {
-    components: RVec<Tuple2<Id, Component>>,
+pub struct BunnyUi<'a> {
+    components: RVec<Tuple2<Id, Component<'a>>>,
+    pub painter: Painter<'a>,
     next_salt: u64,
     pub layout: Layout,
     last_frame_responses: RArc<RHashMap<Id, Response, RandomState>>,
     input: RArc<PointerState>,
 }
 
-impl BunnyUi {
+impl<'a> BunnyUi<'a> {
     pub fn ui(
         self,
         ui: &mut Ui,
@@ -39,6 +41,7 @@ impl BunnyUi {
             let resp = Response::new(component.0, egui_resp, new_input.clone());
             new_responses.insert(component.0, resp);
         }
+        self.painter.ui(ui);
     }
 
     pub fn new(
@@ -48,6 +51,7 @@ impl BunnyUi {
     ) -> Self {
         Self {
             components: RVec::new(),
+            painter: Painter::new(),
             next_salt: initial_id.value(),
             layout: Layout::default(),
             last_frame_responses,
@@ -61,6 +65,7 @@ impl BunnyUi {
         self.next_salt = next_salt;
         BunnyUi {
             components: RVec::new(),
+            painter: Painter::new(),
             next_salt: id.value(),
             layout: layout.unwrap_or(self.layout),
             last_frame_responses: self.last_frame_responses.clone(),
@@ -125,7 +130,7 @@ impl BunnyUi {
         id
     }
 
-    pub(crate) fn add_component(&mut self, component: impl Into<Component>) -> Response {
+    pub(crate) fn add_component(&mut self, component: impl Into<Component<'a>>) -> Response {
         let id = self.next_id();
         self.components.push((id, component.into()).into());
         self.last_frame_responses

@@ -1,3 +1,6 @@
+use std::ops::Deref;
+
+use abi_stable::std_types::RCowSlice;
 use egui::emath::Float;
 
 #[repr(C)]
@@ -54,6 +57,55 @@ impl From<SizeHint> for egui::SizeHint {
                 height,
                 maintain_aspect_ratio,
             },
+        }
+    }
+}
+
+#[repr(C)]
+#[derive(Clone, Debug, PartialEq)]
+pub struct Bytes(RCowSlice<'static, u8>);
+
+impl Bytes {
+    pub fn into_inner(self) -> RCowSlice<'static, u8> {
+        self.0
+    }
+}
+
+impl Deref for Bytes {
+    type Target = [u8];
+
+    fn deref(&self) -> &Self::Target {
+        self.as_ref()
+    }
+}
+
+impl From<&'static [u8]> for Bytes {
+    #[inline]
+    fn from(value: &'static [u8]) -> Self {
+        Self(value.into())
+    }
+}
+
+impl<const N: usize> From<&'static [u8; N]> for Bytes {
+    #[inline]
+    fn from(value: &'static [u8; N]) -> Self {
+        Self(RCowSlice::from_slice(value))
+    }
+}
+
+impl From<Vec<u8>> for Bytes {
+    #[inline]
+    fn from(value: Vec<u8>) -> Self {
+        Self(value.into())
+    }
+}
+
+impl AsRef<[u8]> for Bytes {
+    #[inline]
+    fn as_ref(&self) -> &[u8] {
+        match &self.0 {
+            abi_stable::std_types::RCow::Borrowed(bytes) => bytes,
+            abi_stable::std_types::RCow::Owned(bytes) => bytes,
         }
     }
 }

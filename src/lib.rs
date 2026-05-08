@@ -21,3 +21,6 @@ pub mod painter;
 pub mod image_source;
 pub mod image;
 pub mod load;
+
+pub use egui::epaint::emath;
+pub use egui::epaint::ecolor;
