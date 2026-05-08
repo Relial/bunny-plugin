@@ -370,7 +370,8 @@ impl UiContainer for WindowComponent<'_> {
         ui: &mut egui::Ui,
         responses: &mut RHashMap<Id, Response, RandomState>,
         input: RArc<PointerState>,
-    ) -> egui::Response {
+        id: Id,
+    ) -> Response {
         let mut window = egui::Window::new("")
             .title_bar(false)
             .enabled(self.window.area.enabled)
@@ -410,7 +411,11 @@ impl UiContainer for WindowComponent<'_> {
             ui.take_available_space();
             self.contents.ui(ui, responses, input.clone());
         });
-        inner.map(|i| i.response).unwrap_or_else(|| ui.response())
+        if let Some(inner) = inner {
+            Response::new(id, inner.response, input)
+        } else {
+            Response::default()
+        }
     }
 }
 

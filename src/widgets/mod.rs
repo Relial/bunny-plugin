@@ -5,3 +5,4 @@ pub mod image;
 pub mod label;
 pub mod separator;
 pub mod slider;
+pub mod interact;

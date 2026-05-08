@@ -15,8 +15,8 @@ use crate::{
     input::PointerState,
     response::Response,
     widgets::{
-        button::Button, checkbox::CheckBox, drag_value::DragValue, image::Image, label::Label,
-        separator::Separator, slider::Slider,
+        button::Button, checkbox::CheckBox, drag_value::DragValue, image::Image,
+        interact::Interact, label::Label, separator::Separator, slider::Slider,
     },
 };
 
@@ -52,7 +52,7 @@ impl Id {
 }
 
 pub trait UiComponent {
-    fn ui(self, ui: &mut Ui) -> egui::Response;
+    fn ui(self, ui: &mut Ui, id: Id) -> Response;
 }
 
 pub trait UiContainer {
@@ -61,7 +61,8 @@ pub trait UiContainer {
         ui: &mut Ui,
         responses: &mut RHashMap<Id, Response, RandomState>,
         input: RArc<PointerState>,
-    ) -> egui::Response;
+        id: Id,
+    ) -> Response;
 }
 
 #[repr(C)]
@@ -79,15 +80,16 @@ impl UiContainer for Container<'_> {
         ui: &mut Ui,
         responses: &mut RHashMap<Id, Response, RandomState>,
         input: RArc<PointerState>,
-    ) -> egui::Response {
+        id: Id,
+    ) -> Response {
         match self {
             Container::CollapsingHeader(collapsing_header) => {
-                collapsing_header.ui(ui, responses, input.clone())
+                collapsing_header.ui(ui, responses, input, id)
             }
-            Container::Scope(scope_builder) => scope_builder.ui(ui, responses, input.clone()),
-            Container::AllocateUi(allocate_ui) => allocate_ui.ui(ui, responses, input.clone()),
-            Container::Grid(grid) => grid.ui(ui, responses, input.clone()),
-            Container::Window(window) => window.ui(ui, responses, input),
+            Container::Scope(scope_builder) => scope_builder.ui(ui, responses, input, id),
+            Container::AllocateUi(allocate_ui) => allocate_ui.ui(ui, responses, input, id),
+            Container::Grid(grid) => grid.ui(ui, responses, input, id),
+            Container::Window(window) => window.ui(ui, responses, input, id),
         }
     }
 }
@@ -101,6 +103,7 @@ pub enum Widget<'a> {
     Slider(Slider<'a>),
     Separator(Separator),
     Image(RBox<Image<'a>>),
+    Interact(Interact),
 }
 
 impl egui::Widget for Widget<'_> {
@@ -113,6 +116,7 @@ impl egui::Widget for Widget<'_> {
             Widget::Slider(slider) => slider.ui(ui),
             Widget::Separator(separator) => separator.ui(ui),
             Widget::Image(image) => RBox::into_inner(image).ui(ui),
+            Widget::Interact(interact) => interact.ui(ui),
         }
     }
 }
@@ -125,19 +129,19 @@ pub enum MiscComponent {
 }
 
 impl UiComponent for MiscComponent {
-    fn ui(self, ui: &mut Ui) -> egui::Response {
+    fn ui(self, ui: &mut Ui, _id: Id) -> Response {
         match self {
             MiscComponent::Space(space) => {
                 ui.add_space(space);
-                ui.response()
+                Response::default()
             }
             MiscComponent::Disable => {
                 ui.disable();
-                ui.response()
+                Response::default()
             }
             MiscComponent::EndRow => {
                 ui.end_row();
-                ui.response()
+                Response::default()
             }
         }
     }
@@ -156,11 +160,17 @@ impl UiContainer for Component<'_> {
         ui: &mut Ui,
         responses: &mut RHashMap<Id, Response, RandomState>,
         input: RArc<PointerState>,
-    ) -> egui::Response {
+        id: Id,
+    ) -> Response {
         match self {
-            Component::Container(container) => RBox::into_inner(container).ui(ui, responses, input),
-            Component::Widget(widget) => widget.ui(ui),
-            Component::MiscComponent(misc_component) => misc_component.ui(ui),
+            Component::Container(container) => {
+                RBox::into_inner(container).ui(ui, responses, input, id)
+            }
+            Component::Widget(widget) => {
+                let egui_resp = widget.ui(ui);
+                Response::new(id, egui_resp, input)
+            }
+            Component::MiscComponent(misc_component) => misc_component.ui(ui, id),
         }
     }
 }

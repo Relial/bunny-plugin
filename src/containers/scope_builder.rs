@@ -31,11 +31,14 @@ impl UiContainer for ScopeBuilder<'_> {
         ui: &mut Ui,
         responses: &mut RHashMap<Id, Response, RandomState>,
         input: RArc<PointerState>,
-    ) -> egui::Response {
-        ui.scope_builder(self.ui_builder.into(), |ui| {
-            self.contents.ui(ui, responses, input);
-        })
-        .response
+        id: Id,
+    ) -> Response {
+        let egui_resp = ui
+            .scope_builder(self.ui_builder.into(), |ui| {
+                self.contents.ui(ui, responses, input.clone());
+            })
+            .response;
+        Response::new(id, egui_resp, input)
     }
 }
 

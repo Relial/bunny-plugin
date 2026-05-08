@@ -87,17 +87,18 @@ impl UiContainer for CollapsingHeaderComponent<'_> {
         ui: &mut Ui,
         responses: &mut RHashMap<Id, Response, RandomState>,
         input: RArc<PointerState>,
-    ) -> egui::Response {
+        id: Id,
+    ) -> Response {
         let header = egui::CollapsingHeader::new(self.collapsing_header.text)
             .default_open(self.collapsing_header.default_open)
             .open(self.collapsing_header.open.into())
             .show_background(self.collapsing_header.show_background);
         let resp = if self.collapsing_header.indented {
-            header.show(ui, |ui| self.contents.ui(ui, responses, input))
+            header.show(ui, |ui| self.contents.ui(ui, responses, input.clone()))
         } else {
-            header.show_unindented(ui, |ui| self.contents.ui(ui, responses, input))
+            header.show_unindented(ui, |ui| self.contents.ui(ui, responses, input.clone()))
         };
-        resp.header_response
+        Response::new(id, resp.header_response, input)
     }
 }
 

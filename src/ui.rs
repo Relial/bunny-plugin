@@ -1,17 +1,14 @@
-use std::hash::Hash;
-
 use abi_stable::{
     external_types::RRwLock,
     std_types::{RArc, RHashMap, RVec, Tuple2},
 };
-use egui::{Color32, Rect, Ui, Vec2};
+use egui::{Color32, Rect, Sense, Ui, Vec2};
 use rapidhash::fast::RandomState;
 
 use crate::{
     align::Align,
     containers::{
-        allocate_ui::AllocateUi, collapsing_header::CollapsingHeader, grid::Grid,
-        scope_builder::ScopeBuilder,
+        allocate_ui::AllocateUi, collapsing_header::CollapsingHeader, scope_builder::ScopeBuilder,
     },
     elements::{Component, Container, Id, MiscComponent, UiContainer, Widget},
     input::PointerState,
@@ -21,7 +18,9 @@ use crate::{
     response::{InnerResponse, Response},
     ui_builder::UiBuilder,
     widget_text::{RichText, WidgetText},
-    widgets::{button::Button, checkbox::CheckBox, label::Label, separator::Separator},
+    widgets::{
+        button::Button, checkbox::CheckBox, interact::Interact, label::Label, separator::Separator,
+    },
 };
 
 #[repr(C)]
@@ -43,10 +42,9 @@ impl<'a> BunnyUi<'a> {
         new_responses: &mut RHashMap<Id, Response, RandomState>,
         new_input: RArc<PointerState>,
     ) {
-        for component in self.components {
-            let egui_resp = component.1.ui(ui, new_responses, new_input.clone());
-            let resp = Response::new(component.0, egui_resp, new_input.clone());
-            new_responses.insert(component.0, resp);
+        for Tuple2(id, component) in self.components {
+            let response = component.ui(ui, new_responses, new_input.clone(), id);
+            new_responses.insert(id, response);
         }
     }
 
@@ -93,7 +91,7 @@ impl<'a> BunnyUi<'a> {
     pub fn scope_builder<R>(
         &mut self,
         ui_builder: UiBuilder,
-        add_contents: impl FnOnce(&mut BunnyUi) -> R,
+        add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
     ) -> InnerResponse<R> {
         let mut new = self.new_child(ui_builder.layout.into());
         let ret = add_contents(&mut new);
@@ -126,9 +124,17 @@ impl<'a> BunnyUi<'a> {
     ) -> InnerResponse<R> {
         let mut new = self.new_child(Some(layout));
         let ret = add_contents(&mut new);
-        let allocate = AllocateUi::new(desired_size.into(), Some(layout), new);
+        let allocate = AllocateUi::new(desired_size.into(), layout, new);
         let response = self.add_component(Container::AllocateUi(allocate));
         InnerResponse::new(ret, response)
+    }
+
+    pub fn allocate_ui_at_rect<R>(
+        &mut self,
+        max_rect: Rect,
+        add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
+    ) -> InnerResponse<R> {
+        self.scope_builder(UiBuilder::new().max_rect(max_rect), add_contents)
     }
 
     pub fn add_sized(
@@ -301,5 +307,9 @@ impl<'a> BunnyUi<'a> {
 
     pub fn max_rect(&self) -> Rect {
         self.max_rect
+    }
+
+    pub fn interact(&mut self, rect: Rect, sense: Sense) -> Response {
+        self.add(Interact::new(rect, sense))
     }
 }

@@ -1,6 +1,5 @@
 use abi_stable::std_types::{
     RArc, RHashMap,
-    ROption::{self, RSome},
 };
 use egui::{Ui, Vec2};
 use rapidhash::fast::RandomState;
@@ -8,6 +7,7 @@ use rapidhash::fast::RandomState;
 use crate::{
     elements::{Container, Id, UiContainer},
     input::PointerState,
+    layout::Layout,
     response::Response,
     ui::BunnyUi,
 };
@@ -16,15 +16,15 @@ use crate::{
 pub struct AllocateUi<'a> {
     contents: BunnyUi<'a>,
     desired_size: Vec2,
-    layout: ROption<crate::layout::Layout>,
+    layout: Layout,
 }
 
 impl<'a> AllocateUi<'a> {
-    pub fn new(desired_size: Vec2, layout: Option<crate::layout::Layout>, ui: BunnyUi<'a>) -> Self {
+    pub fn new(desired_size: Vec2, layout: Layout, ui: BunnyUi<'a>) -> Self {
         Self {
             contents: ui,
             desired_size,
-            layout: layout.into(),
+            layout,
         }
     }
 }
@@ -35,18 +35,13 @@ impl UiContainer for AllocateUi<'_> {
         ui: &mut Ui,
         responses: &mut RHashMap<Id, Response, RandomState>,
         input: RArc<PointerState>,
-    ) -> egui::Response {
-        if let RSome(layout) = self.layout {
-            ui.allocate_ui_with_layout(self.desired_size, layout.into(), |ui| {
-                self.contents.ui(ui, responses, input)
-            })
-            .response
-        } else {
-            ui.allocate_ui(self.desired_size, |ui| {
-                self.contents.ui(ui, responses, input)
-            })
-            .response
-        }
+        id: Id,
+    ) -> Response {
+        let egui_resp = ui.allocate_ui_with_layout(self.desired_size, self.layout.into(), |ui| {
+            self.contents.ui(ui, responses, input.clone())
+        })
+        .response;
+        Response::new(id, egui_resp, input)
     }
 }
 

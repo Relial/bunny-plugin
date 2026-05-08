@@ -102,7 +102,8 @@ impl UiContainer for GridComponent<'_> {
         ui: &mut Ui,
         responses: &mut RHashMap<Id, Response, RandomState>,
         input: RArc<PointerState>,
-    ) -> egui::Response {
+        id: Id,
+    ) -> Response {
         let mut grid = egui::Grid::new(self.grid.id)
             .max_col_width(self.grid.max_col_width)
             .striped(self.grid.striped);
@@ -119,10 +120,12 @@ impl UiContainer for GridComponent<'_> {
             grid = grid.spacing(spacing);
         }
 
-        grid.show(ui, |ui| {
-            self.contents.ui(ui, responses, input);
-        })
-        .response
+        let egui_resp = grid
+            .show(ui, |ui| {
+                self.contents.ui(ui, responses, input.clone());
+            })
+            .response;
+        Response::new(id, egui_resp, input)
     }
 }
 
