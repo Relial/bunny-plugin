@@ -9,14 +9,16 @@ use rapidhash::fast::RandomState;
 
 use crate::{
     containers::{
-        allocate_ui::AllocateUi, collapsing_header::CollapsingHeaderComponent, grid::GridComponent,
-        scope_builder::ScopeBuilder, window::WindowComponent,
+        allocate_ui::AllocateUi, collapsing_header::CollapsingHeaderComponent,
+        combo_box::ComboBoxComponent, grid::GridComponent, scope_builder::ScopeBuilder,
+        window::WindowComponent,
     },
     input::PointerState,
     response::Response,
     widgets::{
         button::Button, checkbox::CheckBox, drag_value::DragValue, image::Image,
-        interact::Interact, label::Label, separator::Separator, slider::Slider,
+        interact::Interact, label::Label, link::Link, progress_bar::ProgressBar,
+        radio_button::RadioButton, separator::Separator, slider::Slider, spinner::Spinner,
     },
 };
 
@@ -72,6 +74,7 @@ pub enum Container<'a> {
     AllocateUi(AllocateUi<'a>),
     Grid(GridComponent<'a>),
     Window(WindowComponent<'a>),
+    ComboBox(ComboBoxComponent<'a>),
 }
 
 impl UiContainer for Container<'_> {
@@ -90,6 +93,9 @@ impl UiContainer for Container<'_> {
             Container::AllocateUi(allocate_ui) => allocate_ui.ui(ui, responses, input, id),
             Container::Grid(grid) => grid.ui(ui, responses, input, id),
             Container::Window(window) => window.ui(ui, responses, input, id),
+            Container::ComboBox(combo_box_component) => {
+                combo_box_component.ui(ui, responses, input, id)
+            }
         }
     }
 }
@@ -104,6 +110,10 @@ pub enum Widget<'a> {
     Separator(Separator),
     Image(RBox<Image<'a>>),
     Interact(Interact),
+    Link(Link),
+    ProgressBar(ProgressBar),
+    RadioButton(RadioButton),
+    Spinner(Spinner),
 }
 
 impl egui::Widget for Widget<'_> {
@@ -117,6 +127,10 @@ impl egui::Widget for Widget<'_> {
             Widget::Separator(separator) => separator.ui(ui),
             Widget::Image(image) => RBox::into_inner(image).ui(ui),
             Widget::Interact(interact) => interact.ui(ui),
+            Widget::Link(link) => link.ui(ui),
+            Widget::ProgressBar(progress_bar) => progress_bar.ui(ui),
+            Widget::RadioButton(radio_button) => radio_button.ui(ui),
+            Widget::Spinner(spinner) => spinner.ui(ui),
         }
     }
 }

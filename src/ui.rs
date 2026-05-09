@@ -19,7 +19,8 @@ use crate::{
     ui_builder::UiBuilder,
     widget_text::{RichText, WidgetText},
     widgets::{
-        button::Button, checkbox::CheckBox, interact::Interact, label::Label, separator::Separator,
+        button::Button, checkbox::CheckBox, interact::Interact, label::Label, link::Link,
+        radio_button::RadioButton, separator::Separator, spinner::Spinner,
     },
 };
 
@@ -322,6 +323,20 @@ impl<'a> BunnyUi<'a> {
         self.add(Button::selectable(selected, text))
     }
 
+    pub fn selectable_value<Value: PartialEq>(
+        &mut self,
+        current_value: &mut Value,
+        selected_value: Value,
+        text: impl Into<WidgetText>,
+    ) -> Response {
+        let mut response = self.selectable_label(*current_value == selected_value, text);
+        if response.clicked() && *current_value != selected_value {
+            *current_value = selected_value;
+            response.mark_changed();
+        }
+        response
+    }
+
     pub fn separator(&mut self) -> Response {
         self.add(Separator::default())
     }
@@ -348,5 +363,21 @@ impl<'a> BunnyUi<'a> {
 
     pub fn interact(&mut self, rect: Rect, sense: Sense) -> Response {
         self.add(Interact::new(rect, sense))
+    }
+
+    pub fn link(&mut self, text: impl Into<WidgetText>) -> Response {
+        self.add(Link::new(text))
+    }
+
+    pub fn radio(&mut self, selected: bool, text: impl Into<WidgetText>) -> Response {
+        self.add(RadioButton::new(selected, text))
+    }
+
+    pub fn painter_at(&self, rect: Rect) -> Painter<'a> {
+        self.painter().with_clip_rect(rect)
+    }
+
+    pub fn spinner(&mut self) -> Response {
+        self.add(Spinner::new())
     }
 }

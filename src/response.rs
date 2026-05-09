@@ -113,6 +113,11 @@ impl Response {
     pub fn changed(&self) -> bool {
         self.flags.contains(Flags::CHANGED)
     }
+
+    #[inline(always)]
+    pub fn mark_changed(&mut self) {
+        self.flags.set(Flags::CHANGED, true);
+    }
 }
 
 impl Default for Response {

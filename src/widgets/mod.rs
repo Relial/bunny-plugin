@@ -6,3 +6,7 @@ pub mod label;
 pub mod separator;
 pub mod slider;
 pub mod interact;
+pub mod link;
+pub mod progress_bar;
+pub mod radio_button;
+pub mod spinner;
