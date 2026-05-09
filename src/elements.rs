@@ -54,7 +54,7 @@ impl Id {
 }
 
 pub trait UiComponent {
-    fn ui(self, ui: &mut Ui, id: Id) -> Response;
+    fn ui(self, ui: &mut Ui, input: RArc<PointerState>, id: Id) -> Response;
 }
 
 pub trait UiContainer {
@@ -144,7 +144,7 @@ pub enum MiscComponent {
 }
 
 impl UiComponent for MiscComponent {
-    fn ui(self, ui: &mut Ui, id: Id) -> Response {
+    fn ui(self, ui: &mut Ui, input: RArc<PointerState>, id: Id) -> Response {
         match self {
             MiscComponent::Space(space) => {
                 ui.add_space(space);
@@ -160,7 +160,7 @@ impl UiComponent for MiscComponent {
             }
             MiscComponent::AllocateSpace(size) => {
                 let (_, rect) = ui.allocate_space(size);
-                Response::rect_only(id, rect)
+                Response::rect_only(id, rect, input)
             }
         }
     }
@@ -189,7 +189,7 @@ impl UiContainer for Component<'_> {
                 let egui_resp = widget.ui(ui);
                 Response::new(id, egui_resp, input)
             }
-            Component::MiscComponent(misc_component) => misc_component.ui(ui, id),
+            Component::MiscComponent(misc_component) => misc_component.ui(ui, input, id),
         }
     }
 }

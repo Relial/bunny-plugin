@@ -26,12 +26,13 @@ impl Response {
         }
     }
 
-    pub fn rect_only(id: Id, rect: Rect) -> Self {
+    pub fn rect_only(id: Id, rect: Rect, input: RArc<PointerState>) -> Self {
         Self {
             id,
             rect,
             interact_rect: rect,
-            ..Default::default()
+            flags: Flags::empty(),
+            input,
         }
     }
 
