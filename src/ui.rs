@@ -31,7 +31,7 @@ pub struct BunnyUi<'a> {
     pub layout: Layout,
     last_frame_responses: RArc<RHashMap<Id, Response, RandomState>>,
     input: RArc<PointerState>,
-    max_rect: Rect,
+    available_rect: Rect,
     pixels_per_point: f32,
 }
 
@@ -53,19 +53,35 @@ impl<'a> BunnyUi<'a> {
         last_frame_responses: RArc<RHashMap<Id, Response, RandomState>>,
         last_frame_input: RArc<PointerState>,
         paint_list: RArc<RRwLock<PaintList<'a>>>,
-        max_rect: Rect,
+        available_rect: Rect,
         pixels_per_point: f32,
     ) -> Self {
         Self {
             components: RVec::new(),
             next_salt: initial_id.value(),
-            painter: Painter::new(paint_list, max_rect, pixels_per_point),
+            painter: Painter::new(paint_list, available_rect, pixels_per_point),
             layout: Layout::default(),
             last_frame_responses,
             input: last_frame_input,
-            max_rect,
+            available_rect,
             pixels_per_point,
         }
+    }
+
+    pub fn available_size(&self) -> Vec2 {
+        self.available_rect.size()
+    }
+
+    pub fn available_width(&self) -> f32 {
+        self.available_rect.width()
+    }
+
+    pub fn available_height(&self) -> f32 {
+        self.available_rect.height()
+    }
+
+    pub fn available_rect(&self) -> Rect {
+        self.available_rect
     }
 
     pub fn new_child(&mut self, layout: Option<Layout>) -> Self {
@@ -79,7 +95,7 @@ impl<'a> BunnyUi<'a> {
             layout: layout.unwrap_or(self.layout),
             last_frame_responses: self.last_frame_responses.clone(),
             input: self.input.clone(),
-            max_rect: self.max_rect,
+            available_rect: self.available_rect,
             pixels_per_point: self.pixels_per_point,
         }
     }
@@ -153,7 +169,7 @@ impl<'a> BunnyUi<'a> {
         sense: Sense,
     ) -> (Response, Painter<'a>) {
         let response = self.allocate_response(desired_size, sense);
-        let clip_rect = self.max_rect.intersect(response.rect);
+        let clip_rect = self.available_rect.intersect(response.rect);
         let painter = self.painter().with_clip_rect(clip_rect);
         (response, painter)
     }
@@ -327,7 +343,7 @@ impl<'a> BunnyUi<'a> {
     }
 
     pub fn max_rect(&self) -> Rect {
-        self.max_rect
+        self.available_rect
     }
 
     pub fn interact(&mut self, rect: Rect, sense: Sense) -> Response {

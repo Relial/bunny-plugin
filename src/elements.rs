@@ -130,7 +130,7 @@ pub enum MiscComponent {
 }
 
 impl UiComponent for MiscComponent {
-    fn ui(self, ui: &mut Ui, _id: Id) -> Response {
+    fn ui(self, ui: &mut Ui, id: Id) -> Response {
         match self {
             MiscComponent::Space(space) => {
                 ui.add_space(space);
@@ -146,8 +146,8 @@ impl UiComponent for MiscComponent {
             }
             MiscComponent::AllocateSpace(size) => {
                 let (_, rect) = ui.allocate_space(size);
-                Response::rect_only(rect)
-            },
+                Response::rect_only(id, rect)
+            }
         }
     }
 }

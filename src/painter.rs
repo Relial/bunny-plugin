@@ -17,9 +17,7 @@ use crate::{
         corner_radius::CornerRadius,
         paintlist::{ClippedShape, PaintList, ShapeIdx},
         shape_transform::adjust_colors,
-        shapes::{
-            circle_shape::CircleShape, rect_shape::RectShape, shape::Shape,
-        },
+        shapes::{circle_shape::CircleShape, rect_shape::RectShape, shape::Shape},
         stroke::{PathStroke, Stroke, StrokeKind},
         text::{
             fonts::FontId,
@@ -131,6 +129,8 @@ impl<'a> Painter<'a> {
                 self.transform_shape(&mut shape);
                 shape
             });
+            self.paint_list(|l| l.extend(self.clip_rect, shapes))
+        } else {
             self.paint_list(|l| l.extend(self.clip_rect, shapes))
         }
     }
