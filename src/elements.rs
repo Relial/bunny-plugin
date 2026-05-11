@@ -1,17 +1,12 @@
-use std::{
-    hash::{BuildHasher, Hash, Hasher},
-    num::NonZeroU64,
-};
-
 use abi_stable::std_types::{RArc, RBox, RHashMap};
-use egui::{Ui, Vec2, Widget as _};
+use egui::{Id, Ui, Vec2, Widget as _};
 use rapidhash::fast::RandomState;
 
 use crate::{
     containers::{
         allocate_ui::AllocateUi, collapsing_header::CollapsingHeaderComponent,
-        combo_box::ComboBoxComponent, grid::GridComponent, scope_builder::ScopeBuilder,
-        window::WindowComponent,
+        combo_box::ComboBoxComponent, grid::GridComponent, popup::PopupComponent,
+        scope_builder::ScopeBuilder, window::WindowComponent,
     },
     input::PointerState,
     response::Response,
@@ -21,37 +16,6 @@ use crate::{
         radio_button::RadioButton, separator::Separator, slider::Slider, spinner::Spinner,
     },
 };
-
-#[repr(C)]
-#[derive(Clone, Copy, Hash, Eq, PartialEq)]
-pub struct Id(NonZeroU64);
-
-impl Id {
-    pub const NULL: Self = Self(NonZeroU64::MAX);
-
-    pub const fn from_hash(hash: u64) -> Self {
-        if let Some(nonzero) = NonZeroU64::new(hash) {
-            Self(nonzero)
-        } else {
-            Self(NonZeroU64::MIN)
-        }
-    }
-
-    pub fn new(source: impl Hash) -> Self {
-        Self::from_hash(rapidhash::fast::GlobalState::new().hash_one(source))
-    }
-
-    pub fn with(self, child: impl Hash) -> Self {
-        let mut hasher = rapidhash::fast::GlobalState::new().build_hasher();
-        hasher.write_u64(self.0.get());
-        child.hash(&mut hasher);
-        Self::from_hash(hasher.finish())
-    }
-
-    pub fn value(&self) -> u64 {
-        self.0.get()
-    }
-}
 
 pub trait UiComponent {
     fn ui(self, ui: &mut Ui, input: RArc<PointerState>, id: Id) -> Response;
@@ -75,6 +39,7 @@ pub enum Container<'a> {
     Grid(GridComponent<'a>),
     Window(WindowComponent<'a>),
     ComboBox(ComboBoxComponent<'a>),
+    Popup(PopupComponent<'a>),
 }
 
 impl UiContainer for Container<'_> {
@@ -96,6 +61,7 @@ impl UiContainer for Container<'_> {
             Container::ComboBox(combo_box_component) => {
                 combo_box_component.ui(ui, responses, input, id)
             }
+            Container::Popup(popup_component) => popup_component.ui(ui, responses, input, id),
         }
     }
 }
