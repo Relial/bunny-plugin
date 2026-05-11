@@ -2,7 +2,7 @@ use abi_stable::{
     external_types::RRwLock,
     std_types::{RArc, RHashMap, RVec, Tuple2},
 };
-use egui::{Color32, Rect, Sense, Ui, Vec2};
+use egui::{Color32, Id, Rect, Sense, Ui, Vec2};
 use rapidhash::fast::RandomState;
 
 use crate::{
@@ -10,7 +10,7 @@ use crate::{
     containers::{
         allocate_ui::AllocateUi, collapsing_header::CollapsingHeader, scope_builder::ScopeBuilder,
     },
-    elements::{Component, Container, Id, MiscComponent, UiContainer, Widget},
+    elements::{Component, Container, MiscComponent, UiContainer, Widget},
     input::PointerState,
     layout::Layout,
     paint::paintlist::PaintList,

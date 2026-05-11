@@ -3,14 +3,14 @@ use abi_stable::std_types::{
     ROption::{self, RNone, RSome},
     RString,
 };
-use egui::{Color32, Pos2, Rect, Vec2, vec2};
+use egui::{Color32, Id, Pos2, Rect, Ui, Vec2, vec2};
 use rapidhash::fast::RandomState;
 
 use crate::{
     align::Align2,
     area::Area,
     containers::scroll_area::{ScrollArea, ScrollBarVisibility, ScrollSource},
-    elements::{Container, Id, UiContainer},
+    elements::{Container, UiContainer},
     frame::Frame,
     input::PointerState,
     layout::Layout,
@@ -42,6 +42,7 @@ impl TitleBar {
 
 #[repr(C)]
 pub struct Window {
+    id: Id,
     open: ROption<*mut bool>,
     title: ROption<RString>,
     title_bar: bool,
@@ -52,9 +53,10 @@ pub struct Window {
     scroll: ScrollArea,
 }
 
-impl Default for Window {
-    fn default() -> Self {
+impl Window {
+    pub fn new(id: Id) -> Self {
         Self {
+            id,
             open: RNone,
             title: RNone,
             title_bar: false,
@@ -71,12 +73,6 @@ impl Default for Window {
             scroll: ScrollArea::neither().auto_shrink(false),
             default_open: true,
         }
-    }
-}
-
-impl Window {
-    pub fn new() -> Self {
-        Default::default()
     }
 
     #[inline]
@@ -318,7 +314,7 @@ pub struct WindowComponent<'a> {
 }
 
 impl WindowComponent<'_> {
-    fn ui_title_bar(&mut self, ui: &mut egui::Ui) {
+    fn ui_title_bar(&mut self, ui: &mut Ui) {
         let title_bar_height = 24.0;
         let rect = {
             let mut rect = ui.max_rect();
@@ -327,7 +323,7 @@ impl WindowComponent<'_> {
         };
         let painter = ui.painter();
         if let RSome(open) = self.window.open {
-            let id = egui::Id::new("close button");
+            let id = self.window.id.with("close button");
             let widget_state = ui
                 .read_response(id)
                 .map(|r| r.widget_state())
@@ -373,6 +369,7 @@ impl UiContainer for WindowComponent<'_> {
         id: Id,
     ) -> Response {
         let mut window = egui::Window::new("")
+            .id(self.window.id)
             .title_bar(false)
             .enabled(self.window.area.enabled)
             .interactable(self.window.area.interactable)
@@ -414,7 +411,7 @@ impl UiContainer for WindowComponent<'_> {
         if let Some(inner) = inner {
             Response::new(id, inner.response, input)
         } else {
-            Response::default()
+            Response::empty(id, input)
         }
     }
 }

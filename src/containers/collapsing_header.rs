@@ -1,12 +1,14 @@
+use std::hash::Hash;
+
 use abi_stable::std_types::{
     RArc, RHashMap,
-    ROption::{self, RNone},
+    ROption::{self, RNone, RSome},
 };
-use egui::Ui;
+use egui::{Id, Ui};
 use rapidhash::fast::RandomState;
 
 use crate::{
-    elements::{Container, Id, UiContainer},
+    elements::{Container, UiContainer},
     input::PointerState,
     layout::Layout,
     response::{InnerResponse, Response},
@@ -17,6 +19,7 @@ use crate::{
 #[repr(C)]
 pub struct CollapsingHeader {
     text: WidgetText,
+    id: ROption<Id>,
     default_open: bool,
     open: ROption<bool>,
     show_background: bool,
@@ -28,6 +31,7 @@ impl CollapsingHeader {
         let text = text.into();
         Self {
             text,
+            id: RNone,
             default_open: false,
             open: RNone,
             show_background: false,
@@ -44,6 +48,12 @@ impl CollapsingHeader {
     #[inline]
     pub fn open(mut self, open: Option<bool>) -> Self {
         self.open = open.into();
+        self
+    }
+
+    #[inline]
+    pub fn id_salt(mut self, id_salt: impl Hash) -> Self {
+        self.id = RSome(Id::new(id_salt));
         self
     }
 
@@ -89,10 +99,14 @@ impl UiContainer for CollapsingHeaderComponent<'_> {
         input: RArc<PointerState>,
         id: Id,
     ) -> Response {
-        let header = egui::CollapsingHeader::new(self.collapsing_header.text)
+        let mut header = egui::CollapsingHeader::new(self.collapsing_header.text)
+            .id_salt(self.collapsing_header.id)
             .default_open(self.collapsing_header.default_open)
             .open(self.collapsing_header.open.into())
             .show_background(self.collapsing_header.show_background);
+        if let RSome(id) = self.collapsing_header.id {
+            header = header.id_salt(id);
+        }
         let resp = if self.collapsing_header.indented {
             header.show(ui, |ui| self.contents.ui(ui, responses, input.clone()))
         } else {

@@ -114,7 +114,7 @@ impl Default for PointerState {
             latest_pos: RNone,
             interact_pos: RNone,
             down: Default::default(),
-            pointer_events: rvec![],
+            pointer_events: RVec::new(),
         }
     }
 }

@@ -4,11 +4,11 @@ use abi_stable::std_types::{
     RHashMap,
     ROption::{self, RNone, RSome},
 };
-use egui::Ui;
+use egui::{Id, Ui};
 
 use crate::{
     containers::popup::PopupCloseBehavior,
-    elements::{Container, Id, UiContainer},
+    elements::{Container, UiContainer},
     layout::Layout,
     paint::text::text_layout_types::TextWrapMode,
     response::{InnerResponse, Response},
@@ -18,7 +18,7 @@ use crate::{
 
 #[repr(C)]
 pub struct ComboBox {
-    id_salt: Id,
+    id: Id,
     label: ROption<WidgetText>,
     selected_text: WidgetText,
     width: ROption<f32>,
@@ -30,7 +30,7 @@ pub struct ComboBox {
 impl ComboBox {
     pub fn new(id_salt: impl Hash, label: impl Into<WidgetText>) -> Self {
         Self {
-            id_salt: Id::new(id_salt),
+            id: Id::new(id_salt),
             label: RSome(label.into()),
             selected_text: Default::default(),
             width: RNone,
@@ -42,7 +42,7 @@ impl ComboBox {
 
     pub fn from_id_salt(id_salt: impl Hash) -> Self {
         Self {
-            id_salt: Id::new(id_salt),
+            id: Id::new(id_salt),
             label: RNone,
             selected_text: Default::default(),
             width: RNone,
@@ -124,9 +124,9 @@ impl UiContainer for ComboBoxComponent<'_> {
         id: Id,
     ) -> Response {
         let mut combo_box = if let RSome(label) = self.combo_box.label {
-            egui::ComboBox::new(self.combo_box.id_salt, label)
+            egui::ComboBox::new(self.combo_box.id, label)
         } else {
-            egui::ComboBox::from_id_salt(self.combo_box.id_salt)
+            egui::ComboBox::from_id_salt(self.combo_box.id)
                 .selected_text(self.combo_box.selected_text)
         };
         if let RSome(width) = self.combo_box.width {

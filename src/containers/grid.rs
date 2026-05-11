@@ -4,11 +4,11 @@ use abi_stable::std_types::{
     RArc, RHashMap,
     ROption::{self, RNone, RSome},
 };
-use egui::{Ui, Vec2};
+use egui::{Id, Ui, Vec2};
 use rapidhash::fast::RandomState;
 
 use crate::{
-    elements::{Container, Id, UiContainer},
+    elements::{Container, UiContainer},
     input::PointerState,
     layout::Layout,
     response::{InnerResponse, Response},
