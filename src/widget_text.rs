@@ -1,7 +1,12 @@
 use std::{borrow::Cow, sync::Arc};
 
-use abi_stable::std_types::RString;
+use abi_stable::std_types::{
+    ROption::{self, RSome},
+    RString,
+};
 use egui::Color32;
+
+use crate::style::TextStyle;
 
 #[repr(C)]
 #[derive(Clone)]
@@ -59,10 +64,10 @@ impl From<RichText> for WidgetText {
 #[derive(Default, Clone)]
 pub struct RichText {
     text: RString,
-    size: Option<f32>,
-    text_style: Option<TextStyle>,
+    size: ROption<f32>,
+    text_style: ROption<TextStyle>,
     background_color: Color32,
-    text_color: Option<Color32>,
+    text_color: ROption<Color32>,
     code: bool,
     strong: bool,
     weak: bool,
@@ -85,12 +90,12 @@ impl RichText {
     }
 
     pub fn size(mut self, size: f32) -> Self {
-        self.size = Some(size);
+        self.size = RSome(size);
         self
     }
 
     pub fn text_style(mut self, text_style: TextStyle) -> Self {
-        self.text_style = Some(text_style);
+        self.text_style = RSome(text_style);
         self
     }
 
@@ -151,7 +156,7 @@ impl RichText {
     }
 
     pub fn color(mut self, color: impl Into<Color32>) -> Self {
-        self.text_color = Some(color.into());
+        self.text_color = RSome(color.into());
         self
     }
 }
@@ -186,28 +191,6 @@ impl From<Cow<'_, str>> for RichText {
     }
 }
 
-#[repr(C)]
-#[derive(Clone, Copy)]
-pub enum TextStyle {
-    Small,
-    Body,
-    Monospace,
-    Button,
-    Heading,
-}
-
-impl From<TextStyle> for egui::TextStyle {
-    fn from(value: TextStyle) -> Self {
-        match value {
-            TextStyle::Small => egui::TextStyle::Small,
-            TextStyle::Body => egui::TextStyle::Body,
-            TextStyle::Monospace => egui::TextStyle::Monospace,
-            TextStyle::Button => egui::TextStyle::Button,
-            TextStyle::Heading => egui::TextStyle::Heading,
-        }
-    }
-}
-
 impl From<WidgetText> for egui::WidgetText {
     fn from(value: WidgetText) -> Self {
         match value {
@@ -215,13 +198,13 @@ impl From<WidgetText> for egui::WidgetText {
             WidgetText::RichText(rich_text) => {
                 let mut new = egui::RichText::new(rich_text.text)
                     .background_color(rich_text.background_color);
-                if let Some(size) = rich_text.size {
+                if let RSome(size) = rich_text.size {
                     new = new.size(size);
                 }
-                if let Some(text_style) = rich_text.text_style {
+                if let RSome(text_style) = rich_text.text_style {
                     new = new.text_style(text_style.into());
                 }
-                if let Some(text_color) = rich_text.text_color {
+                if let RSome(text_color) = rich_text.text_color {
                     new = new.color(text_color);
                 }
                 if rich_text.code {

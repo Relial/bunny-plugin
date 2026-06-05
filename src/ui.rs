@@ -16,6 +16,7 @@ use crate::{
     paint::paintlist::PaintList,
     painter::Painter,
     response::{InnerResponse, Response},
+    style::{Interaction, Spacing, Style, Visuals},
     ui_builder::UiBuilder,
     widget_text::{RichText, WidgetText},
     widgets::{
@@ -34,6 +35,8 @@ pub struct BunnyUi<'a> {
     input: RArc<PointerState>,
     available_rect: Rect,
     pixels_per_point: f32,
+    style: RArc<Style>,
+    opacity_factor: f32,
 }
 
 impl<'a> BunnyUi<'a> {
@@ -43,6 +46,8 @@ impl<'a> BunnyUi<'a> {
         new_responses: &mut RHashMap<Id, Response, RandomState>,
         new_input: RArc<PointerState>,
     ) {
+        self.style.to_egui(ui.style_mut());
+        ui.set_opacity(self.opacity_factor);
         for Tuple2(id, component) in self.components {
             let response = component.ui(ui, new_responses, new_input.clone(), id);
             new_responses.insert(id, response);
@@ -56,6 +61,7 @@ impl<'a> BunnyUi<'a> {
         paint_list: RArc<RRwLock<PaintList<'a>>>,
         available_rect: Rect,
         pixels_per_point: f32,
+        style: Style,
     ) -> Self {
         Self {
             components: RVec::new(),
@@ -66,6 +72,8 @@ impl<'a> BunnyUi<'a> {
             input: last_frame_input,
             available_rect,
             pixels_per_point,
+            style: RArc::new(style),
+            opacity_factor: 1.0,
         }
     }
 
@@ -89,6 +97,10 @@ impl<'a> BunnyUi<'a> {
         let next_salt = self.next_salt;
         let id = self.next_id();
         self.next_salt = next_salt;
+        let mut style = self.style.clone();
+        if style.changed {
+            RArc::make_mut(&mut style).changed = false;
+        }
         BunnyUi {
             components: RVec::new(),
             next_salt: id.value(),
@@ -98,6 +110,8 @@ impl<'a> BunnyUi<'a> {
             input: self.input.clone(),
             available_rect: self.available_rect,
             pixels_per_point: self.pixels_per_point,
+            style,
+            opacity_factor: self.opacity_factor,
         }
     }
 
@@ -113,7 +127,7 @@ impl<'a> BunnyUi<'a> {
         let mut new = self.new_child(ui_builder.layout.into());
         let ret = add_contents(&mut new);
         let builder = ScopeBuilder::new(ui_builder, new);
-        let response = self.add_component(Container::Scope(builder));
+        let response = self.add_component_auto_id(Container::Scope(builder));
         InnerResponse::new(ret, response)
     }
 
@@ -131,7 +145,8 @@ impl<'a> BunnyUi<'a> {
     }
 
     pub fn allocate_space(&mut self, desired_size: impl Into<Vec2>) -> Rect {
-        let response = self.add_component(MiscComponent::AllocateSpace(desired_size.into()));
+        let response =
+            self.add_component_auto_id(MiscComponent::AllocateSpace(desired_size.into()));
         response.rect
     }
 
@@ -152,7 +167,7 @@ impl<'a> BunnyUi<'a> {
         let mut new = self.new_child(Some(layout));
         let ret = add_contents(&mut new);
         let allocate = AllocateUi::new(desired_size.into(), layout, new);
-        let response = self.add_component(Container::AllocateUi(allocate));
+        let response = self.add_component_auto_id(Container::AllocateUi(allocate));
         InnerResponse::new(ret, response)
     }
 
@@ -181,8 +196,10 @@ impl<'a> BunnyUi<'a> {
         widget: impl Into<Widget<'a>>,
     ) -> Response {
         let layout = Layout::centered_and_justified(self.layout.main_dir);
-        self.allocate_ui_with_layout(max_size, layout, |ui| ui.add_component(widget.into()))
-            .inner
+        self.allocate_ui_with_layout(max_size, layout, |ui| {
+            ui.add_component_auto_id(widget.into())
+        })
+        .inner
     }
 
     fn next_id(&mut self) -> Id {
@@ -191,21 +208,28 @@ impl<'a> BunnyUi<'a> {
         id
     }
 
-    pub(crate) fn add_component(&mut self, component: impl Into<Component<'a>>) -> Response {
+    pub(crate) fn add_component_auto_id(
+        &mut self,
+        component: impl Into<Component<'a>>,
+    ) -> Response {
         let id = self.next_id();
-        self.components.push((id, component.into()).into());
+        self.add_component(id, component);
         self.last_frame_responses
             .get(&id)
             .cloned()
             .unwrap_or_default()
     }
 
+    pub(crate) fn add_component(&mut self, id: Id, component: impl Into<Component<'a>>) {
+        self.components.push((id, component.into()).into());
+    }
+
     pub fn add(&mut self, widget: impl Into<Widget<'a>>) -> Response {
-        self.add_component(widget.into())
+        self.add_component_auto_id(widget.into())
     }
 
     pub fn disable(&mut self) {
-        self.add_component(MiscComponent::Disable);
+        self.add_component_auto_id(MiscComponent::Disable);
     }
 
     pub fn add_enabled_ui<R>(
@@ -342,11 +366,11 @@ impl<'a> BunnyUi<'a> {
     }
 
     pub fn add_space(&mut self, space: f32) {
-        self.add_component(MiscComponent::Space(space));
+        self.add_component_auto_id(MiscComponent::Space(space));
     }
 
     pub fn end_row(&mut self) {
-        self.add_component(MiscComponent::EndRow);
+        self.add_component_auto_id(MiscComponent::EndRow);
     }
 
     pub fn input(&self) -> &PointerState {
@@ -379,5 +403,60 @@ impl<'a> BunnyUi<'a> {
 
     pub fn spinner(&mut self) -> Response {
         self.add(Spinner::new())
+    }
+
+    pub fn response(&self, id: Id) -> Option<&Response> {
+        self.last_frame_responses.get(&id)
+    }
+
+    #[inline]
+    pub fn style(&self) -> &Style {
+        &self.style
+    }
+
+    #[inline]
+    pub fn style_mut(&mut self) -> &mut Style {
+        let style = RArc::make_mut(&mut self.style);
+        style.changed = true;
+        style
+    }
+
+    #[inline]
+    pub fn spacing(&self) -> &Spacing {
+        self.style.spacing()
+    }
+
+    #[inline]
+    pub fn spacing_mut(&mut self) -> &mut Spacing {
+        self.style_mut().spacing_mut()
+    }
+
+    #[inline]
+    pub fn interaction(&self) -> &Interaction {
+        self.style.interaction()
+    }
+
+    #[inline]
+    pub fn interaction_mut(&mut self) -> &mut Interaction {
+        self.style_mut().interaction_mut()
+    }
+
+    #[inline]
+    pub fn visuals(&self) -> &Visuals {
+        self.style.visuals()
+    }
+
+    #[inline]
+    pub fn visuals_mut(&mut self) -> &mut Visuals {
+        self.style_mut().visuals_mut()
+    }
+
+    pub fn set_style(&mut self, style: impl Into<RArc<Style>>) {
+        self.style = style.into()
+    }
+
+    #[inline]
+    pub fn set_opacity(&mut self, opacity: f32) {
+        self.opacity_factor = opacity;
     }
 }

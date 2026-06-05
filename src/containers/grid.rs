@@ -82,7 +82,7 @@ impl Grid {
     ) -> InnerResponse<R> {
         let mut new = ui.new_child(Some(Layout::default()));
         let ret = add_contents(&mut new);
-        let response = ui.add_component(Container::Grid(GridComponent {
+        let response = ui.add_component_auto_id(Container::Grid(GridComponent {
             contents: new,
             grid: self,
         }));

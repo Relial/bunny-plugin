@@ -64,7 +64,7 @@ impl Window {
             frame: RSome(
                 Frame::new()
                     .corner_radius(CornerRadius::ZERO)
-                    .stroke(Stroke::new(1.0, Color32::from_gray(60)))
+                    .stroke(Stroke::new(1.0_f32, Color32::from_gray(60)))
                     .fill(Color32::from_gray(27)),
             ),
             resize: Resize::default()
@@ -299,7 +299,7 @@ impl Window {
     ) -> InnerResponse<R> {
         let mut new = ui.new_child(Some(Layout::default()));
         let ret = add_contents(&mut new);
-        let response = ui.add_component(Container::Window(WindowComponent {
+        let response = ui.add_component_auto_id(Container::Window(WindowComponent {
             contents: new,
             window: self,
         }));

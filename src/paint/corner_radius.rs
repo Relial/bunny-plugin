@@ -45,7 +45,18 @@ impl From<f32> for CornerRadius {
 
 impl From<CornerRadius> for egui::CornerRadius {
     fn from(value: CornerRadius) -> Self {
-        egui::CornerRadius {
+        Self {
+            nw: value.nw,
+            ne: value.ne,
+            sw: value.sw,
+            se: value.se,
+        }
+    }
+}
+
+impl From<egui::CornerRadius> for CornerRadius {
+    fn from(value: egui::CornerRadius) -> Self {
+        Self {
             nw: value.nw,
             ne: value.ne,
             sw: value.sw,

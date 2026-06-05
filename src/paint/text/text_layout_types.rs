@@ -312,6 +312,16 @@ impl From<TextWrapMode> for egui::TextWrapMode {
     }
 }
 
+impl From<egui::TextWrapMode> for TextWrapMode {
+    fn from(value: egui::TextWrapMode) -> Self {
+        match value {
+            egui::TextWrapMode::Extend => Self::Extend,
+            egui::TextWrapMode::Wrap => Self::Wrap,
+            egui::TextWrapMode::Truncate => Self::Truncate,
+        }
+    }
+}
+
 #[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct TextWrapping {

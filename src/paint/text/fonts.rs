@@ -43,6 +43,24 @@ impl From<FontId> for egui::FontId {
     }
 }
 
+impl From<&FontId> for egui::FontId {
+    fn from(value: &FontId) -> Self {
+        Self {
+            size: value.size,
+            family: value.family.clone().into(),
+        }
+    }
+}
+
+impl From<&egui::FontId> for FontId {
+    fn from(value: &egui::FontId) -> Self {
+        Self {
+            size: value.size,
+            family: value.family.clone().into(),
+        }
+    }
+}
+
 #[repr(C)]
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub enum FontFamily {
@@ -58,6 +76,16 @@ impl From<FontFamily> for egui::FontFamily {
             FontFamily::Proportional => Self::Proportional,
             FontFamily::Monospace => Self::Monospace,
             FontFamily::Name(rstring) => Self::Name(rstring.as_str().into()),
+        }
+    }
+}
+
+impl From<egui::FontFamily> for FontFamily {
+    fn from(value: egui::FontFamily) -> Self {
+        match value {
+            egui::FontFamily::Proportional => Self::Proportional,
+            egui::FontFamily::Monospace => Self::Monospace,
+            egui::FontFamily::Name(name) => Self::Name((*name).into()),
         }
     }
 }

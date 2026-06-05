@@ -5,6 +5,16 @@ use tracing::{debug, warn};
 use crate::paint::shapes::shape::Shape;
 
 #[repr(C)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub enum Order {
+    Background,
+    Middle,
+    Foreground,
+    Tooltip,
+    Debug,
+}
+
+#[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct ShapeIdx(pub usize);
 

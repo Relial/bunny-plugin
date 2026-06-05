@@ -1,3 +1,6 @@
+#[unsafe(no_mangle)]
+pub static BUNNY_API_VERSION: u32 = 1;
+
 pub mod align;
 pub mod direction;
 pub mod elements;
@@ -20,6 +23,8 @@ pub mod load;
 pub mod num;
 pub mod widgets;
 pub mod containers;
+pub mod rect_align;
+pub mod style;
 
 pub use egui::epaint::emath;
 pub use egui::epaint::ecolor;

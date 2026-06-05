@@ -6,7 +6,7 @@ use crate::{
     containers::{
         allocate_ui::AllocateUi, collapsing_header::CollapsingHeaderComponent,
         combo_box::ComboBoxComponent, grid::GridComponent, popup::PopupComponent,
-        scope_builder::ScopeBuilder, window::WindowComponent,
+        scope_builder::ScopeBuilder, tooltip::TooltipComponent, window::WindowComponent,
     },
     input::PointerState,
     response::Response,
@@ -40,6 +40,7 @@ pub enum Container<'a> {
     Window(WindowComponent<'a>),
     ComboBox(ComboBoxComponent<'a>),
     Popup(PopupComponent<'a>),
+    Tooltip(TooltipComponent<'a>),
 }
 
 impl UiContainer for Container<'_> {
@@ -62,6 +63,7 @@ impl UiContainer for Container<'_> {
                 combo_box_component.ui(ui, responses, input, id)
             }
             Container::Popup(popup_component) => popup_component.ui(ui, responses, input, id),
+            Container::Tooltip(tooltip_component) => tooltip_component.ui(ui, responses, input, id),
         }
     }
 }

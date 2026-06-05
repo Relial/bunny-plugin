@@ -28,3 +28,14 @@ impl From<Shadow> for egui::Shadow {
         }
     }
 }
+
+impl From<egui::Shadow> for Shadow {
+    fn from(value: egui::Shadow) -> Self {
+        Self {
+            offset: value.offset,
+            blur: value.blur,
+            spread: value.spread,
+            color: value.color,
+        }
+    }
+}

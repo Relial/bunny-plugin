@@ -1,14 +1,19 @@
 use abi_stable::std_types::RArc;
-use egui::Rect;
+use abi_stable::std_types::ROption::RSome;
 use egui::response::Flags;
+use egui::{Id, Rect};
 
-use crate::elements::Id;
+use crate::containers::popup::{Popup, PopupKind};
+use crate::containers::tooltip::Tooltip;
 use crate::input::{PointerButton, PointerState};
+use crate::ui::BunnyUi;
+use crate::widget_text::WidgetText;
 
 #[repr(C)]
 #[derive(Clone)]
 pub struct Response {
     pub id: Id,
+    pub egui_id: Id,
     pub rect: Rect,
     pub interact_rect: Rect,
     pub flags: Flags,
@@ -19,6 +24,7 @@ impl Response {
     pub fn new(id: Id, egui_resp: egui::Response, pointer_state: RArc<PointerState>) -> Self {
         Self {
             id,
+            egui_id: egui_resp.id,
             rect: egui_resp.rect,
             interact_rect: egui_resp.interact_rect,
             flags: egui_resp.flags,
@@ -29,10 +35,19 @@ impl Response {
     pub fn rect_only(id: Id, rect: Rect, input: RArc<PointerState>) -> Self {
         Self {
             id,
+            egui_id: id,
             rect,
             interact_rect: rect,
             flags: Flags::empty(),
             input,
+        }
+    }
+
+    pub fn empty(id: Id, input: RArc<PointerState>) -> Self {
+        Self {
+            id,
+            input,
+            ..Default::default()
         }
     }
 
@@ -54,6 +69,23 @@ impl Response {
     #[inline]
     pub fn middle_clicked(&self) -> bool {
         self.clicked_by(PointerButton::Middle)
+    }
+
+    pub fn clicked_elsewhere(&self) -> bool {
+        let pointer_interact_pos = self.input.interact_pos();
+        let any_click = self.input.any_click();
+
+        if any_click {
+            if self.contains_pointer() || self.hovered() {
+                false
+            } else if let RSome(pos) = pointer_interact_pos {
+                !self.interact_rect.contains(pos)
+            } else {
+                false
+            }
+        } else {
+            false
+        }
     }
 
     #[inline(always)]
@@ -119,12 +151,63 @@ impl Response {
     pub fn mark_changed(&mut self) {
         self.flags.set(Flags::CHANGED, true);
     }
+
+    pub fn on_hover_ui(self, ui: &mut BunnyUi, add_contents: impl FnOnce(&mut BunnyUi)) -> Self {
+        Tooltip::for_enabled(&self).show(ui, add_contents);
+        self
+    }
+
+    pub fn on_disabled_hover_ui(
+        self,
+        ui: &mut BunnyUi,
+        add_contents: impl FnOnce(&mut BunnyUi),
+    ) -> Self {
+        Tooltip::for_disabled(&self).show(ui, add_contents);
+        self
+    }
+
+    pub fn on_hover_ui_at_pointer(
+        self,
+        ui: &mut BunnyUi,
+        add_contents: impl FnOnce(&mut BunnyUi),
+    ) -> Self {
+        Tooltip::for_enabled(&self)
+            .at_pointer()
+            .gap(12.0)
+            .show(ui, add_contents);
+        self
+    }
+
+    pub fn show_tooltip_ui(&self, ui: &mut BunnyUi, add_contents: impl FnOnce(&mut BunnyUi)) {
+        Popup::from_response(self)
+            .kind(PopupKind::Tooltip)
+            .show(ui, add_contents);
+    }
+
+    pub fn show_tooltip_text(&self, ui: &mut BunnyUi, text: impl Into<WidgetText>) {
+        self.show_tooltip_ui(ui, |ui| {
+            ui.label(text);
+        });
+    }
+
+    pub fn on_hover_text(self, ui: &mut BunnyUi, text: impl Into<WidgetText>) -> Self {
+        self.on_hover_ui(ui, |ui| {
+            ui.label(text);
+        })
+    }
+
+    pub fn on_hover_text_at_pointer(self, ui: &mut BunnyUi, text: impl Into<WidgetText>) -> Self {
+        self.on_hover_ui_at_pointer(ui, |ui| {
+            ui.label(text);
+        })
+    }
 }
 
 impl Default for Response {
     fn default() -> Self {
         Self {
             id: Id::NULL,
+            egui_id: Id::NULL,
             rect: Rect::ZERO,
             interact_rect: Rect::ZERO,
             flags: Flags::empty(),

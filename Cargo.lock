@@ -114,6 +114,7 @@ dependencies = [
  "abi_stable",
  "anyhow",
  "egui",
+ "nohash-hasher",
  "rapidhash",
  "tracing",
 ]

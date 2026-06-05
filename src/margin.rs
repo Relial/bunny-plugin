@@ -69,3 +69,14 @@ impl From<Margin> for egui::Margin {
         }
     }
 }
+
+impl From<egui::Margin> for Margin {
+    fn from(value: egui::Margin) -> Self {
+        Self {
+            left: value.left,
+            right: value.right,
+            top: value.top,
+            bottom: value.bottom,
+        }
+    }
+}

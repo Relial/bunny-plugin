@@ -15,9 +15,9 @@ impl Stroke {
         color: Color32::TRANSPARENT,
     };
 
-    pub fn new(width: impl Into<f32>, color: impl Into<Color32>) -> Self {
+    pub fn new(width: f32, color: impl Into<Color32>) -> Self {
         Self {
-            width: width.into(),
+            width,
             color: color.into(),
         }
     }
@@ -35,7 +35,16 @@ where
 
 impl From<Stroke> for egui::Stroke {
     fn from(value: Stroke) -> Self {
-        egui::Stroke {
+        Self {
+            width: value.width,
+            color: value.color,
+        }
+    }
+}
+
+impl From<egui::Stroke> for Stroke {
+    fn from(value: egui::Stroke) -> Self {
+        Self {
             width: value.width,
             color: value.color,
         }

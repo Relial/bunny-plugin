@@ -101,7 +101,7 @@ impl ComboBox {
     ) -> InnerResponse<R> {
         let mut new = ui.new_child(Some(Layout::default()));
         let ret = menu_contents(&mut new);
-        let response = ui.add_component(Container::ComboBox(ComboBoxComponent {
+        let response = ui.add_component_auto_id(Container::ComboBox(ComboBoxComponent {
             contents: new,
             combo_box: self,
         }));

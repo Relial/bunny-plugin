@@ -6,3 +6,4 @@ pub mod allocate_ui;
 pub mod grid;
 pub mod combo_box;
 pub mod popup;
+pub mod tooltip;

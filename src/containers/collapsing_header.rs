@@ -77,10 +77,11 @@ impl CollapsingHeader {
     ) -> InnerResponse<R> {
         let mut new = ui.new_child(Some(Layout::default()));
         let ret = add_contents(&mut new);
-        let response = ui.add_component(Container::CollapsingHeader(CollapsingHeaderComponent {
-            collapsing_header: self,
-            contents: new,
-        }));
+        let response =
+            ui.add_component_auto_id(Container::CollapsingHeader(CollapsingHeaderComponent {
+                collapsing_header: self,
+                contents: new,
+            }));
         InnerResponse::new(ret, response)
     }
 }
