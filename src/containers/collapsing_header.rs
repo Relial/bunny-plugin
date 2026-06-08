@@ -1,7 +1,7 @@
 use std::hash::Hash;
 
 use abi_stable::std_types::{
-    RArc, RHashMap,
+    RHashMap,
     ROption::{self, RNone, RSome},
 };
 use egui::{Id, Ui};
@@ -9,7 +9,7 @@ use rapidhash::fast::RandomState;
 
 use crate::{
     elements::{Container, UiContainer},
-    input::PointerState,
+    input_state::Input,
     layout::Layout,
     response::{InnerResponse, Response},
     ui::BunnyUi,
@@ -97,7 +97,7 @@ impl UiContainer for CollapsingHeaderComponent<'_> {
         self,
         ui: &mut Ui,
         responses: &mut RHashMap<Id, Response, RandomState>,
-        input: RArc<PointerState>,
+        input: Input,
         id: Id,
     ) -> Response {
         let mut header = egui::CollapsingHeader::new(self.collapsing_header.text)

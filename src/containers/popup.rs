@@ -1,5 +1,5 @@
 use abi_stable::std_types::{
-    RArc, RHashMap,
+    RHashMap,
     ROption::{self, RNone, RSome},
 };
 use egui::{Context, Id, Pos2, Rect, Sense, Ui};
@@ -9,7 +9,7 @@ use crate::{
     align::Align,
     elements::{Container, UiContainer},
     frame::Frame,
-    input::PointerState,
+    input_state::Input,
     layout::Layout,
     paint::paintlist::Order,
     rect_align::RectAlign,
@@ -359,14 +359,19 @@ impl<'a> Popup<'a> {
         let response = ui.response(self.id);
         match self.close_behavior {
             PopupCloseBehavior::CloseOnClick => {
-                if ui.input().any_click() {
+                if ui.input(|i| i.pointer.any_click()) {
                     self.click = RSome(PopupClick::default());
                 }
             }
             PopupCloseBehavior::CloseOnClickOutside => {
-                if let RSome(interact_pos) = ui.input().interact_pos()
-                    && let Some(resp) = response
-                    && ui.input().any_click()
+                if let Some(resp) = response
+                    && let RSome(interact_pos) = ui.input(|i| {
+                        if i.pointer.any_click() {
+                            i.pointer.interact_pos()
+                        } else {
+                            RNone
+                        }
+                    })
                 {
                     self.click = RSome(PopupClick {
                         popup_interact_rect: resp.interact_rect,
@@ -457,7 +462,7 @@ impl UiContainer for PopupComponent<'_> {
         self,
         ui: &mut Ui,
         responses: &mut RHashMap<Id, Response, RandomState>,
-        input: RArc<PointerState>,
+        input: Input,
         id: Id,
     ) -> Response {
         let popup = self.popup.egui(ui, id);

@@ -1,10 +1,10 @@
-use abi_stable::std_types::{RArc, RHashMap};
+use abi_stable::std_types::RHashMap;
 use egui::{Id, Ui, Vec2};
 use rapidhash::fast::RandomState;
 
 use crate::{
     elements::{Container, UiContainer},
-    input::PointerState,
+    input_state::Input,
     layout::Layout,
     response::Response,
     ui::BunnyUi,
@@ -32,7 +32,7 @@ impl UiContainer for AllocateUi<'_> {
         self,
         ui: &mut Ui,
         responses: &mut RHashMap<Id, Response, RandomState>,
-        input: RArc<PointerState>,
+        input: Input,
         id: Id,
     ) -> Response {
         let egui_resp = ui

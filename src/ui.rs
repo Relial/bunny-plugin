@@ -11,7 +11,7 @@ use crate::{
         allocate_ui::AllocateUi, collapsing_header::CollapsingHeader, scope_builder::ScopeBuilder,
     },
     elements::{Component, Container, MiscComponent, UiContainer, Widget},
-    input::PointerState,
+    input_state::{Input, InputState},
     layout::Layout,
     paint::paintlist::PaintList,
     painter::Painter,
@@ -32,7 +32,7 @@ pub struct BunnyUi<'a> {
     painter: Painter<'a>,
     pub layout: Layout,
     last_frame_responses: RArc<RHashMap<Id, Response, RandomState>>,
-    input: RArc<PointerState>,
+    input: Input,
     available_rect: Rect,
     pixels_per_point: f32,
     style: RArc<Style>,
@@ -44,12 +44,12 @@ impl<'a> BunnyUi<'a> {
         self,
         ui: &mut Ui,
         new_responses: &mut RHashMap<Id, Response, RandomState>,
-        new_input: RArc<PointerState>,
+        input: Input,
     ) {
         self.style.to_egui(ui.style_mut());
         ui.set_opacity(self.opacity_factor);
         for Tuple2(id, component) in self.components {
-            let response = component.ui(ui, new_responses, new_input.clone(), id);
+            let response = component.ui(ui, new_responses, input.clone(), id);
             new_responses.insert(id, response);
         }
     }
@@ -57,7 +57,7 @@ impl<'a> BunnyUi<'a> {
     pub fn new(
         initial_id: Id,
         last_frame_responses: RArc<RHashMap<Id, Response, RandomState>>,
-        last_frame_input: RArc<PointerState>,
+        input: Input,
         paint_list: RArc<RRwLock<PaintList<'a>>>,
         available_rect: Rect,
         pixels_per_point: f32,
@@ -69,7 +69,7 @@ impl<'a> BunnyUi<'a> {
             painter: Painter::new(paint_list, available_rect, pixels_per_point),
             layout: Layout::default(),
             last_frame_responses,
-            input: last_frame_input,
+            input,
             available_rect,
             pixels_per_point,
             style: RArc::new(style),
@@ -373,8 +373,12 @@ impl<'a> BunnyUi<'a> {
         self.add_component_auto_id(MiscComponent::EndRow);
     }
 
-    pub fn input(&self) -> &PointerState {
-        &self.input
+    pub fn input<R>(&self, reader: impl FnOnce(&InputState) -> R) -> R {
+        self.input.read(reader)
+    }
+
+    pub fn input_mut<R>(&self, writer: impl FnOnce(&mut InputState) -> R) -> R {
+        self.input.write(writer)
     }
 
     pub fn painter(&self) -> &Painter<'a> {

@@ -7,13 +7,7 @@ use abi_stable::std_types::{
 use egui::{Id, Ui};
 
 use crate::{
-    containers::popup::PopupCloseBehavior,
-    elements::{Container, UiContainer},
-    layout::Layout,
-    paint::text::text_layout_types::TextWrapMode,
-    response::{InnerResponse, Response},
-    ui::BunnyUi,
-    widget_text::WidgetText,
+    containers::popup::PopupCloseBehavior, elements::{Container, UiContainer}, input_state::Input, layout::Layout, paint::text::text_layout_types::TextWrapMode, response::{InnerResponse, Response}, ui::BunnyUi, widget_text::WidgetText
 };
 
 #[repr(C)]
@@ -120,7 +114,7 @@ impl UiContainer for ComboBoxComponent<'_> {
         self,
         ui: &mut Ui,
         responses: &mut RHashMap<Id, Response, rapidhash::fast::RandomState>,
-        input: abi_stable::std_types::RArc<crate::input::PointerState>,
+        input: Input,
         id: Id,
     ) -> Response {
         let mut combo_box = if let RSome(label) = self.combo_box.label {

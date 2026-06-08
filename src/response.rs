@@ -1,11 +1,11 @@
-use abi_stable::std_types::RArc;
 use abi_stable::std_types::ROption::RSome;
 use egui::response::Flags;
 use egui::{Id, Rect};
 
 use crate::containers::popup::{Popup, PopupKind};
 use crate::containers::tooltip::Tooltip;
-use crate::input::{PointerButton, PointerState};
+use crate::input::PointerButton;
+use crate::input_state::Input;
 use crate::ui::BunnyUi;
 use crate::widget_text::WidgetText;
 
@@ -17,22 +17,22 @@ pub struct Response {
     pub rect: Rect,
     pub interact_rect: Rect,
     pub flags: Flags,
-    pub input: RArc<PointerState>,
+    pub input: Input,
 }
 
 impl Response {
-    pub fn new(id: Id, egui_resp: egui::Response, pointer_state: RArc<PointerState>) -> Self {
+    pub fn new(id: Id, egui_resp: egui::Response, input: Input) -> Self {
         Self {
             id,
             egui_id: egui_resp.id,
             rect: egui_resp.rect,
             interact_rect: egui_resp.interact_rect,
             flags: egui_resp.flags,
-            input: pointer_state,
+            input,
         }
     }
 
-    pub fn rect_only(id: Id, rect: Rect, input: RArc<PointerState>) -> Self {
+    pub fn rect_only(id: Id, rect: Rect, input: Input) -> Self {
         Self {
             id,
             egui_id: id,
@@ -43,7 +43,7 @@ impl Response {
         }
     }
 
-    pub fn empty(id: Id, input: RArc<PointerState>) -> Self {
+    pub fn empty(id: Id, input: Input) -> Self {
         Self {
             id,
             input,
@@ -58,7 +58,7 @@ impl Response {
 
     #[inline]
     pub fn clicked_by(&self, button: PointerButton) -> bool {
-        self.flags.contains(Flags::CLICKED) && self.input.button_clicked(button)
+        self.flags.contains(Flags::CLICKED) && self.input.read(|i| i.pointer.button_clicked(button))
     }
 
     #[inline]
@@ -72,8 +72,9 @@ impl Response {
     }
 
     pub fn clicked_elsewhere(&self) -> bool {
-        let pointer_interact_pos = self.input.interact_pos();
-        let any_click = self.input.any_click();
+        let (pointer_interact_pos, any_click) = self
+            .input
+            .read(|i| (i.pointer.interact_pos(), i.pointer.any_click()));
 
         if any_click {
             if self.contains_pointer() || self.hovered() {
@@ -115,7 +116,7 @@ impl Response {
 
     #[inline]
     pub fn drag_started_by(&self, button: PointerButton) -> bool {
-        self.drag_started() && self.input.button_down(button)
+        self.drag_started() && self.input.read(|i| i.pointer.button_down(button))
     }
 
     #[inline(always)]
@@ -125,7 +126,7 @@ impl Response {
 
     #[inline]
     pub fn dragged_by(&self, button: PointerButton) -> bool {
-        self.dragged() && self.input.button_down(button)
+        self.dragged() && self.input.read(|i| i.pointer.button_down(button))
     }
 
     #[inline]
@@ -134,7 +135,7 @@ impl Response {
     }
 
     pub fn drag_stopped_by(&self, button: PointerButton) -> bool {
-        self.drag_stopped() && self.input.button_released(button)
+        self.drag_stopped() && self.input.read(|i| i.pointer.button_released(button))
     }
 
     #[inline(always)]
@@ -211,7 +212,7 @@ impl Default for Response {
             rect: Rect::ZERO,
             interact_rect: Rect::ZERO,
             flags: Flags::empty(),
-            input: RArc::new(PointerState::default()),
+            input: Default::default(),
         }
     }
 }

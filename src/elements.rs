@@ -1,4 +1,4 @@
-use abi_stable::std_types::{RArc, RBox, RHashMap};
+use abi_stable::std_types::{RBox, RHashMap};
 use egui::{Id, Ui, Vec2, Widget as _};
 use rapidhash::fast::RandomState;
 
@@ -8,7 +8,7 @@ use crate::{
         combo_box::ComboBoxComponent, grid::GridComponent, popup::PopupComponent,
         scope_builder::ScopeBuilder, tooltip::TooltipComponent, window::WindowComponent,
     },
-    input::PointerState,
+    input_state::Input,
     response::Response,
     widgets::{
         button::Button, checkbox::CheckBox, drag_value::DragValue, image::Image,
@@ -18,7 +18,7 @@ use crate::{
 };
 
 pub trait UiComponent {
-    fn ui(self, ui: &mut Ui, input: RArc<PointerState>, id: Id) -> Response;
+    fn ui(self, ui: &mut Ui, input: Input, id: Id) -> Response;
 }
 
 pub trait UiContainer {
@@ -26,7 +26,7 @@ pub trait UiContainer {
         self,
         ui: &mut Ui,
         responses: &mut RHashMap<Id, Response, RandomState>,
-        input: RArc<PointerState>,
+        input: Input,
         id: Id,
     ) -> Response;
 }
@@ -48,7 +48,7 @@ impl UiContainer for Container<'_> {
         self,
         ui: &mut Ui,
         responses: &mut RHashMap<Id, Response, RandomState>,
-        input: RArc<PointerState>,
+        input: Input,
         id: Id,
     ) -> Response {
         match self {
@@ -112,7 +112,7 @@ pub enum MiscComponent {
 }
 
 impl UiComponent for MiscComponent {
-    fn ui(self, ui: &mut Ui, input: RArc<PointerState>, id: Id) -> Response {
+    fn ui(self, ui: &mut Ui, input: Input, id: Id) -> Response {
         match self {
             MiscComponent::Space(space) => {
                 ui.add_space(space);
@@ -146,7 +146,7 @@ impl UiContainer for Component<'_> {
         self,
         ui: &mut Ui,
         responses: &mut RHashMap<Id, Response, RandomState>,
-        input: RArc<PointerState>,
+        input: Input,
         id: Id,
     ) -> Response {
         match self {
