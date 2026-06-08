@@ -10,3 +10,4 @@ pub mod link;
 pub mod progress_bar;
 pub mod radio_button;
 pub mod spinner;
+pub mod shortcut_button;
