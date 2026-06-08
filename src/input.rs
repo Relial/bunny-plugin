@@ -1,14 +1,14 @@
+use serde::{Deserialize, Serialize};
+
 use crate::key::Key;
 
 #[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
-pub enum Event {
-    Key {
-        key: Key,
-        pressed: bool,
-        repeat: bool,
-        modifiers: Modifiers,
-    },
+pub struct KeyEvent {
+    pub key: Key,
+    pub pressed: bool,
+    pub repeat: bool,
+    pub modifiers: Modifiers,
 }
 
 #[repr(C)]
@@ -34,7 +34,7 @@ impl From<egui::PointerButton> for PointerButton {
 }
 
 #[repr(C)]
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default, Serialize, Deserialize)]
 pub struct Modifiers {
     pub alt: bool,
     pub ctrl: bool,
@@ -130,6 +130,7 @@ impl From<egui::Modifiers> for Modifiers {
 }
 
 #[repr(C)]
+#[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 pub struct KeyboardShortcut {
     pub modifiers: Modifiers,
     pub logical_key: Key,
@@ -165,5 +166,14 @@ impl KeyboardShortcut {
         s += self.logical_key.name();
 
         s
+    }
+}
+
+impl From<egui::KeyboardShortcut> for KeyboardShortcut {
+    fn from(value: egui::KeyboardShortcut) -> Self {
+        Self {
+            modifiers: value.modifiers.into(),
+            logical_key: value.logical_key.into(),
+        }
     }
 }

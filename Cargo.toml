@@ -9,4 +9,5 @@ anyhow = "1.0.102"
 egui = "0.34.1"
 nohash-hasher = "0.2.0"
 rapidhash = { version = "4.4.1", features = ["nightly"] }
+serde = { version = "1.0.228", features = ["derive"] }
 tracing = "0.1.44"

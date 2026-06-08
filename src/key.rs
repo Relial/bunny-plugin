@@ -1,5 +1,7 @@
+use serde::{Deserialize, Serialize};
+
 #[repr(C)]
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub enum Key {
     // ----------------------------------------------
     // Commands:

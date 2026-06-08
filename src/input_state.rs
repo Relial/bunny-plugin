@@ -10,7 +10,7 @@ use abi_stable::{
 use egui::{Pos2, RawInput, Vec2};
 
 use crate::{
-    input::{Event, KeyboardShortcut, Modifiers, PointerButton},
+    input::{KeyEvent, KeyboardShortcut, Modifiers, PointerButton},
     key::Key,
 };
 
@@ -65,7 +65,7 @@ pub struct InputState {
     pub stable_dt: f32,
     pub modifiers: Modifiers,
     pub keys_down: RVec<Key>,
-    pub events: RVec<Event>,
+    pub events: RVec<KeyEvent>,
     options: InputOptions,
 }
 
@@ -107,7 +107,7 @@ impl InputState {
                     modifiers,
                 } = *event
                 {
-                    Some(Event::Key {
+                    Some(KeyEvent {
                         key: key.into(),
                         pressed,
                         repeat,
@@ -125,7 +125,9 @@ impl InputState {
         let mut count = 0usize;
 
         self.events.retain(|event| {
-            let is_match = matches!(event, Event::Key { key, pressed: true, modifiers: event_mods, .. } if *key == logical_key && event_mods.matches_logically(modifiers));
+            let is_match = event.pressed
+                && event.key == logical_key
+                && event.modifiers.matches_logically(modifiers);
             count += is_match as usize;
 
             !is_match
@@ -149,7 +151,8 @@ impl InputState {
     pub fn num_presses(&self, desired_key: Key) -> usize {
         self.events
             .iter()
-            .filter(|event| matches!(event, Event::Key { key, pressed: true, .. } if *key == desired_key)).count()
+            .filter(|event| event.pressed && event.key == desired_key)
+            .count()
     }
 
     pub fn key_down(&self, desired_key: Key) -> bool {
@@ -157,9 +160,9 @@ impl InputState {
     }
 
     pub fn key_released(&self, desired_key: Key) -> bool {
-        self.events.iter().any(
-            |event| matches!(event, Event::Key { key, pressed: false, .. } if *key == desired_key),
-        )
+        self.events
+            .iter()
+            .any(|event| !event.pressed && event.key == desired_key)
     }
 }
 

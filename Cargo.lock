@@ -116,6 +116,7 @@ dependencies = [
  "egui",
  "nohash-hasher",
  "rapidhash",
+ "serde",
  "tracing",
 ]
 
