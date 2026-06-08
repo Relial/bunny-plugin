@@ -18,6 +18,12 @@ use crate::{
 #[derive(Clone, Default)]
 pub struct Input(RArc<RRwLock<InputState>>);
 
+impl std::fmt::Debug for Input {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("Input debugging not supported")
+    }
+}
+
 impl Input {
     pub fn read<R>(&self, reader: impl FnOnce(&InputState) -> R) -> R {
         reader(&self.0.read())
@@ -25,6 +31,10 @@ impl Input {
 
     pub fn write<R>(&self, writer: impl FnOnce(&mut InputState) -> R) -> R {
         writer(&mut self.0.write())
+    }
+
+    pub fn collect(&self, egui_input: &egui::InputState, options: InputOptions) {
+        self.write(|i| i.collect(egui_input, options));
     }
 }
 
@@ -76,9 +86,9 @@ impl Default for InputState {
 }
 
 impl InputState {
-    pub fn collect(mut self, egui_input: &egui::InputState, options: InputOptions) -> Self {
-        self.pointer =
-            PointerState::collect(self.pointer, egui_input.time, &egui_input.raw, options);
+    pub fn collect(&mut self, egui_input: &egui::InputState, options: InputOptions) {
+        self.pointer
+            .collect(egui_input.time, &egui_input.raw, options);
         self.pixels_per_point = egui_input.pixels_per_point;
         self.time = egui_input.time;
         self.unstable_dt = egui_input.unstable_dt;
@@ -109,8 +119,6 @@ impl InputState {
             })
             .collect();
         self.options = options;
-
-        self
     }
 
     pub fn count_and_consume_key(&mut self, modifiers: Modifiers, logical_key: Key) -> usize {
@@ -248,7 +256,7 @@ impl Default for PointerState {
 }
 
 impl PointerState {
-    pub fn collect(mut self, time: f64, new: &RawInput, options: InputOptions) -> Self {
+    pub fn collect(&mut self, time: f64, new: &RawInput, options: InputOptions) {
         self.time = time;
         self.options = options;
         self.pointer_events.clear();
@@ -352,8 +360,6 @@ impl PointerState {
         } else {
             Vec2::ZERO
         };
-
-        self
     }
 
     #[inline(always)]
