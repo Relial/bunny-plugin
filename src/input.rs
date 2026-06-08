@@ -5,7 +5,31 @@ use abi_stable::{
         RVec,
     },
 };
-use egui::{Event, Pos2, RawInput};
+use egui::{Event, Pos2, RawInput, Vec2};
+
+#[repr(C)]
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct InputOptions {
+    pub max_click_dist: f32,
+    pub max_click_duration: f64,
+    pub max_double_click_delay: f64,
+}
+
+impl Default for InputOptions {
+    fn default() -> Self {
+        Self {
+            max_click_dist: 6.0,
+            max_click_duration: 0.8,
+            max_double_click_delay: 0.3,
+        }
+    }
+}
+
+#[repr(C)]
+pub struct InputState {
+    pub pointer: PointerState,
+    pub modifiers: Modifiers,
+}
 
 #[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
@@ -100,41 +124,67 @@ impl PointerEvent {
 }
 
 #[repr(C)]
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct PointerState {
+    time: f64,
     latest_pos: ROption<Pos2>,
     interact_pos: ROption<Pos2>,
+    delta: Vec2,
     down: [bool; 5],
+    press_origin: ROption<Pos2>,
+    press_start_time: ROption<f64>,
+    hast_moved_too_much_for_a_click: bool,
+    last_click_pos: ROption<Pos2>,
+    last_click_time: f64,
+    last_last_click_time: f64,
+    last_move_time: f64,
     pointer_events: RVec<PointerEvent>,
+    options: InputOptions,
 }
 
 impl Default for PointerState {
     fn default() -> Self {
         Self {
+            time: -f64::INFINITY,
             latest_pos: RNone,
             interact_pos: RNone,
+            delta: Vec2::ZERO,
             down: Default::default(),
-            pointer_events: RVec::new(),
+            press_origin: RNone,
+            press_start_time: RNone,
+            hast_moved_too_much_for_a_click: false,
+            last_click_pos: RNone,
+            last_click_time: f64::NEG_INFINITY,
+            last_last_click_time: f64::NEG_INFINITY,
+            last_move_time: f64::NEG_INFINITY,
+            pointer_events: rvec![],
+            options: Default::default(),
         }
     }
 }
 
 impl PointerState {
-    pub fn collect(previous: &PointerState, raw_input: &RawInput) -> Self {
-        let mut new = Self {
-            latest_pos: previous.latest_pos,
-            interact_pos: previous.interact_pos,
-            down: previous.down,
-            pointer_events: rvec![],
-        };
-        new.interact_pos = new.latest_pos;
-        for event in &raw_input.events {
+    pub fn collect(mut self, time: f64, new: &RawInput, options: InputOptions) -> Self {
+        self.time = time;
+        self.options = options;
+        self.pointer_events.clear();
+        let old_pos = self.latest_pos;
+        self.interact_pos = self.latest_pos;
+
+        for event in &new.events {
             match event {
                 Event::PointerMoved(pos) => {
                     let pos = *pos;
-                    new.latest_pos = RSome(pos);
-                    new.interact_pos = RSome(pos);
-                    new.pointer_events.push(PointerEvent::Moved(pos));
+                    self.latest_pos = RSome(pos);
+                    self.interact_pos = RSome(pos);
+
+                    if let RSome(press_origin) = self.press_origin {
+                        self.hast_moved_too_much_for_a_click |=
+                            press_origin.distance(pos) > self.options.max_click_dist;
+                    }
+
+                    self.last_move_time = time;
+                    self.pointer_events.push(PointerEvent::Moved(pos));
                 }
                 Event::PointerButton {
                     pos,
@@ -146,39 +196,106 @@ impl PointerState {
                     let button = *button;
                     let pressed = *pressed;
                     let modifiers = *modifiers;
-                    new.latest_pos = RSome(pos);
-                    new.interact_pos = RSome(pos);
+
+                    self.latest_pos = RSome(pos);
+                    self.interact_pos = RSome(pos);
+
                     if pressed {
-                        new.pointer_events.push(PointerEvent::Pressed {
+                        self.press_origin = RSome(pos);
+                        self.press_start_time = RSome(time);
+                        self.hast_moved_too_much_for_a_click = false;
+                        self.pointer_events.push(PointerEvent::Pressed {
                             position: pos,
                             button: button.into(),
                         });
                     } else {
-                        let clicked = new.could_any_button_be_click();
+                        let clicked = self.could_any_button_be_click();
 
                         let click = if clicked {
+                            let click_dist_sq = self
+                                .last_click_pos
+                                .map_or(0.0, |last_pos| last_pos.distance_sq(pos));
+
+                            let double_click = (time - self.last_click_time)
+                                < self.options.max_double_click_delay
+                                && click_dist_sq
+                                    < self.options.max_click_dist * self.options.max_click_dist;
+                            let triple_click = (time - self.last_last_click_time)
+                                < (self.options.max_double_click_delay * 2.0)
+                                && click_dist_sq
+                                    < self.options.max_click_dist * self.options.max_click_dist;
+                            let count = if triple_click {
+                                3
+                            } else if double_click {
+                                2
+                            } else {
+                                1
+                            };
+
+                            self.last_last_click_time = self.last_click_time;
+                            self.last_click_time = time;
+                            self.last_click_pos = RSome(pos);
+
                             RSome(Click {
                                 pos,
-                                count: 1,
+                                count,
                                 modifiers: modifiers.into(),
                             })
                         } else {
                             RNone
                         };
-                        new.pointer_events.push(PointerEvent::Released {
+
+                        self.pointer_events.push(PointerEvent::Released {
                             click,
                             button: button.into(),
                         });
+
+                        self.press_origin = RNone;
+                        self.press_start_time = RNone;
                     }
-                    new.down[button as usize] = pressed;
+
+                    self.down[button as usize] = pressed;
                 }
                 Event::PointerGone => {
-                    new.latest_pos = RNone;
+                    self.latest_pos = RNone;
                 }
                 _ => {}
             }
         }
-        new
+
+        self.delta = if let (RSome(old_pos), RSome(new_pos)) = (old_pos, self.latest_pos) {
+            new_pos - old_pos
+        } else {
+            Vec2::ZERO
+        };
+
+        self
+    }
+
+    #[inline(always)]
+    pub fn delta(&self) -> Vec2 {
+        self.delta
+    }
+
+    #[inline(always)]
+    pub fn press_origin(&self) -> Option<Pos2> {
+        self.press_origin.into()
+    }
+
+    #[inline(always)]
+    pub fn total_drag_delta(&self) -> Option<Vec2> {
+        if let RSome(latest_pos) = self.latest_pos
+            && let RSome(press_origin) = self.press_origin
+        {
+            Some(latest_pos - press_origin)
+        } else {
+            None
+        }
+    }
+
+    #[inline(always)]
+    pub fn press_start_time(&self) -> Option<f64> {
+        self.press_start_time.into()
     }
 
     #[inline(always)]
@@ -194,6 +311,16 @@ impl PointerState {
     #[inline(always)]
     pub fn has_pointer(&self) -> bool {
         self.latest_pos.is_some()
+    }
+
+    #[inline(always)]
+    pub fn time_since_last_movement(&self) -> f32 {
+        (self.time - self.last_move_time) as f32
+    }
+
+    #[inline(always)]
+    pub fn time_since_last_click(&self) -> f32 {
+        (self.time - self.last_click_time) as f32
     }
 
     pub fn any_pressed(&self) -> bool {
@@ -244,6 +371,14 @@ impl PointerState {
         self.pointer_events.iter().any(|event| matches!(event, &PointerEvent::Released { click: RSome(_), button: b } if button == b))
     }
 
+    pub fn button_double_clicked(&self, button: PointerButton) -> bool {
+        self.pointer_events.iter().any(|event| matches!(event, &PointerEvent::Released { click: RSome(click), button: b } if b == button && click.is_double()))
+    }
+
+    pub fn button_triple_clicked(&self, button: PointerButton) -> bool {
+        self.pointer_events.iter().any(|event| matches!(event, &PointerEvent::Released { click: RSome(click), button: b } if b == button && click.is_triple()))
+    }
+
     pub fn primary_clicked(&self) -> bool {
         self.button_clicked(PointerButton::Primary)
     }
@@ -274,5 +409,15 @@ impl PointerState {
 
     pub fn could_any_button_be_click(&self) -> bool {
         self.any_down() || self.any_released()
+    }
+}
+
+impl From<egui::InputOptions> for InputOptions {
+    fn from(value: egui::InputOptions) -> Self {
+        Self {
+            max_click_dist: value.max_click_dist,
+            max_click_duration: value.max_click_duration,
+            max_double_click_delay: value.max_double_click_delay,
+        }
     }
 }
