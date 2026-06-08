@@ -70,10 +70,10 @@ impl CollapsingHeader {
     }
 
     #[inline]
-    pub fn show<R>(
+    pub fn show<'a, R>(
         self,
-        ui: &mut BunnyUi,
-        add_contents: impl FnOnce(&mut BunnyUi) -> R,
+        ui: &mut BunnyUi<'a>,
+        add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
     ) -> InnerResponse<R> {
         let mut new = ui.new_child(Some(Layout::default()));
         let ret = add_contents(&mut new);

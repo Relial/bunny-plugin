@@ -153,38 +153,6 @@ impl Response {
         self.flags.set(Flags::CHANGED, true);
     }
 
-    pub fn on_hover_ui(self, ui: &mut BunnyUi, add_contents: impl FnOnce(&mut BunnyUi)) -> Self {
-        Tooltip::for_enabled(&self).show(ui, add_contents);
-        self
-    }
-
-    pub fn on_disabled_hover_ui(
-        self,
-        ui: &mut BunnyUi,
-        add_contents: impl FnOnce(&mut BunnyUi),
-    ) -> Self {
-        Tooltip::for_disabled(&self).show(ui, add_contents);
-        self
-    }
-
-    pub fn on_hover_ui_at_pointer(
-        self,
-        ui: &mut BunnyUi,
-        add_contents: impl FnOnce(&mut BunnyUi),
-    ) -> Self {
-        Tooltip::for_enabled(&self)
-            .at_pointer()
-            .gap(12.0)
-            .show(ui, add_contents);
-        self
-    }
-
-    pub fn show_tooltip_ui(&self, ui: &mut BunnyUi, add_contents: impl FnOnce(&mut BunnyUi)) {
-        Popup::from_response(self)
-            .kind(PopupKind::Tooltip)
-            .show(ui, add_contents);
-    }
-
     pub fn show_tooltip_text(&self, ui: &mut BunnyUi, text: impl Into<WidgetText>) {
         self.show_tooltip_ui(ui, |ui| {
             ui.label(text);
@@ -201,6 +169,48 @@ impl Response {
         self.on_hover_ui_at_pointer(ui, |ui| {
             ui.label(text);
         })
+    }
+}
+
+impl<'a> Response {
+    pub fn on_hover_ui(
+        self,
+        ui: &mut BunnyUi<'a>,
+        add_contents: impl FnOnce(&mut BunnyUi<'a>),
+    ) -> Self {
+        Tooltip::for_enabled(&self).show(ui, add_contents);
+        self
+    }
+
+    pub fn on_disabled_hover_ui(
+        self,
+        ui: &mut BunnyUi<'a>,
+        add_contents: impl FnOnce(&mut BunnyUi<'a>),
+    ) -> Self {
+        Tooltip::for_disabled(&self).show(ui, add_contents);
+        self
+    }
+
+    pub fn on_hover_ui_at_pointer(
+        self,
+        ui: &mut BunnyUi<'a>,
+        add_contents: impl FnOnce(&mut BunnyUi<'a>),
+    ) -> Self {
+        Tooltip::for_enabled(&self)
+            .at_pointer()
+            .gap(12.0)
+            .show(ui, add_contents);
+        self
+    }
+
+    pub fn show_tooltip_ui(
+        &self,
+        ui: &mut BunnyUi<'a>,
+        add_contents: impl FnOnce(&mut BunnyUi<'a>),
+    ) {
+        Popup::from_response(self)
+            .kind(PopupKind::Tooltip)
+            .show(ui, add_contents);
     }
 }
 

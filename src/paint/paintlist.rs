@@ -93,7 +93,7 @@ impl<'a> PaintList<'a> {
         self.0[idx.0].shape = Shape::Noop;
     }
 
-    pub fn mutate_shape(&mut self, idx: ShapeIdx, f: impl FnOnce(&mut ClippedShape)) {
+    pub fn mutate_shape(&mut self, idx: ShapeIdx, f: impl FnOnce(&mut ClippedShape<'a>)) {
         self.0.get_mut(idx.0).map(f);
     }
 

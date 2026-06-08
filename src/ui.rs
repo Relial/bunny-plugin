@@ -115,7 +115,7 @@ impl<'a> BunnyUi<'a> {
         }
     }
 
-    pub fn scope<R>(&mut self, add_contents: impl FnOnce(&mut BunnyUi) -> R) -> InnerResponse<R> {
+    pub fn scope<R>(&mut self, add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R) -> InnerResponse<R> {
         self.scope_builder(UiBuilder::new(), add_contents)
     }
 
@@ -134,7 +134,7 @@ impl<'a> BunnyUi<'a> {
     pub fn with_layout<R>(
         &mut self,
         layout: Layout,
-        add_contents: impl FnOnce(&mut BunnyUi) -> R,
+        add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
     ) -> InnerResponse<R> {
         self.scope_builder(UiBuilder::new().layout(layout), add_contents)
     }
@@ -153,7 +153,7 @@ impl<'a> BunnyUi<'a> {
     pub fn allocate_ui<R>(
         &mut self,
         desired_size: impl Into<Vec2>,
-        add_contents: impl FnOnce(&mut BunnyUi) -> R,
+        add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
     ) -> InnerResponse<R> {
         self.allocate_ui_with_layout(desired_size, self.layout, add_contents)
     }
@@ -235,7 +235,7 @@ impl<'a> BunnyUi<'a> {
     pub fn add_enabled_ui<R>(
         &mut self,
         enabled: bool,
-        add_contents: impl FnOnce(&mut BunnyUi) -> R,
+        add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
     ) -> InnerResponse<R> {
         self.scope(|ui| {
             if !enabled {
@@ -287,7 +287,7 @@ impl<'a> BunnyUi<'a> {
 
     pub fn horizontal<R>(
         &mut self,
-        add_contents: impl FnOnce(&mut BunnyUi) -> R,
+        add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
     ) -> InnerResponse<R> {
         let layout = if self.layout.prefer_right_to_left() {
             Layout::right_to_left(Align::Center)
@@ -299,7 +299,7 @@ impl<'a> BunnyUi<'a> {
 
     pub fn vertical<R>(
         &mut self,
-        add_contents: impl FnOnce(&mut BunnyUi) -> R,
+        add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
     ) -> InnerResponse<R> {
         self.scope_builder(
             UiBuilder::new().layout(Layout::top_down(Align::Min)),
@@ -309,7 +309,7 @@ impl<'a> BunnyUi<'a> {
 
     pub fn vertical_centered<R>(
         &mut self,
-        add_contents: impl FnOnce(&mut BunnyUi) -> R,
+        add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
     ) -> InnerResponse<R> {
         self.scope_builder(
             UiBuilder::new().layout(Layout::top_down(Align::Center)),
@@ -319,7 +319,7 @@ impl<'a> BunnyUi<'a> {
 
     pub fn vertical_centered_justified<R>(
         &mut self,
-        add_contents: impl FnOnce(&mut BunnyUi) -> R,
+        add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
     ) -> InnerResponse<R> {
         self.scope_builder(
             UiBuilder::new().layout(Layout::top_down(Align::Center).with_cross_justify(true)),
@@ -330,7 +330,7 @@ impl<'a> BunnyUi<'a> {
     pub fn collapsing<R>(
         &mut self,
         text: impl Into<WidgetText>,
-        add_contents: impl FnOnce(&mut BunnyUi) -> R,
+        add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
     ) -> InnerResponse<R> {
         CollapsingHeader::new(text).show(self, add_contents)
     }

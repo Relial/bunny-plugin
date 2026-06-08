@@ -88,10 +88,10 @@ impl ComboBox {
         self
     }
 
-    pub fn show_ui<R>(
+    pub fn show_ui<'a, R>(
         self,
-        ui: &mut BunnyUi,
-        menu_contents: impl FnOnce(&mut BunnyUi) -> R,
+        ui: &mut BunnyUi<'a>,
+        menu_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
     ) -> InnerResponse<R> {
         let mut new = ui.new_child(Some(Layout::default()));
         let ret = menu_contents(&mut new);
