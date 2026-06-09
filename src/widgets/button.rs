@@ -79,7 +79,7 @@ impl Button {
 
 impl egui::Widget for Button {
     fn ui(self, ui: &mut Ui) -> egui::Response {
-        let mut button = egui::Button::new(self.text);
+        let mut button = egui::Button::new(self.text).selected(self.selected);
         if let RSome(fill) = self.fill {
             button = button.fill(fill);
         }
