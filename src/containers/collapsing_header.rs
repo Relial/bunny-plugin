@@ -1,7 +1,7 @@
 use std::hash::Hash;
 
 use abi_stable::std_types::{
-    RHashMap,
+    RArc, RHashMap,
     ROption::{self, RNone, RSome},
 };
 use egui::{Id, Ui};
@@ -9,7 +9,7 @@ use rapidhash::fast::RandomState;
 
 use crate::{
     elements::{Container, UiContainer},
-    input_state::Input,
+    input_state::PointerState,
     layout::Layout,
     response::{InnerResponse, Response},
     ui::BunnyUi,
@@ -97,7 +97,7 @@ impl UiContainer for CollapsingHeaderComponent<'_> {
         self,
         ui: &mut Ui,
         responses: &mut RHashMap<Id, Response, RandomState>,
-        input: Input,
+        pointer_state: RArc<PointerState>,
         id: Id,
     ) -> Response {
         let mut header = egui::CollapsingHeader::new(self.collapsing_header.text)
@@ -109,11 +109,15 @@ impl UiContainer for CollapsingHeaderComponent<'_> {
             header = header.id_salt(id);
         }
         let resp = if self.collapsing_header.indented {
-            header.show(ui, |ui| self.contents.ui(ui, responses, input.clone()))
+            header.show(ui, |ui| {
+                self.contents.ui(ui, responses, pointer_state.clone())
+            })
         } else {
-            header.show_unindented(ui, |ui| self.contents.ui(ui, responses, input.clone()))
+            header.show_unindented(ui, |ui| {
+                self.contents.ui(ui, responses, pointer_state.clone())
+            })
         };
-        Response::new(id, resp.header_response, input)
+        Response::new(id, resp.header_response, pointer_state)
     }
 }
 

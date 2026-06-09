@@ -8,10 +8,11 @@ use rapidhash::fast::RandomState;
 use crate::{
     align::Align,
     containers::{
-        allocate_ui::AllocateUi, collapsing_header::CollapsingHeader, scope_builder::ScopeBuilder,
+        allocate_ui::AllocateUi, collapsing_header::CollapsingHeader, indent::Indent,
+        scope_builder::ScopeBuilder,
     },
     elements::{Component, Container, MiscComponent, UiContainer, Widget},
-    input_state::{Input, InputState},
+    input_state::{Input, InputState, PointerState},
     layout::Layout,
     paint::paintlist::PaintList,
     painter::Painter,
@@ -44,12 +45,12 @@ impl<'a> BunnyUi<'a> {
         self,
         ui: &mut Ui,
         new_responses: &mut RHashMap<Id, Response, RandomState>,
-        input: Input,
+        pointer_state: RArc<PointerState>,
     ) {
         self.style.to_egui(ui.style_mut());
         ui.set_opacity(self.opacity_factor);
         for Tuple2(id, component) in self.components {
-            let response = component.ui(ui, new_responses, input.clone(), id);
+            let response = component.ui(ui, new_responses, pointer_state.clone(), id);
             new_responses.insert(id, response);
         }
     }
@@ -115,7 +116,10 @@ impl<'a> BunnyUi<'a> {
         }
     }
 
-    pub fn scope<R>(&mut self, add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R) -> InnerResponse<R> {
+    pub fn scope<R>(
+        &mut self,
+        add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
+    ) -> InnerResponse<R> {
         self.scope_builder(UiBuilder::new(), add_contents)
     }
 
@@ -462,5 +466,17 @@ impl<'a> BunnyUi<'a> {
     #[inline]
     pub fn set_opacity(&mut self, opacity: f32) {
         self.opacity_factor = opacity;
+    }
+
+    #[inline]
+    pub fn indent<R>(
+        &mut self,
+        add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
+    ) -> InnerResponse<R> {
+        let mut new = self.new_child(None);
+        let ret = add_contents(&mut new);
+        let indent = Indent::new(new);
+        let response = self.add_component_auto_id(Container::Indent(indent));
+        InnerResponse::new(ret, response)
     }
 }

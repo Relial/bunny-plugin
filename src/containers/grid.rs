@@ -1,7 +1,7 @@
 use std::hash::Hash;
 
 use abi_stable::std_types::{
-    RHashMap,
+    RArc, RHashMap,
     ROption::{self, RNone, RSome},
 };
 use egui::{Id, Ui, Vec2};
@@ -9,7 +9,7 @@ use rapidhash::fast::RandomState;
 
 use crate::{
     elements::{Container, UiContainer},
-    input_state::Input,
+    input_state::PointerState,
     layout::Layout,
     response::{InnerResponse, Response},
     ui::BunnyUi,
@@ -101,7 +101,7 @@ impl UiContainer for GridComponent<'_> {
         self,
         ui: &mut Ui,
         responses: &mut RHashMap<Id, Response, RandomState>,
-        input: Input,
+        pointer_state: RArc<PointerState>,
         id: Id,
     ) -> Response {
         let mut grid = egui::Grid::new(self.grid.id)
@@ -122,10 +122,10 @@ impl UiContainer for GridComponent<'_> {
 
         let egui_resp = grid
             .show(ui, |ui| {
-                self.contents.ui(ui, responses, input.clone());
+                self.contents.ui(ui, responses, pointer_state.clone());
             })
             .response;
-        Response::new(id, egui_resp, input)
+        Response::new(id, egui_resp, pointer_state)
     }
 }
 

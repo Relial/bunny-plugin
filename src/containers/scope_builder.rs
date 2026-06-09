@@ -1,10 +1,10 @@
-use abi_stable::std_types::RHashMap;
+use abi_stable::std_types::{RArc, RHashMap};
 use egui::{Id, Ui};
 use rapidhash::fast::RandomState;
 
 use crate::{
     elements::{Container, UiContainer},
-    input_state::Input,
+    input_state::PointerState,
     response::Response,
     ui::BunnyUi,
     ui_builder::UiBuilder,
@@ -30,15 +30,15 @@ impl UiContainer for ScopeBuilder<'_> {
         self,
         ui: &mut Ui,
         responses: &mut RHashMap<Id, Response, RandomState>,
-        input: Input,
+        pointer_state: RArc<PointerState>,
         id: Id,
     ) -> Response {
         let egui_resp = ui
             .scope_builder(self.ui_builder.into(), |ui| {
-                self.contents.ui(ui, responses, input.clone());
+                self.contents.ui(ui, responses, pointer_state.clone());
             })
             .response;
-        Response::new(id, egui_resp, input)
+        Response::new(id, egui_resp, pointer_state)
     }
 }
 

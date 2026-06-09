@@ -1,5 +1,5 @@
 use abi_stable::std_types::{
-    RHashMap,
+    RArc, RHashMap,
     ROption::{self, RNone, RSome},
     RString,
 };
@@ -12,7 +12,7 @@ use crate::{
     containers::scroll_area::{ScrollArea, ScrollBarVisibility, ScrollSource},
     elements::{Container, UiContainer},
     frame::Frame,
-    input_state::Input,
+    input_state::PointerState,
     layout::Layout,
     paint::{corner_radius::CornerRadius, stroke::Stroke},
     resize::Resize,
@@ -365,7 +365,7 @@ impl UiContainer for WindowComponent<'_> {
         mut self,
         ui: &mut egui::Ui,
         responses: &mut RHashMap<Id, Response, RandomState>,
-        input: Input,
+        pointer_state: RArc<PointerState>,
         id: Id,
     ) -> Response {
         let mut window = egui::Window::new("")
@@ -406,12 +406,12 @@ impl UiContainer for WindowComponent<'_> {
                 self.ui_title_bar(ui);
             }
             ui.take_available_space();
-            self.contents.ui(ui, responses, input.clone());
+            self.contents.ui(ui, responses, pointer_state.clone());
         });
         if let Some(inner) = inner {
-            Response::new(id, inner.response, input)
+            Response::new(id, inner.response, pointer_state)
         } else {
-            Response::empty(id, input)
+            Response::empty(id, pointer_state)
         }
     }
 }

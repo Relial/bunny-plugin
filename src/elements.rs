@@ -1,14 +1,14 @@
-use abi_stable::std_types::{RBox, RHashMap};
+use abi_stable::std_types::{RArc, RBox, RHashMap};
 use egui::{Id, Ui, Vec2, Widget as _};
 use rapidhash::fast::RandomState;
 
 use crate::{
     containers::{
         allocate_ui::AllocateUi, collapsing_header::CollapsingHeaderComponent,
-        combo_box::ComboBoxComponent, grid::GridComponent, popup::PopupComponent,
+        combo_box::ComboBoxComponent, grid::GridComponent, indent::Indent, popup::PopupComponent,
         scope_builder::ScopeBuilder, tooltip::TooltipComponent, window::WindowComponent,
     },
-    input_state::Input,
+    input_state::PointerState,
     response::Response,
     widgets::{
         button::Button, checkbox::CheckBox, drag_value::DragValue, image::Image,
@@ -19,7 +19,7 @@ use crate::{
 };
 
 pub trait UiComponent {
-    fn ui(self, ui: &mut Ui, input: Input, id: Id) -> Response;
+    fn ui(self, ui: &mut Ui, pointer_state: RArc<PointerState>, id: Id) -> Response;
 }
 
 pub trait UiContainer {
@@ -27,13 +27,13 @@ pub trait UiContainer {
         self,
         ui: &mut Ui,
         responses: &mut RHashMap<Id, Response, RandomState>,
-        input: Input,
+        pointer_state: RArc<PointerState>,
         id: Id,
     ) -> Response;
 }
 
 #[repr(C)]
-pub enum Container<'a> {
+pub(crate) enum Container<'a> {
     CollapsingHeader(CollapsingHeaderComponent<'a>),
     Scope(ScopeBuilder<'a>),
     AllocateUi(AllocateUi<'a>),
@@ -42,6 +42,7 @@ pub enum Container<'a> {
     ComboBox(ComboBoxComponent<'a>),
     Popup(PopupComponent<'a>),
     Tooltip(TooltipComponent<'a>),
+    Indent(Indent<'a>),
 }
 
 impl UiContainer for Container<'_> {
@@ -49,22 +50,27 @@ impl UiContainer for Container<'_> {
         self,
         ui: &mut Ui,
         responses: &mut RHashMap<Id, Response, RandomState>,
-        input: Input,
+        pointer_state: RArc<PointerState>,
         id: Id,
     ) -> Response {
         match self {
             Container::CollapsingHeader(collapsing_header) => {
-                collapsing_header.ui(ui, responses, input, id)
+                collapsing_header.ui(ui, responses, pointer_state, id)
             }
-            Container::Scope(scope_builder) => scope_builder.ui(ui, responses, input, id),
-            Container::AllocateUi(allocate_ui) => allocate_ui.ui(ui, responses, input, id),
-            Container::Grid(grid) => grid.ui(ui, responses, input, id),
-            Container::Window(window) => window.ui(ui, responses, input, id),
+            Container::Scope(scope_builder) => scope_builder.ui(ui, responses, pointer_state, id),
+            Container::AllocateUi(allocate_ui) => allocate_ui.ui(ui, responses, pointer_state, id),
+            Container::Grid(grid) => grid.ui(ui, responses, pointer_state, id),
+            Container::Window(window) => window.ui(ui, responses, pointer_state, id),
             Container::ComboBox(combo_box_component) => {
-                combo_box_component.ui(ui, responses, input, id)
+                combo_box_component.ui(ui, responses, pointer_state, id)
             }
-            Container::Popup(popup_component) => popup_component.ui(ui, responses, input, id),
-            Container::Tooltip(tooltip_component) => tooltip_component.ui(ui, responses, input, id),
+            Container::Popup(popup_component) => {
+                popup_component.ui(ui, responses, pointer_state, id)
+            }
+            Container::Tooltip(tooltip_component) => {
+                tooltip_component.ui(ui, responses, pointer_state, id)
+            }
+            Container::Indent(indent) => indent.ui(ui, responses, pointer_state, id),
         }
     }
 }
@@ -107,7 +113,7 @@ impl egui::Widget for Widget<'_> {
 }
 
 #[repr(C)]
-pub enum MiscComponent {
+pub(crate) enum MiscComponent {
     Space(f32),
     Disable,
     EndRow,
@@ -115,7 +121,7 @@ pub enum MiscComponent {
 }
 
 impl UiComponent for MiscComponent {
-    fn ui(self, ui: &mut Ui, input: Input, id: Id) -> Response {
+    fn ui(self, ui: &mut Ui, pointer_state: RArc<PointerState>, id: Id) -> Response {
         match self {
             MiscComponent::Space(space) => {
                 ui.add_space(space);
@@ -131,14 +137,14 @@ impl UiComponent for MiscComponent {
             }
             MiscComponent::AllocateSpace(size) => {
                 let (_, rect) = ui.allocate_space(size);
-                Response::rect_only(id, rect, input)
+                Response::rect_only(id, rect, pointer_state)
             }
         }
     }
 }
 
 #[repr(C)]
-pub enum Component<'a> {
+pub(crate) enum Component<'a> {
     Container(RBox<Container<'a>>),
     Widget(Widget<'a>),
     MiscComponent(MiscComponent),
@@ -149,18 +155,18 @@ impl UiContainer for Component<'_> {
         self,
         ui: &mut Ui,
         responses: &mut RHashMap<Id, Response, RandomState>,
-        input: Input,
+        pointer_state: RArc<PointerState>,
         id: Id,
     ) -> Response {
         match self {
             Component::Container(container) => {
-                RBox::into_inner(container).ui(ui, responses, input, id)
+                RBox::into_inner(container).ui(ui, responses, pointer_state, id)
             }
             Component::Widget(widget) => {
                 let egui_resp = widget.ui(ui);
-                Response::new(id, egui_resp, input)
+                Response::new(id, egui_resp, pointer_state)
             }
-            Component::MiscComponent(misc_component) => misc_component.ui(ui, input, id),
+            Component::MiscComponent(misc_component) => misc_component.ui(ui, pointer_state, id),
         }
     }
 }

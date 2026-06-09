@@ -1,5 +1,5 @@
 use abi_stable::std_types::{
-    RHashMap,
+    RArc, RHashMap,
     ROption::{self, RNone, RSome},
 };
 use egui::{Context, Id, Pos2, Rect, Sense, Ui};
@@ -9,7 +9,7 @@ use crate::{
     align::Align,
     elements::{Container, UiContainer},
     frame::Frame,
-    input_state::Input,
+    input_state::PointerState,
     layout::Layout,
     paint::paintlist::Order,
     rect_align::RectAlign,
@@ -462,18 +462,18 @@ impl UiContainer for PopupComponent<'_> {
         self,
         ui: &mut Ui,
         responses: &mut RHashMap<Id, Response, RandomState>,
-        input: Input,
+        pointer_state: RArc<PointerState>,
         id: Id,
     ) -> Response {
         let popup = self.popup.egui(ui, id);
 
         let inner = popup.show(|ui| {
-            self.contents.ui(ui, responses, input.clone());
+            self.contents.ui(ui, responses, pointer_state.clone());
         });
         if let Some(inner) = inner {
-            Response::new(id, inner.response, input)
+            Response::new(id, inner.response, pointer_state)
         } else {
-            Response::empty(id, input)
+            Response::empty(id, pointer_state)
         }
     }
 }

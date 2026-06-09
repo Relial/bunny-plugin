@@ -1,5 +1,5 @@
 use abi_stable::std_types::{
-    RHashMap,
+    RArc, RHashMap,
     ROption::{self, RNone, RSome},
 };
 use egui::{Id, Sense, Ui};
@@ -8,7 +8,7 @@ use rapidhash::fast::RandomState;
 use crate::{
     containers::popup::{Popup, PopupAnchor, PopupKind},
     elements::{Container, UiContainer},
-    input_state::Input,
+    input_state::PointerState,
     layout::Layout,
     response::{InnerResponse, Response},
     ui::BunnyUi,
@@ -116,11 +116,11 @@ impl UiContainer for TooltipComponent<'_> {
         self,
         ui: &mut Ui,
         responses: &mut RHashMap<Id, Response, RandomState>,
-        input: Input,
+        pointer_state: RArc<PointerState>,
         id: Id,
     ) -> Response {
         if !self.tooltip.popup.is_open(ui) {
-            return Response::empty(id, input);
+            return Response::empty(id, pointer_state);
         }
 
         let mut popup = self.tooltip.popup.egui(ui, id);
@@ -146,12 +146,12 @@ impl UiContainer for TooltipComponent<'_> {
         };
 
         let inner = popup.show(|ui| {
-            self.contents.ui(ui, responses, input.clone());
+            self.contents.ui(ui, responses, pointer_state.clone());
         });
         if let Some(inner) = inner {
-            Response::new(id, inner.response, input)
+            Response::new(id, inner.response, pointer_state)
         } else {
-            Response::empty(id, input)
+            Response::empty(id, pointer_state)
         }
     }
 }

@@ -1,10 +1,10 @@
-use abi_stable::std_types::RHashMap;
+use abi_stable::std_types::{RArc, RHashMap};
 use egui::{Id, Ui, Vec2};
 use rapidhash::fast::RandomState;
 
 use crate::{
     elements::{Container, UiContainer},
-    input_state::Input,
+    input_state::PointerState,
     layout::Layout,
     response::Response,
     ui::BunnyUi,
@@ -32,15 +32,15 @@ impl UiContainer for AllocateUi<'_> {
         self,
         ui: &mut Ui,
         responses: &mut RHashMap<Id, Response, RandomState>,
-        input: Input,
+        pointer_state: RArc<PointerState>,
         id: Id,
     ) -> Response {
         let egui_resp = ui
             .allocate_ui_with_layout(self.desired_size, self.layout.into(), |ui| {
-                self.contents.ui(ui, responses, input.clone())
+                self.contents.ui(ui, responses, pointer_state.clone())
             })
             .response;
-        Response::new(id, egui_resp, input)
+        Response::new(id, egui_resp, pointer_state)
     }
 }
 
