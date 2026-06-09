@@ -405,6 +405,20 @@ impl<'a> BunnyUi<'a> {
         self.add(RadioButton::new(selected, text))
     }
 
+    pub fn radio_value<Value: PartialEq>(
+        &mut self,
+        current_value: &mut Value,
+        selected_value: Value,
+        text: impl Into<WidgetText>,
+    ) -> Response {
+        let mut response = self.radio(*current_value == selected_value, text);
+        if response.clicked() && *current_value != selected_value {
+            *current_value = selected_value;
+            response.mark_changed();
+        }
+        response
+    }
+
     pub fn painter_at(&self, rect: Rect) -> Painter<'a> {
         self.painter().with_clip_rect(rect)
     }
