@@ -8,6 +8,9 @@ pub enum Num {
 }
 
 impl Num {
+    pub const INT_MIN: f64 = i64::MIN as f64;
+    pub const INT_MAX: f64 = i64::MAX as f64;
+
     pub fn new_integer(integer: impl Into<i64>) -> Self {
         Self::Integer(integer.into())
     }

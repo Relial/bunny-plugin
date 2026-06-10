@@ -1,39 +1,85 @@
-use abi_stable::std_types::ROption::{self, RNone, RSome};
+use std::ops::RangeInclusive;
+
+use abi_stable::std_types::{
+    ROption::{self, RNone, RSome},
+    RString,
+};
 use egui::Ui;
 
-use crate::{elements::Widget, num::Num};
+use crate::{elements::Widget, num::Num, widgets::slider::NumberCustomFormat};
 
 #[repr(C)]
 pub struct DragValue<'a> {
     value: &'a mut Num,
-    speed: ROption<f64>,
-    range: ROption<[Num; 2]>,
+    speed: f64,
+    prefix: ROption<RString>,
+    suffix: ROption<RString>,
+    range: [f64; 2],
+    clamp_existing_to_range: bool,
     min_decimals: usize,
     max_decimals: ROption<usize>,
     update_while_editing: bool,
+    custom_format: ROption<NumberCustomFormat>,
 }
 
 impl<'a> DragValue<'a> {
     pub fn new(value: &'a mut Num) -> Self {
-        Self {
-            value,
-            speed: RNone,
-            range: RNone,
-            min_decimals: 0,
-            max_decimals: RNone,
-            update_while_editing: true,
+        if value.int() {
+            Self {
+                value,
+                speed: 0.25,
+                prefix: RNone,
+                suffix: RNone,
+                range: [Num::INT_MIN, Num::INT_MAX],
+                clamp_existing_to_range: true,
+                min_decimals: 0,
+                max_decimals: RSome(0),
+                update_while_editing: true,
+                custom_format: RNone,
+            }
+        } else {
+            Self {
+                value,
+                speed: 1.0,
+                prefix: RNone,
+                suffix: RNone,
+                range: [f64::NEG_INFINITY, f64::INFINITY],
+                clamp_existing_to_range: true,
+                min_decimals: 0,
+                max_decimals: RNone,
+                update_while_editing: true,
+                custom_format: RNone,
+            }
         }
     }
 
     #[inline]
     pub fn speed(mut self, speed: impl Into<f64>) -> Self {
-        self.speed = RSome(speed.into());
+        self.speed = speed.into();
         self
     }
 
     #[inline]
-    pub fn range(mut self, [r1, r2]: [impl Into<Num>; 2]) -> Self {
-        self.range = RSome([r1.into(), r2.into()]);
+    pub fn range(mut self, range: RangeInclusive<f64>) -> Self {
+        self.range = [*range.start(), *range.end()];
+        self
+    }
+
+    #[inline]
+    pub fn clamp_existing_to_range(mut self, clamp_existing_to_range: bool) -> Self {
+        self.clamp_existing_to_range = clamp_existing_to_range;
+        self
+    }
+
+    #[inline]
+    pub fn prefix(mut self, prefix: impl Into<RString>) -> Self {
+        self.prefix = RSome(prefix.into());
+        self
+    }
+
+    #[inline]
+    pub fn suffix(mut self, suffix: impl Into<RString>) -> Self {
+        self.suffix = RSome(suffix.into());
         self
     }
 
@@ -50,9 +96,43 @@ impl<'a> DragValue<'a> {
     }
 
     #[inline]
+    pub fn max_decimals_ops(mut self, max_decimals: Option<usize>) -> Self {
+        self.max_decimals = max_decimals.into();
+        self
+    }
+
+    #[inline]
     pub fn fixed_decimals(mut self, num_decimals: usize) -> Self {
         self.min_decimals = num_decimals;
         self.max_decimals = RSome(num_decimals);
+        self
+    }
+
+    #[inline]
+    pub fn binary(mut self, min_width: usize, twos_complement: bool) -> Self {
+        self.custom_format = RSome(NumberCustomFormat::Binary {
+            min_width,
+            twos_complement,
+        });
+        self
+    }
+
+    #[inline]
+    pub fn octal(mut self, min_width: usize, twos_complement: bool) -> Self {
+        self.custom_format = RSome(NumberCustomFormat::Octal {
+            min_width,
+            twos_complement,
+        });
+        self
+    }
+
+    #[inline]
+    pub fn hexadecimal(mut self, min_width: usize, twos_complement: bool, upper: bool) -> Self {
+        self.custom_format = RSome(NumberCustomFormat::Hexadecimal {
+            min_width,
+            twos_complement,
+            upper,
+        });
         self
     }
 
@@ -65,23 +145,46 @@ impl<'a> DragValue<'a> {
 
 impl egui::Widget for DragValue<'_> {
     fn ui(self, ui: &mut Ui) -> egui::Response {
-        let value = self.value;
-        let mut widget = match value {
-            Num::Integer(i) => egui::DragValue::new(i),
-            Num::Float(f) => egui::DragValue::new(f),
-        }
+        let mut drag_value = egui::DragValue::from_get_set(|v: Option<f64>| {
+            if let Some(v) = v {
+                self.value.set(v);
+            }
+            self.value.to_f64()
+        })
+        .speed(self.speed)
+        .range(self.range[0]..=self.range[1])
+        .clamp_existing_to_range(self.clamp_existing_to_range)
         .min_decimals(self.min_decimals)
         .update_while_editing(self.update_while_editing);
-        if let RSome(speed) = self.speed {
-            widget = widget.speed(speed);
+
+        if let RSome(prefix) = self.prefix {
+            drag_value = drag_value.prefix(prefix.as_str());
         }
-        if let RSome(range) = self.range {
-            widget = widget.range::<f64>(range[0].into()..=range[1].into());
+        if let RSome(suffix) = self.suffix {
+            drag_value = drag_value.suffix(suffix.as_str());
         }
-        if let RSome(decimals) = self.max_decimals {
-            widget = widget.max_decimals(decimals);
+        if let RSome(max_decimals) = self.max_decimals {
+            drag_value = drag_value.max_decimals(max_decimals);
         }
-        ui.add(widget)
+        if let RSome(custom_format) = self.custom_format {
+            drag_value = match custom_format {
+                NumberCustomFormat::Binary {
+                    min_width,
+                    twos_complement,
+                } => drag_value.binary(min_width, twos_complement),
+                NumberCustomFormat::Octal {
+                    min_width,
+                    twos_complement,
+                } => drag_value.octal(min_width, twos_complement),
+                NumberCustomFormat::Hexadecimal {
+                    min_width,
+                    twos_complement,
+                    upper,
+                } => drag_value.hexadecimal(min_width, twos_complement, upper),
+            };
+        }
+
+        ui.add(drag_value)
     }
 }
 

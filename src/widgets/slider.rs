@@ -54,7 +54,7 @@ impl From<SliderClamping> for egui::SliderClamping {
 
 #[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum SliderCustomFormat {
+pub enum NumberCustomFormat {
     Binary {
         min_width: usize,
         twos_complement: bool,
@@ -91,12 +91,13 @@ pub struct Slider<'a> {
     handle_shape: ROption<HandleShape>,
     update_while_editing: bool,
 
-    custom_format: ROption<SliderCustomFormat>,
+    custom_format: ROption<NumberCustomFormat>,
 }
 
 impl<'a> Slider<'a> {
     pub fn new(value: &'a mut Num, range: RangeInclusive<f64>) -> Self {
-        Self {
+        let int = value.int();
+        let slf = Self {
             value,
             range: [*range.start(), *range.end()],
             spec: SliderSpec {
@@ -119,7 +120,8 @@ impl<'a> Slider<'a> {
             handle_shape: RNone,
             update_while_editing: true,
             custom_format: RNone,
-        }
+        };
+        if int { slf.integer() } else { slf }
     }
 
     #[inline]
@@ -232,6 +234,34 @@ impl<'a> Slider<'a> {
     }
 
     #[inline]
+    pub fn binary(mut self, min_width: usize, twos_complement: bool) -> Self {
+        self.custom_format = RSome(NumberCustomFormat::Binary {
+            min_width,
+            twos_complement,
+        });
+        self
+    }
+
+    #[inline]
+    pub fn octal(mut self, min_width: usize, twos_complement: bool) -> Self {
+        self.custom_format = RSome(NumberCustomFormat::Octal {
+            min_width,
+            twos_complement,
+        });
+        self
+    }
+
+    #[inline]
+    pub fn hexadecimal(mut self, min_width: usize, twos_complement: bool, upper: bool) -> Self {
+        self.custom_format = RSome(NumberCustomFormat::Hexadecimal {
+            min_width,
+            twos_complement,
+            upper,
+        });
+        self
+    }
+
+    #[inline]
     pub fn integer(self) -> Self {
         self.fixed_decimals(0).smallest_positive(1.0).step_by(1.0)
     }
@@ -245,19 +275,13 @@ impl<'a> Slider<'a> {
 
 impl egui::Widget for Slider<'_> {
     fn ui(self, ui: &mut Ui) -> egui::Response {
-        let int = self.value.int();
         let mut slider =
             egui::Slider::from_get_set(self.range[0]..=self.range[1], |v: Option<f64>| {
                 if let Some(v) = v {
                     self.value.set(v);
                 }
                 self.value.to_f64()
-            });
-        if int {
-            slider = slider.integer();
-        }
-
-        slider = slider
+            })
             .show_value(self.show_value)
             .orientation(self.orientation.into())
             .logarithmic(self.spec.logarithmic)
@@ -294,15 +318,15 @@ impl egui::Widget for Slider<'_> {
         }
         if let RSome(custom_format) = self.custom_format {
             slider = match custom_format {
-                SliderCustomFormat::Binary {
+                NumberCustomFormat::Binary {
                     min_width,
                     twos_complement,
                 } => slider.binary(min_width, twos_complement),
-                SliderCustomFormat::Octal {
+                NumberCustomFormat::Octal {
                     min_width,
                     twos_complement,
                 } => slider.octal(min_width, twos_complement),
-                SliderCustomFormat::Hexadecimal {
+                NumberCustomFormat::Hexadecimal {
                     min_width,
                     twos_complement,
                     upper,
