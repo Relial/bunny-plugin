@@ -16,11 +16,11 @@ impl Num {
         Self::Float(float.into())
     }
 
-    pub const fn int(&self) -> bool {
+    pub const fn int(self) -> bool {
         matches!(self, Self::Integer(_))
     }
 
-    pub const fn float(&self) -> bool {
+    pub const fn float(self) -> bool {
         matches!(self, Self::Float(_))
     }
 

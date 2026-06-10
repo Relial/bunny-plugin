@@ -245,13 +245,19 @@ impl<'a> Slider<'a> {
 
 impl egui::Widget for Slider<'_> {
     fn ui(self, ui: &mut Ui) -> egui::Response {
+        let int = self.value.int();
         let mut slider =
             egui::Slider::from_get_set(self.range[0]..=self.range[1], |v: Option<f64>| {
                 if let Some(v) = v {
                     self.value.set(v);
                 }
                 self.value.to_f64()
-            })
+            });
+        if int {
+            slider = slider.integer();
+        }
+
+        slider = slider
             .show_value(self.show_value)
             .orientation(self.orientation.into())
             .logarithmic(self.spec.logarithmic)
