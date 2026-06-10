@@ -6,12 +6,12 @@ pub enum Num {
 }
 
 impl Num {
-    pub fn i32(num: i32) -> Self {
-        Self::Integer(num)
+    pub fn integer(integer: impl Into<i32>) -> Self {
+        Self::Integer(integer.into())
     }
 
-    pub fn f64(num: f64) -> Self {
-        Self::Float(num)
+    pub fn float(float: impl Into<f64>) -> Self {
+        Self::Float(float.into())
     }
 }
 
