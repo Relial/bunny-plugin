@@ -71,3 +71,55 @@ impl From<f64> for Num {
         Self::Float(value)
     }
 }
+
+macro_rules! partialord_impl {
+    ($t:ty) => {
+        impl PartialEq<$t> for Num {
+            fn eq(&self, other: &$t) -> bool {
+                match self {
+                    Num::Integer(i) => *i == *other as i64,
+                    Num::Float(f) => *f == *other as f64,
+                }
+            }
+        }
+
+        impl PartialEq<Num> for $t {
+            fn eq(&self, other: &Num) -> bool {
+                match other {
+                    Num::Integer(i) => *self as i64 == *i,
+                    Num::Float(f) => *self as f64 == *f,
+                }
+            }
+        }
+
+        impl PartialOrd<$t> for Num {
+            fn partial_cmp(&self, other: &$t) -> Option<std::cmp::Ordering> {
+                match self {
+                    Num::Integer(i) => i.partial_cmp(&(*other as i64)),
+                    Num::Float(f) => f.partial_cmp(&(*other as f64)),
+                }
+            }
+        }
+
+        impl PartialOrd<Num> for $t {
+            fn partial_cmp(&self, other: &Num) -> Option<std::cmp::Ordering> {
+                match other {
+                    Num::Integer(i) => (*self as i64).partial_cmp(i),
+                    Num::Float(f) => (*self as f64).partial_cmp(f),
+                }
+            }
+        }
+    };
+}
+
+partialord_impl!(i64);
+partialord_impl!(i32);
+partialord_impl!(i16);
+partialord_impl!(i8);
+
+partialord_impl!(u32);
+partialord_impl!(u16);
+partialord_impl!(u8);
+
+partialord_impl!(f64);
+partialord_impl!(f32);
