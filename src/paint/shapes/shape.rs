@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use abi_stable::{
     rvec,
-    std_types::{RBox, ROption::RNone, RVec},
+    std_types::{RBox, ROption::RNone, RString, RVec},
 };
 use anyhow::Result;
 use egui::{Color32, Context, Pos2, Rangef, Rect, Vec2, emath::TSTransform, epaint::Vertex, pos2};
@@ -259,7 +259,7 @@ impl<'a> Shape<'a> {
     }
 
     #[inline]
-    pub fn text(pos: Pos2, anchor: Align2, text: &str, font_id: FontId, color: Color32) -> Self {
+    pub fn text(pos: Pos2, anchor: Align2, text: impl Into<RString>, font_id: FontId, color: Color32) -> Self {
         let layout_job = LayoutJob::simple_singleline(text, font_id, color);
         let shape = TextShape::new(pos, layout_job, anchor, color);
         Self::Text(shape)

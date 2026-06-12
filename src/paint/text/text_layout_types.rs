@@ -46,8 +46,13 @@ impl Default for LayoutJob {
 
 impl LayoutJob {
     #[inline]
-    pub fn simple(text: &str, font_id: FontId, color: Color32, wrap_width: f32) -> Self {
-        let text: RString = text.into();
+    pub fn simple(
+        text: impl Into<RString>,
+        font_id: FontId,
+        color: Color32,
+        wrap_width: f32,
+    ) -> Self {
+        let text = text.into();
         Self {
             sections: rvec![LayoutSection {
                 leading_space: 0.0,
@@ -65,8 +70,8 @@ impl LayoutJob {
     }
 
     #[inline]
-    pub fn simple_format(text: &str, format: TextFormat) -> Self {
-        let text: RString = text.into();
+    pub fn simple_format(text: impl Into<RString>, format: TextFormat) -> Self {
+        let text = text.into();
         Self {
             sections: rvec![LayoutSection {
                 leading_space: 0.0,
@@ -80,8 +85,8 @@ impl LayoutJob {
     }
 
     #[inline]
-    pub fn simple_singleline(text: &str, font_id: FontId, color: Color32) -> Self {
-        let text: RString = text.into();
+    pub fn simple_singleline(text: impl Into<RString>, font_id: FontId, color: Color32) -> Self {
+        let text = text.into();
         Self {
             sections: rvec![LayoutSection {
                 leading_space: 0.0,
@@ -96,8 +101,8 @@ impl LayoutJob {
     }
 
     #[inline]
-    pub fn single_section(text: &str, format: TextFormat) -> Self {
-        let text: RString = text.into();
+    pub fn single_section(text: impl Into<RString>, format: TextFormat) -> Self {
+        let text = text.into();
         Self {
             sections: rvec![LayoutSection {
                 leading_space: 0.0,

@@ -29,7 +29,7 @@ pub struct TitleBar {
 }
 
 impl TitleBar {
-    pub fn title(mut self, title: &str) -> Self {
+    pub fn title(mut self, title: impl Into<RString>) -> Self {
         self.title = RSome(title.into());
         self
     }
@@ -82,7 +82,7 @@ impl Window {
     }
 
     #[inline]
-    pub fn title(mut self, title: &str) -> Self {
+    pub fn title(mut self, title: impl Into<RString>) -> Self {
         self.title = RSome(title.into());
         self
     }

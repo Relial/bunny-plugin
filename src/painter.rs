@@ -3,7 +3,7 @@ use std::f32;
 use abi_stable::{
     external_types::RRwLock,
     rvec,
-    std_types::{RArc, RVec},
+    std_types::{RArc, RString, RVec},
 };
 use egui::{
     Color32, Pos2, Rangef, Rect, Rgba, Vec2,
@@ -151,7 +151,7 @@ impl<'a> Painter<'a> {
 }
 
 impl<'a> Painter<'a> {
-    pub fn debug_rect(&self, rect: Rect, color: Color32, text: &str) -> ShapeIdx {
+    pub fn debug_rect(&self, rect: Rect, color: Color32, text: impl Into<RString>) -> ShapeIdx {
         self.rect(
             rect,
             0.0,
@@ -170,10 +170,16 @@ impl<'a> Painter<'a> {
 
     pub fn error(&self, pos: Pos2, text: impl std::fmt::Display) -> ShapeIdx {
         let color = Color32::RED;
-        self.debug_text(pos, Align2::LEFT_TOP, color, &format!("🔥 {text}"))
+        self.debug_text(pos, Align2::LEFT_TOP, color, format!("🔥 {text}"))
     }
 
-    pub fn debug_text(&self, pos: Pos2, anchor: Align2, color: Color32, text: &str) -> ShapeIdx {
+    pub fn debug_text(
+        &self,
+        pos: Pos2,
+        anchor: Align2,
+        color: Color32,
+        text: impl Into<RString>,
+    ) -> ShapeIdx {
         let is_text_bright = color.is_additive() || Rgba::from(color).intensity() > 0.5;
         let bg_color = if is_text_bright {
             Color32::from_black_alpha(150)
@@ -306,7 +312,7 @@ impl<'a> Painter<'a> {
         &self,
         pos: Pos2,
         anchor: Align2,
-        text: &str,
+        text: impl Into<RString>,
         font_id: FontId,
         text_color: Color32,
     ) -> ShapeIdx {

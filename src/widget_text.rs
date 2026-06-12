@@ -78,7 +78,7 @@ pub struct RichText {
 }
 
 impl RichText {
-    pub fn new(text: &str) -> Self {
+    pub fn new(text: impl Into<RString>) -> Self {
         Self {
             text: text.into(),
             ..Default::default()
@@ -169,25 +169,25 @@ impl From<&str> for RichText {
 
 impl From<&String> for RichText {
     fn from(value: &String) -> Self {
-        Self::new(value)
+        Self::new(value.as_str())
     }
 }
 
 impl From<&mut String> for RichText {
     fn from(value: &mut String) -> Self {
-        Self::new(value)
+        Self::new(value.as_str())
     }
 }
 
 impl From<String> for RichText {
     fn from(value: String) -> Self {
-        Self::new(&value)
+        Self::new(value)
     }
 }
 
 impl From<Cow<'_, str>> for RichText {
     fn from(value: Cow<'_, str>) -> Self {
-        Self::new(&value)
+        Self::new(value)
     }
 }
 
