@@ -1,7 +1,7 @@
 use abi_stable::std_types::RArc;
 use abi_stable::std_types::ROption::RSome;
 use egui::response::Flags;
-use egui::{Id, Rect};
+use egui::{Id, Pos2, Rect, Vec2};
 
 use crate::containers::popup::{Popup, PopupKind};
 use crate::containers::tooltip::Tooltip;
@@ -72,6 +72,26 @@ impl Response {
         self.clicked_by(PointerButton::Middle)
     }
 
+    #[inline]
+    pub fn double_clicked(&self) -> bool {
+        self.double_clicked_by(PointerButton::Primary)
+    }
+
+    #[inline]
+    pub fn triple_clicked(&self) -> bool {
+        self.triple_clicked_by(PointerButton::Primary)
+    }
+
+    #[inline]
+    pub fn double_clicked_by(&self, button: PointerButton) -> bool {
+        self.flags.contains(Flags::CLICKED) && self.pointer_state.button_double_clicked(button)
+    }
+
+    #[inline]
+    pub fn triple_clicked_by(&self, button: PointerButton) -> bool {
+        self.flags.contains(Flags::CLICKED) && self.pointer_state.button_triple_clicked(button)
+    }
+
     pub fn clicked_elsewhere(&self) -> bool {
         let (pointer_interact_pos, any_click) = (
             self.pointer_state.interact_pos(),
@@ -138,6 +158,33 @@ impl Response {
 
     pub fn drag_stopped_by(&self, button: PointerButton) -> bool {
         self.drag_stopped() && self.pointer_state.button_released(button)
+    }
+
+    #[inline]
+    pub fn drag_delta(&self) -> Vec2 {
+        if self.dragged() {
+            self.pointer_state.delta()
+        } else {
+            Vec2::ZERO
+        }
+    }
+
+    #[inline]
+    pub fn total_drag_delta(&self) -> Option<Vec2> {
+        if self.dragged() {
+            self.pointer_state.total_drag_delta()
+        } else {
+            None
+        }
+    }
+
+    #[inline]
+    pub fn hover_pos(&self) -> Option<Pos2> {
+        if self.hovered() {
+            self.pointer_state.latest_pos().into()
+        } else {
+            None
+        }
     }
 
     #[inline(always)]
