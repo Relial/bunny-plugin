@@ -1,5 +1,5 @@
 #[unsafe(no_mangle)]
-pub static BUNNY_API_VERSION: u32 = 1;
+pub static BUNNY_API_VERSION: u32 = 2;
 
 pub mod align;
 pub mod area;

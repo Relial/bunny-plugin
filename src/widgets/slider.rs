@@ -72,7 +72,7 @@ pub enum NumberCustomFormat {
 
 #[repr(C)]
 pub struct Slider<'a> {
-    value: &'a mut Num,
+    value: Num<'a>,
     range: [f64; 2],
     spec: SliderSpec,
     clamping: SliderClamping,
@@ -95,10 +95,11 @@ pub struct Slider<'a> {
 }
 
 impl<'a> Slider<'a> {
-    pub fn new(value: &'a mut Num, range: RangeInclusive<f64>) -> Self {
-        let int = value.int();
+    pub fn new(value: impl Into<Num<'a>>, range: RangeInclusive<f64>) -> Self {
+        let v = value.into();
+        let int = v.integer();
         let slf = Self {
-            value,
+            value: v,
             range: [*range.start(), *range.end()],
             spec: SliderSpec {
                 logarithmic: false,
@@ -274,7 +275,7 @@ impl<'a> Slider<'a> {
 }
 
 impl egui::Widget for Slider<'_> {
-    fn ui(self, ui: &mut Ui) -> egui::Response {
+    fn ui(mut self, ui: &mut Ui) -> egui::Response {
         let mut slider =
             egui::Slider::from_get_set(self.range[0]..=self.range[1], |v: Option<f64>| {
                 if let Some(v) = v {

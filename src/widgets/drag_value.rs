@@ -10,7 +10,7 @@ use crate::{elements::Widget, num::Num, widgets::slider::NumberCustomFormat};
 
 #[repr(C)]
 pub struct DragValue<'a> {
-    value: &'a mut Num,
+    value: Num<'a>,
     speed: f64,
     prefix: ROption<RString>,
     suffix: ROption<RString>,
@@ -23,14 +23,17 @@ pub struct DragValue<'a> {
 }
 
 impl<'a> DragValue<'a> {
-    pub fn new(value: &'a mut Num) -> Self {
-        if value.int() {
+    pub fn new(value: impl Into<Num<'a>>) -> Self {
+        let v = value.into();
+        if v.integer() {
+            let min = v.min();
+            let max = v.max();
             Self {
-                value,
+                value: v,
                 speed: 0.25,
                 prefix: RNone,
                 suffix: RNone,
-                range: [Num::INT_MIN, Num::INT_MAX],
+                range: [min, max],
                 clamp_existing_to_range: true,
                 min_decimals: 0,
                 max_decimals: RSome(0),
@@ -39,7 +42,7 @@ impl<'a> DragValue<'a> {
             }
         } else {
             Self {
-                value,
+                value: v,
                 speed: 1.0,
                 prefix: RNone,
                 suffix: RNone,
@@ -144,7 +147,7 @@ impl<'a> DragValue<'a> {
 }
 
 impl egui::Widget for DragValue<'_> {
-    fn ui(self, ui: &mut Ui) -> egui::Response {
+    fn ui(mut self, ui: &mut Ui) -> egui::Response {
         let mut drag_value = egui::DragValue::from_get_set(|v: Option<f64>| {
             if let Some(v) = v {
                 self.value.set(v);
