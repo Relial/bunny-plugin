@@ -34,6 +34,8 @@ impl<'a> PaintList<'a> {
     }
 
     pub fn ui(&mut self, ui: &mut Ui) {
+        // shape.to_egui() will cause a deadlock if called inside ui.graphics_mut(), which means we need to process shapes beforehand and so need the allocation
+        // if egui::Context::write() were public this could be avoided
         let shapes_clip_rects: Vec<(egui::Shape, Rect)> = self
             .0
             .drain(..)
