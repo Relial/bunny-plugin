@@ -6,12 +6,10 @@ use abi_stable::{
     std_types::{RArc, RString, RVec},
 };
 use egui::{
-    Color32, Pos2, Rangef, Rect, Rgba, Vec2,
-    emath::{GuiRounding, Rot2},
+    Align2, Color32, Pos2, Rangef, Rect, Rgba, Vec2, emath::{GuiRounding, Rot2}
 };
 
 use crate::{
-    align::Align2,
     image_source::ImageLoader,
     paint::{
         corner_radius::CornerRadius,
