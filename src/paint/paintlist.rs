@@ -116,6 +116,10 @@ impl<'a> PaintList<'a> {
     pub fn all_entries(&self) -> impl ExactSizeIterator<Item = &ClippedShape<'a>> {
         self.0.iter()
     }
+
+    pub fn clear(&mut self) {
+        self.0.clear();
+    }
 }
 
 #[repr(C)]
