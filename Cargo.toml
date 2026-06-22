@@ -1,0 +1,10 @@
+[package]
+name = "bunny-plugin"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+abi_stable = "0.11.3"
+anyhow = "1.0.102"
+bunny-ui = { path = "../bunny-ui" }
+tracing-subscriber = "0.3.23"
