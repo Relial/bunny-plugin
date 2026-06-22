@@ -48,15 +48,17 @@ pub struct PluginContext {
     mhfo_info: MhfoInfo,
     config_dir: RString,
     fonts: RVec<RString>,
+    log_level: LogLevel,
 }
 
 impl PluginContext {
-    pub fn new(mhfo_info: MhfoInfo, config_dir: impl Into<RString>, fonts: &[String]) -> Self {
+    pub fn new(mhfo_info: MhfoInfo, config_dir: impl Into<RString>, fonts: &[String], log_level: LogLevel) -> Self {
         let fonts = fonts.iter().map(|s| s.as_str().into()).collect();
         Self {
             mhfo_info,
             config_dir: config_dir.into(),
             fonts,
+            log_level,
         }
     }
 
@@ -70,6 +72,10 @@ impl PluginContext {
 
     pub fn fonts(&self) -> impl Iterator<Item = &str> {
         self.fonts.iter().map(|s| s.as_str())
+    }
+
+    pub fn log_level(&self) -> LogLevel {
+        self.log_level
     }
 }
 
