@@ -115,7 +115,6 @@ impl egui::Widget for Widget<'_> {
 #[repr(C)]
 pub(crate) enum MiscComponent {
     Space(f32),
-    Disable,
     EndRow,
     AllocateSpace(Vec2),
 }
@@ -125,10 +124,6 @@ impl UiComponent for MiscComponent {
         match self {
             MiscComponent::Space(space) => {
                 ui.add_space(space);
-                Response::default()
-            }
-            MiscComponent::Disable => {
-                ui.disable();
                 Response::default()
             }
             MiscComponent::EndRow => {

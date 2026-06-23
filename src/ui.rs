@@ -38,6 +38,7 @@ pub struct BunnyUi<'a> {
     pixels_per_point: f32,
     style: RArc<Style>,
     opacity_factor: f32,
+    enabled: bool,
 }
 
 impl<'a> BunnyUi<'a> {
@@ -49,6 +50,9 @@ impl<'a> BunnyUi<'a> {
     ) {
         self.style.to_egui(ui.style_mut());
         ui.set_opacity(self.opacity_factor);
+        if !self.enabled {
+            ui.disable();
+        }
         for Tuple2(id, component) in self.components {
             let response = component.ui(ui, new_responses, pointer_state.clone(), id);
             new_responses.insert(id, response);
@@ -75,6 +79,7 @@ impl<'a> BunnyUi<'a> {
             pixels_per_point,
             style: RArc::new(style),
             opacity_factor: 1.0,
+            enabled: true,
         }
     }
 
@@ -113,6 +118,7 @@ impl<'a> BunnyUi<'a> {
             pixels_per_point: self.pixels_per_point,
             style,
             opacity_factor: self.opacity_factor,
+            enabled: self.enabled,
         }
     }
 
@@ -233,7 +239,7 @@ impl<'a> BunnyUi<'a> {
     }
 
     pub fn disable(&mut self) {
-        self.add_component_auto_id(MiscComponent::Disable);
+        self.enabled = false;
     }
 
     pub fn add_enabled_ui<R>(
