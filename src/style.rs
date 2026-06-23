@@ -7,7 +7,7 @@ use crate::{
     paint::{
         corner_radius::CornerRadius,
         stroke::Stroke,
-        text::{TextOptions, fonts::FontId, text_layout_types::TextWrapMode},
+        text::{TextOptions, text_layout_types::TextWrapMode},
     },
     shadow::Shadow,
 };
@@ -27,7 +27,6 @@ pub enum TextStyle {
 pub struct Style {
     pub(crate) changed: bool,
     pub override_text_style: ROption<TextStyle>,
-    pub override_font_id: ROption<FontId>,
     pub override_text_valign: ROption<Align>,
     pub drag_value_text_style: TextStyle,
     pub wrap_mode: ROption<TextWrapMode>,
@@ -46,7 +45,6 @@ impl Style {
         let s = egui_style;
         if self.changed {
             s.override_text_style = self.override_text_style.map(|t| t.into()).into();
-            s.override_font_id = self.override_font_id.as_ref().map(|f| f.into()).into();
             s.override_text_valign = self.override_text_valign.map(|a| a.into()).into();
             s.drag_value_text_style = self.drag_value_text_style.into();
             s.wrap_mode = self.wrap_mode.map(|t| t.into()).into();
@@ -77,11 +75,6 @@ impl Style {
                 .override_text_style
                 .clone()
                 .map(|t| t.into())
-                .into(),
-            override_font_id: egui_style
-                .override_font_id
-                .as_ref()
-                .map(|f| f.into())
                 .into(),
             override_text_valign: egui_style.override_text_valign.map(|a| a.into()).into(),
             drag_value_text_style: egui_style.drag_value_text_style.clone().into(),

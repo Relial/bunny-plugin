@@ -1,7 +1,10 @@
+use std::{collections::BTreeMap, sync::Arc};
+
 use abi_stable::std_types::RString;
+use serde::{Deserialize, Serialize};
 
 #[repr(C)]
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct FontId {
     pub size: f32,
     pub family: FontFamily,
@@ -33,36 +36,21 @@ impl FontId {
     }
 }
 
-impl From<FontId> for egui::FontId {
-    fn from(value: FontId) -> Self {
-        let FontId { size, family } = value;
-        Self {
+impl FontId {
+    pub(crate) fn convert_to_egui(
+        self,
+        font_data: &BTreeMap<String, Arc<egui::FontData>>,
+    ) -> egui::FontId {
+        let FontId { size, family } = self;
+        egui::FontId {
             size,
-            family: family.into(),
-        }
-    }
-}
-
-impl From<&FontId> for egui::FontId {
-    fn from(value: &FontId) -> Self {
-        Self {
-            size: value.size,
-            family: value.family.clone().into(),
-        }
-    }
-}
-
-impl From<&egui::FontId> for FontId {
-    fn from(value: &egui::FontId) -> Self {
-        Self {
-            size: value.size,
-            family: value.family.clone().into(),
+            family: family.to_egui(font_data),
         }
     }
 }
 
 #[repr(C)]
-#[derive(Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub enum FontFamily {
     #[default]
     Proportional,
@@ -70,22 +58,29 @@ pub enum FontFamily {
     Name(RString),
 }
 
-impl From<FontFamily> for egui::FontFamily {
-    fn from(value: FontFamily) -> Self {
-        match value {
-            FontFamily::Proportional => Self::Proportional,
-            FontFamily::Monospace => Self::Monospace,
-            FontFamily::Name(rstring) => Self::Name(rstring.as_str().into()),
+impl FontFamily {
+    pub fn to_egui(self, font_data: &BTreeMap<String, Arc<egui::FontData>>) -> egui::FontFamily {
+        match self {
+            FontFamily::Proportional => egui::FontFamily::Proportional,
+            FontFamily::Monospace => egui::FontFamily::Monospace,
+            FontFamily::Name(name) => {
+                if font_data.contains_key(name.as_str()) {
+                    egui::FontFamily::Name(name.as_str().into())
+                } else {
+                    egui::FontFamily::Proportional
+                }
+            }
         }
     }
 }
 
-impl From<egui::FontFamily> for FontFamily {
-    fn from(value: egui::FontFamily) -> Self {
-        match value {
-            egui::FontFamily::Proportional => Self::Proportional,
-            egui::FontFamily::Monospace => Self::Monospace,
-            egui::FontFamily::Name(name) => Self::Name((*name).into()),
-        }
+impl std::fmt::Display for FontFamily {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let s = match self {
+            FontFamily::Proportional => "Proportional",
+            FontFamily::Monospace => "Monospace",
+            FontFamily::Name(name) => name.as_str(),
+        };
+        write!(f, "{s}")
     }
 }

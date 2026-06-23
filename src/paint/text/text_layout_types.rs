@@ -1,3 +1,5 @@
+use std::{collections::BTreeMap, sync::Arc};
+
 use abi_stable::{
     rvec,
     std_types::{
@@ -141,8 +143,11 @@ impl LayoutJob {
     }
 }
 
-impl From<LayoutJob> for egui::epaint::text::LayoutJob {
-    fn from(value: LayoutJob) -> Self {
+impl LayoutJob {
+    pub(crate) fn convert_to_egui(
+        self,
+        font_data: &BTreeMap<String, Arc<egui::FontData>>,
+    ) -> egui::epaint::text::LayoutJob {
         let LayoutJob {
             text,
             sections,
@@ -152,10 +157,13 @@ impl From<LayoutJob> for egui::epaint::text::LayoutJob {
             halign,
             justify,
             round_output_to_gui,
-        } = value;
-        Self {
+        } = self;
+        egui::epaint::text::LayoutJob {
             text: text.into(),
-            sections: sections.into_iter().map(|section| section.into()).collect(),
+            sections: sections
+                .into_iter()
+                .map(|section| section.convert_to_egui(font_data))
+                .collect(),
             wrap: wrap.into(),
             first_row_min_height,
             break_on_newline,
@@ -174,17 +182,20 @@ pub struct LayoutSection {
     pub format: TextFormat,
 }
 
-impl From<LayoutSection> for egui::epaint::text::LayoutSection {
-    fn from(value: LayoutSection) -> Self {
+impl LayoutSection {
+    pub(crate) fn convert_to_egui(
+        self,
+        font_data: &BTreeMap<String, Arc<egui::FontData>>,
+    ) -> egui::epaint::text::LayoutSection {
         let LayoutSection {
             leading_space,
             byte_range,
             format,
-        } = value;
-        Self {
+        } = self;
+        egui::epaint::text::LayoutSection {
             leading_space,
             byte_range: byte_range[0]..byte_range[1],
-            format: format.into(),
+            format: format.convert_to_egui(font_data),
         }
     }
 }
@@ -268,8 +279,11 @@ impl TextFormat {
     }
 }
 
-impl From<TextFormat> for egui::epaint::text::TextFormat {
-    fn from(value: TextFormat) -> Self {
+impl TextFormat {
+    pub(crate) fn convert_to_egui(
+        self,
+        font_data: &BTreeMap<String, Arc<egui::FontData>>,
+    ) -> egui::epaint::text::TextFormat {
         let TextFormat {
             font_id,
             extra_letter_spacing,
@@ -282,9 +296,9 @@ impl From<TextFormat> for egui::epaint::text::TextFormat {
             underline,
             strikethrough,
             valign,
-        } = value;
-        Self {
-            font_id: font_id.into(),
+        } = self;
+        egui::epaint::text::TextFormat {
+            font_id: font_id.convert_to_egui(font_data),
             extra_letter_spacing,
             line_height: line_height.into(),
             color,

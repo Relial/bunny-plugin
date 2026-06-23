@@ -78,7 +78,10 @@ impl TextShape {
             opacity_factor,
             angle,
         } = self;
-        let galley = ctx.fonts_mut(|f| f.layout_job(RBox::into_inner(layout_job).into()));
+        let galley = ctx.fonts_mut(|f| {
+            let font_data = &f.definitions().font_data;
+            f.layout_job(RBox::into_inner(layout_job).convert_to_egui(font_data))
+        });
         let rect = anchor.anchor_size(pos, galley.size());
         egui::epaint::TextShape {
             pos: rect.min,
