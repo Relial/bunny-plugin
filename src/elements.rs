@@ -18,11 +18,11 @@ use crate::{
     },
 };
 
-pub trait UiComponent {
+pub(crate) trait UiComponent {
     fn ui(self, ui: &mut Ui, pointer_state: RArc<PointerState>, id: Id) -> Response;
 }
 
-pub trait UiContainer {
+pub(crate) trait UiContainer {
     fn ui(
         self,
         ui: &mut Ui,
@@ -76,7 +76,7 @@ impl UiContainer for Container<'_> {
 }
 
 #[repr(C)]
-pub enum Widget<'a> {
+pub(crate) enum Widget<'a> {
     Label(Label),
     CheckBox(CheckBox<'a>),
     DragValue(DragValue<'a>),

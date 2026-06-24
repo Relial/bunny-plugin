@@ -200,6 +200,7 @@ impl<'a> BunnyUi<'a> {
         (response, painter)
     }
 
+    #[allow(private_bounds)]
     pub fn add_sized(
         &mut self,
         max_size: impl Into<Vec2>,
@@ -234,6 +235,7 @@ impl<'a> BunnyUi<'a> {
         self.components.push((id, component.into()).into());
     }
 
+    #[allow(private_bounds)]
     pub fn add(&mut self, widget: impl Into<Widget<'a>>) -> Response {
         self.add_component_auto_id(widget.into())
     }
