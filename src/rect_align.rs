@@ -1,4 +1,6 @@
-use egui::{Align2, Pos2, Rect, Vec2};
+use egui::{Pos2, Rect, Vec2};
+
+use crate::align::Align2;
 
 #[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -242,8 +244,8 @@ impl RectAlign {
 impl From<RectAlign> for egui::RectAlign {
     fn from(value: RectAlign) -> Self {
         Self {
-            parent: value.parent,
-            child: value.child,
+            parent: value.parent.into(),
+            child: value.child.into(),
         }
     }
 }

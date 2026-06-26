@@ -3,21 +3,11 @@ use abi_stable::std_types::{
     ROption::{self, RNone, RSome},
     RString,
 };
-use egui::{Align2, Color32, Id, Pos2, Rect, Ui, Vec2, vec2};
+use egui::{Color32, Id, Pos2, Rect, Ui, Vec2, vec2};
 use rapidhash::fast::RandomState;
 
 use crate::{
-    area::Area,
-    containers::scroll_area::{ScrollArea, ScrollBarVisibility, ScrollSource},
-    elements::{Container, UiContainer},
-    frame::Frame,
-    input_state::PointerState,
-    layout::Layout,
-    paint::{corner_radius::CornerRadius, stroke::Stroke},
-    resize::Resize,
-    response::{InnerResponse, Response},
-    ui::BunnyUi,
-    vec2b::Vec2b,
+    align::Align2, area::Area, containers::scroll_area::{ScrollArea, ScrollBarVisibility, ScrollSource}, elements::{Container, UiContainer}, frame::Frame, input_state::PointerState, layout::Layout, paint::{corner_radius::CornerRadius, stroke::Stroke}, resize::Resize, response::{InnerResponse, Response}, ui::BunnyUi, vec2b::Vec2b,
 };
 
 #[repr(C)]
@@ -374,7 +364,7 @@ impl UiContainer for WindowComponent<'_> {
             .interactable(self.window.area.interactable)
             .movable(self.window.area.movable)
             .constrain(self.window.area.constrain)
-            .pivot(self.window.area.pivot)
+            .pivot(self.window.area.pivot.into())
             .default_size(self.window.area.default_size)
             .default_open(self.window.default_open)
             .scroll(self.window.scroll.direction_enabled)
@@ -390,7 +380,7 @@ impl UiContainer for WindowComponent<'_> {
             window = window.default_pos(default_pos);
         }
         if let RSome(anchor) = self.window.area.anchor {
-            window = window.anchor(anchor.0, anchor.1);
+            window = window.anchor(anchor.0.into(), anchor.1);
         }
         if let RSome(new_pos) = self.window.area.new_pos {
             window = window.current_pos(new_pos);

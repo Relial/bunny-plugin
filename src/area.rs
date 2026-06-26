@@ -2,7 +2,9 @@ use abi_stable::std_types::{
     ROption::{self, RNone, RSome},
     Tuple2,
 };
-use egui::{Align2, Pos2, Rect, Vec2};
+use egui::{Pos2, Rect, Vec2};
+
+use crate::align::Align2;
 
 #[repr(C)]
 #[derive(Clone, Debug)]

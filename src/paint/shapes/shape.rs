@@ -5,13 +5,11 @@ use abi_stable::{
     std_types::{RBox, ROption::RNone, RString, RVec},
 };
 use anyhow::Result;
-use egui::{Align2, Color32, Context, Pos2, Rangef, Rect, Vec2, emath::TSTransform, epaint::Vertex, pos2};
+use egui::{Color32, Context, Pos2, Rangef, Rect, Vec2, emath::TSTransform, epaint::Vertex, pos2};
 use tracing::error;
 
 use crate::{
-    direction::Direction,
-    image_source::ImageLoader,
-    paint::{
+    align::Align2, direction::Direction, image_source::ImageLoader, paint::{
         corner_radius::CornerRadius,
         mesh::Mesh,
         shapes::{

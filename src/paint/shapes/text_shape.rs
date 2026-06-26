@@ -2,9 +2,9 @@ use abi_stable::std_types::{
     RBox,
     ROption::{self, RNone, RSome},
 };
-use egui::{Align2, Color32, Context, Pos2};
+use egui::{Color32, Context, Pos2};
 
-use crate::paint::{shapes::shape::Shape, stroke::Stroke, text::text_layout_types::LayoutJob};
+use crate::{align::Align2, paint::{shapes::shape::Shape, stroke::Stroke, text::text_layout_types::LayoutJob}};
 
 #[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
