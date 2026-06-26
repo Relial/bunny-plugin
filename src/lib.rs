@@ -7,6 +7,7 @@ pub mod frame;
 pub mod image_source;
 pub mod input;
 pub mod input_state;
+pub mod key;
 pub mod layout;
 pub mod load;
 pub mod margin;
@@ -23,7 +24,6 @@ pub mod ui_builder;
 pub mod vec2b;
 pub mod widget_text;
 pub mod widgets;
-pub mod key;
 
-pub use egui::epaint::ecolor;
-pub use egui::epaint::emath;
+pub use egui::epaint::emath::{Pos2, Rangef, Rect, RectTransform, TSTransform, Vec2, pos2, vec2};
+pub use egui::{Color32, Id, Sense};
