@@ -14,7 +14,7 @@ use crate::{
         button::Button, checkbox::CheckBox, drag_value::DragValue, image::Image,
         interact::Interact, label::Label, link::Link, progress_bar::ProgressBar,
         radio_button::RadioButton, separator::Separator, shortcut_button::ShortcutButton,
-        slider::Slider, spinner::Spinner,
+        slider::Slider, spinner::Spinner, text_edit::builder::TextEdit,
     },
 };
 
@@ -90,6 +90,7 @@ pub(crate) enum Widget<'a> {
     RadioButton(RadioButton),
     Spinner(Spinner),
     ShortcutButton(ShortcutButton<'a>),
+    TextEdit(TextEdit<'a>),
 }
 
 impl egui::Widget for Widget<'_> {
@@ -108,6 +109,7 @@ impl egui::Widget for Widget<'_> {
             Widget::RadioButton(radio_button) => radio_button.ui(ui),
             Widget::Spinner(spinner) => spinner.ui(ui),
             Widget::ShortcutButton(shortcut_button) => shortcut_button.ui(ui),
+            Widget::TextEdit(text_edit) => text_edit.ui(ui),
         }
     }
 }

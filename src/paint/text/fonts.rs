@@ -3,6 +3,8 @@ use std::{collections::BTreeMap, sync::Arc};
 use abi_stable::std_types::RString;
 use serde::{Deserialize, Serialize};
 
+use crate::style::TextStyle;
+
 #[repr(C)]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct FontId {
@@ -82,5 +84,44 @@ impl std::fmt::Display for FontFamily {
             FontFamily::Name(name) => name.as_str(),
         };
         write!(f, "{s}")
+    }
+}
+
+#[repr(C)]
+#[derive(Clone, Debug, Default)]
+pub enum FontSelection {
+    #[default]
+    Default,
+    FontId(FontId),
+    Style(TextStyle),
+}
+
+impl From<FontId> for FontSelection {
+    #[inline(always)]
+    fn from(value: FontId) -> Self {
+        Self::FontId(value)
+    }
+}
+
+impl From<TextStyle> for FontSelection {
+    #[inline(always)]
+    fn from(value: TextStyle) -> Self {
+        Self::Style(value)
+    }
+}
+
+impl FontSelection {
+    pub fn convert_to_egui(self, ui: &egui::Ui) -> egui::FontSelection {
+        match self {
+            FontSelection::Default => egui::FontSelection::Default,
+            FontSelection::FontId(font_id) => {
+                let id = ui.fonts(|i| {
+                    let data = &i.definitions().font_data;
+                    font_id.convert_to_egui(data)
+                });
+                egui::FontSelection::FontId(id)
+            }
+            FontSelection::Style(text_style) => egui::FontSelection::Style(text_style.into()),
+        }
     }
 }
