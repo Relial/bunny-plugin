@@ -1,4 +1,4 @@
-use abi_stable::std_types::ROption::{self, RNone, RSome};
+use abi_stable::std_types::{RBox, ROption::{self, RNone, RSome}};
 use egui::{Color32, Id, Vec2};
 
 use crate::{
@@ -233,6 +233,6 @@ impl egui::Widget for TextEdit<'_> {
 
 impl<'a> From<TextEdit<'a>> for Widget<'a> {
     fn from(value: TextEdit<'a>) -> Self {
-        Widget::TextEdit(value)
+        Widget::TextEdit(RBox::new(value))
     }
 }

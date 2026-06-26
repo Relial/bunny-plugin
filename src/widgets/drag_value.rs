@@ -1,8 +1,7 @@
 use std::ops::RangeInclusive;
 
 use abi_stable::std_types::{
-    ROption::{self, RNone, RSome},
-    RString,
+    RBox, ROption::{self, RNone, RSome}, RString,
 };
 use egui::Ui;
 
@@ -193,6 +192,6 @@ impl egui::Widget for DragValue<'_> {
 
 impl<'a> From<DragValue<'a>> for Widget<'a> {
     fn from(value: DragValue<'a>) -> Self {
-        Self::DragValue(value)
+        Self::DragValue(RBox::new(value))
     }
 }

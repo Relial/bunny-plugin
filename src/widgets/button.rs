@@ -1,4 +1,4 @@
-use abi_stable::std_types::ROption::{self, RNone, RSome};
+use abi_stable::std_types::{RBox, ROption::{self, RNone, RSome}};
 use egui::{Color32, Ui};
 
 use crate::{
@@ -101,6 +101,6 @@ impl egui::Widget for Button {
 
 impl From<Button> for Widget<'_> {
     fn from(value: Button) -> Self {
-        Self::Button(value)
+        Self::Button(RBox::new(value))
     }
 }

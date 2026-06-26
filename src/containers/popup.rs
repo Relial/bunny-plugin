@@ -1,5 +1,5 @@
 use abi_stable::std_types::{
-    RArc, RHashMap,
+    RArc, RBox, RHashMap,
     ROption::{self, RNone, RSome},
 };
 use egui::{Context, Id, Pos2, Rect, Sense, Ui};
@@ -384,10 +384,10 @@ impl<'a> Popup<'a> {
         let inner = InnerResponse::new(ret, response.cloned().unwrap_or_default());
         ui.add_component(
             self.id,
-            Container::Popup(PopupComponent {
+            Container::Popup(RBox::new(PopupComponent {
                 contents: new,
                 popup: self,
-            }),
+            })),
         );
         inner
     }
@@ -475,11 +475,5 @@ impl UiContainer for PopupComponent<'_> {
         } else {
             Response::empty(id, pointer_state)
         }
-    }
-}
-
-impl<'a> From<PopupComponent<'a>> for Container<'a> {
-    fn from(value: PopupComponent<'a>) -> Self {
-        Self::Popup(value)
     }
 }

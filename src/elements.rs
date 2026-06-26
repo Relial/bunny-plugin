@@ -38,10 +38,10 @@ pub(crate) enum Container<'a> {
     Scope(ScopeBuilder<'a>),
     AllocateUi(AllocateUi<'a>),
     Grid(GridComponent<'a>),
-    Window(WindowComponent<'a>),
+    Window(RBox<WindowComponent<'a>>),
     ComboBox(ComboBoxComponent<'a>),
-    Popup(PopupComponent<'a>),
-    Tooltip(TooltipComponent<'a>),
+    Popup(RBox<PopupComponent<'a>>),
+    Tooltip(RBox<TooltipComponent<'a>>),
     Indent(Indent<'a>),
 }
 
@@ -60,15 +60,17 @@ impl UiContainer for Container<'_> {
             Container::Scope(scope_builder) => scope_builder.ui(ui, responses, pointer_state, id),
             Container::AllocateUi(allocate_ui) => allocate_ui.ui(ui, responses, pointer_state, id),
             Container::Grid(grid) => grid.ui(ui, responses, pointer_state, id),
-            Container::Window(window) => window.ui(ui, responses, pointer_state, id),
+            Container::Window(window) => {
+                RBox::into_inner(window).ui(ui, responses, pointer_state, id)
+            }
             Container::ComboBox(combo_box_component) => {
                 combo_box_component.ui(ui, responses, pointer_state, id)
             }
             Container::Popup(popup_component) => {
-                popup_component.ui(ui, responses, pointer_state, id)
+                RBox::into_inner(popup_component).ui(ui, responses, pointer_state, id)
             }
             Container::Tooltip(tooltip_component) => {
-                tooltip_component.ui(ui, responses, pointer_state, id)
+                RBox::into_inner(tooltip_component).ui(ui, responses, pointer_state, id)
             }
             Container::Indent(indent) => indent.ui(ui, responses, pointer_state, id),
         }
@@ -77,39 +79,39 @@ impl UiContainer for Container<'_> {
 
 #[repr(C)]
 pub(crate) enum Widget<'a> {
-    Label(Label),
+    Label(RBox<Label>),
     CheckBox(CheckBox<'a>),
-    DragValue(DragValue<'a>),
-    Button(Button),
+    DragValue(RBox<DragValue<'a>>),
+    Button(RBox<Button>),
     Slider(RBox<Slider<'a>>),
     Separator(Separator),
     Image(RBox<Image<'a>>),
     Interact(Interact),
     Link(Link),
-    ProgressBar(ProgressBar),
+    ProgressBar(RBox<ProgressBar>),
     RadioButton(RadioButton),
     Spinner(Spinner),
     ShortcutButton(ShortcutButton<'a>),
-    TextEdit(TextEdit<'a>),
+    TextEdit(RBox<TextEdit<'a>>),
 }
 
 impl egui::Widget for Widget<'_> {
     fn ui(self, ui: &mut Ui) -> egui::Response {
         match self {
-            Widget::Label(label) => label.ui(ui),
+            Widget::Label(label) => RBox::into_inner(label).ui(ui),
             Widget::CheckBox(check_box) => check_box.ui(ui),
-            Widget::DragValue(drag_value) => drag_value.ui(ui),
-            Widget::Button(button) => button.ui(ui),
+            Widget::DragValue(drag_value) => RBox::into_inner(drag_value).ui(ui),
+            Widget::Button(button) => RBox::into_inner(button).ui(ui),
             Widget::Slider(slider) => RBox::into_inner(slider).ui(ui),
             Widget::Separator(separator) => separator.ui(ui),
             Widget::Image(image) => RBox::into_inner(image).ui(ui),
             Widget::Interact(interact) => interact.ui(ui),
             Widget::Link(link) => link.ui(ui),
-            Widget::ProgressBar(progress_bar) => progress_bar.ui(ui),
+            Widget::ProgressBar(progress_bar) => RBox::into_inner(progress_bar).ui(ui),
             Widget::RadioButton(radio_button) => radio_button.ui(ui),
             Widget::Spinner(spinner) => spinner.ui(ui),
             Widget::ShortcutButton(shortcut_button) => shortcut_button.ui(ui),
-            Widget::TextEdit(text_edit) => text_edit.ui(ui),
+            Widget::TextEdit(text_edit) => RBox::into_inner(text_edit).ui(ui),
         }
     }
 }
@@ -143,7 +145,7 @@ impl UiComponent for MiscComponent {
 #[repr(C)]
 pub(crate) enum Component<'a> {
     Container(RBox<Container<'a>>),
-    Widget(Widget<'a>),
+    Widget(RBox<Widget<'a>>),
     MiscComponent(MiscComponent),
 }
 
@@ -160,7 +162,7 @@ impl UiContainer for Component<'_> {
                 RBox::into_inner(container).ui(ui, responses, pointer_state, id)
             }
             Component::Widget(widget) => {
-                let egui_resp = widget.ui(ui);
+                let egui_resp = RBox::into_inner(widget).ui(ui);
                 Response::new(id, egui_resp, pointer_state)
             }
             Component::MiscComponent(misc_component) => misc_component.ui(ui, pointer_state, id),
@@ -176,7 +178,7 @@ impl<'a> From<Container<'a>> for Component<'a> {
 
 impl<'a> From<Widget<'a>> for Component<'a> {
     fn from(value: Widget<'a>) -> Self {
-        Self::Widget(value)
+        Self::Widget(RBox::new(value))
     }
 }
 

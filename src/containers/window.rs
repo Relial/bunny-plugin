@@ -1,5 +1,5 @@
 use abi_stable::std_types::{
-    RArc, RHashMap,
+    RArc, RBox, RHashMap,
     ROption::{self, RNone, RSome},
     RString,
 };
@@ -7,7 +7,18 @@ use egui::{Color32, Id, Pos2, Rect, Ui, Vec2, vec2};
 use rapidhash::fast::RandomState;
 
 use crate::{
-    align::Align2, area::Area, containers::scroll_area::{ScrollArea, ScrollBarVisibility, ScrollSource}, elements::{Container, UiContainer}, frame::Frame, input_state::PointerState, layout::Layout, paint::{corner_radius::CornerRadius, stroke::Stroke}, resize::Resize, response::{InnerResponse, Response}, ui::BunnyUi, vec2b::Vec2b,
+    align::Align2,
+    area::Area,
+    containers::scroll_area::{ScrollArea, ScrollBarVisibility, ScrollSource},
+    elements::{Container, UiContainer},
+    frame::Frame,
+    input_state::PointerState,
+    layout::Layout,
+    paint::{corner_radius::CornerRadius, stroke::Stroke},
+    resize::Resize,
+    response::{InnerResponse, Response},
+    ui::BunnyUi,
+    vec2b::Vec2b,
 };
 
 #[repr(C)]
@@ -288,10 +299,10 @@ impl Window {
     ) -> InnerResponse<R> {
         let mut new = ui.new_child(Some(Layout::default()));
         let ret = add_contents(&mut new);
-        let response = ui.add_component_auto_id(Container::Window(WindowComponent {
+        let response = ui.add_component_auto_id(Container::Window(RBox::new(WindowComponent {
             contents: new,
             window: self,
-        }));
+        })));
         InnerResponse::new(ret, response)
     }
 }
@@ -402,11 +413,5 @@ impl UiContainer for WindowComponent<'_> {
         } else {
             Response::empty(id, pointer_state)
         }
-    }
-}
-
-impl<'a> From<WindowComponent<'a>> for Container<'a> {
-    fn from(value: WindowComponent<'a>) -> Self {
-        Self::Window(value)
     }
 }

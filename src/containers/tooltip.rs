@@ -1,5 +1,5 @@
 use abi_stable::std_types::{
-    RArc, RHashMap,
+    RArc, RBox, RHashMap,
     ROption::{self, RNone, RSome},
 };
 use egui::{Id, Sense, Ui};
@@ -96,10 +96,10 @@ impl<'a> Tooltip<'a> {
         let inner = InnerResponse::new(ret, response.cloned().unwrap_or_default());
         ui.add_component(
             self.popup.get_id(),
-            Container::Tooltip(TooltipComponent {
+            Container::Tooltip(RBox::new(TooltipComponent {
                 contents: new,
                 tooltip: self,
-            }),
+            })),
         );
         inner
     }

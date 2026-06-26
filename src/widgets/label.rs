@@ -1,4 +1,4 @@
-use abi_stable::std_types::ROption::{self, RNone, RSome};
+use abi_stable::std_types::{RBox, ROption::{self, RNone, RSome}};
 use egui::{Sense, Ui};
 
 use crate::{
@@ -100,6 +100,6 @@ impl egui::Widget for Label {
 
 impl From<Label> for Widget<'_> {
     fn from(value: Label) -> Self {
-        Self::Label(value)
+        Self::Label(RBox::new(value))
     }
 }

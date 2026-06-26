@@ -1,4 +1,7 @@
-use abi_stable::std_types::ROption::{self, RSome};
+use abi_stable::std_types::{
+    RBox,
+    ROption::{self, RSome},
+};
 use egui::Color32;
 
 use crate::{elements::Widget, paint::corner_radius::CornerRadius, widget_text::WidgetText};
@@ -50,6 +53,6 @@ impl egui::Widget for ProgressBar {
 
 impl From<ProgressBar> for Widget<'_> {
     fn from(value: ProgressBar) -> Self {
-        Self::ProgressBar(value)
+        Self::ProgressBar(RBox::new(value))
     }
 }
