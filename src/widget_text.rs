@@ -1,6 +1,7 @@
 use std::{borrow::Cow, sync::Arc};
 
 use abi_stable::std_types::{
+    RBox,
     ROption::{self, RSome},
     RString,
 };
@@ -12,7 +13,7 @@ use crate::style::TextStyle;
 #[derive(Clone)]
 pub enum WidgetText {
     Text(RString),
-    RichText(RichText),
+    RichText(RBox<RichText>),
 }
 
 impl WidgetText {
@@ -56,7 +57,7 @@ impl From<Cow<'_, str>> for WidgetText {
 
 impl From<RichText> for WidgetText {
     fn from(value: RichText) -> Self {
-        Self::RichText(value)
+        Self::RichText(RBox::new(value))
     }
 }
 
@@ -196,36 +197,36 @@ impl From<WidgetText> for egui::WidgetText {
         match value {
             WidgetText::Text(rstring) => egui::WidgetText::Text(rstring.into()),
             WidgetText::RichText(rich_text) => {
-                let mut new = egui::RichText::new(rich_text.text)
-                    .background_color(rich_text.background_color);
-                if let RSome(size) = rich_text.size {
+                let rt = RBox::into_inner(rich_text);
+                let mut new = egui::RichText::new(rt.text).background_color(rt.background_color);
+                if let RSome(size) = rt.size {
                     new = new.size(size);
                 }
-                if let RSome(text_style) = rich_text.text_style {
+                if let RSome(text_style) = rt.text_style {
                     new = new.text_style(text_style.into());
                 }
-                if let RSome(text_color) = rich_text.text_color {
+                if let RSome(text_color) = rt.text_color {
                     new = new.color(text_color);
                 }
-                if rich_text.code {
+                if rt.code {
                     new = new.code();
                 }
-                if rich_text.strong {
+                if rt.strong {
                     new = new.strong();
                 }
-                if rich_text.weak {
+                if rt.weak {
                     new = new.weak();
                 }
-                if rich_text.strikethrough {
+                if rt.strikethrough {
                     new = new.strikethrough();
                 }
-                if rich_text.underline {
+                if rt.underline {
                     new = new.underline();
                 }
-                if rich_text.italics {
+                if rt.italics {
                     new = new.italics();
                 }
-                if rich_text.raised {
+                if rt.raised {
                     new = new.raised();
                 }
                 egui::WidgetText::RichText(Arc::new(new))
