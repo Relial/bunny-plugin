@@ -42,15 +42,15 @@ impl TitleBar {
 
 #[repr(C)]
 pub struct Window {
-    id: Id,
-    open: ROption<*mut bool>,
-    title: ROption<RString>,
-    title_bar: bool,
     area: Area,
+    title: ROption<RString>,
     frame: ROption<Frame>,
-    resize: Resize,
-    default_open: bool,
     scroll: ScrollArea,
+    resize: Resize,
+    open: ROption<*mut bool>,
+    id: Id,
+    default_open: bool,
+    title_bar: bool,
 }
 
 impl Window {
@@ -309,8 +309,8 @@ impl Window {
 
 #[repr(C)]
 pub struct WindowComponent<'a> {
-    contents: BunnyUi<'a>,
     window: Window,
+    contents: BunnyUi<'a>,
 }
 
 impl WindowComponent<'_> {

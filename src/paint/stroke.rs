@@ -72,8 +72,8 @@ impl From<StrokeKind> for egui::StrokeKind {
 #[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct PathStroke {
-    pub width: f32,
     pub color: ColorMode,
+    pub width: f32,
     pub kind: StrokeKind,
 }
 

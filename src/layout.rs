@@ -4,11 +4,11 @@ use crate::{align::Align, direction::Direction};
 #[derive(Clone, Copy)]
 pub struct Layout {
     pub main_dir: Direction,
-    pub main_wrap: bool,
     pub main_align: Align,
-    pub main_justify: bool,
     pub cross_align: Align,
     pub cross_justify: bool,
+    pub main_wrap: bool,
+    pub main_justify: bool,
 }
 
 impl Default for Layout {

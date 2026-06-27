@@ -41,9 +41,9 @@ impl Input {
 #[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct InputOptions {
-    pub max_click_dist: f32,
     pub max_click_duration: f64,
     pub max_double_click_delay: f64,
+    pub max_click_dist: f32,
 }
 
 impl Default for InputOptions {
@@ -59,14 +59,14 @@ impl Default for InputOptions {
 #[repr(C)]
 pub struct InputState {
     pub pointer: PointerState,
-    pub pixels_per_point: f32,
-    pub time: f64,
-    pub unstable_dt: f32,
-    pub stable_dt: f32,
-    pub modifiers: Modifiers,
     pub keys_down: RVec<Key>,
     pub events: RVec<KeyEvent>,
     options: InputOptions,
+    pub time: f64,
+    pub pixels_per_point: f32,
+    pub unstable_dt: f32,
+    pub stable_dt: f32,
+    pub modifiers: Modifiers,
 }
 
 impl Default for InputState {
@@ -221,20 +221,20 @@ impl PointerEvent {
 #[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
 pub struct PointerState {
-    time: f64,
+    pointer_events: RVec<PointerEvent>,
+    options: InputOptions,
+    press_start_time: ROption<f64>,
     latest_pos: ROption<Pos2>,
     interact_pos: ROption<Pos2>,
-    delta: Vec2,
-    down: [bool; 5],
     press_origin: ROption<Pos2>,
-    press_start_time: ROption<f64>,
-    hast_moved_too_much_for_a_click: bool,
     last_click_pos: ROption<Pos2>,
+    time: f64,
+    delta: Vec2,
     last_click_time: f64,
     last_last_click_time: f64,
     last_move_time: f64,
-    pointer_events: RVec<PointerEvent>,
-    options: InputOptions,
+    down: [bool; 5],
+    hast_moved_too_much_for_a_click: bool,
 }
 
 impl Default for PointerState {

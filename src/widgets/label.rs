@@ -1,4 +1,7 @@
-use abi_stable::std_types::{RBox, ROption::{self, RNone, RSome}};
+use abi_stable::std_types::{
+    RBox,
+    ROption::{self, RNone, RSome},
+};
 use egui::{Sense, Ui};
 
 use crate::{
@@ -10,9 +13,9 @@ use crate::{
 pub struct Label {
     text: WidgetText,
     wrap_mode: ROption<TextWrapMode>,
+    halign: ROption<Align>,
     sense: ROption<Sense>,
     selectable: ROption<bool>,
-    halign: ROption<Align>,
     show_tooltip_when_elided: bool,
 }
 

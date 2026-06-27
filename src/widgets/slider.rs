@@ -12,9 +12,9 @@ use crate::{elements::Widget, num::Num, style::HandleShape, widget_text::WidgetT
 #[repr(C)]
 #[derive(Clone, Copy)]
 struct SliderSpec {
-    logarithmic: bool,
     smallest_positive: f64,
     largest_finite: f64,
+    logarithmic: bool,
 }
 
 #[repr(C)]
@@ -72,26 +72,24 @@ pub enum NumberCustomFormat {
 
 #[repr(C)]
 pub struct Slider<'a> {
-    value: Num<'a>,
-    range: [f64; 2],
-    spec: SliderSpec,
-    clamping: SliderClamping,
-    smart_aim: bool,
-    show_value: bool,
-    orientation: SliderOrientation,
+    text: ROption<WidgetText>,
     prefix: ROption<RString>,
     suffix: ROption<RString>,
-    text: ROption<WidgetText>,
-
-    step: ROption<f64>,
-    drag_value_speed: ROption<f64>,
-    min_decimals: usize,
-    max_decimals: ROption<usize>,
-    trailing_fill: ROption<bool>,
-    handle_shape: ROption<HandleShape>,
-    update_while_editing: bool,
-
     custom_format: ROption<NumberCustomFormat>,
+    spec: SliderSpec,
+    range: [f64; 2],
+    drag_value_speed: ROption<f64>,
+    max_decimals: ROption<usize>,
+    step: ROption<f64>,
+    value: Num<'a>,
+    handle_shape: ROption<HandleShape>,
+    min_decimals: usize,
+    clamping: SliderClamping,
+    orientation: SliderOrientation,
+    trailing_fill: ROption<bool>,
+    smart_aim: bool,
+    show_value: bool,
+    update_while_editing: bool,
 }
 
 impl<'a> Slider<'a> {

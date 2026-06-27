@@ -25,19 +25,19 @@ pub enum TextStyle {
 #[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
 pub struct Style {
-    pub(crate) changed: bool,
-    pub override_text_style: ROption<TextStyle>,
-    pub override_text_valign: ROption<Align>,
-    pub drag_value_text_style: TextStyle,
-    pub wrap_mode: ROption<TextWrapMode>,
+    visuals: Visuals,
     spacing: Spacing,
     interaction: Interaction,
-    visuals: Visuals,
+    pub scroll_animation: ScrollAnimation,
+    pub override_text_style: ROption<TextStyle>,
+    pub override_text_valign: ROption<Align>,
+    pub wrap_mode: ROption<TextWrapMode>,
+    pub drag_value_text_style: TextStyle,
     pub animation_time: f32,
+    pub compact_menu_style: bool,
+    pub(crate) changed: bool,
     pub explanation_tooltips: bool,
     pub always_scroll_the_only_direction: bool,
-    pub scroll_animation: ScrollAnimation,
-    pub compact_menu_style: bool,
 }
 
 impl Style {
@@ -132,13 +132,14 @@ impl Style {
 #[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
 pub struct Spacing {
-    changed: bool,
+    pub scroll: ScrollStyle,
     pub item_spacing: Vec2,
-    pub window_margin: Margin,
     pub button_padding: Vec2,
+    pub interact_size: Vec2,
+    pub default_area_size: Vec2,
+    pub window_margin: Margin,
     pub menu_margin: Margin,
     pub indent: f32,
-    pub interact_size: Vec2,
     pub slider_width: f32,
     pub slider_rail_height: f32,
     pub combo_width: f32,
@@ -146,19 +147,18 @@ pub struct Spacing {
     pub icon_width: f32,
     pub icon_width_inner: f32,
     pub icon_spacing: f32,
-    pub default_area_size: Vec2,
     pub tooltip_width: f32,
     pub menu_width: f32,
     pub menu_spacing: f32,
-    pub indent_ends_with_horizontal_line: bool,
     pub combo_height: f32,
-    pub scroll: ScrollStyle,
+    changed: bool,
+    pub indent_ends_with_horizontal_line: bool,
 }
 
 #[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
 pub struct ScrollStyle {
-    pub floating: bool,
+    pub fade: ScrollFadeStyle,
     pub content_margin: Margin,
     pub bar_width: f32,
     pub handle_min_length: f32,
@@ -166,14 +166,14 @@ pub struct ScrollStyle {
     pub bar_outer_margin: f32,
     pub floating_width: f32,
     pub floating_allocated_width: f32,
-    pub foreground_color: bool,
     pub dormant_background_opacity: f32,
     pub active_background_opacity: f32,
     pub interact_background_opacity: f32,
     pub dormant_handle_opacity: f32,
     pub active_handle_opacity: f32,
     pub interact_handle_opacity: f32,
-    pub fade: ScrollFadeStyle,
+    pub floating: bool,
+    pub foreground_color: bool,
 }
 
 impl ScrollStyle {
@@ -247,8 +247,8 @@ impl Default for ScrollFadeStyle {
 #[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct ScrollAnimation {
-    pub points_per_second: f32,
     pub duration: Rangef,
+    pub points_per_second: f32,
 }
 
 impl Default for ScrollAnimation {
@@ -286,25 +286,25 @@ impl ScrollAnimation {
 #[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
 pub struct Interaction {
-    changed: bool,
     pub interact_radius: f32,
     pub resize_grab_radius_side: f32,
     pub resize_grab_radius_corner: f32,
-    pub show_tooltips_only_when_still: bool,
     pub tooltip_delay: f32,
     pub tooltip_grace_time: f32,
     pub selectable_labels: bool,
     pub multi_widget_text_select: bool,
+    changed: bool,
+    pub show_tooltips_only_when_still: bool,
 }
 
 #[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct TextCursorStyle {
     pub stroke: Stroke,
-    pub preview: bool,
-    pub blink: bool,
     pub on_duration: f32,
     pub off_duration: f32,
+    pub preview: bool,
+    pub blink: bool,
 }
 
 impl Default for TextCursorStyle {
@@ -322,41 +322,41 @@ impl Default for TextCursorStyle {
 #[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
 pub struct Visuals {
-    changed: bool,
-    pub dark_mode: bool,
+    pub widgets: Widgets,
+    pub text_cursor: TextCursorStyle,
+    pub selection: Selection,
     pub text_options: TextOptions,
     pub override_text_color: ROption<Color32>,
-    pub weak_text_alpha: f32,
     pub weak_text_color: ROption<Color32>,
-    pub widgets: Widgets,
-    pub selection: Selection,
+    pub text_edit_bg_color: ROption<Color32>,
+    pub window_shadow: Shadow,
+    pub window_stroke: Stroke,
+    pub popup_shadow: Shadow,
+    pub handle_shape: HandleShape,
+    pub weak_text_alpha: f32,
     pub hyperlink_color: Color32,
     pub faint_bg_color: Color32,
     pub extreme_bg_color: Color32,
-    pub text_edit_bg_color: ROption<Color32>,
     pub code_bg_color: Color32,
     pub warn_fg_color: Color32,
     pub error_fg_color: Color32,
     pub window_corner_radius: CornerRadius,
-    pub window_shadow: Shadow,
     pub window_fill: Color32,
-    pub window_stroke: Stroke,
-    pub window_highlight_topmost: bool,
     pub menu_corner_radius: CornerRadius,
     pub panel_fill: Color32,
-    pub popup_shadow: Shadow,
     pub resize_corner_size: f32,
-    pub text_cursor: TextCursorStyle,
     pub clip_rect_margin: f32,
+    pub numeric_color_space: NumericColorSpace,
+    pub disabled_alpha: f32,
+    changed: bool,
+    pub dark_mode: bool,
+    pub window_highlight_topmost: bool,
     pub button_frame: bool,
     pub collapsing_header_frame: bool,
     pub indent_has_left_vline: bool,
     pub striped: bool,
     pub slider_trailing_fill: bool,
-    pub handle_shape: HandleShape,
     pub image_loading_spinners: bool,
-    pub numeric_color_space: NumericColorSpace,
-    pub disabled_alpha: f32,
 }
 
 impl Visuals {
@@ -398,15 +398,15 @@ impl Visuals {
 #[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Selection {
-    pub bg_fill: Color32,
     pub stroke: Stroke,
+    pub bg_fill: Color32,
 }
 
 #[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum HandleShape {
-    Circle,
     Rect { aspect_ratio: f32 },
+    Circle,
 }
 
 #[repr(C)]
@@ -422,11 +422,11 @@ pub struct Widgets {
 #[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct WidgetVisuals {
+    pub bg_stroke: Stroke,
+    pub fg_stroke: Stroke,
     pub bg_fill: Color32,
     pub weak_bg_fill: Color32,
-    pub bg_stroke: Stroke,
     pub corner_radius: CornerRadius,
-    pub fg_stroke: Stroke,
     pub expansion: f32,
 }
 

@@ -1,18 +1,20 @@
 use egui::Color32;
 
 use crate::{
-    margin::Margin, paint::{corner_radius::CornerRadius, stroke::Stroke}, shadow::Shadow
+    margin::Margin,
+    paint::{corner_radius::CornerRadius, stroke::Stroke},
+    shadow::Shadow,
 };
 
 #[repr(C)]
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Frame {
+    pub stroke: Stroke,
+    pub shadow: Shadow,
     pub inner_margin: Margin,
     pub fill: Color32,
-    pub stroke: Stroke,
     pub corner_radius: CornerRadius,
     pub outer_margin: Margin,
-    pub shadow: Shadow,
 }
 
 impl Frame {

@@ -1,4 +1,7 @@
-use abi_stable::std_types::{RBox, ROption::{self, RNone, RSome}};
+use abi_stable::std_types::{
+    RBox,
+    ROption::{self, RNone, RSome},
+};
 use egui::{Color32, Ui};
 
 use crate::{
@@ -10,13 +13,13 @@ use crate::{
 #[repr(C)]
 pub struct Button {
     text: WidgetText,
-    fill: ROption<Color32>,
     stroke: ROption<Stroke>,
-    small: bool,
+    fill: ROption<Color32>,
+    corner_radius: ROption<CornerRadius>,
     frame: ROption<bool>,
     frame_when_inactive: bool,
-    corner_radius: ROption<CornerRadius>,
     selected: bool,
+    small: bool,
 }
 
 impl Button {

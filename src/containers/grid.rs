@@ -17,12 +17,12 @@ use crate::{
 
 #[repr(C)]
 pub struct Grid {
-    id: Id,
     num_columns: ROption<usize>,
+    spacing: ROption<Vec2>,
+    id: Id,
     min_col_width: ROption<f32>,
     min_row_height: ROption<f32>,
     max_col_width: f32,
-    spacing: ROption<Vec2>,
     striped: bool,
 }
 

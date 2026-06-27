@@ -1,4 +1,7 @@
-use abi_stable::std_types::{RBox, ROption::{self, RNone, RSome}};
+use abi_stable::std_types::{
+    RBox,
+    ROption::{self, RNone, RSome},
+};
 use egui::{Color32, Id, Vec2};
 
 use crate::{
@@ -13,26 +16,26 @@ use crate::{
 
 #[repr(C)]
 pub struct TextEdit<'t> {
-    text: &'t mut BunnyString,
+    font_selection: FontSelection,
     prefix: WidgetText,
     suffix: WidgetText,
     hint_text: WidgetText,
-    id: ROption<Id>,
-    font_selection: FontSelection,
-    text_color: ROption<Color32>,
-    password: bool,
     frame: ROption<Frame>,
-    margin: Margin,
-    multiline: bool,
-    interactive: bool,
+    id: ROption<Id>,
+    text: &'t mut BunnyString,
+    text_color: ROption<Color32>,
     desired_width: ROption<f32>,
     desired_height_rows: usize,
-    cursor_at_end: bool,
     min_size: Vec2,
     align: Align2,
-    clip_text: bool,
     char_limit: usize,
     background_color: ROption<Color32>,
+    margin: Margin,
+    password: bool,
+    multiline: bool,
+    interactive: bool,
+    cursor_at_end: bool,
+    clip_text: bool,
 }
 
 impl<'t> TextEdit<'t> {

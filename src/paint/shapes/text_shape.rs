@@ -4,17 +4,20 @@ use abi_stable::std_types::{
 };
 use egui::{Color32, Context, Pos2};
 
-use crate::{align::Align2, paint::{shapes::shape::Shape, stroke::Stroke, text::text_layout_types::LayoutJob}};
+use crate::{
+    align::Align2,
+    paint::{shapes::shape::Shape, stroke::Stroke, text::text_layout_types::LayoutJob},
+};
 
 #[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
 pub struct TextShape {
-    pub pos: Pos2,
     pub layout_job: RBox<LayoutJob>,
+    pub pos: Pos2,
     pub anchor: Align2,
     pub underline: Stroke,
-    pub fallback_color: Color32,
     pub override_text_color: ROption<Color32>,
+    pub fallback_color: Color32,
     pub opacity_factor: f32,
     pub angle: f32,
 }

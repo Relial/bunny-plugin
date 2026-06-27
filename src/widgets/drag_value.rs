@@ -1,7 +1,9 @@
 use std::ops::RangeInclusive;
 
 use abi_stable::std_types::{
-    RBox, ROption::{self, RNone, RSome}, RString,
+    RBox,
+    ROption::{self, RNone, RSome},
+    RString,
 };
 use egui::Ui;
 
@@ -9,16 +11,16 @@ use crate::{elements::Widget, num::Num, widgets::slider::NumberCustomFormat};
 
 #[repr(C)]
 pub struct DragValue<'a> {
-    value: Num<'a>,
-    speed: f64,
     prefix: ROption<RString>,
     suffix: ROption<RString>,
-    range: [f64; 2],
-    clamp_existing_to_range: bool,
-    min_decimals: usize,
-    max_decimals: ROption<usize>,
-    update_while_editing: bool,
     custom_format: ROption<NumberCustomFormat>,
+    value: Num<'a>,
+    range: [f64; 2],
+    max_decimals: ROption<usize>,
+    speed: f64,
+    min_decimals: usize,
+    clamp_existing_to_range: bool,
+    update_while_editing: bool,
 }
 
 impl<'a> DragValue<'a> {

@@ -14,9 +14,9 @@ use crate::image_source::ImageLoader;
 #[repr(C)]
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct Mesh<'a> {
+    pub texture_loader: ROption<ImageLoader<'a>>,
     pub indices: RVec<u32>,
     pub vertices: RVec<Vertex>,
-    pub texture_loader: ROption<ImageLoader<'a>>,
 }
 
 impl<'a> Mesh<'a> {

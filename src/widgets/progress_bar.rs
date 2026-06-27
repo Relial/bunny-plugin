@@ -14,13 +14,13 @@ pub enum ProgressBarText {
 
 #[repr(C)]
 pub struct ProgressBar {
-    progress: f32,
+    text: ROption<ProgressBarText>,
     desired_width: ROption<f32>,
     desired_height: ROption<f32>,
-    text: ROption<ProgressBarText>,
     fill: ROption<Color32>,
-    animate: bool,
     corner_radius: ROption<CornerRadius>,
+    progress: f32,
+    animate: bool,
 }
 
 impl ProgressBar {}

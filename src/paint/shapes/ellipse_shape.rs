@@ -7,8 +7,8 @@ use crate::paint::{shapes::shape::Shape, stroke::Stroke};
 pub struct EllipseShape {
     pub center: Pos2,
     pub radius: Vec2,
-    pub fill: Color32,
     pub stroke: Stroke,
+    pub fill: Color32,
     pub angle: f32,
 }
 

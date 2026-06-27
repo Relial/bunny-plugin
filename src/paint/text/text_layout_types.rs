@@ -24,8 +24,8 @@ pub struct LayoutJob {
     pub sections: RVec<LayoutSection>,
     pub wrap: TextWrapping,
     pub first_row_min_height: f32,
-    pub break_on_newline: bool,
     pub halign: Align,
+    pub break_on_newline: bool,
     pub justify: bool,
     pub round_output_to_gui: bool,
 }
@@ -177,9 +177,9 @@ impl LayoutJob {
 #[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
 pub struct LayoutSection {
-    pub leading_space: f32,
-    pub byte_range: [usize; 2],
     pub format: TextFormat,
+    pub byte_range: [usize; 2],
+    pub leading_space: f32,
 }
 
 impl LayoutSection {
@@ -238,16 +238,16 @@ impl From<VariationCoords> for egui::epaint::text::VariationCoords {
 #[derive(Clone, Debug, PartialEq)]
 pub struct TextFormat {
     pub font_id: FontId,
-    pub extra_letter_spacing: f32,
+    pub coords: VariationCoords,
     pub line_height: ROption<f32>,
+    pub underline: Stroke,
+    pub strikethrough: Stroke,
+    pub extra_letter_spacing: f32,
     pub color: Color32,
     pub background: Color32,
     pub expand_bg: f32,
-    pub coords: VariationCoords,
-    pub italics: bool,
-    pub underline: Stroke,
-    pub strikethrough: Stroke,
     pub valign: Align,
+    pub italics: bool,
 }
 
 impl Default for TextFormat {
@@ -344,10 +344,10 @@ impl From<egui::TextWrapMode> for TextWrapMode {
 #[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct TextWrapping {
-    pub max_width: f32,
     pub max_rows: usize,
-    pub break_anywhere: bool,
     pub overflow_character: ROption<char>,
+    pub max_width: f32,
+    pub break_anywhere: bool,
 }
 
 impl Default for TextWrapping {

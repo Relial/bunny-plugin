@@ -20,15 +20,15 @@ use crate::{
 #[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
 pub struct RectShape<'a> {
+    pub brush: ROption<RBox<Brush<'a>>>,
     pub rect: Rect,
+    pub stroke: Stroke,
     pub corner_radius: CornerRadius,
     pub fill: Color32,
-    pub stroke: Stroke,
     pub stroke_kind: StrokeKind,
-    pub round_to_pixels: ROption<bool>,
     pub blur_width: f32,
-    pub brush: ROption<RBox<Brush<'a>>>,
     pub angle: f32,
+    pub round_to_pixels: ROption<bool>,
 }
 
 impl<'a> RectShape<'a> {

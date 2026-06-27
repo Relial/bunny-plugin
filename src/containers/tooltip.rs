@@ -107,8 +107,8 @@ impl<'a> Tooltip<'a> {
 
 #[repr(C)]
 pub struct TooltipComponent<'a> {
-    contents: BunnyUi<'a>,
     tooltip: Tooltip<'a>,
+    contents: BunnyUi<'a>,
 }
 
 impl UiContainer for TooltipComponent<'_> {

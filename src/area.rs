@@ -9,16 +9,16 @@ use crate::align::Align2;
 #[repr(C)]
 #[derive(Clone, Debug)]
 pub struct Area {
+    pub(crate) constrain_rect: ROption<Rect>,
+    pub(crate) anchor: ROption<Tuple2<Align2, Vec2>>,
+    pub(crate) default_pos: ROption<Pos2>,
+    pub(crate) new_pos: ROption<Pos2>,
+    pub(crate) default_size: Vec2,
+    pub(crate) pivot: Align2,
     pub(crate) movable: bool,
     pub(crate) interactable: bool,
     pub(crate) enabled: bool,
     pub(crate) constrain: bool,
-    pub(crate) constrain_rect: ROption<Rect>,
-    pub(crate) default_pos: ROption<Pos2>,
-    pub(crate) default_size: Vec2,
-    pub(crate) pivot: Align2,
-    pub(crate) anchor: ROption<Tuple2<Align2, Vec2>>,
-    pub(crate) new_pos: ROption<Pos2>,
 }
 
 impl Default for Area {

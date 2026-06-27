@@ -125,6 +125,6 @@ impl<'a> PaintList<'a> {
 #[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
 pub struct ClippedShape<'a> {
-    pub clip_rect: Rect,
     pub shape: Shape<'a>,
+    pub clip_rect: Rect,
 }

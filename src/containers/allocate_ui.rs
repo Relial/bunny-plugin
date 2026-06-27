@@ -13,8 +13,8 @@ use crate::{
 #[repr(C)]
 pub struct AllocateUi<'a> {
     contents: BunnyUi<'a>,
-    desired_size: Vec2,
     layout: Layout,
+    desired_size: Vec2,
 }
 
 impl<'a> AllocateUi<'a> {

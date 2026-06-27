@@ -6,9 +6,9 @@ use crate::key::Key;
 #[derive(Clone, Debug, PartialEq)]
 pub struct KeyEvent {
     pub key: Key,
+    pub modifiers: Modifiers,
     pub pressed: bool,
     pub repeat: bool,
-    pub modifiers: Modifiers,
 }
 
 #[repr(C)]
@@ -132,8 +132,8 @@ impl From<egui::Modifiers> for Modifiers {
 #[repr(C)]
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 pub struct KeyboardShortcut {
-    pub modifiers: Modifiers,
     pub logical_key: Key,
+    pub modifiers: Modifiers,
 }
 
 impl KeyboardShortcut {

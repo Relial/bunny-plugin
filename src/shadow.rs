@@ -3,10 +3,10 @@ use egui::Color32;
 #[repr(C)]
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct Shadow {
+    pub color: Color32,
     pub offset: [i8; 2],
     pub blur: u8,
     pub spread: u8,
-    pub color: Color32,
 }
 
 impl Shadow {

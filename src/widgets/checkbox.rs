@@ -4,8 +4,8 @@ use crate::{elements::Widget, widget_text::WidgetText};
 
 #[repr(C)]
 pub struct CheckBox<'a> {
-    value: &'a mut bool,
     text: WidgetText,
+    value: &'a mut bool,
 }
 
 impl<'a> CheckBox<'a> {

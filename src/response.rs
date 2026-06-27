@@ -13,12 +13,12 @@ use crate::widget_text::WidgetText;
 #[repr(C)]
 #[derive(Clone, Debug)]
 pub struct Response {
-    pub id: Id,
-    pub egui_id: Id,
+    pub pointer_state: RArc<PointerState>,
     pub rect: Rect,
     pub interact_rect: Rect,
+    pub id: Id,
+    pub egui_id: Id,
     pub flags: Flags,
-    pub pointer_state: RArc<PointerState>,
 }
 
 impl Response {

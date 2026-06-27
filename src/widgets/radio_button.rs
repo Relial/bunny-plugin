@@ -2,8 +2,8 @@ use crate::{elements::Widget, widget_text::WidgetText};
 
 #[repr(C)]
 pub struct RadioButton {
-    checked: bool,
     text: WidgetText,
+    checked: bool,
 }
 
 impl RadioButton {

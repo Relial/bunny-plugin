@@ -7,9 +7,9 @@ use crate::paint::{shapes::shape::Shape, stroke::PathStroke};
 #[derive(Clone, Debug, PartialEq)]
 pub struct PathShape {
     pub points: RVec<Pos2>,
-    pub closed: bool,
-    pub fill: Color32,
     pub stroke: PathStroke,
+    pub fill: Color32,
+    pub closed: bool,
 }
 
 impl PathShape {

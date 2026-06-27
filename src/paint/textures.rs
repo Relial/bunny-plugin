@@ -3,10 +3,10 @@ use abi_stable::std_types::ROption::{self, RNone};
 #[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct TextureOptions {
+    pub mipmap_mode: ROption<TextureFilter>,
     pub magnification: TextureFilter,
     pub minification: TextureFilter,
     pub wrap_mode: TextureWrapMode,
-    pub mipmap_mode: ROption<TextureFilter>,
 }
 
 impl Default for TextureOptions {

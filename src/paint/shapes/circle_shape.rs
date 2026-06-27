@@ -6,9 +6,9 @@ use crate::paint::{shapes::shape::Shape, stroke::Stroke};
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct CircleShape {
     pub center: Pos2,
+    pub stroke: Stroke,
     pub radius: f32,
     pub fill: Color32,
-    pub stroke: Stroke,
 }
 
 impl CircleShape {

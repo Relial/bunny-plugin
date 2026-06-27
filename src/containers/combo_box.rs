@@ -19,9 +19,9 @@ use crate::{
 
 #[repr(C)]
 pub struct ComboBox {
-    id: Id,
     label: ROption<WidgetText>,
     selected_text: WidgetText,
+    id: Id,
     width: ROption<f32>,
     height: ROption<f32>,
     wrap_mode: ROption<TextWrapMode>,

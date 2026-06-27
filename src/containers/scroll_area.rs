@@ -71,13 +71,13 @@ impl ScrollSource {
 
 #[repr(C)]
 pub struct ScrollArea {
-    pub(crate) direction_enabled: Vec2b,
-    pub(crate) auto_shrink: Vec2b,
     pub(crate) max_size: Vec2,
     pub(crate) min_scrolled_size: Vec2,
+    pub(crate) content_margin: ROption<Margin>,
     pub(crate) scroll_bar_visibility: ScrollBarVisibility,
     pub(crate) scroll_source: ScrollSource,
-    pub(crate) content_margin: ROption<Margin>,
+    pub(crate) direction_enabled: Vec2b,
+    pub(crate) auto_shrink: Vec2b,
 }
 
 impl ScrollArea {

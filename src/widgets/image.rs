@@ -17,12 +17,12 @@ use crate::{
 #[derive(Clone, Debug)]
 pub struct Image<'a> {
     image_loader: ImageLoader<'a>,
-    texture_options: TextureOptions,
     image_options: ImageOptions,
-    sense: Sense,
-    size: ImageSize,
-    show_loading_spinner: bool,
     alt_text: ROption<RString>,
+    size: ImageSize,
+    texture_options: TextureOptions,
+    show_loading_spinner: bool,
+    sense: Sense,
 }
 
 impl<'a> Image<'a> {
@@ -204,9 +204,9 @@ impl egui::Widget for Image<'_> {
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
 pub struct ImageSize {
-    pub maintain_aspect_ratio: bool,
-    pub max_size: Vec2,
     pub fit: ImageFit,
+    pub max_size: Vec2,
+    pub maintain_aspect_ratio: bool,
 }
 
 impl Default for ImageSize {
@@ -271,9 +271,9 @@ impl ImageFit {
 #[derive(Clone, Debug)]
 pub struct ImageOptions {
     pub uv: Rect,
+    pub rotation: ROption<Tuple2<f32, Vec2>>,
     pub bg_fill: Color32,
     pub tint: Color32,
-    pub rotation: ROption<Tuple2<f32, Vec2>>,
     pub corner_radius: CornerRadius,
 }
 

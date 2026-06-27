@@ -28,15 +28,15 @@ use crate::{
 
 #[repr(C)]
 pub struct BunnyUi<'a> {
-    components: RVec<Tuple2<Id, Component<'a>>>,
-    next_salt: u64,
     painter: Painter<'a>,
+    components: RVec<Tuple2<Id, Component<'a>>>,
     pub layout: Layout,
     last_frame_responses: RArc<RHashMap<Id, Response, RandomState>>,
     input: Input,
     available_rect: Rect,
-    pixels_per_point: f32,
     style: RArc<Style>,
+    next_salt: u64,
+    pixels_per_point: f32,
     opacity_factor: f32,
     enabled: bool,
 }

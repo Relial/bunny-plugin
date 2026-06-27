@@ -4,10 +4,10 @@ use crate::vec2b::Vec2b;
 
 #[repr(C)]
 pub struct Resize {
-    pub(crate) resizable: Vec2b,
     pub(crate) min_size: Vec2,
     pub(crate) max_size: Vec2,
     pub(crate) default_size: Vec2,
+    pub(crate) resizable: Vec2b,
 }
 
 impl Default for Resize {

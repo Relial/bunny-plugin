@@ -6,12 +6,12 @@ use crate::layout::Layout;
 #[repr(C)]
 #[derive(Default)]
 pub struct UiBuilder {
-    pub global_scope: bool,
-    pub max_rect: ROption<Rect>,
     pub layout: ROption<Layout>,
+    pub max_rect: ROption<Rect>,
+    pub sense: ROption<Sense>,
     pub disabled: bool,
     pub invisible: bool,
-    pub sense: ROption<Sense>,
+    pub global_scope: bool,
 }
 
 impl UiBuilder {

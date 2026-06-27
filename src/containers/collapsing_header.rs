@@ -20,10 +20,10 @@ use crate::{
 pub struct CollapsingHeader {
     text: WidgetText,
     id: ROption<Id>,
-    default_open: bool,
     open: ROption<bool>,
     show_background: bool,
     indented: bool,
+    default_open: bool,
 }
 
 impl CollapsingHeader {
@@ -88,8 +88,8 @@ impl CollapsingHeader {
 
 #[repr(C)]
 pub struct CollapsingHeaderComponent<'a> {
-    collapsing_header: CollapsingHeader,
     contents: BunnyUi<'a>,
+    collapsing_header: CollapsingHeader,
 }
 
 impl UiContainer for CollapsingHeaderComponent<'_> {

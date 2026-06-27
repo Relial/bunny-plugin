@@ -8,8 +8,8 @@ use crate::style::TextStyle;
 #[repr(C)]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct FontId {
-    pub size: f32,
     pub family: FontFamily,
+    pub size: f32,
 }
 
 impl Default for FontId {

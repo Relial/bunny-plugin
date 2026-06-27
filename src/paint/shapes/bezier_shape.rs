@@ -6,9 +6,9 @@ use crate::paint::stroke::PathStroke;
 #[derive(Clone, Debug, PartialEq)]
 pub struct QuadraticBezierShape {
     pub points: [Pos2; 3],
-    pub closed: bool,
-    pub fill: Color32,
     pub stroke: PathStroke,
+    pub fill: Color32,
+    pub closed: bool,
 }
 
 impl QuadraticBezierShape {
@@ -72,9 +72,9 @@ impl From<QuadraticBezierShape> for egui::epaint::QuadraticBezierShape {
 #[derive(Clone, Debug, PartialEq)]
 pub struct CubicBezierShape {
     pub points: [Pos2; 4],
-    pub closed: bool,
-    pub fill: Color32,
     pub stroke: PathStroke,
+    pub fill: Color32,
+    pub closed: bool,
 }
 
 impl CubicBezierShape {

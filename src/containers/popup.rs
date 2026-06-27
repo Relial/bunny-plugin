@@ -156,18 +156,18 @@ impl Default for PopupClick {
 
 #[repr(C)]
 pub struct Popup<'a> {
-    id: Id,
+    frame: ROption<Frame>,
+    click: ROption<PopupClick>,
+    open_kind: OpenKind<'a>,
     anchor: PopupAnchor,
     rect_align: RectAlign,
-    open_kind: OpenKind<'a>,
+    layout: Layout,
+    id: Id,
+    pub(crate) width: ROption<f32>,
     close_behavior: PopupCloseBehavior,
-    click: ROption<PopupClick>,
     kind: PopupKind,
     gap: f32,
-    pub(crate) width: ROption<f32>,
     sense: Sense,
-    layout: Layout,
-    frame: ROption<Frame>,
     menu_style: bool,
 }
 
