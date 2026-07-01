@@ -25,6 +25,6 @@ pub mod vec2b;
 pub mod widget_text;
 pub mod widgets;
 
+pub use abi_stable::std_types::{RNone, ROption, RSome, RString};
 pub use egui::epaint::emath::{Pos2, Rangef, Rect, RectTransform, TSTransform, Vec2, pos2, vec2};
 pub use egui::{Color32, Id, Sense};
-pub use abi_stable::std_types::RString;
