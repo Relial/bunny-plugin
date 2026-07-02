@@ -6,8 +6,8 @@ use egui::{Color32, Id, Vec2};
 
 use crate::{
     align::{Align, Align2},
+    containers::frame::Frame,
     elements::Widget,
-    frame::Frame,
     margin::Margin,
     paint::text::fonts::FontSelection,
     widget_text::WidgetText,

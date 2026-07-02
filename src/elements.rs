@@ -5,8 +5,9 @@ use rapidhash::fast::RandomState;
 use crate::{
     containers::{
         allocate_ui::AllocateUi, collapsing_header::CollapsingHeaderComponent,
-        combo_box::ComboBoxComponent, grid::GridComponent, indent::Indent, popup::PopupComponent,
-        scope_builder::ScopeBuilder, tooltip::TooltipComponent, window::WindowComponent,
+        combo_box::ComboBoxComponent, frame::FrameComponent, grid::GridComponent, indent::Indent,
+        popup::PopupComponent, scope_builder::ScopeBuilder, tooltip::TooltipComponent,
+        window::WindowComponent,
     },
     input_state::PointerState,
     response::Response,
@@ -43,6 +44,7 @@ pub(crate) enum Container<'a> {
     Popup(RBox<PopupComponent<'a>>),
     Tooltip(RBox<TooltipComponent<'a>>),
     Indent(Indent<'a>),
+    Frame(RBox<FrameComponent<'a>>),
 }
 
 impl UiContainer for Container<'_> {
@@ -73,6 +75,7 @@ impl UiContainer for Container<'_> {
                 RBox::into_inner(tooltip_component).ui(ui, responses, pointer_state, id)
             }
             Container::Indent(indent) => indent.ui(ui, responses, pointer_state, id),
+            Container::Frame(frame) => RBox::into_inner(frame).ui(ui, responses, pointer_state, id),
         }
     }
 }

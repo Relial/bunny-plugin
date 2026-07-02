@@ -213,7 +213,7 @@ impl<'a> BunnyUi<'a> {
         .inner
     }
 
-    fn next_id(&mut self) -> Id {
+    pub fn next_id(&mut self) -> Id {
         let id = Id::new(self.next_salt);
         self.next_salt = self.next_salt.wrapping_add(1);
         id

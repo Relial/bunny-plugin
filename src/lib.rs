@@ -3,7 +3,6 @@ pub mod area;
 pub mod containers;
 pub mod direction;
 pub mod elements;
-pub mod frame;
 pub mod image_source;
 pub mod input;
 pub mod input_state;

@@ -6,15 +6,7 @@ use egui::{Context, Id, Pos2, Rect, Sense, Ui};
 use rapidhash::fast::RandomState;
 
 use crate::{
-    align::Align,
-    elements::{Container, UiContainer},
-    frame::Frame,
-    input_state::PointerState,
-    layout::Layout,
-    paint::paintlist::Order,
-    rect_align::RectAlign,
-    response::{InnerResponse, Response},
-    ui::BunnyUi,
+    align::Align, containers::frame::Frame, elements::{Container, UiContainer}, input_state::PointerState, layout::Layout, paint::paintlist::Order, rect_align::RectAlign, response::{InnerResponse, Response}, ui::BunnyUi,
 };
 
 #[repr(C)]
