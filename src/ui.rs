@@ -2,7 +2,7 @@ use abi_stable::{
     external_types::RRwLock,
     std_types::{RArc, RHashMap, RVec, Tuple2},
 };
-use egui::{Color32, Id, Rect, Sense, Ui, Vec2};
+use egui::{Color32, Id, Rect, Sense, Ui, Vec2, vec2};
 use rapidhash::fast::RandomState;
 
 use crate::{
@@ -301,12 +301,30 @@ impl<'a> BunnyUi<'a> {
         &mut self,
         add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
     ) -> InnerResponse<R> {
+        let initial_size = vec2(self.available_width(), self.spacing().interact_size.y);
+
         let layout = if self.layout.prefer_right_to_left() {
             Layout::right_to_left(Align::Center)
         } else {
             Layout::left_to_right(Align::Center)
-        }.with_main_wrap(false);
-        self.scope_builder(UiBuilder::new().layout(layout), add_contents)
+        }
+        .with_main_wrap(false);
+        self.allocate_ui_with_layout(initial_size, layout, add_contents)
+    }
+
+    pub fn horizontal_top<R>(
+        &mut self,
+        add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
+    ) -> InnerResponse<R> {
+        let initial_size = self.available_size();
+
+        let layout = if self.layout.prefer_right_to_left() {
+            Layout::right_to_left(Align::Center)
+        } else {
+            Layout::left_to_right(Align::Center)
+        }
+        .with_cross_align(Align::Min);
+        self.allocate_ui_with_layout(initial_size, layout, add_contents)
     }
 
     pub fn vertical<R>(
