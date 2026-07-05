@@ -1,9 +1,10 @@
 use egui::Color32;
+use serde::{Deserialize, Serialize};
 
 use crate::paint::color::ColorMode;
 
 #[repr(C)]
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct Stroke {
     pub width: f32,
     pub color: Color32,
@@ -52,7 +53,7 @@ impl From<egui::Stroke> for Stroke {
 }
 
 #[repr(C)]
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum StrokeKind {
     Inside,
     Middle,
@@ -70,7 +71,7 @@ impl From<StrokeKind> for egui::StrokeKind {
 }
 
 #[repr(C)]
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 pub struct PathStroke {
     pub color: ColorMode,
     pub width: f32,

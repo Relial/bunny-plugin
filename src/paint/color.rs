@@ -1,7 +1,8 @@
 use egui::Color32;
+use serde::{Deserialize, Serialize};
 
 #[repr(C)]
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 pub enum ColorMode {
     Solid(Color32),
 }

@@ -1,7 +1,8 @@
 use egui::Vec2;
+use serde::{Deserialize, Serialize};
 
 #[repr(C)]
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Margin {
     pub left: i8,
     pub right: i8,

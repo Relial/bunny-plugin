@@ -305,7 +305,7 @@ impl<'a> BunnyUi<'a> {
             Layout::right_to_left(Align::Center)
         } else {
             Layout::left_to_right(Align::Center)
-        };
+        }.with_main_wrap(false);
         self.scope_builder(UiBuilder::new().layout(layout), add_contents)
     }
 
