@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 #[repr(C)]
-#[derive(Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Direction {
     LeftToRight,
     RightToLeft,

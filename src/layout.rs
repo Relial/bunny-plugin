@@ -1,7 +1,9 @@
+use serde::{Deserialize, Serialize};
+
 use crate::{align::Align, direction::Direction};
 
 #[repr(C)]
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Layout {
     pub main_dir: Direction,
     pub main_align: Align,

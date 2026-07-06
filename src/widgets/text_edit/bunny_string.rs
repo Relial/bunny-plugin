@@ -55,7 +55,7 @@ macro_rules! deref_coerced_impl_cmp_traits {
 }
 
 #[repr(C)]
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct BunnyString(RString);
 
 impl BunnyString {
