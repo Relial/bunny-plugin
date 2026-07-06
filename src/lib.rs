@@ -12,6 +12,10 @@ use abi_stable::std_types::{
 use anyhow::{Result, anyhow};
 use tracing_subscriber::filter::LevelFilter;
 
+use crate::hook::{HookCallback, Hooks};
+
+pub mod hook;
+
 #[derive(Clone, Copy, Debug)]
 #[repr(C)]
 pub enum GameMode {
@@ -52,8 +56,12 @@ pub struct PluginContext {
 }
 
 impl PluginContext {
-    pub fn new(mhfo_info: MhfoInfo, config_dir: impl Into<RString>, fonts: &[String], log_level: LogLevel) -> Self {
-        let fonts = fonts.iter().map(|s| s.as_str().into()).collect();
+    pub fn new(
+        mhfo_info: MhfoInfo,
+        config_dir: impl Into<RString>,
+        fonts: RVec<RString>,
+        log_level: LogLevel,
+    ) -> Self {
         Self {
             mhfo_info,
             config_dir: config_dir.into(),
@@ -84,6 +92,7 @@ impl PluginContext {
 pub struct PluginInfo {
     name: RString,
     version: RString,
+    pub hooks: Hooks,
     init_fail_reason: ROption<RString>,
 }
 
@@ -92,8 +101,29 @@ impl PluginInfo {
         Self {
             name: name.into(),
             version: version.into(),
+            hooks: Default::default(),
             init_fail_reason: RNone,
         }
+    }
+
+    pub fn with_lobby_hook(mut self, callback: HookCallback) -> Self {
+        self.hooks.set_lobby(callback);
+        self
+    }
+
+    pub fn with_quest_hook(mut self, callback: HookCallback) -> Self {
+        self.hooks.set_quest(callback);
+        self
+    }
+
+    pub fn with_quest_ending_hook(mut self, callback: HookCallback) -> Self {
+        self.hooks.set_quest_ending(callback);
+        self
+    }
+
+    pub fn with_quest_complete_hook(mut self, callback: HookCallback) -> Self {
+        self.hooks.set_quest_complete(callback);
+        self
     }
 
     pub fn with_init_fail(mut self, fail_reason: impl Into<RString>) -> Self {
