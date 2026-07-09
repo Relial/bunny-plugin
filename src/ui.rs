@@ -66,7 +66,7 @@ impl<'a> BunnyUi<'a> {
         paint_list: RArc<RRwLock<PaintList<'a>>>,
         available_rect: Rect,
         pixels_per_point: f32,
-        style: Style,
+        style: RArc<Style>,
     ) -> Self {
         Self {
             components: RVec::new(),
@@ -77,7 +77,7 @@ impl<'a> BunnyUi<'a> {
             input,
             available_rect,
             pixels_per_point,
-            style: RArc::new(style),
+            style,
             opacity_factor: 1.0,
             enabled: true,
         }
