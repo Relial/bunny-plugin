@@ -1,5 +1,8 @@
+#![feature(sync_unsafe_cell)]
+
 use std::{path::Path, str::FromStr};
 
+#[cfg(feature = "ui")]
 pub use bunny_ui;
 
 #[unsafe(no_mangle)]
@@ -15,6 +18,8 @@ use tracing_subscriber::filter::LevelFilter;
 use crate::hook::{HookCallback, Hooks};
 
 pub mod hook;
+pub mod hook_builder;
+pub mod hook_cell;
 
 #[derive(Clone, Copy, Debug)]
 #[repr(C)]
