@@ -159,6 +159,10 @@ impl InputState {
         self.keys_down.contains(&desired_key)
     }
 
+    pub fn shortcut_down(&self, shortcut: &KeyboardShortcut) -> bool {
+        self.key_down(shortcut.logical_key) && self.modifiers.matches_logically(shortcut.modifiers)
+    }
+
     pub fn key_released(&self, desired_key: Key) -> bool {
         self.events
             .iter()

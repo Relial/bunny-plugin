@@ -5,9 +5,9 @@ edition = "2024"
 
 [dependencies]
 abi_stable = "0.11.3"
-anyhow = "1.0.102"
+anyhow = "1.0.103"
 egui = { version = "0.34.3", features = ["serde", "rayon"] }
 nohash-hasher = "0.2.0"
-rapidhash = { version = "4.4.1", features = ["nightly"] }
+rapidhash = { version = "4.5.1", features = ["nightly"] }
 serde = { version = "1.0.228", features = ["derive"] }
 tracing = "0.1.44"
