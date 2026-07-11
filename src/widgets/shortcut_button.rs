@@ -1,9 +1,12 @@
+use abi_stable::std_types::ROption::{self, RNone, RSome};
 use egui::Id;
 
-use crate::{elements::Widget, input::KeyboardShortcut};
+use crate::{elements::Widget, input::KeyboardShortcut, paint::corner_radius::CornerRadius};
 
 pub struct ShortcutButton<'a> {
     bind: &'a mut KeyboardShortcut,
+    keybind_not_set: bool,
+    corner_radius: ROption<CornerRadius>,
     id: Id,
 }
 
@@ -11,8 +14,20 @@ impl<'a> ShortcutButton<'a> {
     pub fn new(shortcut: &'a mut KeyboardShortcut, id: impl Into<Id>) -> Self {
         Self {
             bind: shortcut,
+            keybind_not_set: false,
+            corner_radius: RNone,
             id: id.into(),
         }
+    }
+
+    pub fn keybind_not_set(mut self, keybind_not_set: bool) -> Self {
+        self.keybind_not_set = keybind_not_set;
+        self
+    }
+
+    pub fn corner_radius(mut self, corner_radius: impl Into<CornerRadius>) -> Self {
+        self.corner_radius = RSome(corner_radius.into());
+        self
     }
 }
 
@@ -29,9 +44,16 @@ fn set_expecting(ui: &egui::Ui, id: Id, expecting: bool) {
 
 impl egui::Widget for ShortcutButton<'_> {
     fn ui(self, ui: &mut egui::Ui) -> egui::Response {
-        let text = self.bind.format();
+        let text = if self.keybind_not_set {
+            "Keybind not set".to_string()
+        } else {
+            self.bind.format()
+        };
         let mut expecting = get_expecting(ui, self.id);
         let mut button = egui::Button::new(text);
+        if let RSome(corner_radius) = self.corner_radius {
+            button = button.corner_radius(corner_radius);
+        }
         if expecting {
             button = button.selected(true);
         }
