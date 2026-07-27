@@ -45,9 +45,11 @@ impl<'a> Mesh<'a> {
         self.indices.is_empty() && self.vertices.is_empty()
     }
 
-    pub fn triangles(&self) -> impl Iterator<Item = [u32; 3]> + '_ {
+    pub fn triangles(&self) -> impl Iterator<Item = [u32; 3]> {
         self.indices
-            .chunks_exact(3)
+            .as_chunks::<3>()
+            .0
+            .iter()
             .map(|chunk| [chunk[0], chunk[1], chunk[2]])
     }
 

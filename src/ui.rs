@@ -21,8 +21,9 @@ use crate::{
     ui_builder::UiBuilder,
     widget_text::{RichText, WidgetText},
     widgets::{
-        button::Button, checkbox::CheckBox, interact::Interact, label::Label, link::Link,
-        radio_button::RadioButton, separator::Separator, spinner::Spinner,
+        button::Button, checkbox::CheckBox, color_picker::ColorPicker, interact::Interact,
+        label::Label, link::Link, radio_button::RadioButton, separator::Separator,
+        spinner::Spinner,
     },
 };
 
@@ -518,5 +519,10 @@ impl<'a> BunnyUi<'a> {
         let indent = Indent::new(new);
         let response = self.add_component_auto_id(Container::Indent(indent));
         InnerResponse::new(ret, response)
+    }
+
+    #[inline]
+    pub fn color_edit_button(&mut self, color: &'a mut Color32) -> Response {
+        self.add(ColorPicker::new(color))
     }
 }

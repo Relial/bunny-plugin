@@ -12,3 +12,4 @@ pub mod radio_button;
 pub mod spinner;
 pub mod shortcut_button;
 pub mod text_edit;
+pub mod color_picker;

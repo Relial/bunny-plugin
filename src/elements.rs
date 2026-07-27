@@ -12,8 +12,8 @@ use crate::{
     input_state::PointerState,
     response::Response,
     widgets::{
-        button::Button, checkbox::CheckBox, drag_value::DragValue, image::Image,
-        interact::Interact, label::Label, link::Link, progress_bar::ProgressBar,
+        button::Button, checkbox::CheckBox, color_picker::ColorPicker, drag_value::DragValue,
+        image::Image, interact::Interact, label::Label, link::Link, progress_bar::ProgressBar,
         radio_button::RadioButton, separator::Separator, shortcut_button::ShortcutButton,
         slider::Slider, spinner::Spinner, text_edit::builder::TextEdit,
     },
@@ -96,6 +96,7 @@ pub(crate) enum Widget<'a> {
     Spinner(Spinner),
     ShortcutButton(ShortcutButton<'a>),
     TextEdit(RBox<TextEdit<'a>>),
+    ColorPicker(ColorPicker<'a>),
 }
 
 impl egui::Widget for Widget<'_> {
@@ -115,6 +116,7 @@ impl egui::Widget for Widget<'_> {
             Widget::Spinner(spinner) => spinner.ui(ui),
             Widget::ShortcutButton(shortcut_button) => shortcut_button.ui(ui),
             Widget::TextEdit(text_edit) => RBox::into_inner(text_edit).ui(ui),
+            Widget::ColorPicker(color_picker) => color_picker.ui(ui),
         }
     }
 }
