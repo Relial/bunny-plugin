@@ -4,7 +4,7 @@ use bevy_mesh::Mesh;
 use epaint::Color32;
 use glam::{Mat4, Quat, Vec3};
 use windows::Win32::Graphics::Direct3D9::{
-    D3DRS_FILLMODE, D3DRS_ZENABLE, D3DTRANSFORMSTATETYPE, IDirect3DDevice9,
+    D3DRS_FILLMODE, D3DRS_ZENABLE, D3DRS_ZWRITEENABLE, D3DTRANSFORMSTATETYPE, IDirect3DDevice9,
 };
 use windows_numerics::Matrix4x4;
 
@@ -18,11 +18,11 @@ pub mod texture;
 #[derive(Debug)]
 #[repr(C)]
 pub struct Bunny3d {
+    textures: Textures,
     vertex_bytes: RVec<u8>,
     index_bytes: RVec<u8>,
     descriptors: RVec<MeshDescriptor>,
     vertex_bytes_position: usize,
-    textures: Textures,
 }
 
 impl Default for Bunny3d {
@@ -30,7 +30,7 @@ impl Default for Bunny3d {
         Self {
             vertex_bytes: rvec![0; 2400],
             vertex_bytes_position: 0,
-            index_bytes: rvec![0; 2400],
+            index_bytes: RVec::with_capacity(2400),
             descriptors: Default::default(),
             textures: Textures::default(),
         }
@@ -116,7 +116,6 @@ impl Bunny3d {
 
 impl Bunny3d {
     pub(crate) fn start_frame(&mut self) {
-        self.vertex_bytes.clear();
         self.vertex_bytes_position = 0;
         self.index_bytes.clear();
         self.descriptors.clear();
@@ -154,8 +153,11 @@ impl MeshDescriptor {
     pub(crate) fn setup(&self, device: &IDirect3DDevice9) -> Result<()> {
         unsafe {
             device
-                .SetRenderState(D3DRS_ZENABLE, self.z_buffer as _)
+                .SetRenderState(D3DRS_ZENABLE, self.z_buffer as u32)
                 .context("Failed to set ZENABLE")?;
+            device
+                .SetRenderState(D3DRS_ZWRITEENABLE, self.z_buffer as u32)
+                .context("Failed to setZWRITEENABLE")?;
             device
                 .SetRenderState(D3DRS_FILLMODE, self.fill as u32)
                 .context("Failed to set FILLMODE")?;
@@ -182,7 +184,7 @@ pub struct Bunny3dComponent {
     scale: Vec3,
     rotation: Quat,
     translation: Vec3,
-    color: Option<Color32>,
+    color: Option<GpuColor>,
     texture: Option<TextureId>,
 }
 
@@ -235,8 +237,8 @@ impl Bunny3dComponent {
     }
 
     #[inline]
-    pub fn color(mut self, color: Color32) -> Self {
-        self.color = Some(color);
+    pub fn color(mut self, color: impl Into<GpuColor>) -> Self {
+        self.color = Some(color.into());
         self
     }
 
@@ -261,10 +263,7 @@ impl Bunny3dComponent {
     ) -> Option<()> {
         let positions = self.mesh.attribute(Mesh::ATTRIBUTE_POSITION)?.get_bytes();
         let position_size = 12;
-        let color = self
-            .color
-            .map(GpuColor::from)
-            .unwrap_or(GpuColor::from(Color32::WHITE));
+        let color = self.color.unwrap_or(GpuColor::from(Color32::WHITE));
         for (vertex_index, position_bytes) in positions
             .chunks_exact(position_size)
             .take(vertex_count)

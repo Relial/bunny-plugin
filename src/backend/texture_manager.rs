@@ -1,4 +1,4 @@
-use abi_stable::{rvec, std_types::RVec};
+use abi_stable::rvec;
 use anyhow::{Context, Result, anyhow};
 use epaint::Color32;
 use rapidhash::RapidHashMap;
@@ -20,7 +20,7 @@ pub struct TextureManager {
 impl TextureManager {
     pub fn new(device: &IDirect3DDevice9) -> Result<Self> {
         let mut t = Self {
-            textures: RapidHashMap::default(),
+            textures: Default::default(),
         };
         t.allocate(
             device,
@@ -41,7 +41,7 @@ impl TextureManager {
         let resource = allocate_texture(device, &allocation.pixels, allocation.size)?;
         let managed = Texture {
             resource: Some(resource),
-            pixels: allocation.pixels,
+            pixels: allocation.pixels.into(),
             size: allocation.size,
         };
         self.textures.insert(allocation.id, managed);
@@ -79,7 +79,7 @@ impl TextureManager {
 #[derive(Debug)]
 pub struct Texture {
     resource: Option<IDirect3DTexture9>,
-    pixels: RVec<GpuColor>,
+    pixels: Vec<GpuColor>,
     size: [u32; 2],
 }
 

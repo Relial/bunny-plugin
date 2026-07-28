@@ -1,7 +1,8 @@
 use anyhow::{Context, Result, anyhow};
 use epaint::Color32;
+use tracing::debug;
 use windows::Win32::Graphics::Direct3D9::{
-    D3DPT_TRIANGLELIST, D3DTS_PROJECTION, D3DTS_VIEW, IDirect3DDevice9,
+    D3DPT_TRIANGLELIST, D3DRS_SCISSORTESTENABLE, D3DTS_PROJECTION, D3DTS_VIEW, IDirect3DDevice9,
 };
 use windows_numerics::Matrix4x4;
 
@@ -61,7 +62,11 @@ impl Bunny3dBackend {
     }
 
     pub fn free_texture(&mut self, texture: TextureId) -> bool {
-        self.texture_manager.free(texture)
+        let freed = self.texture_manager.free(texture);
+        if freed {
+            debug!("Freed texture {}", texture);
+        }
+        freed
     }
 
     pub fn draw(
@@ -74,6 +79,7 @@ impl Bunny3dBackend {
             if self.should_reset {
                 self.buffers.recreate_buffers(device)?;
                 self.texture_manager.reallocate_all(device)?;
+                self.should_reset = false;
             }
             self.skip_frame -= 1;
             return Ok(());
@@ -89,6 +95,7 @@ impl Bunny3dBackend {
             .update_index_buffer(device, self.data.index_buffer())?;
 
         unsafe {
+            device.SetRenderState(D3DRS_SCISSORTESTENABLE, false as u32)?;
             device
                 .SetFVF(FVF_CUSTOMVERTEX)
                 .context("Failed to set FVF")?;
@@ -156,6 +163,7 @@ impl Bunny3dBackend {
     }
 }
 
+/// GBRA
 #[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct GpuColor([u8; 4]);
@@ -163,6 +171,10 @@ pub struct GpuColor([u8; 4]);
 impl GpuColor {
     pub fn from_rgba(bytes: &[u8]) -> Self {
         Self([bytes[2], bytes[1], bytes[0], bytes[3]])
+    }
+
+    pub fn from_bgra(bytes: &[u8]) -> Self {
+        Self([bytes[0], bytes[1], bytes[2], bytes[3]])
     }
 
     pub fn bytes(&self) -> &[u8] {
