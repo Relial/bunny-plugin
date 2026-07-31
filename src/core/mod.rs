@@ -1,19 +1,22 @@
 use abi_stable::{rvec, std_types::RVec};
-use anyhow::{Context as _, Result, anyhow};
-use bevy_mesh::Mesh;
-use epaint::Color32;
+use anyhow::{Context as _, Result};
 use glam::{Mat4, Quat, Vec3};
 use windows::Win32::Graphics::Direct3D9::{
-    D3DRS_FILLMODE, D3DRS_ZENABLE, D3DRS_ZWRITEENABLE, D3DTRANSFORMSTATETYPE, IDirect3DDevice9,
+    D3DRS_FILLMODE, D3DTRANSFORMSTATETYPE, IDirect3DDevice9,
 };
 use windows_numerics::Matrix4x4;
 
 use crate::{
     backend::{GpuColor, VERTEX_SIZE},
-    core::texture::{TextureAllocation, TextureId, TextureSource, Textures},
+    core::{
+        mesh::Mesh,
+        texture::{TextureAllocation, TextureId, TextureSource, Textures},
+    },
 };
 
+pub mod mesh;
 pub mod texture;
+mod draw_list;
 
 #[derive(Debug)]
 #[repr(C)]
@@ -43,13 +46,9 @@ impl Bunny3d {
         self.descriptors.is_empty()
     }
 
-    pub fn add(&mut self, component: &Bunny3dComponent) -> Result<()> {
-        let indices_count = component
-            .indices_count()
-            .ok_or(anyhow!("Component with no indices"))?;
-        let indices = component
-            .indices()
-            .ok_or(anyhow!("Component mesh data extracted before extract call"))?;
+    pub fn add(&mut self, component: &Bunny3dComponent) {
+        let indices_count = component.index_count();
+        let indices = component.mesh.index_buffer_bytes();
         self.index_bytes.extend_from_slice(indices);
 
         let vertex_size = VERTEX_SIZE as usize;
@@ -59,14 +58,11 @@ impl Bunny3d {
             self.vertex_bytes
                 .extend(std::iter::repeat_n(0, vertex_size_required));
         }
-        component
-            .vertices(
-                &mut self.vertex_bytes
-                    [self.vertex_bytes_position..self.vertex_bytes_position + vertex_size_required],
-                vertex_size,
-                vertex_count,
-            )
-            .ok_or(anyhow!("Failed to extract vertices from mesh"))?;
+        component.mesh.update_vertex_buffer(
+            &mut self.vertex_bytes
+                [self.vertex_bytes_position..self.vertex_bytes_position + vertex_size_required],
+            vertex_size,
+        );
 
         let mat = Mat4::from_scale_rotation_translation(
             component.scale,
@@ -101,7 +97,6 @@ impl Bunny3d {
             texture: component.texture.unwrap_or_default(),
         });
         self.vertex_bytes_position += vertex_size_required;
-        Ok(())
     }
 
     pub fn allocate_texture<'a>(&mut self, texture: impl Into<TextureSource<'a>>) -> TextureId {
@@ -153,12 +148,6 @@ impl MeshDescriptor {
     pub(crate) fn setup(&self, device: &IDirect3DDevice9) -> Result<()> {
         unsafe {
             device
-                .SetRenderState(D3DRS_ZENABLE, self.z_buffer as u32)
-                .context("Failed to set ZENABLE")?;
-            device
-                .SetRenderState(D3DRS_ZWRITEENABLE, self.z_buffer as u32)
-                .context("Failed to setZWRITEENABLE")?;
-            device
                 .SetRenderState(D3DRS_FILLMODE, self.fill as u32)
                 .context("Failed to set FILLMODE")?;
             device
@@ -184,7 +173,6 @@ pub struct Bunny3dComponent {
     scale: Vec3,
     rotation: Quat,
     translation: Vec3,
-    color: Option<GpuColor>,
     texture: Option<TextureId>,
 }
 
@@ -201,7 +189,6 @@ impl Bunny3dComponent {
             },
             rotation: Quat::IDENTITY,
             translation: Vec3::ZERO,
-            color: None,
             texture: None,
         }
     }
@@ -238,7 +225,7 @@ impl Bunny3dComponent {
 
     #[inline]
     pub fn color(mut self, color: impl Into<GpuColor>) -> Self {
-        self.color = Some(color.into());
+        self.mesh = self.mesh.color(color);
         self
     }
 
@@ -252,51 +239,10 @@ impl Bunny3dComponent {
 
 impl Bunny3dComponent {
     fn vertex_count(&self) -> usize {
-        self.mesh.count_vertices()
+        self.mesh.vertex_count()
     }
 
-    fn vertices(
-        &self,
-        vertex_buffer: &mut [u8],
-        vertex_size: usize,
-        vertex_count: usize,
-    ) -> Option<()> {
-        let positions = self.mesh.attribute(Mesh::ATTRIBUTE_POSITION)?.get_bytes();
-        let position_size = 12;
-        let color = self.color.unwrap_or(GpuColor::from(Color32::WHITE));
-        for (vertex_index, position_bytes) in positions
-            .chunks_exact(position_size)
-            .take(vertex_count)
-            .enumerate()
-        {
-            let offset = vertex_index * vertex_size;
-            vertex_buffer[offset..offset + position_size].copy_from_slice(position_bytes);
-            let offset = offset + position_size;
-            vertex_buffer[offset..offset + std::mem::size_of::<GpuColor>()]
-                .copy_from_slice(color.bytes());
-        }
-
-        if let Some(uvs) = self
-            .mesh
-            .attribute(Mesh::ATTRIBUTE_UV_0)
-            .map(|a| a.get_bytes())
-        {
-            let uv_size = 8;
-            for (vertex_index, uv_bytes) in uvs.chunks_exact(uv_size).take(vertex_count).enumerate()
-            {
-                let offset =
-                    vertex_index * vertex_size + position_size + std::mem::size_of::<GpuColor>();
-                vertex_buffer[offset..offset + uv_size].copy_from_slice(uv_bytes);
-            }
-        }
-        Some(())
-    }
-
-    fn indices_count(&self) -> Option<usize> {
-        self.mesh.indices().map(|i| i.len())
-    }
-
-    fn indices(&self) -> Option<&[u8]> {
-        self.mesh.get_index_buffer_bytes()
+    fn index_count(&self) -> usize {
+        self.mesh.index_count()
     }
 }

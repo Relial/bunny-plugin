@@ -47,7 +47,7 @@ impl Textures {
                 let (chunks, _) = rgba.as_slice().as_chunks::<4>();
                 let pixels: RVec<GpuColor> = chunks
                     .iter()
-                    .map(|c| GpuColor::from_rgba(c.as_slice()))
+                    .map(|c| GpuColor::from_rgba_bytes(c.as_slice()))
                     .collect();
                 (size, pixels)
             }

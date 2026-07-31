@@ -783,6 +783,7 @@ dependencies = [
  "abi_stable",
  "anyhow",
  "bevy_mesh",
+ "bytemuck",
  "epaint",
  "glam 0.33.2",
  "image",

@@ -2,19 +2,20 @@ use anyhow::{Context, Result, anyhow};
 use epaint::Color32;
 use tracing::debug;
 use windows::Win32::Graphics::Direct3D9::{
-    D3DPT_TRIANGLELIST, D3DRS_SCISSORTESTENABLE, D3DTS_PROJECTION, D3DTS_VIEW, IDirect3DDevice9,
+    D3DPT_TRIANGLELIST, D3DRS_SCISSORTESTENABLE, IDirect3DDevice9,
 };
-use windows_numerics::Matrix4x4;
 
 use crate::{
     backend::{
         mesh::{Buffers, FVF_CUSTOMVERTEX},
+        state::DxState,
         texture_manager::TextureManager,
     },
     core::{Bunny3d, texture::TextureId},
 };
 
 mod mesh;
+mod state;
 mod texture_manager;
 
 pub const VERTEX_SIZE: u32 = 24;
@@ -69,12 +70,7 @@ impl Bunny3dBackend {
         freed
     }
 
-    pub fn draw(
-        &mut self,
-        device: &IDirect3DDevice9,
-        view_matrix: Matrix4x4,
-        projection_matrix: Matrix4x4,
-    ) -> Result<()> {
+    pub fn draw(&mut self, device: &IDirect3DDevice9) -> Result<()> {
         if self.skip_frame > 0 {
             if self.should_reset {
                 self.buffers.recreate_buffers(device)?;
@@ -89,6 +85,8 @@ impl Bunny3dBackend {
             return Ok(());
         }
 
+        let _state = DxState::setup(device);
+
         self.buffers
             .update_vertex_buffer(device, self.data.vertex_buffer())?;
         self.buffers
@@ -99,13 +97,6 @@ impl Bunny3dBackend {
             device
                 .SetFVF(FVF_CUSTOMVERTEX)
                 .context("Failed to set FVF")?;
-
-            device
-                .SetTransform(D3DTS_VIEW, &view_matrix)
-                .context("Failed to set view matrix")?;
-            device
-                .SetTransform(D3DTS_PROJECTION, &projection_matrix)
-                .context("Failed to set projection patrix")?;
 
             let vertex_buffer = self
                 .buffers
@@ -169,15 +160,25 @@ impl Bunny3dBackend {
 pub struct GpuColor([u8; 4]);
 
 impl GpuColor {
-    pub fn from_rgba(bytes: &[u8]) -> Self {
+    pub const WHITE: Self = Self::from_rgb(255, 255, 255);
+
+    pub const fn from_rgb(r: u8, g: u8, b: u8) -> Self {
+        Self([b, g, r, 255])
+    }
+
+    pub const fn from_rgba(r: u8, g: u8, b: u8, a: u8) -> Self {
+        Self([b, g, r, a])
+    }
+
+    pub const fn from_rgba_bytes(bytes: &[u8]) -> Self {
         Self([bytes[2], bytes[1], bytes[0], bytes[3]])
     }
 
-    pub fn from_bgra(bytes: &[u8]) -> Self {
+    pub const fn from_bgra_bytes(bytes: &[u8]) -> Self {
         Self([bytes[0], bytes[1], bytes[2], bytes[3]])
     }
 
-    pub fn bytes(&self) -> &[u8] {
+    pub fn as_bytes(&self) -> &[u8] {
         &self.0
     }
 }
