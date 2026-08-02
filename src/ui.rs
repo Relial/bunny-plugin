@@ -12,6 +12,7 @@ use crate::{
         scope_builder::ScopeBuilder,
     },
     elements::{Component, Container, MiscComponent, UiContainer, Widget},
+    image_source::ImageLoader,
     input_state::{Input, InputState, PointerState},
     layout::Layout,
     paint::paintlist::PaintList,
@@ -21,9 +22,9 @@ use crate::{
     ui_builder::UiBuilder,
     widget_text::{RichText, WidgetText},
     widgets::{
-        button::Button, checkbox::CheckBox, color_picker::ColorPicker, interact::Interact,
-        label::Label, link::Link, radio_button::RadioButton, separator::Separator,
-        spinner::Spinner,
+        button::Button, checkbox::CheckBox, color_picker::ColorPicker, image::Image,
+        interact::Interact, label::Label, link::Link, radio_button::RadioButton,
+        separator::Separator, spinner::Spinner,
     },
 };
 
@@ -84,18 +85,22 @@ impl<'a> BunnyUi<'a> {
         }
     }
 
+    #[inline]
     pub fn available_size(&self) -> Vec2 {
         self.available_rect.size()
     }
 
+    #[inline]
     pub fn available_width(&self) -> f32 {
         self.available_rect.width()
     }
 
+    #[inline]
     pub fn available_height(&self) -> f32 {
         self.available_rect.height()
     }
 
+    #[inline]
     pub fn available_rect(&self) -> Rect {
         self.available_rect
     }
@@ -202,6 +207,7 @@ impl<'a> BunnyUi<'a> {
     }
 
     #[allow(private_bounds)]
+    #[inline]
     pub fn add_sized(
         &mut self,
         max_size: impl Into<Vec2>,
@@ -214,12 +220,14 @@ impl<'a> BunnyUi<'a> {
         .inner
     }
 
+    #[inline]
     pub fn next_id(&mut self) -> Id {
         let id = Id::new(self.next_salt);
         self.next_salt = self.next_salt.wrapping_add(1);
         id
     }
 
+    #[inline]
     pub(crate) fn add_component_auto_id(
         &mut self,
         component: impl Into<Component<'a>>,
@@ -232,19 +240,23 @@ impl<'a> BunnyUi<'a> {
             .unwrap_or_default()
     }
 
+    #[inline]
     pub(crate) fn add_component(&mut self, id: Id, component: impl Into<Component<'a>>) {
         self.components.push((id, component.into()).into());
     }
 
     #[allow(private_bounds)]
+    #[inline]
     pub fn add(&mut self, widget: impl Into<Widget<'a>>) -> Response {
         self.add_component_auto_id(widget.into())
     }
 
+    #[inline]
     pub fn disable(&mut self) {
         self.enabled = false;
     }
 
+    #[inline]
     pub fn add_enabled_ui<R>(
         &mut self,
         enabled: bool,
@@ -258,10 +270,12 @@ impl<'a> BunnyUi<'a> {
         })
     }
 
+    #[inline]
     pub fn label(&mut self, text: impl Into<WidgetText>) -> Response {
         self.add(Label::new(text))
     }
 
+    #[inline]
     pub fn colored_label(
         &mut self,
         color: impl Into<Color32>,
@@ -270,34 +284,42 @@ impl<'a> BunnyUi<'a> {
         self.add(Label::new(text.into().color(color.into())))
     }
 
+    #[inline]
     pub fn heading(&mut self, text: impl Into<RichText>) -> Response {
         self.add(Label::new(text.into().heading()))
     }
 
+    #[inline]
     pub fn monospace(&mut self, text: impl Into<RichText>) -> Response {
         self.add(Label::new(text.into().monospace()))
     }
 
+    #[inline]
     pub fn code(&mut self, text: impl Into<RichText>) -> Response {
         self.add(Label::new(text.into().monospace()))
     }
 
+    #[inline]
     pub fn small(&mut self, text: impl Into<RichText>) -> Response {
         self.add(Label::new(text.into().small()))
     }
 
+    #[inline]
     pub fn strong(&mut self, text: impl Into<RichText>) -> Response {
         self.add(Label::new(text.into().strong()))
     }
 
+    #[inline]
     pub fn weak(&mut self, text: impl Into<RichText>) -> Response {
         self.add(Label::new(text.into().weak()))
     }
 
+    #[inline]
     pub fn checkbox(&mut self, value: &'a mut bool, text: impl Into<WidgetText>) -> Response {
         self.add(CheckBox::new(value, text))
     }
 
+    #[inline]
     pub fn horizontal<R>(
         &mut self,
         add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
@@ -313,6 +335,7 @@ impl<'a> BunnyUi<'a> {
         self.allocate_ui_with_layout(initial_size, layout, add_contents)
     }
 
+    #[inline]
     pub fn horizontal_top<R>(
         &mut self,
         add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
@@ -328,6 +351,7 @@ impl<'a> BunnyUi<'a> {
         self.allocate_ui_with_layout(initial_size, layout, add_contents)
     }
 
+    #[inline]
     pub fn vertical<R>(
         &mut self,
         add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
@@ -338,6 +362,7 @@ impl<'a> BunnyUi<'a> {
         )
     }
 
+    #[inline]
     pub fn vertical_centered<R>(
         &mut self,
         add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
@@ -348,6 +373,7 @@ impl<'a> BunnyUi<'a> {
         )
     }
 
+    #[inline]
     pub fn vertical_centered_justified<R>(
         &mut self,
         add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
@@ -358,6 +384,7 @@ impl<'a> BunnyUi<'a> {
         )
     }
 
+    #[inline]
     pub fn collapsing<R>(
         &mut self,
         text: impl Into<WidgetText>,
@@ -366,18 +393,22 @@ impl<'a> BunnyUi<'a> {
         CollapsingHeader::new(text).show(self, add_contents)
     }
 
+    #[inline]
     pub fn button(&mut self, text: impl Into<WidgetText>) -> Response {
         self.add(Button::new(text))
     }
 
+    #[inline]
     pub fn small_button(&mut self, text: impl Into<WidgetText>) -> Response {
         self.add(Button::new(text).small())
     }
 
+    #[inline]
     pub fn selectable_label(&mut self, selected: bool, text: impl Into<WidgetText>) -> Response {
         self.add(Button::selectable(selected, text))
     }
 
+    #[inline]
     pub fn selectable_value<Value: PartialEq>(
         &mut self,
         current_value: &mut Value,
@@ -392,46 +423,57 @@ impl<'a> BunnyUi<'a> {
         response
     }
 
+    #[inline]
     pub fn separator(&mut self) -> Response {
         self.add(Separator::default())
     }
 
+    #[inline]
     pub fn add_space(&mut self, space: f32) {
         self.add_component_auto_id(MiscComponent::Space(space));
     }
 
+    #[inline]
     pub fn end_row(&mut self) {
         self.add_component_auto_id(MiscComponent::EndRow);
     }
 
+    #[inline]
     pub fn input<R>(&self, reader: impl FnOnce(&InputState) -> R) -> R {
         self.input.read(reader)
     }
 
+    #[inline]
     pub fn input_mut<R>(&self, writer: impl FnOnce(&mut InputState) -> R) -> R {
         self.input.write(writer)
     }
 
+    #[inline]
     pub fn painter(&self) -> &Painter<'a> {
         &self.painter
     }
 
+    #[inline]
     pub fn max_rect(&self) -> Rect {
         self.available_rect
     }
 
+    #[inline]
     pub fn interact(&mut self, rect: Rect, sense: Sense) -> Response {
         self.add(Interact::new(rect, sense))
     }
 
+    #[inline]
     pub fn link(&mut self, text: impl Into<WidgetText>) -> Response {
         self.add(Link::new(text))
     }
 
+    #[inline]
     pub fn radio(&mut self, selected: bool, text: impl Into<WidgetText>) -> Response {
         self.add(RadioButton::new(selected, text))
     }
 
+    #[inline]
     pub fn radio_value<Value: PartialEq>(
         &mut self,
         current_value: &mut Value,
@@ -446,14 +488,17 @@ impl<'a> BunnyUi<'a> {
         response
     }
 
+    #[inline]
     pub fn painter_at(&self, rect: Rect) -> Painter<'a> {
         self.painter().with_clip_rect(rect)
     }
 
+    #[inline]
     pub fn spinner(&mut self) -> Response {
         self.add(Spinner::new())
     }
 
+    #[inline]
     pub fn response(&self, id: Id) -> Option<&Response> {
         self.last_frame_responses.get(&id)
     }
@@ -500,6 +545,7 @@ impl<'a> BunnyUi<'a> {
         self.style_mut().visuals_mut()
     }
 
+    #[inline]
     pub fn set_style(&mut self, style: impl Into<RArc<Style>>) {
         self.style = style.into()
     }
@@ -521,8 +567,12 @@ impl<'a> BunnyUi<'a> {
         InnerResponse::new(ret, response)
     }
 
-    #[inline]
     pub fn color_edit_button(&mut self, color: &'a mut Color32) -> Response {
         self.add(ColorPicker::new(color))
+    }
+
+    #[inline]
+    pub fn image(&mut self, source: impl Into<ImageLoader<'a>>) -> Response {
+        self.add(Image::new(source))
     }
 }
