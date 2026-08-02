@@ -315,8 +315,21 @@ impl<'a> BunnyUi<'a> {
     }
 
     #[inline]
-    pub fn checkbox(&mut self, value: &'a mut bool, text: impl Into<WidgetText>) -> Response {
-        self.add(CheckBox::new(value, text))
+    pub fn checkbox(&mut self, value: &mut bool, text: impl Into<WidgetText>) -> Response {
+        let resp = self.add(CheckBox::new(*value, text));
+        if resp.clicked() {
+            *value = !*value;
+        }
+        resp
+    }
+
+    #[inline]
+    pub fn checkbox_without_text(&mut self, value: &mut bool) -> Response {
+        let resp = self.add(CheckBox::without_text(*value));
+        if resp.clicked() {
+            *value = !*value;
+        }
+        resp
     }
 
     #[inline]

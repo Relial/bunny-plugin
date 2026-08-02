@@ -83,7 +83,7 @@ impl UiContainer for Container<'_> {
 #[repr(C)]
 pub(crate) enum Widget<'a> {
     Label(RBox<Label>),
-    CheckBox(CheckBox<'a>),
+    CheckBox(CheckBox),
     DragValue(RBox<DragValue<'a>>),
     Button(RBox<Button>),
     Slider(RBox<Slider<'a>>),

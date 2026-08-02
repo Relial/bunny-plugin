@@ -3,14 +3,14 @@ use egui::Ui;
 use crate::{elements::Widget, widget_text::WidgetText};
 
 #[repr(C)]
-pub struct CheckBox<'a> {
+pub struct CheckBox {
     text: Option<WidgetText>,
-    checked: &'a mut bool,
+    checked: bool,
     indeterminate: bool,
 }
 
-impl<'a> CheckBox<'a> {
-    pub fn new(checked: &'a mut bool, text: impl Into<WidgetText>) -> Self {
+impl CheckBox {
+    pub fn new(checked: bool, text: impl Into<WidgetText>) -> Self {
         Self {
             text: Some(text.into()),
             checked,
@@ -18,7 +18,7 @@ impl<'a> CheckBox<'a> {
         }
     }
 
-    pub fn without_text(checked: &'a mut bool) -> Self {
+    pub fn without_text(checked: bool) -> Self {
         Self {
             text: None,
             checked,
@@ -33,20 +33,21 @@ impl<'a> CheckBox<'a> {
     }
 }
 
-impl egui::Widget for CheckBox<'_> {
+impl egui::Widget for CheckBox {
     fn ui(self, ui: &mut Ui) -> egui::Response {
-        let mut checkbox = if let Some(text) = self.text {
-            egui::Checkbox::new(self.checked, text)
+        let mut temp = self.checked;
+        let checkbox = if let Some(text) = self.text {
+            egui::Checkbox::new(&mut temp, text)
         } else {
-            egui::Checkbox::without_text(self.checked)
-        };
-        checkbox = checkbox.indeterminate(self.indeterminate);
+            egui::Checkbox::without_text(&mut temp)
+        }
+        .indeterminate(self.indeterminate);
         ui.add(checkbox)
     }
 }
 
-impl<'a> From<CheckBox<'a>> for Widget<'a> {
-    fn from(value: CheckBox<'a>) -> Self {
+impl From<CheckBox> for Widget<'_> {
+    fn from(value: CheckBox) -> Self {
         Self::CheckBox(value)
     }
 }
