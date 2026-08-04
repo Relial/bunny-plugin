@@ -1,60 +1,89 @@
-use anyhow::Result;
+use anyhow::{Context, Result, anyhow};
 use windows::Win32::Graphics::Direct3D9::{
-    IDirect3DDevice9, IDirect3DStateBlock9, D3DBLENDOP_ADD, D3DBLEND_INVSRCALPHA, D3DBLEND_ONE,
-    D3DCULL_NONE, D3DRS_ALPHABLENDENABLE, D3DRS_ALPHATESTENABLE, D3DRS_BLENDOP, D3DRS_BLENDOPALPHA,
-    D3DRS_CLIPPING, D3DRS_COLORWRITEENABLE, D3DRS_CULLMODE, D3DRS_DESTBLEND, D3DRS_DESTBLENDALPHA,
-    D3DRS_FOGENABLE, D3DRS_LASTPIXEL, D3DRS_LIGHTING, D3DRS_RANGEFOGENABLE,
-    D3DRS_SCISSORTESTENABLE, D3DRS_SEPARATEALPHABLENDENABLE, D3DRS_SHADEMODE, D3DRS_SPECULARENABLE,
-    D3DRS_SRCBLEND, D3DRS_SRCBLENDALPHA, D3DRS_SRGBWRITEENABLE, D3DRS_STENCILENABLE,
-    D3DRS_TEXTUREFACTOR, D3DRS_ZENABLE, D3DRS_ZWRITEENABLE, D3DSAMP_ADDRESSU, D3DSAMP_ADDRESSV,
-    D3DSAMP_ADDRESSW, D3DSAMP_BORDERCOLOR, D3DSAMP_MAGFILTER, D3DSAMP_MINFILTER, D3DSAMP_MIPFILTER,
-    D3DSBT_ALL, D3DSHADE_GOURAUD, D3DTADDRESS_CLAMP, D3DTA_CURRENT, D3DTA_DIFFUSE, D3DTA_TEXTURE,
-    D3DTEXF_LINEAR, D3DTOP_DISABLE, D3DTOP_MODULATE, D3DTRANSFORMSTATETYPE, D3DTSS_ALPHAARG0,
-    D3DTSS_ALPHAARG1, D3DTSS_ALPHAARG2, D3DTSS_ALPHAOP, D3DTSS_COLORARG0, D3DTSS_COLORARG1,
-    D3DTSS_COLORARG2, D3DTSS_COLOROP,
+    D3DBLEND_INVSRCALPHA, D3DBLEND_ONE, D3DBLENDOP_ADD, D3DCULL_NONE, D3DRS_ALPHABLENDENABLE,
+    D3DRS_ALPHATESTENABLE, D3DRS_BLENDOP, D3DRS_BLENDOPALPHA, D3DRS_CLIPPING,
+    D3DRS_COLORWRITEENABLE, D3DRS_CULLMODE, D3DRS_DESTBLEND, D3DRS_DESTBLENDALPHA, D3DRS_FOGENABLE,
+    D3DRS_LASTPIXEL, D3DRS_LIGHTING, D3DRS_RANGEFOGENABLE, D3DRS_SCISSORTESTENABLE,
+    D3DRS_SEPARATEALPHABLENDENABLE, D3DRS_SHADEMODE, D3DRS_SPECULARENABLE, D3DRS_SRCBLEND,
+    D3DRS_SRCBLENDALPHA, D3DRS_SRGBWRITEENABLE, D3DRS_STENCILENABLE, D3DRS_TEXTUREFACTOR,
+    D3DRS_ZENABLE, D3DRS_ZWRITEENABLE, D3DSAMP_ADDRESSU, D3DSAMP_ADDRESSV, D3DSAMP_ADDRESSW,
+    D3DSAMP_BORDERCOLOR, D3DSAMP_MAGFILTER, D3DSAMP_MINFILTER, D3DSAMP_MIPFILTER, D3DSBT_ALL,
+    D3DSHADE_GOURAUD, D3DTA_CURRENT, D3DTA_DIFFUSE, D3DTA_TEXTURE, D3DTADDRESS_CLAMP,
+    D3DTEXF_LINEAR, D3DTOP_DISABLE, D3DTOP_MODULATE, D3DTSS_ALPHAARG0, D3DTSS_ALPHAARG1,
+    D3DTSS_ALPHAARG2, D3DTSS_ALPHAOP, D3DTSS_COLORARG0, D3DTSS_COLORARG1, D3DTSS_COLORARG2,
+    D3DTSS_COLOROP, IDirect3DDevice9, IDirect3DStateBlock9,
 };
-use windows_numerics::Matrix4x4;
 
 use crate::backend::mesh::FVF_CUSTOMVERTEX;
 
-pub struct DxState {
-    original_state: IDirect3DStateBlock9,
-    original_world: Matrix4x4,
-    device: IDirect3DDevice9,
+#[derive(Default, Debug)]
+pub struct GpuState {
+    state: Option<IDirect3DStateBlock9>,
+    game_state: Option<IDirect3DStateBlock9>,
 }
 
-impl DxState {
-    pub fn setup(device: &IDirect3DDevice9) -> Self {
+impl GpuState {
+    pub fn backup(&mut self, device: &IDirect3DDevice9) -> Result<()> {
         unsafe {
-            let original_state = device.CreateStateBlock(D3DSBT_ALL).unwrap();
-            original_state.Capture().unwrap();
-            let mut original_world: Matrix4x4 = Default::default();
-            device
-                .GetTransform(D3DTRANSFORMSTATETYPE(256), &mut original_world)
-                .unwrap();
-            setup_state(device).unwrap();
-            Self {
-                original_state,
-                original_world,
-                device: device.clone(),
+            if let Some(game_state) = &self.game_state {
+                game_state
+                    .Capture()
+                    .context("Failed to capture state block")?;
+            } else {
+                let state = device
+                    .CreateStateBlock(D3DSBT_ALL)
+                    .context("Failed to create game state block")?;
+                state.Capture().context("Failed to capture state block")?;
+                self.game_state = Some(state);
             }
         }
+        Ok(())
     }
-}
 
-impl Drop for DxState {
-    fn drop(&mut self) {
+    pub fn setup(&mut self, device: &IDirect3DDevice9, z_buffer: bool) -> Result<()> {
         unsafe {
-            self.device
-                .SetTransform(D3DTRANSFORMSTATETYPE(256), &self.original_world)
-                .unwrap();
-            self.original_state.Apply().unwrap();
+            if let Some(new_state) = &self.state {
+                new_state.Apply().context("Failed to apply saved state")?;
+            } else {
+                self.state = Some(setup_state_block(device)?);
+            }
+
+            device
+                .SetRenderState(D3DRS_ZENABLE, z_buffer as u32)
+                .context("Failed to set ZENABLE")?;
+            device
+                .SetRenderState(D3DRS_ZWRITEENABLE, z_buffer as u32)
+                .context("Failed to set ZWRITEENABLE")?;
         }
+
+        Ok(())
+    }
+
+    pub fn restore(&mut self) -> Result<()> {
+        let saved_state = self
+            .game_state
+            .as_ref()
+            .ok_or(anyhow!("No game state block saved"))?;
+        unsafe {
+            saved_state
+                .Apply()
+                .context("Failed to apply saved game state")?;
+        }
+        Ok(())
+    }
+
+    pub fn reset(&mut self) {
+        self.state = None;
+        self.game_state = None;
     }
 }
 
-fn setup_state(device: &IDirect3DDevice9) -> Result<()> {
+fn setup_state_block(device: &IDirect3DDevice9) -> Result<IDirect3DStateBlock9> {
     unsafe {
+        device
+            .BeginStateBlock()
+            .context("Failed to begin state block")?;
+
         // set up fvf
         device.SetFVF(FVF_CUSTOMVERTEX)?;
         device.SetPixelShader(None)?;
@@ -62,8 +91,6 @@ fn setup_state(device: &IDirect3DDevice9) -> Result<()> {
 
         // set up render state
         device.SetRenderState(D3DRS_SCISSORTESTENABLE, false as u32)?;
-        device.SetRenderState(D3DRS_ZENABLE, true as u32)?;
-        device.SetRenderState(D3DRS_ZWRITEENABLE, true as u32)?;
         device.SetRenderState(D3DRS_SHADEMODE, D3DSHADE_GOURAUD.0 as _)?;
         device.SetRenderState(D3DRS_ALPHATESTENABLE, false as _)?;
         device.SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE.0 as _)?;
@@ -111,6 +138,8 @@ fn setup_state(device: &IDirect3DDevice9) -> Result<()> {
         device.SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP.0 as _)?;
         device.SetSamplerState(0, D3DSAMP_ADDRESSW, D3DTADDRESS_CLAMP.0 as _)?;
 
-        Ok(())
+        device
+            .EndStateBlock()
+            .context("Failed to finish state block")
     }
 }

@@ -2,15 +2,12 @@ use anyhow::{Context, Result, anyhow};
 use epaint::Color32;
 use tracing::debug;
 use windows::Win32::Graphics::Direct3D9::{
-    D3DPT_TRIANGLELIST, D3DRS_SCISSORTESTENABLE, IDirect3DDevice9,
+    D3DPT_TRIANGLELIST, D3DTS_PROJECTION, D3DTS_VIEW, IDirect3DDevice9,
 };
+use windows_numerics::Matrix4x4;
 
 use crate::{
-    backend::{
-        mesh::{Buffers, FVF_CUSTOMVERTEX},
-        state::DxState,
-        texture_manager::TextureManager,
-    },
+    backend::{mesh::Buffers, state::GpuState, texture_manager::TextureManager},
     core::{Bunny3d, texture::TextureId},
 };
 
@@ -28,6 +25,7 @@ pub struct Bunny3dBackend {
     texture_manager: TextureManager,
     should_reset: bool,
     skip_frame: u8,
+    state: GpuState,
 }
 
 impl Bunny3dBackend {
@@ -39,6 +37,7 @@ impl Bunny3dBackend {
             texture_manager: TextureManager::new(device)?,
             should_reset: false,
             skip_frame: 5,
+            state: Default::default(),
         })
     }
 
@@ -70,7 +69,7 @@ impl Bunny3dBackend {
         freed
     }
 
-    pub fn draw(&mut self, device: &IDirect3DDevice9) -> Result<()> {
+    pub fn normal_draw(&mut self, device: &IDirect3DDevice9) -> Result<()> {
         if self.skip_frame > 0 {
             if self.should_reset {
                 self.buffers.recreate_buffers(device)?;
@@ -81,23 +80,68 @@ impl Bunny3dBackend {
             return Ok(());
         }
 
-        if self.data.is_empty() {
+        if self.data.normal_draws.is_empty() {
+            Ok(())
+        } else {
+            self.state
+                .backup(device)
+                .context("Failed to backup game state")?;
+            self.state
+                .setup(device, true)
+                .context("Failed to setup state")?;
+            self.draw(device, true)?;
+            self.state.restore().context("Failed to restore state")?;
+            Ok(())
+        }
+    }
+
+    pub fn draw_on_top_of_game(
+        &mut self,
+        device: &IDirect3DDevice9,
+        backup_game_state: bool,
+        camera_matrices: CameraMatrices,
+    ) -> Result<()> {
+        if self.skip_frame > 0 {
             return Ok(());
         }
 
-        let _state = DxState::setup(device);
+        if self.data.no_depth_buffer_draws.is_empty() {
+            Ok(())
+        } else {
+            if backup_game_state {
+                self.state
+                    .backup(device)
+                    .context("Failed to backup game state")?;
+            }
+            self.state
+                .setup(device, false)
+                .context("Failed to setup state")?;
+
+            // Setting camera matrices here doesn't seem to be necessary, but doing it anyway in case it's needed somewhere in the game
+            camera_matrices
+                .set(device)
+                .context("Failed to set camera matrices")?;
+            self.draw(device, false)?;
+            if backup_game_state {
+                self.state.restore().context("Failed to restore state")?;
+            }
+            Ok(())
+        }
+    }
+
+    fn draw(&mut self, device: &IDirect3DDevice9, z_buffer: bool) -> Result<()> {
+        let draw_list = if z_buffer {
+            &self.data.normal_draws
+        } else {
+            &self.data.no_depth_buffer_draws
+        };
 
         self.buffers
-            .update_vertex_buffer(device, self.data.vertex_buffer())?;
+            .update_vertex_buffer(device, draw_list.vertex_buffer())?;
         self.buffers
-            .update_index_buffer(device, self.data.index_buffer())?;
+            .update_index_buffer(device, draw_list.index_buffer())?;
 
         unsafe {
-            device.SetRenderState(D3DRS_SCISSORTESTENABLE, false as u32)?;
-            device
-                .SetFVF(FVF_CUSTOMVERTEX)
-                .context("Failed to set FVF")?;
-
             let vertex_buffer = self
                 .buffers
                 .vtx
@@ -118,7 +162,7 @@ impl Bunny3dBackend {
 
         let mut current_vtx = 0;
         let mut current_idx = 0;
-        for mesh in self.data.meshes() {
+        for mesh in draw_list.meshes() {
             mesh.setup(device)?;
 
             let texture = self.texture_manager.get(mesh.texture)?;
@@ -149,6 +193,7 @@ impl Bunny3dBackend {
     pub fn reset(&mut self) {
         self.buffers.delete_buffers();
         self.texture_manager.deallocate_all();
+        self.state.reset();
         self.should_reset = true;
         self.skip_frame = 5;
     }
@@ -178,6 +223,7 @@ impl GpuColor {
         Self([bytes[0], bytes[1], bytes[2], bytes[3]])
     }
 
+    #[inline]
     pub fn as_bytes(&self) -> &[u8] {
         &self.0
     }
@@ -187,5 +233,29 @@ impl From<Color32> for GpuColor {
     fn from(value: Color32) -> Self {
         let cols = value.to_array();
         Self([cols[2], cols[1], cols[0], cols[3]])
+    }
+}
+
+pub struct CameraMatrices {
+    view: Matrix4x4,
+    projection: Matrix4x4,
+}
+
+impl CameraMatrices {
+    pub fn new(view: Matrix4x4, projection: Matrix4x4) -> Self {
+        Self { view, projection }
+    }
+
+    pub fn set(&self, device: &IDirect3DDevice9) -> Result<()> {
+        unsafe {
+            device
+                .SetTransform(D3DTS_VIEW, &self.view)
+                .context("Failed to set view matrix")?;
+            device
+                .SetTransform(D3DTS_PROJECTION, &self.projection)
+                .context("Failed to set projection matrix")?;
+        }
+
+        Ok(())
     }
 }

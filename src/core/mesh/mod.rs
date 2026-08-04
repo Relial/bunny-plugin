@@ -98,8 +98,9 @@ impl TryFrom<bevy_mesh::Mesh> for Mesh {
         let indices = value
             .remove_indices()
             .ok_or(anyhow!("Bevy mesh missing indices"))?;
-        let Indices::U32(indices) = indices else {
-            bail!("Indices must be U32");
+        let indices = match indices {
+            Indices::U16(items) => items.into_iter().map(|i| i as u32).collect(),
+            Indices::U32(items) => items,
         };
         Ok(Mesh {
             vertices,

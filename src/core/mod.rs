@@ -1,102 +1,33 @@
-use abi_stable::{rvec, std_types::RVec};
-use anyhow::{Context as _, Result};
-use glam::{Mat4, Quat, Vec3};
-use windows::Win32::Graphics::Direct3D9::{
-    D3DRS_FILLMODE, D3DTRANSFORMSTATETYPE, IDirect3DDevice9,
-};
-use windows_numerics::Matrix4x4;
+use glam::{Quat, Vec3};
 
 use crate::{
-    backend::{GpuColor, VERTEX_SIZE},
+    backend::GpuColor,
     core::{
+        draw_list::DrawList,
         mesh::Mesh,
         texture::{TextureAllocation, TextureId, TextureSource, Textures},
     },
 };
 
+pub(crate) mod draw_list;
 pub mod mesh;
 pub mod texture;
-mod draw_list;
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 #[repr(C)]
 pub struct Bunny3d {
     textures: Textures,
-    vertex_bytes: RVec<u8>,
-    index_bytes: RVec<u8>,
-    descriptors: RVec<MeshDescriptor>,
-    vertex_bytes_position: usize,
-}
-
-impl Default for Bunny3d {
-    fn default() -> Self {
-        Self {
-            vertex_bytes: rvec![0; 2400],
-            vertex_bytes_position: 0,
-            index_bytes: RVec::with_capacity(2400),
-            descriptors: Default::default(),
-            textures: Textures::default(),
-        }
-    }
+    pub(crate) normal_draws: DrawList,
+    pub(crate) no_depth_buffer_draws: DrawList,
 }
 
 impl Bunny3d {
-    #[inline]
-    pub fn is_empty(&self) -> bool {
-        self.descriptors.is_empty()
-    }
-
     pub fn add(&mut self, component: &Bunny3dComponent) {
-        let indices_count = component.index_count();
-        let indices = component.mesh.index_buffer_bytes();
-        self.index_bytes.extend_from_slice(indices);
-
-        let vertex_size = VERTEX_SIZE as usize;
-        let vertex_count = component.vertex_count();
-        let vertex_size_required = vertex_size * vertex_count;
-        if self.vertex_bytes.len() - self.vertex_bytes_position < vertex_size_required {
-            self.vertex_bytes
-                .extend(std::iter::repeat_n(0, vertex_size_required));
+        if component.draw_on_top {
+            self.no_depth_buffer_draws.add(component);
+        } else {
+            self.normal_draws.add(component);
         }
-        component.mesh.update_vertex_buffer(
-            &mut self.vertex_bytes
-                [self.vertex_bytes_position..self.vertex_bytes_position + vertex_size_required],
-            vertex_size,
-        );
-
-        let mat = Mat4::from_scale_rotation_translation(
-            component.scale,
-            component.rotation,
-            component.translation,
-        );
-        let cols = mat.to_cols_array();
-        let d3dmat = Matrix4x4 {
-            M11: cols[0],
-            M12: cols[1],
-            M13: cols[2],
-            M14: cols[3],
-            M21: cols[4],
-            M22: cols[5],
-            M23: cols[6],
-            M24: cols[7],
-            M31: cols[8],
-            M32: cols[9],
-            M33: cols[10],
-            M34: cols[11],
-            M41: cols[12],
-            M42: cols[13],
-            M43: cols[14],
-            M44: cols[15],
-        };
-        self.descriptors.push(MeshDescriptor {
-            vertices: vertex_count,
-            indices: indices_count,
-            z_buffer: component.z_buffer,
-            fill: component.fill,
-            world_matrix: d3dmat,
-            texture: component.texture.unwrap_or_default(),
-        });
-        self.vertex_bytes_position += vertex_size_required;
     }
 
     pub fn allocate_texture<'a>(&mut self, texture: impl Into<TextureSource<'a>>) -> TextureId {
@@ -111,50 +42,12 @@ impl Bunny3d {
 
 impl Bunny3d {
     pub(crate) fn start_frame(&mut self) {
-        self.vertex_bytes_position = 0;
-        self.index_bytes.clear();
-        self.descriptors.clear();
-    }
-
-    pub(crate) fn vertex_buffer(&self) -> &[u8] {
-        &self.vertex_bytes[0..self.vertex_bytes_position]
-    }
-
-    pub(crate) fn index_buffer(&self) -> &[u8] {
-        &self.index_bytes
-    }
-
-    pub(crate) fn meshes(&self) -> &[MeshDescriptor] {
-        &self.descriptors
+        self.normal_draws.start_frame();
+        self.no_depth_buffer_draws.start_frame();
     }
 
     pub(crate) fn extract_allocations(&mut self) -> impl Iterator<Item = TextureAllocation> {
         self.textures.extract_allocations()
-    }
-}
-
-#[derive(Debug)]
-#[repr(C)]
-pub struct MeshDescriptor {
-    world_matrix: Matrix4x4,
-    pub(crate) vertices: usize,
-    pub(crate) indices: usize,
-    fill: FillMode,
-    pub(crate) texture: TextureId,
-    z_buffer: bool,
-}
-
-impl MeshDescriptor {
-    pub(crate) fn setup(&self, device: &IDirect3DDevice9) -> Result<()> {
-        unsafe {
-            device
-                .SetRenderState(D3DRS_FILLMODE, self.fill as u32)
-                .context("Failed to set FILLMODE")?;
-            device
-                .SetTransform(D3DTRANSFORMSTATETYPE(256), &self.world_matrix)
-                .context("Failed to set world matrix")?;
-        }
-        Ok(())
     }
 }
 
@@ -168,7 +61,7 @@ pub enum FillMode {
 #[derive(Debug)]
 pub struct Bunny3dComponent {
     mesh: Mesh,
-    z_buffer: bool,
+    draw_on_top: bool,
     fill: FillMode,
     scale: Vec3,
     rotation: Quat,
@@ -180,7 +73,7 @@ impl Bunny3dComponent {
     pub fn new(mesh: impl Into<Mesh>) -> Self {
         Self {
             mesh: mesh.into(),
-            z_buffer: true,
+            draw_on_top: false,
             fill: FillMode::Wireframe,
             scale: Vec3 {
                 x: 1.0,
@@ -194,8 +87,8 @@ impl Bunny3dComponent {
     }
 
     #[inline]
-    pub fn z_buffer(mut self, z_buffer: bool) -> Self {
-        self.z_buffer = z_buffer;
+    pub fn draw_on_top(mut self, draw_on_top: bool) -> Self {
+        self.draw_on_top = draw_on_top;
         self
     }
 

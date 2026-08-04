@@ -5,10 +5,10 @@ use crate::backend::GpuColor;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
 #[repr(C)]
-pub struct TextureId(u32);
+pub struct TextureId(u64);
 
 impl TextureId {
-    pub(crate) fn new(id: u32) -> Self {
+    pub(crate) fn new(id: u64) -> Self {
         Self(id)
     }
 }
@@ -23,7 +23,7 @@ impl std::fmt::Display for TextureId {
 #[repr(C)]
 pub struct Textures {
     allocations: RVec<TextureAllocation>,
-    next_id: u32,
+    next_id: u64,
 }
 
 impl Default for Textures {
