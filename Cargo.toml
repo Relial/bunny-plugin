@@ -1,15 +1,20 @@
 [package]
 name = "bunny-plugin"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
 
 [features]
-default = ["ui"]
+default = ["ui", "plugin"]
 ui = ["dep:bunny-ui"]
+egui = ["dep:bunny-ui", "bunny-ui/egui"]
+3d = ["dep:bunny-3d"]
+bevy = ["dep:bunny-3d", "bunny-3d/bevy"]
+plugin = []
 
 [dependencies]
 abi_stable = "0.11.3"
 anyhow = "1.0.102"
-bunny-ui = { git = "https://github.com/Relial/bunny-ui.git", tag = "api-v2", optional = true }
+bunny-ui = { path = "../bunny-ui", optional = true }
+bunny-3d = { path = "../bunny-3d", optional = true }
 ilhook = { version = "2.3.0", features = ["x86"], default-features = false }
 tracing-subscriber = "0.3.23"

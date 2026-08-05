@@ -5,8 +5,12 @@ use std::{path::Path, str::FromStr};
 #[cfg(feature = "ui")]
 pub use bunny_ui;
 
+#[cfg(feature = "3d")]
+pub use bunny_3d;
+
+#[cfg(feature = "plugin")]
 #[unsafe(no_mangle)]
-pub static BUNNY_API_VERSION: u32 = 2;
+pub static BUNNY_API_VERSION: u32 = 3;
 
 use abi_stable::std_types::{
     ROption::{self, RNone, RSome},
@@ -15,7 +19,7 @@ use abi_stable::std_types::{
 use anyhow::{Result, anyhow};
 use tracing_subscriber::filter::LevelFilter;
 
-use crate::hook::{HookCallback, Hooks};
+use crate::hook::{Bunny3dCallback, Hooks, SimpleCallback, UiCallback};
 
 pub mod hook;
 pub mod hook_builder;
@@ -111,39 +115,71 @@ impl PluginInfo {
         }
     }
 
-    pub fn with_lobby_hook(mut self, callback: HookCallback) -> Self {
+    #[inline]
+    pub fn lobby_hook(mut self, callback: SimpleCallback) -> Self {
         self.hooks.set_lobby(callback);
         self
     }
 
-    pub fn with_quest_hook(mut self, callback: HookCallback) -> Self {
+    #[inline]
+    pub fn quest_hook(mut self, callback: SimpleCallback) -> Self {
         self.hooks.set_quest(callback);
         self
     }
 
-    pub fn with_quest_ending_hook(mut self, callback: HookCallback) -> Self {
+    #[inline]
+    pub fn quest_ending_hook(mut self, callback: SimpleCallback) -> Self {
         self.hooks.set_quest_ending(callback);
         self
     }
 
-    pub fn with_quest_complete_hook(mut self, callback: HookCallback) -> Self {
+    #[inline]
+    pub fn quest_complete_hook(mut self, callback: SimpleCallback) -> Self {
         self.hooks.set_quest_complete(callback);
         self
     }
 
-    pub fn with_init_fail(mut self, fail_reason: impl Into<RString>) -> Self {
+    #[inline]
+    pub fn ui_menu(mut self, callback: UiCallback) -> Self {
+        self.hooks.set_ui_menu(callback);
+        self
+    }
+
+    #[inline]
+    pub fn ui_free(mut self, callback: UiCallback) -> Self {
+        self.hooks.set_ui_free(callback);
+        self
+    }
+
+    #[inline]
+    pub fn save(mut self, callback: SimpleCallback) -> Self {
+        self.hooks.set_save(callback);
+        self
+    }
+
+    #[inline]
+    pub fn bunny3d(mut self, callback: Bunny3dCallback) -> Self {
+        self.hooks.set_bunny3d(callback);
+        self
+    }
+
+    #[inline]
+    pub fn init_fail(mut self, fail_reason: impl Into<RString>) -> Self {
         self.init_fail_reason = RSome(fail_reason.into());
         self
     }
 
+    #[inline]
     pub fn name(&self) -> &str {
         &self.name
     }
 
+    #[inline]
     pub fn version(&self) -> &str {
         &self.version
     }
 
+    #[inline]
     pub fn init(&self) -> Result<()> {
         if let RSome(fail_reason) = &self.init_fail_reason {
             Err(anyhow!("{}", fail_reason))
