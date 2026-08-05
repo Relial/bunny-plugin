@@ -1,14 +1,12 @@
 use glam::{Quat, Vec3};
+use shared_textures::{NamedTexture, SharedTextures, SizedTexture, TextureId};
 
 use crate::{
     backend::GpuColor,
     core::{
         draw_list::DrawList,
         mesh::Mesh,
-        texture::{
-            NamedTexture, SharedTextures, SizedTexture, TextureAllocation, TextureId,
-            TextureSource, Textures,
-        },
+        texture::{TextureAllocation, TextureSource, Textures},
     },
 };
 

@@ -20,3 +20,4 @@ image = "0.25.10"
 abi_stable = "0.11.3"
 bytemuck = "1.25.2"
 serde = { version = "1.0.229", features = ["derive"] }
+shared-textures = { path = "../shared-textures" }

@@ -120,6 +120,7 @@ dependencies = [
  "nohash-hasher",
  "rapidhash",
  "serde",
+ "shared-textures",
  "tracing",
 ]
 
@@ -636,6 +637,15 @@ dependencies = [
  "serde",
  "serde_core",
  "zmij",
+]
+
+[[package]]
+name = "shared-textures"
+version = "0.1.0"
+dependencies = [
+ "abi_stable",
+ "egui",
+ "rapidhash",
 ]
 
 [[package]]

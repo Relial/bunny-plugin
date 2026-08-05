@@ -2,9 +2,10 @@ use std::borrow::Cow;
 
 use abi_stable::std_types::RCowStr;
 use anyhow::Result;
-use egui::{Context, Vec2, load::TexturePoll};
+use egui::{Context, load::TexturePoll};
+use shared_textures::{NamedTexture, SizedTexture};
 
-use crate::{load::Bytes, shared_textures::NamedTexture};
+use crate::load::Bytes;
 
 #[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
@@ -153,30 +154,5 @@ impl<T: Into<Bytes>> From<(String, T)> for ImageSource<'static> {
 impl From<&NamedTexture> for ImageSource<'_> {
     fn from(value: &NamedTexture) -> Self {
         Self::Texture(*value.texture())
-    }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-#[repr(C)]
-pub struct SizedTexture {
-    pub id: u64,
-    pub size: [usize; 2],
-}
-
-impl SizedTexture {
-    pub fn new(id: u64, size: [usize; 2]) -> Self {
-        Self { id, size }
-    }
-}
-
-impl From<SizedTexture> for egui::load::SizedTexture {
-    fn from(value: SizedTexture) -> Self {
-        Self {
-            id: egui::TextureId::User(value.id),
-            size: Vec2 {
-                x: value.size[0] as f32,
-                y: value.size[1] as f32,
-            },
-        }
     }
 }

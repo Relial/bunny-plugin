@@ -1,6 +1,7 @@
 use abi_stable::std_types::RVec;
 use anyhow::{Context as _, Result};
 use glam::Mat4;
+use shared_textures::TextureId;
 use windows::Win32::Graphics::Direct3D9::{
     D3DRS_FILLMODE, D3DTRANSFORMSTATETYPE, IDirect3DDevice9,
 };
@@ -8,7 +9,7 @@ use windows_numerics::Matrix4x4;
 
 use crate::{
     backend::VERTEX_SIZE,
-    core::{Bunny3dComponent, FillMode, texture::TextureId},
+    core::{Bunny3dComponent, FillMode},
 };
 
 #[derive(Debug, Default)]

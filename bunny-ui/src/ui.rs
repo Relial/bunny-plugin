@@ -4,6 +4,7 @@ use abi_stable::{
 };
 use egui::{Color32, Id, Rect, Sense, Ui, Vec2, vec2};
 use rapidhash::fast::RandomState;
+use shared_textures::{NamedTexture, SharedTextures, SizedTexture};
 
 use crate::{
     align::Align,
@@ -12,13 +13,12 @@ use crate::{
         scope_builder::ScopeBuilder,
     },
     elements::{Component, Container, MiscComponent, UiContainer, Widget},
-    image_source::{ImageSource, SizedTexture},
+    image_source::ImageSource,
     input_state::{Input, InputState, PointerState},
     layout::Layout,
     paint::paintlist::PaintList,
     painter::Painter,
     response::{InnerResponse, Response},
-    shared_textures::{NamedTexture, SharedTextures},
     style::{Interaction, Spacing, Style, Visuals},
     ui_builder::UiBuilder,
     widget_text::{RichText, WidgetText},

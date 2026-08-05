@@ -1,5 +1,6 @@
 use anyhow::{Context, Result, anyhow};
 use epaint::Color32;
+use shared_textures::{SharedTextures, TextureId};
 use tracing::debug;
 use windows::Win32::Graphics::Direct3D9::{
     D3DPT_TRIANGLELIST, D3DTS_PROJECTION, D3DTS_VIEW, IDirect3DDevice9, IDirect3DTexture9,
@@ -8,10 +9,7 @@ use windows_numerics::Matrix4x4;
 
 use crate::{
     backend::{mesh::Buffers, state::GpuState, texture_manager::TextureManager},
-    core::{
-        Bunny3d,
-        texture::{SharedTextures, TextureId},
-    },
+    core::Bunny3d,
 };
 
 mod mesh;
