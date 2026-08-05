@@ -6,7 +6,6 @@ edition = "2024"
 [features]
 default = ["ui", "plugin"]
 ui = ["dep:bunny-ui"]
-egui = ["dep:bunny-ui", "bunny-ui/egui"]
 3d = ["dep:bunny-3d"]
 bevy = ["dep:bunny-3d", "bunny-3d/bevy"]
 plugin = []
