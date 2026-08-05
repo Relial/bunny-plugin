@@ -15,19 +15,21 @@ use crate::{
 #[derive(Debug)]
 pub struct TextureManager {
     textures: RapidHashMap<TextureId, Texture>,
+    shared: RapidHashMap<TextureId, IDirect3DTexture9>,
 }
 
 impl TextureManager {
     pub fn new(device: &IDirect3DDevice9) -> Result<Self> {
         let mut t = Self {
             textures: Default::default(),
+            shared: Default::default(),
         };
         t.allocate(
             device,
             TextureAllocation {
                 pixels: rvec![Color32::WHITE.into()],
                 size: [1, 1],
-                id: TextureId::new(0),
+                id: TextureId::Managed(0),
             },
         )?;
         Ok(t)
@@ -53,18 +55,26 @@ impl TextureManager {
     }
 
     pub fn get(&self, id: TextureId) -> Result<&IDirect3DTexture9> {
-        self.textures
-            .get(&id)
-            .ok_or_else(|| anyhow!("Texture {} doesn't exist", id))?
-            .resource
-            .as_ref()
-            .ok_or_else(|| anyhow!("Tried to get texture {} when it was deallocated", id))
+        match id {
+            TextureId::Managed(_) => self
+                .textures
+                .get(&id)
+                .ok_or_else(|| anyhow!("Texture {} doesn't exist", id))?
+                .resource
+                .as_ref()
+                .ok_or_else(|| anyhow!("Tried to get texture {} when it was deallocated", id)),
+            TextureId::Shared(_) => self
+                .shared
+                .get(&id)
+                .ok_or_else(|| anyhow!("Texture {} doesn't exist", id)),
+        }
     }
 
     pub fn deallocate_all(&mut self) {
         for t in self.textures.values_mut() {
             t.resource = None;
         }
+        self.shared.clear();
     }
 
     pub fn reallocate_all(&mut self, device: &IDirect3DDevice9) -> Result<()> {
@@ -73,6 +83,10 @@ impl TextureManager {
             t.resource = Some(res);
         }
         Ok(())
+    }
+
+    pub fn add_shared(&mut self, textures: impl IntoIterator<Item = (TextureId, IDirect3DTexture9)>) {
+        self.shared.extend(textures);
     }
 }
 

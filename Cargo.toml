@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [features]
-default = ["bevy"]
+default = []
 bevy = ["dep:bevy_mesh"]
 
 [dependencies]
@@ -19,3 +19,4 @@ rapidhash = "4.5.1"
 image = "0.25.10"
 abi_stable = "0.11.3"
 bytemuck = "1.25.2"
+serde = { version = "1.0.229", features = ["derive"] }

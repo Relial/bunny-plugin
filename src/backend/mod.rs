@@ -2,13 +2,16 @@ use anyhow::{Context, Result, anyhow};
 use epaint::Color32;
 use tracing::debug;
 use windows::Win32::Graphics::Direct3D9::{
-    D3DPT_TRIANGLELIST, D3DTS_PROJECTION, D3DTS_VIEW, IDirect3DDevice9,
+    D3DPT_TRIANGLELIST, D3DTS_PROJECTION, D3DTS_VIEW, IDirect3DDevice9, IDirect3DTexture9,
 };
 use windows_numerics::Matrix4x4;
 
 use crate::{
     backend::{mesh::Buffers, state::GpuState, texture_manager::TextureManager},
-    core::{Bunny3d, texture::TextureId},
+    core::{
+        Bunny3d,
+        texture::{SharedTextures, TextureId},
+    },
 };
 
 mod mesh;
@@ -196,6 +199,17 @@ impl Bunny3dBackend {
         self.state.reset();
         self.should_reset = true;
         self.skip_frame = 5;
+    }
+
+    pub fn add_shared_texture_allocations(
+        &mut self,
+        textures: impl IntoIterator<Item = (TextureId, IDirect3DTexture9)>,
+    ) {
+        self.texture_manager.add_shared(textures);
+    }
+
+    pub fn add_shared_textures(&mut self, textures: SharedTextures) {
+        self.data.add_shared(textures);
     }
 }
 

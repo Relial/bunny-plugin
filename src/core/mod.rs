@@ -5,7 +5,10 @@ use crate::{
     core::{
         draw_list::DrawList,
         mesh::Mesh,
-        texture::{TextureAllocation, TextureId, TextureSource, Textures},
+        texture::{
+            NamedTexture, SharedTextures, SizedTexture, TextureAllocation, TextureId,
+            TextureSource, Textures,
+        },
     },
 };
 
@@ -16,9 +19,9 @@ pub mod texture;
 #[derive(Debug, Default)]
 #[repr(C)]
 pub struct Bunny3d {
-    textures: Textures,
     pub(crate) normal_draws: DrawList,
     pub(crate) no_depth_buffer_draws: DrawList,
+    textures: Textures,
 }
 
 impl Bunny3d {
@@ -38,6 +41,20 @@ impl Bunny3d {
     pub fn allocations_len(&self) -> usize {
         self.textures.allocations_len()
     }
+
+    /// Get a texture loaded by the manager by its filename
+    /// The textures are loaded asynchronously, so you should not assume this returns what you want at startup
+    #[inline]
+    pub fn get_shared_texture(&self, texture_file_name: impl AsRef<str>) -> Option<&SizedTexture> {
+        self.textures.get_texture(texture_file_name)
+    }
+
+    /// Textures loaded by the manager
+    /// The textures are loaded asynchronously, so you should not assume this returns what you want at startup
+    #[inline]
+    pub fn shared_textures(&self) -> &[NamedTexture] {
+        self.textures.textures()
+    }
 }
 
 impl Bunny3d {
@@ -48,6 +65,10 @@ impl Bunny3d {
 
     pub(crate) fn extract_allocations(&mut self) -> impl Iterator<Item = TextureAllocation> {
         self.textures.extract_allocations()
+    }
+
+    pub(crate) fn add_shared(&mut self, shared: SharedTextures) {
+        self.textures.add_shared(shared);
     }
 }
 
