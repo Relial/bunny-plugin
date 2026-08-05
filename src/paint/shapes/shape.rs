@@ -9,7 +9,10 @@ use egui::{Color32, Context, Pos2, Rangef, Rect, Vec2, emath::TSTransform, epain
 use tracing::error;
 
 use crate::{
-    align::Align2, direction::Direction, image_source::ImageLoader, paint::{
+    align::Align2,
+    direction::Direction,
+    image_source::ImageSource,
+    paint::{
         corner_radius::CornerRadius,
         mesh::Mesh,
         shapes::{
@@ -251,12 +254,18 @@ impl<'a> Shape<'a> {
                 Vertex::untextured(rect.left_bottom(), left_bottom),
                 Vertex::untextured(rect.right_bottom(), right_bottom),
             ],
-            texture_loader: RNone,
+            texture_source: RNone,
         })
     }
 
     #[inline]
-    pub fn text(pos: Pos2, anchor: Align2, text: impl Into<RString>, font_id: FontId, color: Color32) -> Self {
+    pub fn text(
+        pos: Pos2,
+        anchor: Align2,
+        text: impl Into<RString>,
+        font_id: FontId,
+        color: Color32,
+    ) -> Self {
         let layout_job = LayoutJob::simple_singleline(text, font_id, color);
         let shape = TextShape::new(pos, layout_job, anchor, color);
         Self::Text(shape)
@@ -281,7 +290,7 @@ impl<'a> Shape<'a> {
     }
 
     #[inline]
-    pub fn image(texture_source: ImageLoader<'a>, rect: Rect, uv: Rect, tint: Color32) -> Self {
+    pub fn image(texture_source: ImageSource<'a>, rect: Rect, uv: Rect, tint: Color32) -> Self {
         let mut mesh = Mesh::with_texture(texture_source);
         mesh.add_rect_with_uv(rect, uv, tint);
         Self::mesh(RBox::new(mesh))

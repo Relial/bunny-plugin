@@ -104,7 +104,7 @@ pub fn adjust_colors(
             let Mesh {
                 indices: _,
                 vertices,
-                texture_loader: _,
+                texture_source: _,
             } = mesh.as_mut();
 
             for v in vertices {

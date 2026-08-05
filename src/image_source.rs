@@ -2,70 +2,15 @@ use std::borrow::Cow;
 
 use abi_stable::std_types::RCowStr;
 use anyhow::Result;
-use egui::{Context, load::TexturePoll};
+use egui::{Context, Vec2, load::TexturePoll};
 
-use crate::{
-    load::{Bytes, SizeHint},
-    paint::textures::TextureOptions,
-};
-
-#[repr(C)]
-#[derive(Clone, Debug, PartialEq)]
-pub struct ImageLoader<'a> {
-    pub source: ImageSource<'a>,
-    pub texture_options: TextureOptions,
-    pub size_hint: SizeHint,
-}
-
-impl<'a> ImageLoader<'a> {
-    pub fn new(
-        source: impl Into<ImageSource<'a>>,
-        options: TextureOptions,
-        size_hint: SizeHint,
-    ) -> Self {
-        Self {
-            source: source.into(),
-            texture_options: options,
-            size_hint,
-        }
-    }
-
-    pub fn from_uri(uri: impl Into<RCowStr<'a>>) -> Self {
-        Self {
-            source: ImageSource::from_uri(uri),
-            texture_options: TextureOptions::default(),
-            size_hint: SizeHint::default(),
-        }
-    }
-
-    pub fn from_bytes(uri: impl Into<RCowStr<'static>>, bytes: impl Into<Bytes>) -> Self {
-        Self {
-            source: ImageSource::from_bytes(uri, bytes),
-            texture_options: TextureOptions::default(),
-            size_hint: SizeHint::default(),
-        }
-    }
-
-    pub fn to_texture(self, ctx: &Context) -> Result<TexturePoll> {
-        let source: egui::ImageSource = self.source.into();
-        let res = source.load(ctx, self.texture_options.into(), self.size_hint.into())?;
-        Ok(res)
-    }
-}
-
-impl<'a> From<ImageSource<'a>> for ImageLoader<'a> {
-    fn from(value: ImageSource<'a>) -> Self {
-        match value {
-            ImageSource::Uri(uri) => Self::from_uri(uri),
-            ImageSource::Bytes { uri, bytes } => Self::from_bytes(uri, bytes),
-        }
-    }
-}
+use crate::{load::Bytes, shared_textures::NamedTexture};
 
 #[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
 pub enum ImageSource<'a> {
     Uri(RCowStr<'a>),
+    Texture(SizedTexture),
     Bytes { uri: RCowStr<'static>, bytes: Bytes },
 }
 
@@ -80,6 +25,16 @@ impl<'a> ImageSource<'a> {
             bytes: bytes.into(),
         }
     }
+
+    pub(crate) fn convert_to_texture(self, ctx: &Context) -> Result<TexturePoll> {
+        let source: egui::ImageSource = self.into();
+        let res = source.load(
+            ctx,
+            egui::TextureOptions::default(),
+            egui::SizeHint::default(),
+        )?;
+        Ok(res)
+    }
 }
 
 impl<'a> From<ImageSource<'a>> for egui::ImageSource<'a> {
@@ -89,6 +44,7 @@ impl<'a> From<ImageSource<'a>> for egui::ImageSource<'a> {
                 let uri_cow: Cow<'a, str> = uri.into();
                 Self::Uri(uri_cow)
             }
+            ImageSource::Texture(texture) => Self::Texture(texture.into()),
             ImageSource::Bytes { uri, bytes } => {
                 let uri_cow: Cow<'static, str> = uri.into();
                 let bytes = match bytes.into_inner() {
@@ -190,6 +146,37 @@ impl<T: Into<Bytes>> From<(String, T)> for ImageSource<'static> {
         Self::Bytes {
             uri: uri.into(),
             bytes: bytes.into(),
+        }
+    }
+}
+
+impl From<&NamedTexture> for ImageSource<'_> {
+    fn from(value: &NamedTexture) -> Self {
+        Self::Texture(*value.texture())
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+#[repr(C)]
+pub struct SizedTexture {
+    pub id: u64,
+    pub size: [usize; 2],
+}
+
+impl SizedTexture {
+    pub fn new(id: u64, size: [usize; 2]) -> Self {
+        Self { id, size }
+    }
+}
+
+impl From<SizedTexture> for egui::load::SizedTexture {
+    fn from(value: SizedTexture) -> Self {
+        Self {
+            id: egui::TextureId::User(value.id),
+            size: Vec2 {
+                x: value.size[0] as f32,
+                y: value.size[1] as f32,
+            },
         }
     }
 }

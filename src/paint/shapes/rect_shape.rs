@@ -8,7 +8,7 @@ use anyhow::Result;
 use egui::{Color32, Context, Pos2, Rect, emath::Rot2};
 
 use crate::{
-    image_source::ImageLoader,
+    image_source::ImageSource,
     paint::{
         brush::Brush,
         corner_radius::CornerRadius,
@@ -98,9 +98,9 @@ impl<'a> RectShape<'a> {
     }
 
     #[inline]
-    pub fn with_texture(mut self, fill_texture_loader: ImageLoader<'a>, uv: Rect) -> Self {
+    pub fn with_texture(mut self, fill_texture_source: ImageSource<'a>, uv: Rect) -> Self {
         self.brush = RSome(RBox::new(Brush {
-            fill_texture_loader,
+            fill_texture_source,
             uv,
         }));
         self

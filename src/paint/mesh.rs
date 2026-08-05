@@ -9,20 +9,20 @@ use egui::{
     epaint::{Vertex, WHITE_UV},
 };
 
-use crate::image_source::ImageLoader;
+use crate::image_source::ImageSource;
 
 #[repr(C)]
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct Mesh<'a> {
-    pub texture_loader: ROption<ImageLoader<'a>>,
+    pub texture_source: ROption<ImageSource<'a>>,
     pub indices: RVec<u32>,
     pub vertices: RVec<Vertex>,
 }
 
 impl<'a> Mesh<'a> {
-    pub fn with_texture(texture_source: ImageLoader<'a>) -> Self {
+    pub fn with_texture(texture_source: ImageSource<'a>) -> Self {
         Self {
-            texture_loader: RSome(texture_source),
+            texture_source: RSome(texture_source),
             ..Default::default()
         }
     }
@@ -64,7 +64,7 @@ impl<'a> Mesh<'a> {
     #[inline(always)]
     pub fn colored_vertex(&mut self, pos: Pos2, color: Color32) {
         debug_assert!(
-            self.texture_loader.is_none(),
+            self.texture_source.is_none(),
             "Mesh has an assigned texture"
         );
         self.vertices.push(Vertex::untextured(pos, color));
@@ -119,7 +119,7 @@ impl<'a> Mesh<'a> {
     #[inline(always)]
     pub fn add_colored_rect(&mut self, rect: Rect, color: Color32) {
         debug_assert!(
-            self.texture_loader.is_none(),
+            self.texture_source.is_none(),
             "Mesh has an assigned texture"
         );
         self.add_rect_with_uv(rect, [WHITE_UV, WHITE_UV].into(), color);
@@ -146,14 +146,9 @@ impl<'a> Mesh<'a> {
 
 impl<'a> Mesh<'a> {
     pub fn to_egui(self, ctx: &Context) -> Result<egui::Mesh> {
-        let texture_id = if let RSome(texture_loader) = self.texture_loader {
-            let source: egui::ImageSource = texture_loader.source.into();
-            let texture_result = source.load(
-                ctx,
-                texture_loader.texture_options.into(),
-                texture_loader.size_hint.into(),
-            )?;
-            match texture_result {
+        let texture_id = if let RSome(texture_loader) = self.texture_source {
+            let texture_poll = texture_loader.convert_to_texture(ctx)?;
+            match texture_poll {
                 egui::load::TexturePoll::Pending { size: _ } => {
                     return Err(anyhow!("Texture is loading"));
                 }

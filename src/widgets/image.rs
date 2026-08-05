@@ -8,7 +8,7 @@ use egui::{Color32, NumExt, Rect, Vec2, pos2};
 
 use crate::{
     elements::Widget,
-    image_source::ImageLoader,
+    image_source::ImageSource,
     load::{Bytes, SizeHint},
     paint::{corner_radius::CornerRadius, textures::TextureOptions},
 };
@@ -16,7 +16,7 @@ use crate::{
 #[repr(C)]
 #[derive(Clone, Debug)]
 pub struct Image<'a> {
-    image_loader: ImageLoader<'a>,
+    image_source: ImageSource<'a>,
     image_options: ImageOptions,
     alt_text: ROption<RString>,
     size: ImageSize,
@@ -26,9 +26,9 @@ pub struct Image<'a> {
 }
 
 impl<'a> Image<'a> {
-    pub fn new(source: impl Into<ImageLoader<'a>>) -> Self {
+    pub fn new(source: impl Into<ImageSource<'a>>) -> Self {
         Self {
-            image_loader: source.into(),
+            image_source: source.into(),
             texture_options: Default::default(),
             image_options: Default::default(),
             sense: Sense::hover(),
@@ -39,11 +39,11 @@ impl<'a> Image<'a> {
     }
 
     pub fn from_uri(uri: impl Into<RCowStr<'a>>) -> Self {
-        Self::new(ImageLoader::from_uri(uri))
+        Self::new(ImageSource::from_uri(uri))
     }
 
     pub fn from_bytes(uri: impl Into<RCowStr<'static>>, bytes: impl Into<Bytes>) -> Self {
-        Self::new(ImageLoader::from_bytes(uri, bytes))
+        Self::new(ImageSource::from_bytes(uri, bytes))
     }
 
     #[inline]
@@ -152,7 +152,7 @@ impl<'a> Image<'a> {
     }
 }
 
-impl<'a, T: Into<ImageLoader<'a>>> From<T> for Image<'a> {
+impl<'a, T: Into<ImageSource<'a>>> From<T> for Image<'a> {
     fn from(value: T) -> Self {
         Image::new(value)
     }
@@ -167,7 +167,7 @@ impl<'a> From<Image<'a>> for Widget<'a> {
 impl egui::Widget for Image<'_> {
     fn ui(self, ui: &mut egui::Ui) -> egui::Response {
         let Image {
-            image_loader,
+            image_source,
             texture_options,
             image_options,
             sense,
@@ -175,7 +175,7 @@ impl egui::Widget for Image<'_> {
             show_loading_spinner,
             alt_text,
         } = self;
-        let mut image = egui::Image::new(image_loader.source)
+        let mut image = egui::Image::new(image_source)
             .texture_options(texture_options.into())
             .uv(image_options.uv)
             .bg_fill(image_options.bg_fill)

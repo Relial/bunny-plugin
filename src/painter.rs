@@ -11,7 +11,9 @@ use egui::{
 };
 
 use crate::{
-    align::Align2, image_source::ImageLoader, paint::{
+    align::Align2,
+    image_source::ImageSource,
+    paint::{
         corner_radius::CornerRadius,
         paintlist::{ClippedShape, PaintList, ShapeIdx},
         shape_transform::adjust_colors,
@@ -296,7 +298,7 @@ impl<'a> Painter<'a> {
 
     pub fn image(
         &self,
-        texture_source: ImageLoader<'a>,
+        texture_source: ImageSource<'a>,
         rect: Rect,
         uv: Rect,
         tint: Color32,

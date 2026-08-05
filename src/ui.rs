@@ -12,12 +12,13 @@ use crate::{
         scope_builder::ScopeBuilder,
     },
     elements::{Component, Container, MiscComponent, UiContainer, Widget},
-    image_source::ImageLoader,
+    image_source::{ImageSource, SizedTexture},
     input_state::{Input, InputState, PointerState},
     layout::Layout,
     paint::paintlist::PaintList,
     painter::Painter,
     response::{InnerResponse, Response},
+    shared_textures::{NamedTexture, SharedTextures},
     style::{Interaction, Spacing, Style, Visuals},
     ui_builder::UiBuilder,
     widget_text::{RichText, WidgetText},
@@ -35,6 +36,7 @@ pub struct BunnyUi<'a> {
     pub layout: Layout,
     last_frame_responses: RArc<RHashMap<Id, Response, RandomState>>,
     input: Input,
+    shared_textures: Option<RArc<SharedTextures>>,
     available_rect: Rect,
     style: RArc<Style>,
     next_salt: u64,
@@ -61,6 +63,7 @@ impl<'a> BunnyUi<'a> {
         }
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         initial_id: Id,
         last_frame_responses: RArc<RHashMap<Id, Response, RandomState>>,
@@ -69,6 +72,7 @@ impl<'a> BunnyUi<'a> {
         available_rect: Rect,
         pixels_per_point: f32,
         style: RArc<Style>,
+        shared_textures: Option<RArc<SharedTextures>>,
     ) -> Self {
         Self {
             components: RVec::new(),
@@ -77,6 +81,7 @@ impl<'a> BunnyUi<'a> {
             layout: Layout::default(),
             last_frame_responses,
             input,
+            shared_textures,
             available_rect,
             pixels_per_point,
             style,
@@ -120,6 +125,7 @@ impl<'a> BunnyUi<'a> {
             layout: layout.unwrap_or(self.layout),
             last_frame_responses: self.last_frame_responses.clone(),
             input: self.input.clone(),
+            shared_textures: self.shared_textures.clone(),
             available_rect: self.available_rect,
             pixels_per_point: self.pixels_per_point,
             style,
@@ -585,7 +591,26 @@ impl<'a> BunnyUi<'a> {
     }
 
     #[inline]
-    pub fn image(&mut self, source: impl Into<ImageLoader<'a>>) -> Response {
+    pub fn image(&mut self, source: impl Into<ImageSource<'a>>) -> Response {
         self.add(Image::new(source))
+    }
+
+    /// Get a texture loaded by the manager by its filename
+    /// The textures are loaded asynchronously, so you should not assume this returns what you want at startup
+    #[inline]
+    pub fn get_shared_texture(&self, texture_file_name: impl AsRef<str>) -> Option<&SizedTexture> {
+        self.shared_textures
+            .as_ref()
+            .and_then(|s| s.get_texture(texture_file_name))
+    }
+
+    /// Textures loaded by the manager
+    /// The textures are loaded asynchronously, so you should not assume this returns what you want at startup
+    #[inline]
+    pub fn shared_textures(&self) -> &[NamedTexture] {
+        self.shared_textures
+            .as_ref()
+            .map(|s| s.textures())
+            .unwrap_or_default()
     }
 }
