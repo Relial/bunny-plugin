@@ -7,7 +7,8 @@ edition = "2024"
 default = ["ui", "plugin"]
 ui = ["dep:bunny-ui"]
 3d = ["dep:bunny-3d"]
-bevy = ["dep:bunny-3d", "bunny-3d/bevy"]
+bevy = ["3d", "bunny-3d/bevy"]
+tobj = ["3d", "bunny-3d/tobj"]
 plugin = []
 
 [dependencies]

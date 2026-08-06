@@ -1,3 +1,5 @@
+#[cfg(feature = "tobj")]
+use anyhow::{Result, anyhow};
 use bytemuck::cast_slice;
 
 use crate::backend::GpuColor;
@@ -9,8 +11,36 @@ pub mod sphere;
 pub struct Mesh {
     pub vertices: Vec<[f32; 3]>,
     pub uvs: Vec<[f32; 2]>,
-    pub color: GpuColor,
     pub indices: Vec<u32>,
+}
+
+#[cfg(feature = "tobj")]
+#[derive(Clone, Copy, PartialEq, Debug, Default)]
+pub enum UvOrientation {
+    /// Top left is 0.0, 0.0, bottom right is 1.0, 1.0
+    #[default]
+    TopLeft,
+    /// Bottom left is 0.0, 0.0, top right is 1.0, 1.0
+    BottomLeft,
+}
+
+impl Mesh {
+    #[cfg(feature = "tobj")]
+    pub fn from_obj(mesh: tobj::Mesh, uv_orientation: UvOrientation) -> Result<Self> {
+        use bytemuck::try_cast_slice;
+
+        let vertices: Vec<[f32; 3]> = try_cast_slice(&mesh.positions)
+            .map_err(|e| anyhow!("Failed to cast positions to [f32; 3]: {e:#}"))?
+            .to_vec();
+        let mut uvs: Vec<[f32; 2]> = try_cast_slice(&mesh.texcoords)
+            .map_err(|e| anyhow!("Failed to cast texcoords to [f32; 2]: {e:#}"))?
+            .to_vec();
+        if uv_orientation == UvOrientation::BottomLeft {
+            uvs.iter_mut().for_each(|uv| uv[1] = 1.0 - uv[1]);
+        }
+        let indices = mesh.indices;
+        Ok(Self::new(vertices, indices).uvs(uvs))
+    }
 }
 
 impl Mesh {
@@ -18,7 +48,6 @@ impl Mesh {
         Self {
             vertices,
             uvs: vec![],
-            color: GpuColor::WHITE,
             indices,
         }
     }
@@ -26,12 +55,6 @@ impl Mesh {
     #[inline]
     pub fn uvs(mut self, uvs: Vec<[f32; 2]>) -> Self {
         self.uvs = uvs;
-        self
-    }
-
-    #[inline]
-    pub fn color(mut self, color: impl Into<GpuColor>) -> Self {
-        self.color = color.into();
         self
     }
 
@@ -45,7 +68,12 @@ impl Mesh {
         self.indices.len()
     }
 
-    pub fn update_vertex_buffer(&self, vertex_buffer: &mut [u8], vertex_size: usize) {
+    pub fn update_vertex_buffer(
+        &self,
+        vertex_buffer: &mut [u8],
+        vertex_size: usize,
+        color: GpuColor,
+    ) {
         let position_size = std::mem::size_of::<[f32; 3]>();
         let vertex_count = self.vertices.len();
         let positions: &[u8] = cast_slice(&self.vertices);
@@ -58,7 +86,7 @@ impl Mesh {
             vertex_buffer[offset..offset + position_size].copy_from_slice(position_bytes);
             let offset = offset + position_size;
             vertex_buffer[offset..offset + std::mem::size_of::<GpuColor>()]
-                .copy_from_slice(self.color.as_bytes());
+                .copy_from_slice(color.as_bytes());
         }
 
         let uv_size = std::mem::size_of::<[f32; 2]>();

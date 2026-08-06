@@ -9,7 +9,7 @@ use windows_numerics::Matrix4x4;
 
 use crate::{
     backend::VERTEX_SIZE,
-    core::{Bunny3dComponent, FillMode},
+    core::{DrawOptions, FillMode, mesh::Mesh},
 };
 
 #[derive(Debug, Default)]
@@ -27,28 +27,29 @@ impl DrawList {
         self.descriptors.is_empty()
     }
 
-    pub fn add(&mut self, component: &Bunny3dComponent) {
-        let indices_count = component.index_count();
-        let indices = component.mesh.index_buffer_bytes();
+    pub fn add(&mut self, mesh: &Mesh, draw_options: &DrawOptions) {
+        let indices_count = mesh.index_count();
+        let indices = mesh.index_buffer_bytes();
         self.index_bytes.extend_from_slice(indices);
 
         let vertex_size = VERTEX_SIZE as usize;
-        let vertex_count = component.vertex_count();
+        let vertex_count = mesh.vertex_count();
         let vertex_size_required = vertex_size * vertex_count;
         if self.vertex_bytes.len() - self.vertex_bytes_position < vertex_size_required {
             self.vertex_bytes
                 .extend(std::iter::repeat_n(0, vertex_size_required));
         }
-        component.mesh.update_vertex_buffer(
+        mesh.update_vertex_buffer(
             &mut self.vertex_bytes
                 [self.vertex_bytes_position..self.vertex_bytes_position + vertex_size_required],
             vertex_size,
+            draw_options.color,
         );
 
         let mat = Mat4::from_scale_rotation_translation(
-            component.scale,
-            component.rotation,
-            component.translation,
+            draw_options.scale,
+            draw_options.rotation,
+            draw_options.translation,
         );
         let cols = mat.to_cols_array();
         let d3dmat = Matrix4x4 {
@@ -72,9 +73,9 @@ impl DrawList {
         self.descriptors.push(MeshDescriptor {
             vertices: vertex_count,
             indices: indices_count,
-            fill: component.fill,
+            fill: draw_options.fill,
             world_matrix: d3dmat,
-            texture: component.texture.unwrap_or_default(),
+            texture: draw_options.texture.unwrap_or_default(),
         });
         self.vertex_bytes_position += vertex_size_required;
     }

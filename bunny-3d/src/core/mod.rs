@@ -24,11 +24,11 @@ pub struct Bunny3d {
 }
 
 impl Bunny3d {
-    pub fn add(&mut self, component: &Bunny3dComponent) {
-        if component.draw_on_top {
-            self.no_depth_buffer_draws.add(component);
+    pub fn add(&mut self, mesh: &Mesh, draw_options: &DrawOptions) {
+        if draw_options.draw_on_top {
+            self.no_depth_buffer_draws.add(mesh, draw_options);
         } else {
-            self.normal_draws.add(component);
+            self.normal_draws.add(mesh, draw_options);
         }
     }
 
@@ -79,20 +79,25 @@ pub enum FillMode {
 }
 
 #[derive(Debug)]
-pub struct Bunny3dComponent {
-    mesh: Mesh,
+pub struct DrawOptions {
     draw_on_top: bool,
     fill: FillMode,
     scale: Vec3,
     rotation: Quat,
     translation: Vec3,
     texture: Option<TextureId>,
+    color: GpuColor,
 }
 
-impl Bunny3dComponent {
-    pub fn new(mesh: impl Into<Mesh>) -> Self {
+impl Default for DrawOptions {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl DrawOptions {
+    pub const fn new() -> Self {
         Self {
-            mesh: mesh.into(),
             draw_on_top: false,
             fill: FillMode::Wireframe,
             scale: Vec3 {
@@ -103,6 +108,7 @@ impl Bunny3dComponent {
             rotation: Quat::IDENTITY,
             translation: Vec3::ZERO,
             texture: None,
+            color: GpuColor::WHITE,
         }
     }
 
@@ -137,25 +143,15 @@ impl Bunny3dComponent {
     }
 
     #[inline]
-    pub fn color(mut self, color: impl Into<GpuColor>) -> Self {
-        self.mesh = self.mesh.color(color);
-        self
-    }
-
-    #[inline]
     pub fn texture(mut self, texture: TextureId) -> Self {
         self.texture = Some(texture);
         self.fill = FillMode::Solid;
         self
     }
-}
 
-impl Bunny3dComponent {
-    fn vertex_count(&self) -> usize {
-        self.mesh.vertex_count()
-    }
-
-    fn index_count(&self) -> usize {
-        self.mesh.index_count()
+    #[inline]
+    pub fn color(mut self, color: impl Into<GpuColor>) -> Self {
+        self.color = color.into();
+        self
     }
 }
