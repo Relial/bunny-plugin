@@ -5,10 +5,10 @@ edition = "2024"
 
 [dependencies]
 abi_stable = "0.11.3"
-anyhow = "1.0.103"
+anyhow = "1.0.104"
 egui = { version = "0.34.3", features = ["serde", "rayon"] }
 nohash-hasher = "0.2.0"
-rapidhash = { version = "4.5.1", features = ["nightly"] }
+rapidhash = "4.5.1"
 serde = { version = "1.0.228", features = ["derive"] }
 tracing = "0.1.44"
 shared-textures = { path = "../shared-textures" }
