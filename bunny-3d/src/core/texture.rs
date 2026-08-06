@@ -1,4 +1,4 @@
-use abi_stable::std_types::RVec;
+use abi_stable::std_types::{RArc, RVec};
 use image::DynamicImage;
 use shared_textures::{NamedTexture, SharedTextures, SizedTexture, TextureId};
 
@@ -7,7 +7,7 @@ use crate::backend::GpuColor;
 #[derive(Debug)]
 #[repr(C)]
 pub struct Textures {
-    shared_textures: Option<SharedTextures>,
+    shared_textures: Option<RArc<SharedTextures>>,
     allocations: RVec<TextureAllocation>,
     next_id: u64,
 }
@@ -71,7 +71,7 @@ impl Textures {
         self.allocations.drain(..)
     }
 
-    pub(crate) fn add_shared(&mut self, shared: SharedTextures) {
+    pub(crate) fn add_shared(&mut self, shared: RArc<SharedTextures>) {
         self.shared_textures = Some(shared);
     }
 }

@@ -1,3 +1,4 @@
+use abi_stable::std_types::RArc;
 use anyhow::{Context, Result, anyhow};
 use epaint::Color32;
 use shared_textures::{SharedTextures, TextureId};
@@ -206,7 +207,7 @@ impl Bunny3dBackend {
         self.texture_manager.add_shared(textures);
     }
 
-    pub fn add_shared_textures(&mut self, textures: SharedTextures) {
+    pub fn add_shared_textures(&mut self, textures: RArc<SharedTextures>) {
         self.data.add_shared(textures);
     }
 }

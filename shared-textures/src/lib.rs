@@ -25,7 +25,7 @@ impl std::fmt::Display for TextureId {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Clone, Debug, Default)]
 #[repr(C)]
 pub struct SharedTextures {
     list: RVec<NamedTexture>,
@@ -72,10 +72,13 @@ impl From<SizedTexture> for egui::load::SizedTexture {
             TextureId::Managed(_) => egui::TextureId::Managed(0),
             TextureId::Shared(id) => egui::TextureId::User(id),
         };
-        Self { id, size: Vec2 {
-            x: value.size[0] as f32,
-            y: value.size[1] as f32,
-        } }
+        Self {
+            id,
+            size: Vec2 {
+                x: value.size[0] as f32,
+                y: value.size[1] as f32,
+            },
+        }
     }
 }
 

@@ -156,3 +156,9 @@ impl From<&NamedTexture> for ImageSource<'_> {
         Self::Texture(*value.texture())
     }
 }
+
+impl From<&SizedTexture> for ImageSource<'_> {
+    fn from(value: &SizedTexture) -> Self {
+        Self::Texture(*value)
+    }
+}

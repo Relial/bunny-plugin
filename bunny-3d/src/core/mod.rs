@@ -1,3 +1,4 @@
+use abi_stable::std_types::RArc;
 use glam::{Quat, Vec3};
 use shared_textures::{NamedTexture, SharedTextures, SizedTexture, TextureId};
 
@@ -65,7 +66,7 @@ impl Bunny3d {
         self.textures.extract_allocations()
     }
 
-    pub(crate) fn add_shared(&mut self, shared: SharedTextures) {
+    pub(crate) fn add_shared(&mut self, shared: RArc<SharedTextures>) {
         self.textures.add_shared(shared);
     }
 }
