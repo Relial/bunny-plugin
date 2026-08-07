@@ -2,6 +2,8 @@
 
 use std::{path::Path, str::FromStr};
 
+pub use shared_textures::TextureId;
+
 #[cfg(feature = "ui")]
 pub use bunny_ui;
 
