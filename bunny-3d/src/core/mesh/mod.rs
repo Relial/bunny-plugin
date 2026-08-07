@@ -7,6 +7,7 @@ use crate::backend::GpuColor;
 pub mod capsule;
 pub mod cuboid;
 pub mod sphere;
+pub mod tetrahedron;
 
 #[derive(Clone, Debug)]
 pub struct Mesh {
