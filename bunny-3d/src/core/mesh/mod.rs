@@ -5,18 +5,19 @@ use bytemuck::cast_slice;
 use crate::backend::GpuColor;
 
 pub mod capsule;
+pub mod cuboid;
 pub mod sphere;
 
 #[derive(Clone, Debug)]
 pub struct Mesh {
-    pub vertices: Vec<[f32; 3]>,
+    pub positions: Vec<[f32; 3]>,
     pub uvs: Vec<[f32; 2]>,
     pub indices: Vec<u32>,
 }
 
 #[cfg(feature = "tobj")]
 #[derive(Clone, Copy, PartialEq, Debug, Default)]
-pub enum UvOrientation {
+pub enum UvOrigin {
     /// Top left is 0.0, 0.0, bottom right is 1.0, 1.0
     #[default]
     TopLeft,
@@ -26,7 +27,7 @@ pub enum UvOrientation {
 
 impl Mesh {
     #[cfg(feature = "tobj")]
-    pub fn from_obj(mesh: tobj::Mesh, uv_orientation: UvOrientation) -> Result<Self> {
+    pub fn from_obj(mesh: tobj::Mesh, uv_origin: UvOrigin) -> Result<Self> {
         use bytemuck::try_cast_slice;
 
         let vertices: Vec<[f32; 3]> = try_cast_slice(&mesh.positions)
@@ -35,7 +36,7 @@ impl Mesh {
         let mut uvs: Vec<[f32; 2]> = try_cast_slice(&mesh.texcoords)
             .map_err(|e| anyhow!("Failed to cast texcoords to [f32; 2]: {e:#}"))?
             .to_vec();
-        if uv_orientation == UvOrientation::BottomLeft {
+        if uv_origin == UvOrigin::BottomLeft {
             uvs.iter_mut().for_each(|uv| uv[1] = 1.0 - uv[1]);
         }
         let indices = mesh.indices;
@@ -44,9 +45,9 @@ impl Mesh {
 }
 
 impl Mesh {
-    pub fn new(vertices: Vec<[f32; 3]>, indices: Vec<u32>) -> Self {
+    pub fn new(positions: Vec<[f32; 3]>, indices: Vec<u32>) -> Self {
         Self {
-            vertices,
+            positions,
             uvs: vec![],
             indices,
         }
@@ -60,7 +61,7 @@ impl Mesh {
 
     #[inline]
     pub fn vertex_count(&self) -> usize {
-        self.vertices.len()
+        self.positions.len()
     }
 
     #[inline]
@@ -75,8 +76,8 @@ impl Mesh {
         color: GpuColor,
     ) {
         let position_size = std::mem::size_of::<[f32; 3]>();
-        let vertex_count = self.vertices.len();
-        let positions: &[u8] = cast_slice(&self.vertices);
+        let vertex_count = self.positions.len();
+        let positions: &[u8] = cast_slice(&self.positions);
         for (vertex_index, position_bytes) in positions
             .chunks_exact(position_size)
             .take(vertex_count)
