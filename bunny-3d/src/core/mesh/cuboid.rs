@@ -4,7 +4,7 @@ use crate::core::mesh::Mesh;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct CuboidMesh {
-    half_size: Vec3,
+    pub half_size: Vec3,
 }
 
 impl Default for CuboidMesh {
