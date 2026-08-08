@@ -31,20 +31,14 @@ impl Textures {
         let id = TextureId::Managed(self.next_id);
         self.next_id += 1;
 
-        let (size, pixels) = match texture.into() {
-            TextureSource::Image(image) => {
-                let size = [image.width(), image.height()];
-                let rgba = image.to_rgba8().into_flat_samples();
-                let (chunks, _) = rgba.as_slice().as_chunks::<4>();
-                let pixels: RVec<GpuColor> = chunks
-                    .iter()
-                    .map(|c| GpuColor::from_rgba_bytes(c.as_slice()))
-                    .collect();
-                (size, pixels)
-            }
-            TextureSource::RawPixels { size, data } => (size, data.into()),
+        let data = match texture.into() {
+            TextureSource::Image(image) => image.into(),
+            TextureSource::RawPixels { size, pixels } => TextureData {
+                pixels: pixels.into(),
+                size,
+            },
         };
-        let allocation = TextureAllocation { pixels, size, id };
+        let allocation = TextureAllocation { data, id };
         self.allocations.push(allocation);
         id
     }
@@ -84,18 +78,40 @@ impl Textures {
 #[derive(Debug)]
 #[repr(C)]
 pub(crate) struct TextureAllocation {
-    pub(crate) pixels: RVec<GpuColor>,
-    pub(crate) size: [u32; 2],
+    pub(crate) data: TextureData,
     pub(crate) id: TextureId,
 }
 
 pub enum TextureSource<'a> {
     Image(&'a DynamicImage),
-    RawPixels { size: [u32; 2], data: Vec<GpuColor> },
+    RawPixels {
+        size: [u32; 2],
+        pixels: Vec<GpuColor>,
+    },
 }
 
 impl<'a> From<&'a DynamicImage> for TextureSource<'a> {
     fn from(value: &'a DynamicImage) -> Self {
         Self::Image(value)
+    }
+}
+
+#[derive(Debug)]
+#[repr(C)]
+pub(crate) struct TextureData {
+    pub(crate) pixels: RVec<GpuColor>,
+    pub(crate) size: [u32; 2],
+}
+
+impl From<&DynamicImage> for TextureData {
+    fn from(image: &DynamicImage) -> Self {
+        let size = [image.width(), image.height()];
+        let rgba = image.to_rgba8().into_flat_samples();
+        let (chunks, _) = rgba.as_slice().as_chunks::<4>();
+        let pixels: RVec<GpuColor> = chunks
+            .iter()
+            .map(|c| GpuColor::from_rgba_bytes(c.as_slice()))
+            .collect();
+        Self { pixels, size }
     }
 }

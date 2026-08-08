@@ -8,7 +8,10 @@ use windows::Win32::Graphics::Direct3D9::{
     IDirect3DTexture9,
 };
 
-use crate::{backend::GpuColor, core::texture::TextureAllocation};
+use crate::{
+    backend::GpuColor,
+    core::texture::{TextureAllocation, TextureData},
+};
 
 #[derive(Debug)]
 pub struct TextureManager {
@@ -25,8 +28,10 @@ impl TextureManager {
         t.allocate(
             device,
             TextureAllocation {
-                pixels: rvec![Color32::WHITE.into()],
-                size: [1, 1],
+                data: TextureData {
+                    pixels: rvec![Color32::WHITE.into()],
+                    size: [1, 1],
+                },
                 id: TextureId::Managed(0),
             },
         )?;
@@ -38,13 +43,17 @@ impl TextureManager {
         device: &IDirect3DDevice9,
         allocation: TextureAllocation,
     ) -> Result<()> {
-        let resource = allocate_texture(device, &allocation.pixels, allocation.size)?;
+        let TextureAllocation {
+            data: TextureData { pixels, size },
+            id,
+        } = allocation;
+        let resource = allocate_texture(device, &pixels, size)?;
         let managed = Texture {
             resource: Some(resource),
-            pixels: allocation.pixels.into(),
-            size: allocation.size,
+            pixels: pixels.into(),
+            size,
         };
-        self.textures.insert(allocation.id, managed);
+        self.textures.insert(id, managed);
         Ok(())
     }
 
