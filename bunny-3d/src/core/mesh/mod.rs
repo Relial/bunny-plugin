@@ -1,6 +1,6 @@
 #[cfg(feature = "tobj")]
 use anyhow::{Result, anyhow};
-use bytemuck::cast_slice;
+use bytemuck::{cast_slice};
 
 use crate::backend::GpuColor;
 
@@ -16,18 +16,25 @@ pub struct Mesh {
     pub indices: Vec<u32>,
 }
 
-#[cfg(feature = "tobj")]
+/// What is considered UV coordinate 0.0, 0.0
+///
+/// The internal representation is TopLeft. If you specify BottomLeft the y axis will be flipped during mesh conversion.
 #[derive(Clone, Copy, PartialEq, Debug, Default)]
+#[repr(C)]
 pub enum UvOrigin {
     /// Top left is 0.0, 0.0, bottom right is 1.0, 1.0
+    ///
+    /// e.g. DirectX, Unreal, glTF
     #[default]
     TopLeft,
     /// Bottom left is 0.0, 0.0, top right is 1.0, 1.0
+    ///
+    /// e.g. OpenGL, Blender, Maya, Unity
     BottomLeft,
 }
 
+#[cfg(feature = "tobj")]
 impl Mesh {
-    #[cfg(feature = "tobj")]
     pub fn from_obj(mesh: tobj::Mesh, uv_origin: UvOrigin) -> Result<Self> {
         use bytemuck::try_cast_slice;
 

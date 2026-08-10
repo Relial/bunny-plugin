@@ -67,6 +67,7 @@ impl Bunny3dBackend {
         let freed = self.texture_manager.free(texture);
         if freed {
             debug!("Freed texture {}", texture);
+            self.data.free_texture(texture);
         }
         freed
     }

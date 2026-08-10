@@ -1,16 +1,21 @@
+use std::path::Path;
+
 use abi_stable::std_types::RArc;
+use anyhow::Result;
 use glam::{Quat, Vec3};
 use shared_textures::{NamedTexture, SharedTextures, SizedTexture, TextureId};
 
 use crate::{
     backend::GpuColor,
     core::{
+        asset_loader::{AssetLoader, MeshPoll, TexturePoll},
         draw_list::DrawList,
-        mesh::Mesh,
+        mesh::{Mesh, UvOrigin},
         texture::{TextureAllocation, TextureSource, Textures},
     },
 };
 
+pub mod asset_loader;
 pub(crate) mod draw_list;
 pub mod mesh;
 pub mod texture;
@@ -21,6 +26,7 @@ pub struct Bunny3d {
     pub(crate) normal_draws: DrawList,
     pub(crate) no_depth_buffer_draws: DrawList,
     textures: Textures,
+    asset_loader: AssetLoader,
 }
 
 impl Bunny3d {
@@ -41,18 +47,32 @@ impl Bunny3d {
         self.textures.allocations_len()
     }
 
-    /// Get a texture loaded by the manager by its filename
-    /// The textures are loaded asynchronously, so you should not assume this returns what you want at startup
+    /// Get a texture loaded from the bunny_textures directory.
+    /// The textures are loaded asynchronously, so you should not assume this returns what you want at startup.
     #[inline]
     pub fn get_shared_texture(&self, texture_file_name: impl AsRef<str>) -> Option<&SizedTexture> {
         self.textures.get_texture(texture_file_name)
     }
 
-    /// Textures loaded by the manager
-    /// The textures are loaded asynchronously, so you should not assume this returns what you want at startup
+    /// Textures loaded from the bunny_textures directory.
+    /// The textures are loaded asynchronously, so you should not assume this returns what you want at startup.
     #[inline]
     pub fn shared_textures(&self) -> &[NamedTexture] {
         self.textures.textures()
+    }
+
+    /// Asynchronously load a texture from an image file path
+    ///
+    /// Loads are cached, so you can safely call this every frame
+    pub fn load_texture(&mut self, path: impl AsRef<Path>) -> Result<TexturePoll> {
+        self.asset_loader.load_texture(&mut self.textures, path)
+    }
+
+    /// Asynchronously load mesh(es) from a .obj file path
+    ///
+    /// Loads are cached, so you can safely call this every frame
+    pub fn load_obj(&mut self, path: impl AsRef<Path>, uv_origin: UvOrigin) -> Result<MeshPoll> {
+        self.asset_loader.load_obj(path, uv_origin)
     }
 }
 
@@ -60,6 +80,7 @@ impl Bunny3d {
     pub(crate) fn start_frame(&mut self) {
         self.normal_draws.start_frame();
         self.no_depth_buffer_draws.start_frame();
+        self.asset_loader.initialize_loads();
     }
 
     pub(crate) fn extract_allocations(&mut self) -> impl Iterator<Item = TextureAllocation> {
@@ -68,6 +89,10 @@ impl Bunny3d {
 
     pub(crate) fn add_shared(&mut self, shared: RArc<SharedTextures>) {
         self.textures.add_shared(shared);
+    }
+
+    pub(crate) fn free_texture(&mut self, texture: TextureId) {
+        self.asset_loader.free_texture(texture);
     }
 }
 

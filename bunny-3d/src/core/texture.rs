@@ -27,9 +27,21 @@ impl Default for Textures {
 }
 
 impl Textures {
-    pub fn allocate<'a>(&mut self, texture: impl Into<TextureSource<'a>>) -> TextureId {
+    #[inline]
+    pub(crate) fn advance_id(&mut self) -> TextureId {
         let id = TextureId::Managed(self.next_id);
         self.next_id += 1;
+        id
+    }
+
+    #[inline]
+    pub(crate) fn allocate_from_data(&mut self, data: TextureData, id: TextureId) {
+        let allocation = TextureAllocation { data, id };
+        self.allocations.push(allocation);
+    }
+
+    pub fn allocate<'a>(&mut self, texture: impl Into<TextureSource<'a>>) -> TextureId {
+        let id = self.advance_id();
 
         let data = match texture.into() {
             TextureSource::Image(image) => image.into(),
@@ -38,8 +50,7 @@ impl Textures {
                 size,
             },
         };
-        let allocation = TextureAllocation { data, id };
-        self.allocations.push(allocation);
+        self.allocate_from_data(data, id);
         id
     }
 
@@ -96,7 +107,7 @@ impl<'a> From<&'a DynamicImage> for TextureSource<'a> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 #[repr(C)]
 pub(crate) struct TextureData {
     pub(crate) pixels: RVec<GpuColor>,
