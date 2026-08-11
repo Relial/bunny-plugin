@@ -8,6 +8,7 @@ pub mod capsule;
 pub mod cuboid;
 pub mod sphere;
 pub mod tetrahedron;
+pub mod rectangle;
 
 #[derive(Clone, Debug)]
 pub struct Mesh {
