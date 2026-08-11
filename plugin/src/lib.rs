@@ -2,7 +2,7 @@
 
 use std::{path::Path, str::FromStr};
 
-pub use shared_textures::TextureId;
+pub use shared::texture::TextureId;
 
 #[cfg(feature = "ui")]
 pub use bunny_ui;
@@ -81,18 +81,22 @@ impl PluginContext {
         }
     }
 
+    #[inline]
     pub fn mhfo_info(&self) -> MhfoInfo {
         self.mhfo_info
     }
 
+    #[inline]
     pub fn config_dir(&self) -> &Path {
         Path::new(self.config_dir.as_str())
     }
 
+    #[inline]
     pub fn fonts(&self) -> impl Iterator<Item = &str> {
         self.fonts.iter().map(|s| s.as_str())
     }
 
+    #[inline]
     pub fn log_level(&self) -> LogLevel {
         self.log_level
     }

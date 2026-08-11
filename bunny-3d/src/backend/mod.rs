@@ -1,7 +1,7 @@
 use abi_stable::std_types::RArc;
 use anyhow::{Context, Result, anyhow};
 use epaint::Color32;
-use shared_textures::{SharedTextures, TextureId};
+use shared::{camera::Camera, texture::{SharedTextures, TextureId}};
 use tracing::debug;
 use windows::Win32::Graphics::Direct3D9::{
     D3DPT_TRIANGLELIST, D3DTS_PROJECTION, D3DTS_VIEW, IDirect3DDevice9, IDirect3DTexture9,
@@ -43,8 +43,8 @@ impl Bunny3dBackend {
         })
     }
 
-    pub fn start_frame(&mut self) {
-        self.data.start_frame();
+    pub fn start_frame(&mut self, camera: RArc<Camera>) {
+        self.data.start_frame(camera);
     }
 
     pub fn allocate_textures(

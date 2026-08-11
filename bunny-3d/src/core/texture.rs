@@ -4,7 +4,7 @@ use abi_stable::std_types::{
     RVec,
 };
 use image::DynamicImage;
-use shared_textures::{NamedTexture, SharedTextures, SizedTexture, TextureId};
+use shared::texture::{NamedTexture, SharedTextures, SizedTexture, TextureId};
 
 use crate::backend::GpuColor;
 

@@ -799,7 +799,7 @@ dependencies = [
  "image",
  "rapidhash",
  "serde",
- "shared-textures",
+ "shared",
  "tobj",
  "tracing",
  "windows",
@@ -2560,11 +2560,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "shared-textures"
+name = "shared"
 version = "0.1.0"
 dependencies = [
  "abi_stable",
  "egui",
+ "glam 0.33.2",
  "rapidhash",
 ]
 

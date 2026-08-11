@@ -11,4 +11,4 @@ nohash-hasher = "0.2.0"
 rapidhash = "4.5.1"
 serde = { version = "1.0.228", features = ["derive"] }
 tracing = "0.1.44"
-shared-textures = { path = "../shared-textures" }
+shared = { path = "../shared" }

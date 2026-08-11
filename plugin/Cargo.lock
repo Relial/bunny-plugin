@@ -811,7 +811,7 @@ dependencies = [
  "image",
  "rapidhash",
  "serde",
- "shared-textures",
+ "shared",
  "tobj",
  "tracing",
  "windows",
@@ -827,7 +827,7 @@ dependencies = [
  "bunny-3d",
  "bunny-ui",
  "ilhook",
- "shared-textures",
+ "shared",
  "tracing-subscriber",
 ]
 
@@ -841,7 +841,7 @@ dependencies = [
  "nohash-hasher",
  "rapidhash",
  "serde",
- "shared-textures",
+ "shared",
  "tracing",
 ]
 
@@ -2693,11 +2693,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "shared-textures"
+name = "shared"
 version = "0.1.0"
 dependencies = [
  "abi_stable",
  "egui",
+ "glam 0.33.2",
  "rapidhash",
 ]
 

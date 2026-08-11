@@ -4,10 +4,19 @@ use serde::{Deserialize, Serialize};
 use crate::paint::color::ColorMode;
 
 #[repr(C)]
-#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Stroke {
     pub width: f32,
     pub color: Color32,
+}
+
+impl Default for Stroke {
+    fn default() -> Self {
+        Self {
+            width: 1.0,
+            color: Color32::BLACK,
+        }
+    }
 }
 
 impl Stroke {

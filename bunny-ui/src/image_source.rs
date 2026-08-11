@@ -3,7 +3,7 @@ use std::borrow::Cow;
 use abi_stable::std_types::RCowStr;
 use anyhow::Result;
 use egui::{Context, load::TexturePoll};
-use shared_textures::{NamedTexture, SizedTexture};
+use shared::texture::{NamedTexture, SizedTexture};
 
 use crate::load::Bytes;
 

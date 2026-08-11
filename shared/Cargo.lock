@@ -271,6 +271,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "glam"
+version = "0.33.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7360bd2cd76e0cd9032d42cf2922155cecea2685b0cfa4630c3246df030bcfd6"
+
+[[package]]
 name = "hashbrown"
 version = "0.16.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -550,11 +556,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "shared-textures"
+name = "shared"
 version = "0.1.0"
 dependencies = [
  "abi_stable",
  "egui",
+ "glam",
  "rapidhash",
 ]
 

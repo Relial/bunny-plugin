@@ -4,7 +4,10 @@ use abi_stable::{
 };
 use egui::{Color32, Id, Rect, Sense, Ui, Vec2, vec2};
 use rapidhash::fast::RandomState;
-use shared_textures::{NamedTexture, SharedTextures, SizedTexture};
+use shared::{
+    camera::Camera,
+    texture::{NamedTexture, SharedTextures, SizedTexture},
+};
 
 use crate::{
     align::Align,
@@ -39,6 +42,7 @@ pub struct BunnyUi<'a> {
     shared_textures: Option<RArc<SharedTextures>>,
     available_rect: Rect,
     style: RArc<Style>,
+    camera: RArc<Camera>,
     next_salt: u64,
     pixels_per_point: f32,
     opacity_factor: f32,
@@ -73,6 +77,7 @@ impl<'a> BunnyUi<'a> {
         pixels_per_point: f32,
         style: RArc<Style>,
         shared_textures: Option<RArc<SharedTextures>>,
+        camera: RArc<Camera>,
     ) -> Self {
         Self {
             components: RVec::new(),
@@ -85,6 +90,7 @@ impl<'a> BunnyUi<'a> {
             available_rect,
             pixels_per_point,
             style,
+            camera,
             opacity_factor: 1.0,
             enabled: true,
         }
@@ -129,6 +135,7 @@ impl<'a> BunnyUi<'a> {
             available_rect: self.available_rect,
             pixels_per_point: self.pixels_per_point,
             style,
+            camera: self.camera.clone(),
             opacity_factor: self.opacity_factor,
             enabled: self.enabled,
         }
@@ -612,5 +619,10 @@ impl<'a> BunnyUi<'a> {
             .as_ref()
             .map(|s| s.textures())
             .unwrap_or_default()
+    }
+
+    #[inline]
+    pub fn camera(&self) -> &Camera {
+        &self.camera
     }
 }

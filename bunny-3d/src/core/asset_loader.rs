@@ -18,7 +18,7 @@ use abi_stable::{
 use anyhow::{Result, anyhow};
 use image::{DynamicImage, ImageReader};
 use rapidhash::fast::RapidHasher;
-use shared_textures::TextureId;
+use shared::texture::TextureId;
 
 use crate::core::{
     mesh::{Mesh, UvOrigin},

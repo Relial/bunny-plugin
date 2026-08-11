@@ -2,7 +2,7 @@ use abi_stable::rvec;
 use anyhow::{Context, Result, anyhow};
 use epaint::Color32;
 use rapidhash::RapidHashMap;
-use shared_textures::TextureId;
+use shared::texture::TextureId;
 use windows::Win32::Graphics::Direct3D9::{
     D3DFMT_A8R8G8B8, D3DLOCKED_RECT, D3DPOOL_DEFAULT, D3DUSAGE_DYNAMIC, IDirect3DDevice9,
     IDirect3DTexture9,

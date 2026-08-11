@@ -1,7 +1,7 @@
 use abi_stable::std_types::RVec;
 use anyhow::{Context as _, Result};
 use glam::Mat4;
-use shared_textures::TextureId;
+use shared::texture::TextureId;
 use windows::Win32::Graphics::Direct3D9::{
     D3DRS_FILLMODE, D3DTRANSFORMSTATETYPE, IDirect3DDevice9,
 };

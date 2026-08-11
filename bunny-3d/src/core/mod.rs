@@ -3,7 +3,10 @@ use std::path::Path;
 use abi_stable::std_types::RArc;
 use anyhow::Result;
 use glam::{Quat, Vec3};
-use shared_textures::{NamedTexture, SharedTextures, SizedTexture, TextureId};
+use shared::{
+    camera::Camera,
+    texture::{NamedTexture, SharedTextures, SizedTexture, TextureId},
+};
 
 use crate::{
     backend::GpuColor,
@@ -23,10 +26,11 @@ pub mod texture;
 #[derive(Debug, Default)]
 #[repr(C)]
 pub struct Bunny3d {
+    asset_loader: AssetLoader,
     pub(crate) normal_draws: DrawList,
     pub(crate) no_depth_buffer_draws: DrawList,
     textures: Textures,
-    asset_loader: AssetLoader,
+    camera: RArc<Camera>,
 }
 
 impl Bunny3d {
@@ -74,13 +78,19 @@ impl Bunny3d {
     pub fn load_obj(&mut self, path: impl AsRef<Path>, uv_origin: UvOrigin) -> Result<MeshPoll> {
         self.asset_loader.load_obj(path, uv_origin)
     }
+
+    #[inline]
+    pub fn camera(&self) -> &Camera {
+        &self.camera
+    }
 }
 
 impl Bunny3d {
-    pub(crate) fn start_frame(&mut self) {
+    pub(crate) fn start_frame(&mut self, camera: RArc<Camera>) {
         self.normal_draws.start_frame();
         self.no_depth_buffer_draws.start_frame();
         self.asset_loader.initialize_loads();
+        self.camera = camera;
     }
 
     pub(crate) fn extract_allocations(&mut self) -> impl Iterator<Item = TextureAllocation> {

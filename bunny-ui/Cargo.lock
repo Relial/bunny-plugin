@@ -120,7 +120,7 @@ dependencies = [
  "nohash-hasher",
  "rapidhash",
  "serde",
- "shared-textures",
+ "shared",
  "tracing",
 ]
 
@@ -343,6 +343,12 @@ checksum = "877e94aff08e743b651baaea359664321055749b398adff8740a7399af7796e7"
 dependencies = [
  "cfg-if",
 ]
+
+[[package]]
+name = "glam"
+version = "0.33.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7360bd2cd76e0cd9032d42cf2922155cecea2685b0cfa4630c3246df030bcfd6"
 
 [[package]]
 name = "hashbrown"
@@ -640,11 +646,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "shared-textures"
+name = "shared"
 version = "0.1.0"
 dependencies = [
  "abi_stable",
  "egui",
+ "glam",
  "rapidhash",
 ]
 
