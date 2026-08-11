@@ -1,0 +1,76 @@
+use glam::Vec2;
+
+use crate::core::mesh::Mesh;
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct EllipseMesh {
+    pub half_size: Vec2,
+    pub resolution: u32,
+}
+
+impl Default for EllipseMesh {
+    fn default() -> Self {
+        Self {
+            half_size: Vec2::new(1.0, 0.5),
+            resolution: 32,
+        }
+    }
+}
+
+impl EllipseMesh {
+    #[inline]
+    pub const fn new(half_width: f32, half_height: f32) -> Self {
+        Self {
+            half_size: Vec2::new(half_width, half_height),
+            resolution: 32,
+        }
+    }
+
+    #[inline]
+    pub const fn from_size(size: Vec2) -> Self {
+        Self {
+            half_size: Vec2::new(size.x / 2.0, size.y / 2.0),
+            resolution: 32,
+        }
+    }
+}
+
+impl From<EllipseMesh> for Mesh {
+    fn from(value: EllipseMesh) -> Self {
+        // From https://docs.rs/bevy_mesh/0.19.0/src/bevy_mesh/primitives/dim2.rs.html#596
+        let EllipseMesh {
+            half_size,
+            resolution,
+        } = value;
+        let resolution = resolution as usize;
+        let mut indices = Vec::with_capacity((resolution - 2) * 3);
+        let mut positions = Vec::with_capacity(resolution);
+        let mut uvs = Vec::with_capacity(resolution);
+
+        // Add pi/2 so that there is a vertex at the top (sin is 1.0 and cos is 0.0)
+        let start_angle = core::f32::consts::FRAC_PI_2;
+        let step = core::f32::consts::TAU / resolution as f32;
+
+        for i in 0..resolution {
+            // Compute vertex position at angle theta
+            let theta = start_angle + i as f32 * step;
+            let (sin, cos) = f32::sin_cos(theta);
+            let x = cos * half_size.x;
+            let y = sin * half_size.y;
+
+            positions.push([x, y, 0.0]);
+            uvs.push([0.5 * (cos + 1.0), 1.0 - 0.5 * (sin + 1.0)]);
+        }
+
+        for i in 1..(resolution - 1) {
+            let i = i as u32;
+            indices.extend_from_slice(&[0, i, i + 1]);
+        }
+
+        Self {
+            positions,
+            uvs,
+            indices,
+        }
+    }
+}
