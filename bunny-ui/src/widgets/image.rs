@@ -21,19 +21,32 @@ pub struct Image<'a> {
     alt_text: ROption<RString>,
     size: ImageSize,
     texture_options: TextureOptions,
-    show_loading_spinner: bool,
+    show_loading_spinner: ROption<bool>,
     sense: Sense,
 }
 
 impl<'a> Image<'a> {
     pub fn new(source: impl Into<ImageSource<'a>>) -> Self {
+        let source = source.into();
+        let size = if let ImageSource::Texture(tex) = &source {
+            ImageSize {
+                fit: ImageFit::Exact(Vec2 {
+                    x: tex.size[0] as f32,
+                    y: tex.size[1] as f32,
+                }),
+                max_size: Vec2::INFINITY,
+                maintain_aspect_ratio: true,
+            }
+        } else {
+            Default::default()
+        };
         Self {
-            image_source: source.into(),
+            image_source: source,
             texture_options: Default::default(),
             image_options: Default::default(),
             sense: Sense::hover(),
-            size: Default::default(),
-            show_loading_spinner: false,
+            size,
+            show_loading_spinner: RNone,
             alt_text: RNone,
         }
     }
@@ -141,7 +154,7 @@ impl<'a> Image<'a> {
 
     #[inline]
     pub fn show_loading_spinner(mut self, show: bool) -> Self {
-        self.show_loading_spinner = show;
+        self.show_loading_spinner = RSome(show);
         self
     }
 
@@ -175,6 +188,10 @@ impl egui::Widget for Image<'_> {
             show_loading_spinner,
             alt_text,
         } = self;
+        let image_source: egui::ImageSource = match image_source.try_into() {
+            Ok(i) => i,
+            Err(e) => return ui.label(format!("Error: {}", e)),
+        };
         let mut image = egui::Image::new(image_source)
             .texture_options(texture_options.into())
             .uv(image_options.uv)
@@ -183,13 +200,15 @@ impl egui::Widget for Image<'_> {
             .corner_radius(image_options.corner_radius)
             .sense(sense)
             .max_size(size.max_size)
-            .maintain_aspect_ratio(size.maintain_aspect_ratio)
-            .show_loading_spinner(show_loading_spinner);
+            .maintain_aspect_ratio(size.maintain_aspect_ratio);
         if let RSome(Tuple2(angle, origin)) = image_options.rotation {
             image = image.rotate(angle, origin);
         }
         if let RSome(alt_text) = alt_text {
             image = image.alt_text(alt_text);
+        }
+        if let RSome(spinner) = show_loading_spinner {
+            image = image.show_loading_spinner(spinner);
         }
         image = match size.fit {
             ImageFit::Original { scale } => image.fit_to_original_size(scale),
@@ -215,7 +234,7 @@ impl Default for ImageSize {
         Self {
             maintain_aspect_ratio: true,
             max_size: Vec2::INFINITY,
-            fit: ImageFit::Fraction(Vec2::new(1.0, 1.0)),
+            fit: ImageFit::Original { scale: 1.0 },
         }
     }
 }

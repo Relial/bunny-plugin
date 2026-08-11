@@ -32,7 +32,7 @@ impl TextureManager {
                     pixels: rvec![Color32::WHITE.into()],
                     size: [1, 1],
                 },
-                id: TextureId::Managed(0),
+                id: TextureId::Managed3d(0),
             },
         )?;
         Ok(t)
@@ -63,7 +63,7 @@ impl TextureManager {
 
     pub fn get(&self, id: TextureId) -> Result<&IDirect3DTexture9> {
         match id {
-            TextureId::Managed(_) => self
+            TextureId::Managed3d(_) => self
                 .textures
                 .get(&id)
                 .ok_or_else(|| anyhow!("Texture {} doesn't exist", id))?

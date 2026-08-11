@@ -29,7 +29,7 @@ impl Default for Textures {
 impl Textures {
     #[inline]
     pub(crate) fn advance_id(&mut self) -> TextureId {
-        let id = TextureId::Managed(self.next_id);
+        let id = TextureId::Managed3d(self.next_id);
         self.next_id += 1;
         id
     }
@@ -60,7 +60,7 @@ impl Textures {
     }
 
     #[inline]
-    pub fn get_texture(&self, texture_file_name: impl AsRef<str>) -> Option<&SizedTexture> {
+    pub fn get_texture(&self, texture_file_name: impl AsRef<str>) -> Option<SizedTexture> {
         self.shared_textures
             .as_ref()
             .into_option()

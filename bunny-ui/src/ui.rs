@@ -1,6 +1,6 @@
 use abi_stable::{
     external_types::RRwLock,
-    std_types::{RArc, RHashMap, RVec, Tuple2},
+    std_types::{RArc, RHashMap, ROption, RVec, Tuple2},
 };
 use egui::{Color32, Id, Rect, Sense, Ui, Vec2, vec2};
 use rapidhash::fast::RandomState;
@@ -39,7 +39,7 @@ pub struct BunnyUi<'a> {
     pub layout: Layout,
     last_frame_responses: RArc<RHashMap<Id, Response, RandomState>>,
     input: Input,
-    shared_textures: Option<RArc<SharedTextures>>,
+    shared_textures: ROption<RArc<SharedTextures>>,
     available_rect: Rect,
     style: RArc<Style>,
     camera: RArc<Camera>,
@@ -86,7 +86,7 @@ impl<'a> BunnyUi<'a> {
             layout: Layout::default(),
             last_frame_responses,
             input,
-            shared_textures,
+            shared_textures: shared_textures.into(),
             available_rect,
             pixels_per_point,
             style,
@@ -605,9 +605,10 @@ impl<'a> BunnyUi<'a> {
     /// Get a texture loaded by the manager by its filename
     /// The textures are loaded asynchronously, so you should not assume this returns what you want at startup
     #[inline]
-    pub fn get_shared_texture(&self, texture_file_name: impl AsRef<str>) -> Option<&SizedTexture> {
+    pub fn get_shared_texture(&self, texture_file_name: impl AsRef<str>) -> Option<SizedTexture> {
         self.shared_textures
             .as_ref()
+            .into_option()
             .and_then(|s| s.get_texture(texture_file_name))
     }
 

@@ -54,7 +54,7 @@ impl Bunny3d {
     /// Get a texture loaded from the bunny_textures directory.
     /// The textures are loaded asynchronously, so you should not assume this returns what you want at startup.
     #[inline]
-    pub fn get_shared_texture(&self, texture_file_name: impl AsRef<str>) -> Option<&SizedTexture> {
+    pub fn get_shared_texture(&self, texture_file_name: impl AsRef<str>) -> Option<SizedTexture> {
         self.textures.get_texture(texture_file_name)
     }
 

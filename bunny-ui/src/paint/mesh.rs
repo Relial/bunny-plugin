@@ -147,7 +147,7 @@ impl<'a> Mesh<'a> {
 impl<'a> Mesh<'a> {
     pub fn to_egui(self, ctx: &Context) -> Result<egui::Mesh> {
         let texture_id = if let RSome(texture_loader) = self.texture_source {
-            let texture_poll = texture_loader.convert_to_texture(ctx)?;
+            let texture_poll = texture_loader.get_texture(ctx)?;
             match texture_poll {
                 egui::load::TexturePoll::Pending { size: _ } => {
                     return Err(anyhow!("Texture is loading"));

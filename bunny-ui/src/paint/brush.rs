@@ -17,7 +17,7 @@ impl<'a> Brush<'a> {
             fill_texture_source,
             uv,
         } = self;
-        let texture_poll = fill_texture_source.convert_to_texture(ctx)?;
+        let texture_poll = fill_texture_source.get_texture(ctx)?;
         match texture_poll {
             TexturePoll::Pending { size: _ } => Err(anyhow!("Texture is loading")),
             TexturePoll::Ready { texture } => {

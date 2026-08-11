@@ -27,8 +27,8 @@ impl<'a> ImageSource<'a> {
         }
     }
 
-    pub(crate) fn convert_to_texture(self, ctx: &Context) -> Result<TexturePoll> {
-        let source: egui::ImageSource = self.into();
+    pub(crate) fn get_texture(self, ctx: &Context) -> Result<TexturePoll> {
+        let source: egui::ImageSource = self.try_into()?;
         let res = source.load(
             ctx,
             egui::TextureOptions::default(),
@@ -38,14 +38,16 @@ impl<'a> ImageSource<'a> {
     }
 }
 
-impl<'a> From<ImageSource<'a>> for egui::ImageSource<'a> {
-    fn from(value: ImageSource<'a>) -> Self {
+impl<'a> TryFrom<ImageSource<'a>> for egui::ImageSource<'a> {
+    type Error = anyhow::Error;
+
+    fn try_from(value: ImageSource<'a>) -> std::prelude::v1::Result<Self, Self::Error> {
         match value {
             ImageSource::Uri(uri) => {
                 let uri_cow: Cow<'a, str> = uri.into();
-                Self::Uri(uri_cow)
+                Ok(Self::Uri(uri_cow))
             }
-            ImageSource::Texture(texture) => Self::Texture(texture.into()),
+            ImageSource::Texture(texture) => Ok(Self::Texture(texture.try_into()?)),
             ImageSource::Bytes { uri, bytes } => {
                 let uri_cow: Cow<'static, str> = uri.into();
                 let bytes = match bytes.into_inner() {
@@ -56,10 +58,10 @@ impl<'a> From<ImageSource<'a>> for egui::ImageSource<'a> {
                         egui::load::Bytes::Shared(vec.to_vec().into())
                     }
                 };
-                Self::Bytes {
+                Ok(Self::Bytes {
                     uri: uri_cow,
                     bytes,
-                }
+                })
             }
         }
     }
@@ -160,5 +162,11 @@ impl From<&NamedTexture> for ImageSource<'_> {
 impl From<&SizedTexture> for ImageSource<'_> {
     fn from(value: &SizedTexture) -> Self {
         Self::Texture(*value)
+    }
+}
+
+impl From<SizedTexture> for ImageSource<'_> {
+    fn from(value: SizedTexture) -> Self {
+        Self::Texture(value)
     }
 }
