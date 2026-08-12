@@ -12,6 +12,7 @@ pub mod rectangle;
 pub mod sphere;
 pub mod tetrahedron;
 pub mod triangle;
+pub mod polyline;
 
 pub trait MeshBuilder {
     fn build(&self) -> Mesh;
