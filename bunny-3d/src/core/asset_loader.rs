@@ -56,6 +56,8 @@ pub struct AssetLoader {
     meshes: RArc<RMutex<RHashMap<u64, MeshPollInner, BuildNoHash>>>,
 }
 
+// TODO add gltf loading/parsing
+
 impl AssetLoader {
     pub fn load_texture(
         &mut self,

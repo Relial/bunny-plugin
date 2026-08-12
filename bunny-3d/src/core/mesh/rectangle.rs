@@ -1,6 +1,9 @@
 use glam::Vec2;
 
-use crate::core::mesh::{Mesh, MeshBuilder};
+use crate::core::{
+    draw_list::PrimitiveTopology,
+    mesh::{Mesh, MeshBuilder},
+};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct RectangleMesh {
@@ -55,11 +58,7 @@ impl MeshBuilder for RectangleMesh {
         ];
         let uvs = vec![[1.0, 0.0], [0.0, 0.0], [0.0, 1.0], [1.0, 1.0]];
         let indices = vec![0, 1, 2, 0, 2, 3];
-        Mesh {
-            positions,
-            uvs,
-            indices,
-        }
+        Mesh::new(positions, uvs, indices, PrimitiveTopology::TriangleList)
     }
 }
 

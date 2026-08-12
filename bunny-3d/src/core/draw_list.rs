@@ -3,7 +3,8 @@ use anyhow::{Context as _, Result};
 use glam::Mat4;
 use shared::texture::TextureId;
 use windows::Win32::Graphics::Direct3D9::{
-    D3DRS_FILLMODE, D3DTRANSFORMSTATETYPE, IDirect3DDevice9,
+    D3DPRIMITIVETYPE, D3DPT_LINELIST, D3DPT_POINTLIST, D3DPT_TRIANGLELIST, D3DRS_FILLMODE,
+    D3DTRANSFORMSTATETYPE, IDirect3DDevice9,
 };
 use windows_numerics::Matrix4x4;
 
@@ -76,27 +77,28 @@ impl DrawList {
             fill: draw_options.fill,
             world_matrix: d3dmat,
             texture: draw_options.texture.unwrap_or_default(),
+            primitive_topology: mesh.primitive_topology,
         });
         self.vertex_bytes_position += vertex_size_required;
     }
 }
 
 impl DrawList {
-    pub(crate) fn start_frame(&mut self) {
+    pub fn start_frame(&mut self) {
         self.vertex_bytes_position = 0;
         self.index_bytes.clear();
         self.descriptors.clear();
     }
 
-    pub(crate) fn vertex_buffer(&self) -> &[u8] {
+    pub fn vertex_buffer(&self) -> &[u8] {
         &self.vertex_bytes[0..self.vertex_bytes_position]
     }
 
-    pub(crate) fn index_buffer(&self) -> &[u8] {
+    pub fn index_buffer(&self) -> &[u8] {
         &self.index_bytes
     }
 
-    pub(crate) fn meshes(&self) -> &[MeshDescriptor] {
+    pub fn meshes(&self) -> &[MeshDescriptor] {
         &self.descriptors
     }
 }
@@ -105,14 +107,15 @@ impl DrawList {
 #[repr(C)]
 pub struct MeshDescriptor {
     world_matrix: Matrix4x4,
-    pub(crate) vertices: usize,
-    pub(crate) indices: usize,
+    pub vertices: usize,
+    pub indices: usize,
     fill: FillMode,
-    pub(crate) texture: TextureId,
+    pub texture: TextureId,
+    pub primitive_topology: PrimitiveTopology,
 }
 
 impl MeshDescriptor {
-    pub(crate) fn setup(&self, device: &IDirect3DDevice9) -> Result<()> {
+    pub fn setup(&self, device: &IDirect3DDevice9) -> Result<()> {
         unsafe {
             device
                 .SetRenderState(D3DRS_FILLMODE, self.fill as u32)
@@ -122,5 +125,45 @@ impl MeshDescriptor {
                 .context("Failed to set world matrix")?;
         }
         Ok(())
+    }
+}
+
+#[allow(clippy::enum_variant_names)]
+#[derive(Clone, Copy, Debug, PartialEq)]
+#[repr(C)]
+pub enum PrimitiveTopology {
+    PointList,
+    LineList,
+    TriangleList,
+}
+
+impl PrimitiveTopology {
+    pub fn to_d3d(self) -> D3DPRIMITIVETYPE {
+        match self {
+            PrimitiveTopology::PointList => D3DPT_POINTLIST,
+            PrimitiveTopology::LineList => D3DPT_LINELIST,
+            PrimitiveTopology::TriangleList => D3DPT_TRIANGLELIST,
+        }
+    }
+}
+
+#[cfg(feature = "bevy")]
+impl TryFrom<bevy_mesh::PrimitiveTopology> for PrimitiveTopology {
+    type Error = anyhow::Error;
+
+    fn try_from(
+        value: bevy_mesh::PrimitiveTopology,
+    ) -> std::prelude::v1::Result<Self, Self::Error> {
+        use anyhow::anyhow;
+
+        match value {
+            bevy_mesh::PrimitiveTopology::PointList => Ok(Self::PointList),
+            bevy_mesh::PrimitiveTopology::LineList => Ok(Self::LineList),
+            bevy_mesh::PrimitiveTopology::LineStrip => Err(anyhow!("LineStrip not supported")),
+            bevy_mesh::PrimitiveTopology::TriangleList => Ok(Self::TriangleList),
+            bevy_mesh::PrimitiveTopology::TriangleStrip => {
+                Err(anyhow!("TriangleStrip not supported"))
+            }
+        }
     }
 }

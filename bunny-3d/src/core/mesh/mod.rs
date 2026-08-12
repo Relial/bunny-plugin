@@ -2,7 +2,7 @@
 use anyhow::anyhow;
 use bytemuck::cast_slice;
 
-use crate::backend::GpuColor;
+use crate::{backend::GpuColor, core::draw_list::PrimitiveTopology};
 
 pub mod capsule;
 pub mod circle;
@@ -22,21 +22,22 @@ pub struct Mesh {
     pub positions: Vec<[f32; 3]>,
     pub uvs: Vec<[f32; 2]>,
     pub indices: Vec<u32>,
+    pub primitive_topology: PrimitiveTopology,
 }
 
 impl Mesh {
-    pub fn new(positions: Vec<[f32; 3]>, indices: Vec<u32>) -> Self {
+    pub fn new(
+        positions: Vec<[f32; 3]>,
+        uvs: Vec<[f32; 2]>,
+        indices: Vec<u32>,
+        primitive_topology: PrimitiveTopology,
+    ) -> Self {
         Self {
             positions,
-            uvs: vec![],
+            uvs,
             indices,
+            primitive_topology,
         }
-    }
-
-    #[inline]
-    pub fn uvs(mut self, uvs: Vec<[f32; 2]>) -> Self {
-        self.uvs = uvs;
-        self
     }
 
     #[inline]
@@ -92,6 +93,7 @@ impl TryFrom<bevy_mesh::Mesh> for Mesh {
         use anyhow::{anyhow, bail};
         use bevy_mesh::{Indices, VertexAttributeValues};
 
+        let primitive_topology: PrimitiveTopology = value.primitive_topology().try_into()?;
         let vertices = value
             .remove_attribute(bevy_mesh::Mesh::ATTRIBUTE_POSITION)
             .ok_or(anyhow!("Bevy mesh missing ATTRIBUTE_POSITION"))?;
@@ -112,10 +114,10 @@ impl TryFrom<bevy_mesh::Mesh> for Mesh {
             Indices::U32(items) => items,
         };
         Ok(Mesh {
-            vertices,
+            positions: vertices,
             uvs: uvs.unwrap_or_default(),
-            color: GpuColor::WHITE,
             indices,
+            primitive_topology,
         })
     }
 }
@@ -169,6 +171,11 @@ impl TryFrom<TobjMesh> for Mesh {
             uvs.iter_mut().for_each(|uv| uv[1] = 1.0 - uv[1]);
         }
         let indices = mesh.indices;
-        Ok(Self::new(vertices, indices).uvs(uvs))
+        Ok(Self::new(
+            vertices,
+            uvs,
+            indices,
+            PrimitiveTopology::TriangleList,
+        ))
     }
 }

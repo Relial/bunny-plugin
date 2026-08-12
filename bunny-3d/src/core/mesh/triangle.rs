@@ -1,6 +1,9 @@
 use glam::Vec3;
 
-use crate::core::mesh::{Mesh, MeshBuilder};
+use crate::core::{
+    draw_list::PrimitiveTopology,
+    mesh::{Mesh, MeshBuilder},
+};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Triangle3d {
@@ -32,11 +35,7 @@ impl MeshBuilder for Triangle3d {
         let positions = self.vertices.iter().map(|v| v.to_array()).collect();
         let uvs = uv_coords(self).into();
         let indices = vec![0, 1, 2];
-        Mesh {
-            positions,
-            uvs,
-            indices,
-        }
+        Mesh::new(positions, uvs, indices, PrimitiveTopology::TriangleList)
     }
 }
 

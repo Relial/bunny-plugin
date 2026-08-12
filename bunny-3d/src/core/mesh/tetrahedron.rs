@@ -1,8 +1,11 @@
 use glam::{Mat3, Vec3};
 
-use crate::core::mesh::{
-    Mesh, MeshBuilder,
-    triangle::{Triangle3d, uv_coords},
+use crate::core::{
+    draw_list::PrimitiveTopology,
+    mesh::{
+        Mesh, MeshBuilder,
+        triangle::{Triangle3d, uv_coords},
+    },
 };
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -80,11 +83,7 @@ impl MeshBuilder for TetrahedronMesh {
         // There are four faces and none of them share vertices.
         let indices = vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 
-        Mesh {
-            positions,
-            uvs,
-            indices,
-        }
+        Mesh::new(positions, uvs, indices, PrimitiveTopology::TriangleList)
     }
 }
 

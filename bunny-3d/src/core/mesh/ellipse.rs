@@ -1,6 +1,9 @@
 use glam::Vec2;
 
-use crate::core::mesh::{Mesh, MeshBuilder};
+use crate::core::{
+    draw_list::PrimitiveTopology,
+    mesh::{Mesh, MeshBuilder},
+};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct EllipseMesh {
@@ -67,11 +70,7 @@ impl MeshBuilder for EllipseMesh {
             indices.extend_from_slice(&[0, i, i + 1]);
         }
 
-        Mesh {
-            positions,
-            uvs,
-            indices,
-        }
+        Mesh::new(positions, uvs, indices, PrimitiveTopology::TriangleList)
     }
 }
 

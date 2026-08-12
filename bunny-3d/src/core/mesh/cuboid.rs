@@ -1,6 +1,9 @@
 use glam::Vec3;
 
-use crate::core::mesh::{Mesh, MeshBuilder};
+use crate::core::{
+    draw_list::PrimitiveTopology,
+    mesh::{Mesh, MeshBuilder},
+};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct CuboidMesh {
@@ -100,11 +103,7 @@ impl MeshBuilder for CuboidMesh {
             20, 21, 22, 22, 23, 20, // bottom
         ];
 
-        Mesh {
-            positions,
-            uvs,
-            indices,
-        }
+        Mesh::new(positions, uvs, indices, PrimitiveTopology::TriangleList)
     }
 }
 

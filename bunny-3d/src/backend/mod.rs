@@ -1,7 +1,10 @@
 use abi_stable::std_types::RArc;
 use anyhow::{Context, Result, anyhow};
 use epaint::Color32;
-use shared::{camera::Camera, texture::{SharedTextures, TextureId}};
+use shared::{
+    camera::Camera,
+    texture::{SharedTextures, TextureId},
+};
 use tracing::debug;
 use windows::Win32::Graphics::Direct3D9::{
     D3DPT_TRIANGLELIST, D3DTS_PROJECTION, D3DTS_VIEW, IDirect3DDevice9, IDirect3DTexture9,
@@ -10,7 +13,7 @@ use windows_numerics::Matrix4x4;
 
 use crate::{
     backend::{mesh::Buffers, state::GpuState, texture_manager::TextureManager},
-    core::Bunny3d,
+    core::{Bunny3d, draw_list::PrimitiveTopology},
 };
 
 mod mesh;
@@ -163,8 +166,8 @@ impl Bunny3dBackend {
                 .context("Failed to set indices")?;
         }
 
-        let mut current_vtx = 0;
-        let mut current_idx = 0;
+        let mut current_vtx: usize = 0;
+        let mut current_idx: usize = 0;
         for mesh in draw_list.meshes() {
             mesh.setup(device)?;
 
@@ -174,21 +177,50 @@ impl Bunny3dBackend {
                     .SetTexture(0, texture)
                     .context("Failed to set texture")?
             };
-
-            unsafe {
-                device
-                    .DrawIndexedPrimitive(
-                        D3DPT_TRIANGLELIST,
-                        current_vtx as i32,
-                        0,
-                        mesh.vertices as u32,
-                        current_idx as u32,
-                        (mesh.indices / 3) as u32,
-                    )
-                    .context("Failed to draw indexed primitive")?;
+            match mesh.primitive_topology {
+                PrimitiveTopology::PointList => {
+                    unsafe {
+                        device
+                            .DrawPrimitive(
+                                mesh.primitive_topology.to_d3d(),
+                                current_vtx as u32,
+                                mesh.vertices as u32,
+                            )
+                            .context("Failed to draw primitive")?
+                    };
+                    current_vtx += mesh.vertices;
+                }
+                PrimitiveTopology::LineList => unsafe {
+                    device
+                        .DrawIndexedPrimitive(
+                            mesh.primitive_topology.to_d3d(),
+                            current_vtx as i32,
+                            0,
+                            mesh.vertices as u32,
+                            current_idx as u32,
+                            (mesh.indices / 2) as u32,
+                        )
+                        .context("Failed to draw indexed primitive")?;
+                    current_vtx += mesh.vertices;
+                    current_idx += mesh.indices;
+                },
+                PrimitiveTopology::TriangleList => {
+                    unsafe {
+                        device
+                            .DrawIndexedPrimitive(
+                                D3DPT_TRIANGLELIST,
+                                current_vtx as i32,
+                                0,
+                                mesh.vertices as u32,
+                                current_idx as u32,
+                                (mesh.indices / 3) as u32,
+                            )
+                            .context("Failed to draw indexed primitive")?;
+                    }
+                    current_vtx += mesh.vertices;
+                    current_idx += mesh.indices;
+                }
             }
-            current_vtx += mesh.vertices;
-            current_idx += mesh.indices;
         }
         Ok(())
     }

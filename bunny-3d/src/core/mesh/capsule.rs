@@ -1,6 +1,9 @@
 use glam::{Vec2, Vec3};
 
-use crate::core::mesh::{Mesh, MeshBuilder};
+use crate::core::{
+    draw_list::PrimitiveTopology,
+    mesh::{Mesh, MeshBuilder},
+};
 
 pub const CAPSULE_LONGITUDES: u32 = 24;
 pub const CAPSULE_LATITUDES: u32 = 12;
@@ -328,7 +331,7 @@ impl MeshBuilder for CapsuleMesh {
         let vs: Vec<[f32; 3]> = vs.into_iter().map(Into::into).collect();
         let vts: Vec<[f32; 2]> = vts.into_iter().map(Into::into).collect();
 
-        Mesh::new(vs, tris).uvs(vts)
+        Mesh::new(vs, vts, tris, PrimitiveTopology::TriangleList)
     }
 }
 

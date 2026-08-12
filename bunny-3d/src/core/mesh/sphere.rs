@@ -1,6 +1,9 @@
 use core::f32::consts::PI;
 
-use crate::core::mesh::{Mesh, MeshBuilder};
+use crate::core::{
+    draw_list::PrimitiveTopology,
+    mesh::{Mesh, MeshBuilder},
+};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct SphereMesh {
@@ -88,7 +91,7 @@ impl MeshBuilder for SphereMesh {
             }
         }
 
-        Mesh::new(vertices, indices).uvs(uvs)
+        Mesh::new(vertices, uvs, indices, PrimitiveTopology::TriangleList)
     }
 }
 
