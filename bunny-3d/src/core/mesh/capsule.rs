@@ -1,6 +1,6 @@
 use glam::{Vec2, Vec3};
 
-use crate::core::mesh::Mesh;
+use crate::core::mesh::{Mesh, MeshBuilder};
 
 pub const CAPSULE_LONGITUDES: u32 = 24;
 pub const CAPSULE_LATITUDES: u32 = 12;
@@ -36,8 +36,8 @@ impl CapsuleMesh {
     }
 }
 
-impl From<CapsuleMesh> for Mesh {
-    fn from(value: CapsuleMesh) -> Self {
+impl MeshBuilder for CapsuleMesh {
+    fn build(&self) -> Mesh {
         // From https://docs.rs/bevy_mesh/0.19.0/src/bevy_mesh/primitives/dim3/capsule.rs.html#96
         let CapsuleMesh {
             radius,
@@ -45,7 +45,7 @@ impl From<CapsuleMesh> for Mesh {
             rings,
             longitudes,
             latitudes,
-        } = value;
+        } = *self;
 
         let calc_middle = rings > 0;
         let half_lats = latitudes / 2;
@@ -329,5 +329,11 @@ impl From<CapsuleMesh> for Mesh {
         let vts: Vec<[f32; 2]> = vts.into_iter().map(Into::into).collect();
 
         Mesh::new(vs, tris).uvs(vts)
+    }
+}
+
+impl From<CapsuleMesh> for Mesh {
+    fn from(value: CapsuleMesh) -> Self {
+        value.build()
     }
 }

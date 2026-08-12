@@ -1,6 +1,6 @@
 use glam::Vec2;
 
-use crate::core::mesh::Mesh;
+use crate::core::mesh::{Mesh, MeshBuilder};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct EllipseMesh {
@@ -35,13 +35,13 @@ impl EllipseMesh {
     }
 }
 
-impl From<EllipseMesh> for Mesh {
-    fn from(value: EllipseMesh) -> Self {
+impl MeshBuilder for EllipseMesh {
+    fn build(&self) -> Mesh {
         // From https://docs.rs/bevy_mesh/0.19.0/src/bevy_mesh/primitives/dim2.rs.html#596
         let EllipseMesh {
             half_size,
             resolution,
-        } = value;
+        } = *self;
         let resolution = resolution as usize;
         let mut indices = Vec::with_capacity((resolution - 2) * 3);
         let mut positions = Vec::with_capacity(resolution);
@@ -67,10 +67,16 @@ impl From<EllipseMesh> for Mesh {
             indices.extend_from_slice(&[0, i, i + 1]);
         }
 
-        Self {
+        Mesh {
             positions,
             uvs,
             indices,
         }
+    }
+}
+
+impl From<EllipseMesh> for Mesh {
+    fn from(value: EllipseMesh) -> Self {
+        value.build()
     }
 }

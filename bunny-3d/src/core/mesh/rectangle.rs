@@ -1,6 +1,6 @@
 use glam::Vec2;
 
-use crate::core::mesh::Mesh;
+use crate::core::mesh::{Mesh, MeshBuilder};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct RectangleMesh {
@@ -43,10 +43,10 @@ impl RectangleMesh {
     }
 }
 
-impl From<RectangleMesh> for Mesh {
-    fn from(value: RectangleMesh) -> Self {
+impl MeshBuilder for RectangleMesh {
+    fn build(&self) -> Mesh {
         // From https://docs.rs/bevy_mesh/0.19.0/src/bevy_mesh/primitives/dim2.rs.html#1072
-        let [hw, hh] = [value.half_size.x, value.half_size.y];
+        let [hw, hh] = [self.half_size.x, self.half_size.y];
         let positions = vec![
             [hw, hh, 0.0],
             [-hw, hh, 0.0],
@@ -55,10 +55,16 @@ impl From<RectangleMesh> for Mesh {
         ];
         let uvs = vec![[1.0, 0.0], [0.0, 0.0], [0.0, 1.0], [1.0, 1.0]];
         let indices = vec![0, 1, 2, 0, 2, 3];
-        Self {
+        Mesh {
             positions,
             uvs,
             indices,
         }
+    }
+}
+
+impl From<RectangleMesh> for Mesh {
+    fn from(value: RectangleMesh) -> Self {
+        value.build()
     }
 }

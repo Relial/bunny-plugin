@@ -224,7 +224,12 @@ fn load_obj_from_path(path: impl AsRef<Path>, uv_origin: UvOrigin) -> Result<RVe
     tobj::load_obj(path.as_ref(), &tobj::GPU_LOAD_OPTIONS)?
         .0
         .into_iter()
-        .map(|model| Mesh::from_obj(model.mesh, uv_origin))
+        .map(|model| {
+            use crate::core::mesh::TobjMesh;
+
+            let t = TobjMesh::new(model.mesh, uv_origin);
+            t.try_into()
+        })
         .collect()
 }
 

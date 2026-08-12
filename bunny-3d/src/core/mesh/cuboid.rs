@@ -1,6 +1,6 @@
 use glam::Vec3;
 
-use crate::core::mesh::Mesh;
+use crate::core::mesh::{Mesh, MeshBuilder};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct CuboidMesh {
@@ -48,11 +48,11 @@ impl CuboidMesh {
     }
 }
 
-impl From<CuboidMesh> for Mesh {
-    fn from(value: CuboidMesh) -> Self {
+impl MeshBuilder for CuboidMesh {
+    fn build(&self) -> Mesh {
         // From https://docs.rs/bevy_mesh/0.19.0/src/bevy_mesh/primitives/dim3/cuboid.rs.html#23
-        let min = -value.half_size;
-        let max = value.half_size;
+        let min = -self.half_size;
+        let max = self.half_size;
 
         // Suppose Y-up right hand, and camera look from +Z to -Z
         let vertices = &[
@@ -100,10 +100,16 @@ impl From<CuboidMesh> for Mesh {
             20, 21, 22, 22, 23, 20, // bottom
         ];
 
-        Self {
+        Mesh {
             positions,
             uvs,
             indices,
         }
+    }
+}
+
+impl From<CuboidMesh> for Mesh {
+    fn from(value: CuboidMesh) -> Self {
+        value.build()
     }
 }

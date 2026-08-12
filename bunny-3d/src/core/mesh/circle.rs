@@ -1,4 +1,4 @@
-use crate::core::mesh::{Mesh, ellipse::EllipseMesh};
+use crate::core::mesh::{Mesh, MeshBuilder, ellipse::EllipseMesh};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct CircleMesh {
@@ -22,8 +22,14 @@ impl CircleMesh {
     }
 }
 
+impl MeshBuilder for CircleMesh {
+    fn build(&self) -> Mesh {
+        EllipseMesh::new(self.radius, self.radius).into()
+    }
+}
+
 impl From<CircleMesh> for Mesh {
     fn from(value: CircleMesh) -> Self {
-        EllipseMesh::new(value.radius, value.radius).into()
+        value.build()
     }
 }

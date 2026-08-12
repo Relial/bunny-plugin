@@ -1,58 +1,27 @@
 #[cfg(feature = "tobj")]
-use anyhow::{Result, anyhow};
-use bytemuck::{cast_slice};
+use anyhow::anyhow;
+use bytemuck::cast_slice;
 
 use crate::backend::GpuColor;
 
 pub mod capsule;
+pub mod circle;
 pub mod cuboid;
+pub mod ellipse;
+pub mod rectangle;
 pub mod sphere;
 pub mod tetrahedron;
-pub mod rectangle;
-pub mod circle;
-pub mod ellipse;
+pub mod triangle;
+
+pub trait MeshBuilder {
+    fn build(&self) -> Mesh;
+}
 
 #[derive(Clone, Debug)]
 pub struct Mesh {
     pub positions: Vec<[f32; 3]>,
     pub uvs: Vec<[f32; 2]>,
     pub indices: Vec<u32>,
-}
-
-/// What is considered UV coordinate 0.0, 0.0
-///
-/// The internal representation is TopLeft. If you specify BottomLeft the y axis will be flipped during mesh conversion.
-#[derive(Clone, Copy, PartialEq, Debug, Default)]
-#[repr(C)]
-pub enum UvOrigin {
-    /// Top left is 0.0, 0.0, bottom right is 1.0, 1.0
-    ///
-    /// e.g. DirectX, Unreal, glTF
-    #[default]
-    TopLeft,
-    /// Bottom left is 0.0, 0.0, top right is 1.0, 1.0
-    ///
-    /// e.g. OpenGL, Blender, Maya, Unity
-    BottomLeft,
-}
-
-#[cfg(feature = "tobj")]
-impl Mesh {
-    pub fn from_obj(mesh: tobj::Mesh, uv_origin: UvOrigin) -> Result<Self> {
-        use bytemuck::try_cast_slice;
-
-        let vertices: Vec<[f32; 3]> = try_cast_slice(&mesh.positions)
-            .map_err(|e| anyhow!("Failed to cast positions to [f32; 3]: {e:#}"))?
-            .to_vec();
-        let mut uvs: Vec<[f32; 2]> = try_cast_slice(&mesh.texcoords)
-            .map_err(|e| anyhow!("Failed to cast texcoords to [f32; 2]: {e:#}"))?
-            .to_vec();
-        if uv_origin == UvOrigin::BottomLeft {
-            uvs.iter_mut().for_each(|uv| uv[1] = 1.0 - uv[1]);
-        }
-        let indices = mesh.indices;
-        Ok(Self::new(vertices, indices).uvs(uvs))
-    }
 }
 
 impl Mesh {
@@ -148,5 +117,58 @@ impl TryFrom<bevy_mesh::Mesh> for Mesh {
             color: GpuColor::WHITE,
             indices,
         })
+    }
+}
+
+/// What is considered UV coordinate 0.0, 0.0
+///
+/// The internal representation is TopLeft. If you specify BottomLeft the y axis will be flipped during mesh conversion.
+#[derive(Clone, Copy, PartialEq, Debug, Default)]
+#[repr(C)]
+pub enum UvOrigin {
+    /// Top left is 0.0, 0.0, bottom right is 1.0, 1.0
+    ///
+    /// e.g. DirectX, Unreal, glTF
+    #[default]
+    TopLeft,
+    /// Bottom left is 0.0, 0.0, top right is 1.0, 1.0
+    ///
+    /// e.g. OpenGL, Blender, Maya, Unity
+    BottomLeft,
+}
+
+#[cfg(feature = "tobj")]
+pub struct TobjMesh {
+    pub mesh: tobj::Mesh,
+    pub uv_origin: UvOrigin,
+}
+
+#[cfg(feature = "tobj")]
+impl TobjMesh {
+    pub const fn new(mesh: tobj::Mesh, uv_origin: UvOrigin) -> Self {
+        Self { mesh, uv_origin }
+    }
+}
+
+#[cfg(feature = "tobj")]
+impl TryFrom<TobjMesh> for Mesh {
+    type Error = anyhow::Error;
+
+    fn try_from(value: TobjMesh) -> std::prelude::v1::Result<Self, Self::Error> {
+        use bytemuck::try_cast_slice;
+
+        let TobjMesh { mesh, uv_origin } = value;
+
+        let vertices: Vec<[f32; 3]> = try_cast_slice(&mesh.positions)
+            .map_err(|e| anyhow!("Failed to cast positions to [f32; 3]: {e:#}"))?
+            .to_vec();
+        let mut uvs: Vec<[f32; 2]> = try_cast_slice(&mesh.texcoords)
+            .map_err(|e| anyhow!("Failed to cast texcoords to [f32; 2]: {e:#}"))?
+            .to_vec();
+        if uv_origin == UvOrigin::BottomLeft {
+            uvs.iter_mut().for_each(|uv| uv[1] = 1.0 - uv[1]);
+        }
+        let indices = mesh.indices;
+        Ok(Self::new(vertices, indices).uvs(uvs))
     }
 }

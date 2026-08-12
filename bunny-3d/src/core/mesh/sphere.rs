@@ -1,6 +1,6 @@
 use core::f32::consts::PI;
 
-use crate::core::mesh::Mesh;
+use crate::core::mesh::{Mesh, MeshBuilder};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct SphereMesh {
@@ -29,14 +29,14 @@ impl SphereMesh {
     }
 }
 
-impl From<SphereMesh> for Mesh {
-    fn from(value: SphereMesh) -> Self {
+impl MeshBuilder for SphereMesh {
+    fn build(&self) -> Mesh {
         // From https://docs.rs/bevy_mesh/0.19.0/src/bevy_mesh/primitives/dim3/sphere.rs.html#172
         let SphereMesh {
             radius,
             sectors,
             stacks,
-        } = value;
+        } = *self;
 
         let sectors_f32 = sectors as f32;
         let stacks_f32 = stacks as f32;
@@ -48,7 +48,7 @@ impl From<SphereMesh> for Mesh {
         let mut uvs: Vec<[f32; 2]> = Vec::with_capacity(n_vertices);
         let mut indices: Vec<u32> = Vec::with_capacity(n_vertices * 2 * 3);
 
-        for i in 0..value.stacks + 1 {
+        for i in 0..stacks + 1 {
             let stack_angle = PI / 2. - (i as f32) * stack_step;
             let xy = radius * f32::cos(stack_angle);
             let z = radius * f32::sin(stack_angle);
@@ -89,5 +89,11 @@ impl From<SphereMesh> for Mesh {
         }
 
         Mesh::new(vertices, indices).uvs(uvs)
+    }
+}
+
+impl From<SphereMesh> for Mesh {
+    fn from(value: SphereMesh) -> Self {
+        value.build()
     }
 }
