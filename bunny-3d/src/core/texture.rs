@@ -28,14 +28,14 @@ impl Default for Textures {
 
 impl Textures {
     #[inline]
-    pub(crate) fn advance_id(&mut self) -> TextureId {
+    pub fn advance_id(&mut self) -> TextureId {
         let id = TextureId::Managed3d(self.next_id);
         self.next_id += 1;
         id
     }
 
     #[inline]
-    pub(crate) fn allocate_from_data(&mut self, data: TextureData, id: TextureId) {
+    pub fn allocate_from_data(&mut self, data: TextureData, id: TextureId) {
         let allocation = TextureAllocation { data, id };
         self.allocations.push(allocation);
     }
@@ -77,20 +77,20 @@ impl Textures {
 }
 
 impl Textures {
-    pub(crate) fn extract_allocations(&mut self) -> impl Iterator<Item = TextureAllocation> {
+    pub fn extract_allocations(&mut self) -> impl Iterator<Item = TextureAllocation> {
         self.allocations.drain(..)
     }
 
-    pub(crate) fn add_shared(&mut self, shared: RArc<SharedTextures>) {
+    pub fn add_shared(&mut self, shared: RArc<SharedTextures>) {
         self.shared_textures = RSome(shared);
     }
 }
 
 #[derive(Debug)]
 #[repr(C)]
-pub(crate) struct TextureAllocation {
-    pub(crate) data: TextureData,
-    pub(crate) id: TextureId,
+pub struct TextureAllocation {
+    pub data: TextureData,
+    pub id: TextureId,
 }
 
 pub enum TextureSource<'a> {
@@ -109,9 +109,9 @@ impl<'a> From<&'a DynamicImage> for TextureSource<'a> {
 
 #[derive(Debug, Default)]
 #[repr(C)]
-pub(crate) struct TextureData {
-    pub(crate) pixels: RVec<GpuColor>,
-    pub(crate) size: [u32; 2],
+pub struct TextureData {
+    pub pixels: RVec<GpuColor>,
+    pub size: [u32; 2],
 }
 
 impl From<&DynamicImage> for TextureData {

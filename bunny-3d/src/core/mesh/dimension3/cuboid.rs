@@ -1,11 +1,11 @@
 use glam::Vec3;
 
-use crate::core::{
+use crate::{
     draw_list::PrimitiveTopology,
     mesh::{Mesh, MeshBuilder},
 };
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug)]
 pub struct CuboidMesh {
     pub half_size: Vec3,
 }

@@ -1,14 +1,11 @@
 use glam::{Mat3, Vec3};
 
-use crate::core::{
+use crate::{
     draw_list::PrimitiveTopology,
-    mesh::{
-        Mesh, MeshBuilder,
-        triangle::{TriangleMesh, uv_coords},
-    },
+    mesh::{Mesh, MeshBuilder, TriangleMesh, uv_coords},
 };
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug)]
 pub struct TetrahedronMesh {
     pub vertices: [Vec3; 4],
 }

@@ -1,9 +1,9 @@
-use crate::core::{
+use crate::{
     draw_list::PrimitiveTopology,
     mesh::{Mesh, MeshBuilder},
 };
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug)]
 pub struct AnnulusMesh {
     pub inner_radius: f32,
     pub outer_radius: f32,

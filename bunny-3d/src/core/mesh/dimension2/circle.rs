@@ -1,6 +1,6 @@
-use crate::core::mesh::{Mesh, MeshBuilder, ellipse::EllipseMesh};
+use crate::mesh::{EllipseMesh, Mesh, MeshBuilder};
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug)]
 pub struct CircleMesh {
     pub radius: f32,
     pub resolution: u32,

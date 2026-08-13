@@ -5,16 +5,10 @@ use glam::{Quat, Vec3};
 
 use crate::{backend::GpuColor, core::draw_list::PrimitiveTopology};
 
-pub mod annulus;
-pub mod capsule;
-pub mod circle;
-pub mod cuboid;
-pub mod ellipse;
-pub mod polyline;
-pub mod rectangle;
-pub mod sphere;
-pub mod tetrahedron;
-pub mod triangle;
+mod dimension2;
+pub use dimension2::*;
+mod dimension3;
+pub use dimension3::*;
 
 pub trait MeshBuilder {
     fn build(&self) -> Mesh;

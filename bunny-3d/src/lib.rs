@@ -1,5 +1,6 @@
 pub mod backend;
-pub mod core;
+mod core;
+pub use core::*;
 
 #[cfg(feature = "bevy")]
 pub use bevy_mesh;

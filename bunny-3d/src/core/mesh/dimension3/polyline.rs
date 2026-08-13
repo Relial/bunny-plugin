@@ -1,11 +1,11 @@
 use glam::Vec3;
 
-use crate::core::{
+use crate::{
     draw_list::PrimitiveTopology,
     mesh::{Mesh, MeshBuilder},
 };
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug)]
 pub struct PolyLine {
     pub vertices: Vec<Vec3>,
 }

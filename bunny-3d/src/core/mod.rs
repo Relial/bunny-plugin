@@ -13,15 +13,15 @@ use crate::{
     core::{
         asset_loader::{AssetLoader, MeshPoll, TexturePoll},
         draw_list::DrawList,
-        mesh::{Mesh, UvOrigin},
         texture::{TextureAllocation, TextureSource, Textures},
     },
+    mesh::{Mesh, UvOrigin},
 };
 
 pub mod asset_loader;
 pub(crate) mod draw_list;
 pub mod mesh;
-pub mod texture;
+pub(crate) mod texture;
 
 #[derive(Debug, Default)]
 #[repr(C)]

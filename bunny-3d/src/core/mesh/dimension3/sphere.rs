@@ -1,11 +1,11 @@
 use core::f32::consts::PI;
 
-use crate::core::{
+use crate::{
     draw_list::PrimitiveTopology,
     mesh::{Mesh, MeshBuilder},
 };
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug)]
 pub struct SphereMesh {
     pub radius: f32,
     pub sectors: u32,

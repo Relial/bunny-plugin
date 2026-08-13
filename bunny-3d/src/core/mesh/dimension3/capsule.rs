@@ -1,6 +1,6 @@
 use glam::{Vec2, Vec3};
 
-use crate::core::{
+use crate::{
     draw_list::PrimitiveTopology,
     mesh::{Mesh, MeshBuilder},
 };
@@ -8,7 +8,7 @@ use crate::core::{
 pub const CAPSULE_LONGITUDES: u32 = 24;
 pub const CAPSULE_LATITUDES: u32 = 12;
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug)]
 pub struct CapsuleMesh {
     pub radius: f32,
     pub half_length: f32,
