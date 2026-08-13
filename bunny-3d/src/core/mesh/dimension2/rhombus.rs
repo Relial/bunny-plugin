@@ -1,0 +1,68 @@
+use std::f32::consts::FRAC_1_SQRT_2;
+
+use glam::Vec2;
+
+use crate::{
+    draw_list::PrimitiveTopology,
+    mesh::{Mesh, MeshBuilder},
+};
+
+#[derive(Clone, Copy, Debug)]
+pub struct RhombusMesh {
+    pub half_diagonals: Vec2,
+}
+
+impl Default for RhombusMesh {
+    fn default() -> Self {
+        Self {
+            half_diagonals: Vec2::splat(0.5),
+        }
+    }
+}
+
+impl RhombusMesh {
+    #[inline]
+    pub const fn new(horizontal_diagonal: f32, vertical_diagonal: f32) -> Self {
+        Self {
+            half_diagonals: Vec2::new(horizontal_diagonal / 2.0, vertical_diagonal / 2.0),
+        }
+    }
+
+    #[inline]
+    pub const fn from_side(side: f32) -> Self {
+        Self {
+            half_diagonals: Vec2::splat(side * FRAC_1_SQRT_2),
+        }
+    }
+
+    #[inline]
+    pub const fn from_inradius(inradius: f32) -> Self {
+        let half_diagonal = inradius * 2.0 / core::f32::consts::SQRT_2;
+        Self {
+            half_diagonals: Vec2::new(half_diagonal, half_diagonal),
+        }
+    }
+}
+
+impl MeshBuilder for RhombusMesh {
+    fn build(&self) -> Mesh {
+        // From https://docs.rs/bevy_mesh/0.19.1/src/bevy_mesh/primitives/dim2.rs.html#916
+
+        let [hhd, vhd] = [self.half_diagonals.x, self.half_diagonals.y];
+        let positions = vec![
+            [hhd, 0.0, 0.0],
+            [0.0, vhd, 0.0],
+            [-hhd, 0.0, 0.0],
+            [0.0, -vhd, 0.0],
+        ];
+        let uvs = vec![[1.0, 0.5], [0.5, 0.0], [0.0, 0.5], [0.5, 1.0]];
+        let indices = vec![2, 0, 1, 2, 3, 0];
+        Mesh::new(positions, uvs, indices, PrimitiveTopology::TriangleList)
+    }
+}
+
+impl From<RhombusMesh> for Mesh {
+    fn from(value: RhombusMesh) -> Self {
+        value.build()
+    }
+}
