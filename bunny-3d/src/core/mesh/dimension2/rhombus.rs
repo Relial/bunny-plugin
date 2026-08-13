@@ -3,7 +3,8 @@ use std::f32::consts::FRAC_1_SQRT_2;
 use glam::Vec2;
 
 use crate::{
-    draw_list::PrimitiveTopology, mesh::{Mesh, MeshBuilder, Primitive2d},
+    draw_list::PrimitiveTopology,
+    mesh::{Extrudable, Mesh, MeshBuilder, PerimeterSegment, Primitive2d},
 };
 
 #[derive(Clone, Copy, Debug)]
@@ -59,5 +60,13 @@ impl MeshBuilder for RhombusMesh {
         let uvs = vec![[1.0, 0.5], [0.5, 0.0], [0.0, 0.5], [0.5, 1.0]];
         let indices = vec![2, 0, 1, 2, 3, 0];
         Mesh::new(positions, uvs, indices, PrimitiveTopology::TriangleList)
+    }
+}
+
+impl Extrudable for RhombusMesh {
+    fn perimeter(&self) -> Vec<PerimeterSegment> {
+        vec![PerimeterSegment::Flat {
+            indices: vec![0, 1, 2, 3, 0],
+        }]
     }
 }

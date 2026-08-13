@@ -1,5 +1,6 @@
 use crate::{
-    draw_list::PrimitiveTopology, mesh::{Mesh, MeshBuilder, Primitive2d},
+    draw_list::PrimitiveTopology,
+    mesh::{Extrudable, Mesh, MeshBuilder, PerimeterSegment, Primitive2d},
 };
 
 #[derive(Clone, Copy, Debug)]
@@ -107,5 +108,27 @@ impl MeshBuilder for Capsule2dMesh {
         indices.extend_from_slice(&[resolution, vertex_count - 1, 0]);
 
         Mesh::new(positions, uvs, indices, PrimitiveTopology::TriangleList)
+    }
+}
+
+impl Extrudable for Capsule2dMesh {
+    fn perimeter(&self) -> Vec<PerimeterSegment> {
+        let resolution = self.resolution;
+        let top_semi_indices = (0..resolution).collect();
+        let bottom_semi_indices = (resolution..(2 * resolution)).collect();
+        vec![
+            PerimeterSegment::Smooth {
+                indices: top_semi_indices,
+            },
+            PerimeterSegment::Flat {
+                indices: vec![resolution - 1, resolution],
+            },
+            PerimeterSegment::Smooth {
+                indices: bottom_semi_indices,
+            },
+            PerimeterSegment::Flat {
+                indices: vec![2 * resolution - 1, 0],
+            },
+        ]
     }
 }

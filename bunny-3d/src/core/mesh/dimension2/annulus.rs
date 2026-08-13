@@ -1,6 +1,6 @@
 use crate::{
     draw_list::PrimitiveTopology,
-    mesh::{Mesh, MeshBuilder, Primitive2d},
+    mesh::{Extrudable, Mesh, MeshBuilder, PerimeterSegment, Primitive2d},
 };
 
 #[derive(Clone, Copy, Debug)]
@@ -14,7 +14,7 @@ impl Default for AnnulusMesh {
     fn default() -> Self {
         Self {
             inner_radius: 0.5,
-            outer_radius: 0.5,
+            outer_radius: 1.0,
             resolution: 24,
         }
     }
@@ -88,5 +88,19 @@ impl MeshBuilder for AnnulusMesh {
         }
 
         Mesh::new(positions, uvs, indices, PrimitiveTopology::TriangleList)
+    }
+}
+
+impl Extrudable for AnnulusMesh {
+    fn perimeter(&self) -> Vec<PerimeterSegment> {
+        let vert_count = 2 * self.resolution;
+        vec![
+            PerimeterSegment::Smooth {
+                indices: (0..vert_count).step_by(2).chain([0]).rev().collect(),
+            },
+            PerimeterSegment::Smooth {
+                indices: (1..vert_count).step_by(2).chain([1]).collect(),
+            },
+        ]
     }
 }

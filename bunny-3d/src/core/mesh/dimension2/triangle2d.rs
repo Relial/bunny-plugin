@@ -1,6 +1,6 @@
 use glam::Vec2;
 
-use crate::mesh::{Mesh, MeshBuilder, Primitive2d, TriangleMesh};
+use crate::mesh::{Extrudable, Mesh, MeshBuilder, PerimeterSegment, Primitive2d, TriangleMesh};
 
 #[derive(Clone, Copy, Debug)]
 pub struct Triangle2d {
@@ -43,5 +43,13 @@ impl MeshBuilder for Triangle2d {
             vertices: self.vertices.map(|v| v.extend(0.0)),
         };
         triangle3d.build()
+    }
+}
+
+impl Extrudable for Triangle2d {
+    fn perimeter(&self) -> Vec<PerimeterSegment> {
+        vec![PerimeterSegment::Flat {
+            indices: vec![2, 1, 0, 2],
+        }]
     }
 }

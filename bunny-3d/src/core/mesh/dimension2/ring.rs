@@ -2,7 +2,7 @@ use glam::{Vec2, Vec3};
 
 use crate::{
     draw_list::PrimitiveTopology,
-    mesh::{Inset, Mesh, MeshBuilder, Primitive2d},
+    mesh::{Extrudable, Inset, Mesh, MeshBuilder, PerimeterSegment, Primitive2d},
 };
 
 pub struct RingMesh<P>
@@ -94,5 +94,52 @@ where
         positions.extend_from_slice(&inner_positions);
 
         Mesh::new(positions, uvs, indices, PrimitiveTopology::TriangleList)
+    }
+}
+
+impl<P> Extrudable for RingMesh<P>
+where
+    P: Primitive2d + Extrudable,
+{
+    fn perimeter(&self) -> Vec<PerimeterSegment> {
+        let outer_shape = self.outer_shape.build();
+        let inner_shape = self.inner_shape.build();
+
+        assert_eq!(outer_shape.positions.len(), inner_shape.positions.len());
+        assert_eq!(outer_shape.uvs.len(), inner_shape.uvs.len());
+
+        let outer_vertex_count = outer_shape.positions.len();
+
+        let mut outer_perimeter = self.outer_shape.perimeter();
+        let inner_perimeter = self
+            .inner_shape
+            .perimeter()
+            .into_iter()
+            .rev()
+            .map(|segment| match segment {
+                PerimeterSegment::Smooth { mut indices } => PerimeterSegment::Smooth {
+                    indices: {
+                        let outer_perimeter_vertex_count = outer_vertex_count as u32;
+                        indices.reverse();
+                        for i in &mut indices {
+                            *i += outer_perimeter_vertex_count;
+                        }
+                        indices
+                    },
+                },
+                PerimeterSegment::Flat { mut indices } => PerimeterSegment::Flat {
+                    indices: {
+                        let outer_perimeter_vertex_count = outer_vertex_count as u32;
+                        indices.reverse();
+                        for i in &mut indices {
+                            *i += outer_perimeter_vertex_count;
+                        }
+                        indices
+                    },
+                },
+            });
+
+        outer_perimeter.extend(inner_perimeter);
+        outer_perimeter
     }
 }

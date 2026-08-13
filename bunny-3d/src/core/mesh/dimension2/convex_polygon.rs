@@ -1,7 +1,8 @@
 use glam::Vec2;
 
 use crate::{
-    draw_list::PrimitiveTopology, mesh::{Mesh, MeshBuilder, Primitive2d},
+    draw_list::PrimitiveTopology,
+    mesh::{Extrudable, Mesh, MeshBuilder, PerimeterSegment, Primitive2d},
 };
 
 #[derive(Clone, Debug)]
@@ -39,5 +40,13 @@ impl MeshBuilder for ConvexPolygonMesh {
             indices.extend_from_slice(&[0, i - 1, i]);
         }
         Mesh::new(positions, uvs, indices, PrimitiveTopology::TriangleList)
+    }
+}
+
+impl Extrudable for ConvexPolygonMesh {
+    fn perimeter(&self) -> Vec<PerimeterSegment> {
+        vec![PerimeterSegment::Flat {
+            indices: (0..self.vertices.len() as u32).chain([0]).collect(),
+        }]
     }
 }

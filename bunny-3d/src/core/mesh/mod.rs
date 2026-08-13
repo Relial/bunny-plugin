@@ -1,14 +1,16 @@
-#[cfg(feature = "tobj")]
-use anyhow::anyhow;
+use anyhow::{Result, anyhow};
 use bytemuck::cast_slice;
 use glam::{Quat, Vec3};
 
 use crate::{backend::GpuColor, core::draw_list::PrimitiveTopology};
 
 mod dimension2;
-pub use dimension2::*;
 mod dimension3;
+mod extrusion;
+
+pub use dimension2::*;
 pub use dimension3::*;
+pub use extrusion::*;
 
 pub trait MeshBuilder {
     fn build(&self) -> Mesh;
@@ -84,6 +86,20 @@ impl Mesh {
         self.positions
             .iter_mut()
             .for_each(|pos| *pos = (scale * Vec3::from_slice(pos)).to_array());
+    }
+
+    pub fn merge(&mut self, other: &Mesh) -> Result<()> {
+        if self.primitive_topology != other.primitive_topology {
+            return Err(anyhow!(
+                "Can't merge meshes with different primitive topologies"
+            ));
+        }
+        let index_offset = self.vertex_count();
+        self.positions.extend(&other.positions);
+        self.uvs.extend(&other.uvs);
+        self.indices
+            .extend(other.indices.iter().map(|i| i + index_offset as u32));
+        Ok(())
     }
 }
 

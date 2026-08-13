@@ -1,7 +1,8 @@
 use glam::Vec2;
 
 use crate::{
-    draw_list::PrimitiveTopology, mesh::{Mesh, MeshBuilder, Primitive2d},
+    draw_list::PrimitiveTopology,
+    mesh::{Extrudable, Mesh, MeshBuilder, PerimeterSegment, Primitive2d},
 };
 
 #[derive(Clone, Copy, Debug)]
@@ -14,7 +15,7 @@ impl Default for EllipseMesh {
     fn default() -> Self {
         Self {
             half_size: Vec2::new(1.0, 0.5),
-            resolution: 32,
+            resolution: 24,
         }
     }
 }
@@ -24,7 +25,7 @@ impl EllipseMesh {
     pub const fn new(half_width: f32, half_height: f32) -> Self {
         Self {
             half_size: Vec2::new(half_width, half_height),
-            resolution: 32,
+            resolution: 24,
         }
     }
 
@@ -32,7 +33,7 @@ impl EllipseMesh {
     pub const fn from_size(size: Vec2) -> Self {
         Self {
             half_size: Vec2::new(size.x / 2.0, size.y / 2.0),
-            resolution: 32,
+            resolution: 24,
         }
     }
 
@@ -72,11 +73,18 @@ impl MeshBuilder for EllipseMesh {
             uvs.push([0.5 * (cos + 1.0), 1.0 - 0.5 * (sin + 1.0)]);
         }
 
-        for i in 1..(resolution - 1) {
-            let i = i as u32;
+        for i in 1..(self.resolution - 1) {
             indices.extend_from_slice(&[0, i, i + 1]);
         }
 
         Mesh::new(positions, uvs, indices, PrimitiveTopology::TriangleList)
+    }
+}
+
+impl Extrudable for EllipseMesh {
+    fn perimeter(&self) -> Vec<PerimeterSegment> {
+        vec![PerimeterSegment::Smooth {
+            indices: (0..self.resolution).chain([0]).collect(),
+        }]
     }
 }

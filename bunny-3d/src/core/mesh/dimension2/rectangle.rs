@@ -1,7 +1,8 @@
 use glam::Vec2;
 
 use crate::{
-    draw_list::PrimitiveTopology, mesh::{Mesh, MeshBuilder, Primitive2d},
+    draw_list::PrimitiveTopology,
+    mesh::{Extrudable, Mesh, MeshBuilder, PerimeterSegment, Primitive2d},
 };
 
 #[derive(Clone, Copy, Debug)]
@@ -60,5 +61,13 @@ impl MeshBuilder for RectangleMesh {
         let uvs = vec![[1.0, 0.0], [0.0, 0.0], [0.0, 1.0], [1.0, 1.0]];
         let indices = vec![0, 1, 2, 0, 2, 3];
         Mesh::new(positions, uvs, indices, PrimitiveTopology::TriangleList)
+    }
+}
+
+impl Extrudable for RectangleMesh {
+    fn perimeter(&self) -> Vec<PerimeterSegment> {
+        vec![PerimeterSegment::Flat {
+            indices: vec![0, 1, 2, 3, 0],
+        }]
     }
 }
