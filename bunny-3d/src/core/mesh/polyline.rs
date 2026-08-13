@@ -44,11 +44,17 @@ impl PolyLine {
 }
 
 impl MeshBuilder for PolyLine {
-    fn build(&self) -> super::Mesh {
+    fn build(&self) -> Mesh {
         let positions = self.vertices.iter().map(|v| v.to_array()).collect();
         let indices = (0..self.vertices.len() as u32 - 1)
             .flat_map(|i| [i, i + 1])
             .collect();
         Mesh::new(positions, vec![], indices, PrimitiveTopology::LineList)
+    }
+}
+
+impl From<PolyLine> for Mesh {
+    fn from(value: PolyLine) -> Self {
+        value.build()
     }
 }

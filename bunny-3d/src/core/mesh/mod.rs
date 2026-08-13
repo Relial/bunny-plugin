@@ -1,18 +1,20 @@
 #[cfg(feature = "tobj")]
 use anyhow::anyhow;
 use bytemuck::cast_slice;
+use glam::{Quat, Vec3};
 
 use crate::{backend::GpuColor, core::draw_list::PrimitiveTopology};
 
+pub mod annulus;
 pub mod capsule;
 pub mod circle;
 pub mod cuboid;
 pub mod ellipse;
+pub mod polyline;
 pub mod rectangle;
 pub mod sphere;
 pub mod tetrahedron;
 pub mod triangle;
-pub mod polyline;
 
 pub trait MeshBuilder {
     fn build(&self) -> Mesh;
@@ -51,7 +53,42 @@ impl Mesh {
         self.indices.len()
     }
 
-    pub fn update_vertex_buffer(
+    pub fn translated_by(mut self, translation: Vec3) -> Self {
+        self.translate_by(translation);
+        self
+    }
+
+    pub fn translate_by(&mut self, translation: Vec3) {
+        self.positions
+            .iter_mut()
+            .for_each(|pos| *pos = (Vec3::from_slice(pos) + translation).to_array());
+    }
+
+    pub fn rotated_by(mut self, rotation: Quat) -> Self {
+        self.rotate_by(rotation);
+        self
+    }
+
+    pub fn rotate_by(&mut self, rotation: Quat) {
+        self.positions
+            .iter_mut()
+            .for_each(|pos| *pos = (rotation * Vec3::from_slice(pos)).to_array());
+    }
+
+    pub fn scaled_by(mut self, scale: Vec3) -> Self {
+        self.scale_by(scale);
+        self
+    }
+
+    pub fn scale_by(&mut self, scale: Vec3) {
+        self.positions
+            .iter_mut()
+            .for_each(|pos| *pos = (scale * Vec3::from_slice(pos)).to_array());
+    }
+}
+
+impl Mesh {
+    pub(crate) fn update_vertex_buffer(
         &self,
         vertex_buffer: &mut [u8],
         vertex_size: usize,
@@ -81,7 +118,7 @@ impl Mesh {
         }
     }
 
-    pub fn index_buffer_bytes(&self) -> &[u8] {
+    pub(crate) fn index_buffer_bytes(&self) -> &[u8] {
         cast_slice(&self.indices)
     }
 }

@@ -10,7 +10,7 @@ impl Default for CircleMesh {
     fn default() -> Self {
         Self {
             radius: 0.5,
-            resolution: 32,
+            resolution: 24,
         }
     }
 }

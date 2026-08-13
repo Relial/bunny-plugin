@@ -6,11 +6,11 @@ use crate::core::{
 };
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub struct Triangle3d {
+pub struct TriangleMesh {
     pub vertices: [Vec3; 3],
 }
 
-impl Triangle3d {
+impl TriangleMesh {
     #[inline]
     pub const fn new(a: Vec3, b: Vec3, c: Vec3) -> Self {
         Self {
@@ -30,7 +30,7 @@ impl Triangle3d {
     }
 }
 
-impl MeshBuilder for Triangle3d {
+impl MeshBuilder for TriangleMesh {
     fn build(&self) -> Mesh {
         let positions = self.vertices.iter().map(|v| v.to_array()).collect();
         let uvs = uv_coords(self).into();
@@ -39,14 +39,14 @@ impl MeshBuilder for Triangle3d {
     }
 }
 
-impl From<Triangle3d> for Mesh {
-    fn from(value: Triangle3d) -> Self {
+impl From<TriangleMesh> for Mesh {
+    fn from(value: TriangleMesh) -> Self {
         value.build()
     }
 }
 
 #[inline]
-pub(crate) fn uv_coords(triangle: &Triangle3d) -> [[f32; 2]; 3] {
+pub(crate) fn uv_coords(triangle: &TriangleMesh) -> [[f32; 2]; 3] {
     // From https://docs.rs/bevy_mesh/0.19.0/src/bevy_mesh/primitives/dim3/triangle3d.rs.html#51
     let [a, b, c] = triangle.vertices;
 

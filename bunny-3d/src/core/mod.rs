@@ -115,13 +115,13 @@ pub enum FillMode {
 
 #[derive(Debug)]
 pub struct DrawOptions {
-    draw_on_top: bool,
-    fill: FillMode,
-    scale: Vec3,
-    rotation: Quat,
-    translation: Vec3,
-    texture: Option<TextureId>,
-    color: GpuColor,
+    pub draw_on_top: bool,
+    pub fill: FillMode,
+    pub scale: Vec3,
+    pub rotation: Quat,
+    pub translation: Vec3,
+    pub texture: Option<TextureId>,
+    pub color: GpuColor,
 }
 
 impl Default for DrawOptions {

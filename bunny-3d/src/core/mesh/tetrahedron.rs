@@ -4,7 +4,7 @@ use crate::core::{
     draw_list::PrimitiveTopology,
     mesh::{
         Mesh, MeshBuilder,
-        triangle::{Triangle3d, uv_coords},
+        triangle::{TriangleMesh, uv_coords},
     },
 };
 
@@ -46,13 +46,13 @@ impl TetrahedronMesh {
     }
 
     #[inline]
-    fn faces(&self) -> [Triangle3d; 4] {
+    fn faces(&self) -> [TriangleMesh; 4] {
         let [a, b, c, d] = self.vertices;
         [
-            Triangle3d::new(b, c, d),
-            Triangle3d::new(a, c, d).reversed(),
-            Triangle3d::new(a, b, d),
-            Triangle3d::new(a, b, c).reversed(),
+            TriangleMesh::new(b, c, d),
+            TriangleMesh::new(a, c, d).reversed(),
+            TriangleMesh::new(a, b, d),
+            TriangleMesh::new(a, b, c).reversed(),
         ]
     }
 }
@@ -65,7 +65,7 @@ impl MeshBuilder for TetrahedronMesh {
         // If the tetrahedron has negative orientation, reverse all the triangles so that
         // they still face outward.
         if self.signed_volume().is_sign_negative() {
-            faces.iter_mut().for_each(Triangle3d::reverse);
+            faces.iter_mut().for_each(TriangleMesh::reverse);
         }
 
         let mut positions = vec![];
