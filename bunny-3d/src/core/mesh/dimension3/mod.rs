@@ -1,4 +1,5 @@
 mod capsule;
+mod cone;
 mod cuboid;
 mod polyline;
 mod sphere;
@@ -6,6 +7,7 @@ mod tetrahedron;
 mod triangle;
 
 pub use capsule::*;
+pub use cone::*;
 pub use cuboid::*;
 pub use polyline::*;
 pub use sphere::*;
