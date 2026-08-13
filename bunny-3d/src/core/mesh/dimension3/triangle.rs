@@ -39,12 +39,6 @@ impl MeshBuilder for TriangleMesh {
     }
 }
 
-impl From<TriangleMesh> for Mesh {
-    fn from(value: TriangleMesh) -> Self {
-        value.build()
-    }
-}
-
 #[inline]
 pub(crate) fn uv_coords(triangle: &TriangleMesh) -> [[f32; 2]; 3] {
     // From https://docs.rs/bevy_mesh/0.19.0/src/bevy_mesh/primitives/dim3/triangle3d.rs.html#51

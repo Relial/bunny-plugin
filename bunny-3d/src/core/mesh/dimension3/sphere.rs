@@ -107,9 +107,3 @@ impl MeshBuilder for SphereMesh {
         Mesh::new(vertices, uvs, indices, PrimitiveTopology::TriangleList)
     }
 }
-
-impl From<SphereMesh> for Mesh {
-    fn from(value: SphereMesh) -> Self {
-        value.build()
-    }
-}

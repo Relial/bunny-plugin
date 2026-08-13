@@ -52,9 +52,3 @@ impl MeshBuilder for PolyLine {
         Mesh::new(positions, vec![], indices, PrimitiveTopology::LineList)
     }
 }
-
-impl From<PolyLine> for Mesh {
-    fn from(value: PolyLine) -> Self {
-        value.build()
-    }
-}

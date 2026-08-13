@@ -15,3 +15,5 @@ pub use ellipse::*;
 pub use rectangle::*;
 pub use rhombus::*;
 pub use triangle2d::*;
+
+pub trait Primitive2d {}

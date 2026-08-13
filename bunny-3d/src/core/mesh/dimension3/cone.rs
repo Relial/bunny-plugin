@@ -127,12 +127,6 @@ impl MeshBuilder for ConeMesh {
     }
 }
 
-impl From<ConeMesh> for Mesh {
-    fn from(value: ConeMesh) -> Self {
-        value.build()
-    }
-}
-
 #[derive(Clone, Copy, Debug, PartialEq, Default)]
 pub enum ConeAnchor {
     #[default]

@@ -83,9 +83,3 @@ impl MeshBuilder for TetrahedronMesh {
         Mesh::new(positions, uvs, indices, PrimitiveTopology::TriangleList)
     }
 }
-
-impl From<TetrahedronMesh> for Mesh {
-    fn from(value: TetrahedronMesh) -> Self {
-        value.build()
-    }
-}

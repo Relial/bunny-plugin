@@ -1,14 +1,15 @@
 use glam::Vec2;
 
 use crate::{
-    draw_list::PrimitiveTopology,
-    mesh::{Mesh, MeshBuilder},
+    draw_list::PrimitiveTopology, mesh::{Mesh, MeshBuilder, Primitive2d},
 };
 
 #[derive(Clone, Debug)]
 pub struct ConvexPolygonMesh {
     pub vertices: Vec<Vec2>,
 }
+
+impl Primitive2d for ConvexPolygonMesh {}
 
 impl MeshBuilder for ConvexPolygonMesh {
     fn build(&self) -> Mesh {
@@ -38,11 +39,5 @@ impl MeshBuilder for ConvexPolygonMesh {
             indices.extend_from_slice(&[0, i - 1, i]);
         }
         Mesh::new(positions, uvs, indices, PrimitiveTopology::TriangleList)
-    }
-}
-
-impl From<ConvexPolygonMesh> for Mesh {
-    fn from(value: ConvexPolygonMesh) -> Self {
-        value.build()
     }
 }

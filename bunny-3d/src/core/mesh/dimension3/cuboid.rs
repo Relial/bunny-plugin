@@ -106,9 +106,3 @@ impl MeshBuilder for CuboidMesh {
         Mesh::new(positions, uvs, indices, PrimitiveTopology::TriangleList)
     }
 }
-
-impl From<CuboidMesh> for Mesh {
-    fn from(value: CuboidMesh) -> Self {
-        value.build()
-    }
-}

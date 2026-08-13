@@ -3,8 +3,7 @@ use std::f32::consts::FRAC_1_SQRT_2;
 use glam::Vec2;
 
 use crate::{
-    draw_list::PrimitiveTopology,
-    mesh::{Mesh, MeshBuilder},
+    draw_list::PrimitiveTopology, mesh::{Mesh, MeshBuilder, Primitive2d},
 };
 
 #[derive(Clone, Copy, Debug)]
@@ -44,6 +43,8 @@ impl RhombusMesh {
     }
 }
 
+impl Primitive2d for RhombusMesh {}
+
 impl MeshBuilder for RhombusMesh {
     fn build(&self) -> Mesh {
         // From https://docs.rs/bevy_mesh/0.19.1/src/bevy_mesh/primitives/dim2.rs.html#916
@@ -58,11 +59,5 @@ impl MeshBuilder for RhombusMesh {
         let uvs = vec![[1.0, 0.5], [0.5, 0.0], [0.0, 0.5], [0.5, 1.0]];
         let indices = vec![2, 0, 1, 2, 3, 0];
         Mesh::new(positions, uvs, indices, PrimitiveTopology::TriangleList)
-    }
-}
-
-impl From<RhombusMesh> for Mesh {
-    fn from(value: RhombusMesh) -> Self {
-        value.build()
     }
 }

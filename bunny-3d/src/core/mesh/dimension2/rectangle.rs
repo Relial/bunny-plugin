@@ -1,8 +1,7 @@
 use glam::Vec2;
 
 use crate::{
-    draw_list::PrimitiveTopology,
-    mesh::{Mesh, MeshBuilder},
+    draw_list::PrimitiveTopology, mesh::{Mesh, MeshBuilder, Primitive2d},
 };
 
 #[derive(Clone, Copy, Debug)]
@@ -46,6 +45,8 @@ impl RectangleMesh {
     }
 }
 
+impl Primitive2d for RectangleMesh {}
+
 impl MeshBuilder for RectangleMesh {
     fn build(&self) -> Mesh {
         // From https://docs.rs/bevy_mesh/0.19.0/src/bevy_mesh/primitives/dim2.rs.html#1072
@@ -59,11 +60,5 @@ impl MeshBuilder for RectangleMesh {
         let uvs = vec![[1.0, 0.0], [0.0, 0.0], [0.0, 1.0], [1.0, 1.0]];
         let indices = vec![0, 1, 2, 0, 2, 3];
         Mesh::new(positions, uvs, indices, PrimitiveTopology::TriangleList)
-    }
-}
-
-impl From<RectangleMesh> for Mesh {
-    fn from(value: RectangleMesh) -> Self {
-        value.build()
     }
 }

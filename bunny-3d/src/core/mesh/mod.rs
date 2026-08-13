@@ -14,6 +14,12 @@ pub trait MeshBuilder {
     fn build(&self) -> Mesh;
 }
 
+impl<T: MeshBuilder> From<T> for Mesh {
+    fn from(value: T) -> Self {
+        value.build()
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct Mesh {
     pub positions: Vec<[f32; 3]>,

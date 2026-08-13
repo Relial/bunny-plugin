@@ -128,9 +128,3 @@ impl MeshBuilder for TorusMesh {
         Mesh::new(positions, uvs, indices, PrimitiveTopology::TriangleList)
     }
 }
-
-impl From<TorusMesh> for Mesh {
-    fn from(value: TorusMesh) -> Self {
-        value.build()
-    }
-}

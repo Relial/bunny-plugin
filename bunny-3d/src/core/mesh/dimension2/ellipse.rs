@@ -1,8 +1,7 @@
 use glam::Vec2;
 
 use crate::{
-    draw_list::PrimitiveTopology,
-    mesh::{Mesh, MeshBuilder},
+    draw_list::PrimitiveTopology, mesh::{Mesh, MeshBuilder, Primitive2d},
 };
 
 #[derive(Clone, Copy, Debug)]
@@ -44,6 +43,8 @@ impl EllipseMesh {
     }
 }
 
+impl Primitive2d for EllipseMesh {}
+
 impl MeshBuilder for EllipseMesh {
     fn build(&self) -> Mesh {
         // From https://docs.rs/bevy_mesh/0.19.0/src/bevy_mesh/primitives/dim2.rs.html#596
@@ -77,11 +78,5 @@ impl MeshBuilder for EllipseMesh {
         }
 
         Mesh::new(positions, uvs, indices, PrimitiveTopology::TriangleList)
-    }
-}
-
-impl From<EllipseMesh> for Mesh {
-    fn from(value: EllipseMesh) -> Self {
-        value.build()
     }
 }

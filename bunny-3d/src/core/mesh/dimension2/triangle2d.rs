@@ -1,6 +1,6 @@
 use glam::Vec2;
 
-use crate::mesh::{Mesh, MeshBuilder, TriangleMesh};
+use crate::mesh::{Mesh, MeshBuilder, Primitive2d, TriangleMesh};
 
 #[derive(Clone, Copy, Debug)]
 pub struct Triangle2d {
@@ -34,6 +34,8 @@ impl Triangle2d {
         self
     }
 }
+
+impl Primitive2d for Triangle2d {}
 
 impl MeshBuilder for Triangle2d {
     fn build(&self) -> Mesh {

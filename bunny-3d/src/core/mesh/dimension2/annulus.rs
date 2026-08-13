@@ -1,6 +1,6 @@
 use crate::{
     draw_list::PrimitiveTopology,
-    mesh::{Mesh, MeshBuilder},
+    mesh::{Mesh, MeshBuilder, Primitive2d},
 };
 
 #[derive(Clone, Copy, Debug)]
@@ -36,6 +36,8 @@ impl AnnulusMesh {
         self
     }
 }
+
+impl Primitive2d for AnnulusMesh {}
 
 impl MeshBuilder for AnnulusMesh {
     fn build(&self) -> Mesh {
@@ -86,11 +88,5 @@ impl MeshBuilder for AnnulusMesh {
         }
 
         Mesh::new(positions, uvs, indices, PrimitiveTopology::TriangleList)
-    }
-}
-
-impl From<AnnulusMesh> for Mesh {
-    fn from(value: AnnulusMesh) -> Self {
-        value.build()
     }
 }

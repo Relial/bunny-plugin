@@ -1,6 +1,5 @@
 use crate::{
-    draw_list::PrimitiveTopology,
-    mesh::{Mesh, MeshBuilder},
+    draw_list::PrimitiveTopology, mesh::{Mesh, MeshBuilder, Primitive2d},
 };
 
 #[derive(Clone, Copy, Debug)]
@@ -36,6 +35,8 @@ impl Capsule2dMesh {
         self
     }
 }
+
+impl Primitive2d for Capsule2dMesh {}
 
 impl MeshBuilder for Capsule2dMesh {
     fn build(&self) -> Mesh {
@@ -106,11 +107,5 @@ impl MeshBuilder for Capsule2dMesh {
         indices.extend_from_slice(&[resolution, vertex_count - 1, 0]);
 
         Mesh::new(positions, uvs, indices, PrimitiveTopology::TriangleList)
-    }
-}
-
-impl From<Capsule2dMesh> for Mesh {
-    fn from(value: Capsule2dMesh) -> Self {
-        value.build()
     }
 }

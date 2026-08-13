@@ -355,9 +355,3 @@ impl MeshBuilder for CapsuleMesh {
         Mesh::new(vs, vts, tris, PrimitiveTopology::TriangleList)
     }
 }
-
-impl From<CapsuleMesh> for Mesh {
-    fn from(value: CapsuleMesh) -> Self {
-        value.build()
-    }
-}
