@@ -17,8 +17,17 @@ impl Default for CircleMesh {
 
 impl CircleMesh {
     #[inline]
-    pub const fn new(radius: f32, resolution: u32) -> Self {
-        Self { radius, resolution }
+    pub const fn new(radius: f32) -> Self {
+        Self {
+            radius,
+            resolution: 24,
+        }
+    }
+
+    #[inline]
+    pub const fn resolution(mut self, resolution: u32) -> Self {
+        self.resolution = resolution;
+        self
     }
 }
 

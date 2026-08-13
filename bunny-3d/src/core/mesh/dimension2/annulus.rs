@@ -22,12 +22,18 @@ impl Default for AnnulusMesh {
 
 impl AnnulusMesh {
     #[inline]
-    pub const fn new(inner_radius: f32, outer_radius: f32, resolution: u32) -> Self {
+    pub const fn new(inner_radius: f32, outer_radius: f32) -> Self {
         Self {
             inner_radius,
             outer_radius,
-            resolution,
+            resolution: 24,
         }
+    }
+
+    #[inline]
+    pub const fn resolution(mut self, resolution: u32) -> Self {
+        self.resolution = resolution;
+        self
     }
 }
 

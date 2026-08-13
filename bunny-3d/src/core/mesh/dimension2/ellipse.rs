@@ -36,6 +36,12 @@ impl EllipseMesh {
             resolution: 32,
         }
     }
+
+    #[inline]
+    pub const fn resolution(mut self, resolution: u32) -> Self {
+        self.resolution = resolution;
+        self
+    }
 }
 
 impl MeshBuilder for EllipseMesh {

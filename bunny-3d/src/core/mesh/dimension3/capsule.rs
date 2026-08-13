@@ -31,11 +31,13 @@ impl Default for CapsuleMesh {
 
 impl CapsuleMesh {
     #[inline]
-    pub fn new(radius: f32, length: f32) -> Self {
+    pub const fn new(radius: f32, length: f32) -> Self {
         Self {
             radius,
             half_length: length / 2.0,
-            ..Default::default()
+            rings: 0,
+            longitudes: 24,
+            latitudes: 12,
         }
     }
 

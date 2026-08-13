@@ -23,12 +23,25 @@ impl Default for SphereMesh {
 }
 
 impl SphereMesh {
-    pub fn new(radius: f32, sectors: u32, stacks: u32) -> Self {
+    #[inline]
+    pub const fn new(radius: f32) -> Self {
         Self {
             radius,
-            sectors,
-            stacks,
+            sectors: 20,
+            stacks: 12,
         }
+    }
+
+    #[inline]
+    pub const fn sectors(mut self, sectors: u32) -> Self {
+        self.sectors = sectors;
+        self
+    }
+
+    #[inline]
+    pub const fn stacks(mut self, stacks: u32) -> Self {
+        self.stacks = stacks;
+        self
     }
 }
 

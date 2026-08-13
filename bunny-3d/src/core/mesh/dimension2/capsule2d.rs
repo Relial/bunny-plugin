@@ -22,12 +22,18 @@ impl Default for Capsule2dMesh {
 
 impl Capsule2dMesh {
     #[inline]
-    pub const fn new(radius: f32, length: f32, resolution: u32) -> Self {
+    pub const fn new(radius: f32, length: f32) -> Self {
         Self {
             radius,
             half_length: length / 2.0,
-            resolution,
+            resolution: 16,
         }
+    }
+
+    #[inline]
+    pub const fn resolution(mut self, resolution: u32) -> Self {
+        self.resolution = resolution;
+        self
     }
 }
 
