@@ -1,6 +1,5 @@
 use abi_stable::std_types::RVec;
 use anyhow::{Context as _, Result};
-use glam::Mat4;
 use shared::texture::TextureId;
 use windows::Win32::Graphics::Direct3D9::{
     D3DPRIMITIVETYPE, D3DPT_LINELIST, D3DPT_POINTLIST, D3DPT_TRIANGLELIST, D3DRS_FILLMODE,
@@ -47,35 +46,12 @@ impl DrawList {
             draw_options.color,
         );
 
-        let mat = Mat4::from_scale_rotation_translation(
-            draw_options.scale,
-            draw_options.rotation,
-            draw_options.translation,
-        );
-        let cols = mat.to_cols_array();
-        let d3dmat = Matrix4x4 {
-            M11: cols[0],
-            M12: cols[1],
-            M13: cols[2],
-            M14: cols[3],
-            M21: cols[4],
-            M22: cols[5],
-            M23: cols[6],
-            M24: cols[7],
-            M31: cols[8],
-            M32: cols[9],
-            M33: cols[10],
-            M34: cols[11],
-            M41: cols[12],
-            M42: cols[13],
-            M43: cols[14],
-            M44: cols[15],
-        };
+        let mat = draw_options.transform.to_matrix_d3d();
         self.descriptors.push(MeshDescriptor {
             vertices: vertex_count,
             indices: indices_count,
             fill: draw_options.fill,
-            world_matrix: d3dmat,
+            world_matrix: mat,
             texture: draw_options.texture.unwrap_or_default(),
             primitive_topology: mesh.primitive_topology,
         });

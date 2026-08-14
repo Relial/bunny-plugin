@@ -23,6 +23,9 @@ pub(crate) mod draw_list;
 pub mod mesh;
 pub(crate) mod texture;
 
+mod transform;
+pub use transform::*;
+
 #[derive(Debug, Default)]
 #[repr(C)]
 pub struct Bunny3d {
@@ -117,9 +120,7 @@ pub enum FillMode {
 pub struct DrawOptions {
     pub draw_on_top: bool,
     pub fill: FillMode,
-    pub scale: Vec3,
-    pub rotation: Quat,
-    pub translation: Vec3,
+    pub transform: Transform,
     pub texture: Option<TextureId>,
     pub color: GpuColor,
 }
@@ -135,13 +136,7 @@ impl DrawOptions {
         Self {
             draw_on_top: false,
             fill: FillMode::Wireframe,
-            scale: Vec3 {
-                x: 1.0,
-                y: 1.0,
-                z: 1.0,
-            },
-            rotation: Quat::IDENTITY,
-            translation: Vec3::ZERO,
+            transform: Transform::IDENTITY,
             texture: None,
             color: GpuColor::WHITE,
         }
@@ -160,20 +155,26 @@ impl DrawOptions {
     }
 
     #[inline]
-    pub fn scale(mut self, scale: Vec3) -> Self {
-        self.scale = scale;
+    pub fn with_transform(mut self, transform: Transform) -> Self {
+        self.transform = transform;
         self
     }
 
     #[inline]
-    pub fn rotate(mut self, rotation: Quat) -> Self {
-        self.rotation = rotation;
+    pub fn with_translation(mut self, translation: Vec3) -> Self {
+        self.transform = self.transform.with_translation(translation);
         self
     }
 
     #[inline]
-    pub fn translate(mut self, translation: Vec3) -> Self {
-        self.translation = translation;
+    pub fn with_rotation(mut self, rotation: Quat) -> Self {
+        self.transform = self.transform.with_rotation(rotation);
+        self
+    }
+
+    #[inline]
+    pub fn with_scale(mut self, scale: Vec3) -> Self {
+        self.transform = self.transform.with_scale(scale);
         self
     }
 

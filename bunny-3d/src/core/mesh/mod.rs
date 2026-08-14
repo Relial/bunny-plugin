@@ -2,7 +2,7 @@ use anyhow::{Result, anyhow};
 use bytemuck::cast_slice;
 use glam::{Quat, Vec3};
 
-use crate::{backend::GpuColor, core::draw_list::PrimitiveTopology};
+use crate::{Transform, backend::GpuColor, core::draw_list::PrimitiveTopology};
 
 mod dimension2;
 mod dimension3;
@@ -53,6 +53,17 @@ impl Mesh {
     #[inline]
     pub fn index_count(&self) -> usize {
         self.indices.len()
+    }
+
+    pub fn transformed_by(mut self, transform: Transform) -> Self {
+        self.transform_by(transform);
+        self
+    }
+
+    pub fn transform_by(&mut self, transform: Transform) {
+        self.positions
+            .iter_mut()
+            .for_each(|pos| *pos = transform.transform_point(Vec3::from_slice(pos)).to_array());
     }
 
     pub fn translated_by(mut self, translation: Vec3) -> Self {
