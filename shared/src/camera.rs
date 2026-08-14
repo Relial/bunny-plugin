@@ -1,24 +1,79 @@
 use glam::{Mat4, Vec2, Vec3, Vec3A};
 
-/// Contains information about the game camera and lets you calculate screen positions from 3d world positions
+/// Contains information about the game camera and lets you calculate screen positions from world positions
 #[repr(C)]
 #[derive(Clone, Copy, Debug, Default)]
 pub struct Camera {
     view: Mat4,
     projection: Mat4,
     proj_view: Mat4,
+    position: Vec3,
     screen_size: Vec2,
 }
 
 impl Camera {
-    pub fn new(view: Mat4, projection: Mat4, screen_size: Vec2) -> Self {
+    pub fn new(view: Mat4, projection: Mat4, position: Vec3, screen_size: Vec2) -> Self {
         let proj_view = projection * view;
         Self {
             view,
             projection,
             proj_view,
+            position,
             screen_size,
         }
+    }
+
+    #[inline]
+    pub fn position(&self) -> Vec3 {
+        self.position
+    }
+
+    #[inline]
+    pub fn local_x(&self) -> Vec3 {
+        let view = &self.view;
+        Vec3::new(view.x_axis.x, view.y_axis.x, view.z_axis.x)
+    }
+
+    #[inline]
+    pub fn left(&self) -> Vec3 {
+        -self.local_x()
+    }
+
+    #[inline]
+    pub fn right(&self) -> Vec3 {
+        self.local_x()
+    }
+
+    #[inline]
+    pub fn local_y(&self) -> Vec3 {
+        let view = &self.view;
+        Vec3::new(view.x_axis.y, view.y_axis.y, view.z_axis.y)
+    }
+
+    #[inline]
+    pub fn up(&self) -> Vec3 {
+        self.local_y()
+    }
+
+    #[inline]
+    pub fn down(&self) -> Vec3 {
+        -self.local_y()
+    }
+
+    #[inline]
+    pub fn local_z(&self) -> Vec3 {
+        let view = &self.view;
+        Vec3::new(view.x_axis.z, view.y_axis.z, view.z_axis.z)
+    }
+
+    #[inline]
+    pub fn forward(&self) -> Vec3 {
+        -self.local_z()
+    }
+
+    #[inline]
+    pub fn back(&self) -> Vec3 {
+        self.local_z()
     }
 
     #[inline]
