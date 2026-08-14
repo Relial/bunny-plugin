@@ -8,7 +8,7 @@ use crate::{
 };
 
 #[derive(Clone, Debug)]
-pub struct TorusMesh {
+pub struct TorusBuilder {
     pub minor_radius: f32,
     pub major_radius: f32,
     pub minor_resolution: usize,
@@ -16,7 +16,7 @@ pub struct TorusMesh {
     pub angle_range: RangeInclusive<f32>,
 }
 
-impl Default for TorusMesh {
+impl Default for TorusBuilder {
     fn default() -> Self {
         Self {
             minor_radius: 0.25,
@@ -28,7 +28,7 @@ impl Default for TorusMesh {
     }
 }
 
-impl TorusMesh {
+impl TorusBuilder {
     #[inline]
     pub const fn new(inner_radius: f32, outer_radius: f32) -> Self {
         let minor_radius = (outer_radius - inner_radius) / 2.0;
@@ -61,7 +61,7 @@ impl TorusMesh {
     }
 }
 
-impl MeshBuilder for TorusMesh {
+impl MeshBuilder for TorusBuilder {
     fn build(&self) -> Mesh {
         // From https://docs.rs/bevy_mesh/0.19.1/src/bevy_mesh/primitives/dim3/torus.rs.html#80
 

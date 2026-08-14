@@ -4,13 +4,13 @@ use crate::{
 };
 
 #[derive(Clone, Copy, Debug)]
-pub struct AnnulusMesh {
+pub struct AnnulusBuilder {
     pub inner_radius: f32,
     pub outer_radius: f32,
     pub resolution: u32,
 }
 
-impl Default for AnnulusMesh {
+impl Default for AnnulusBuilder {
     fn default() -> Self {
         Self {
             inner_radius: 0.5,
@@ -20,7 +20,7 @@ impl Default for AnnulusMesh {
     }
 }
 
-impl AnnulusMesh {
+impl AnnulusBuilder {
     #[inline]
     pub const fn new(inner_radius: f32, outer_radius: f32) -> Self {
         Self {
@@ -37,12 +37,12 @@ impl AnnulusMesh {
     }
 }
 
-impl Primitive2d for AnnulusMesh {}
+impl Primitive2d for AnnulusBuilder {}
 
-impl MeshBuilder for AnnulusMesh {
+impl MeshBuilder for AnnulusBuilder {
     fn build(&self) -> Mesh {
         // From https://docs.rs/bevy_mesh/0.19.1/src/bevy_mesh/primitives/dim2.rs.html#784
-        let AnnulusMesh {
+        let AnnulusBuilder {
             inner_radius,
             outer_radius,
             resolution,
@@ -91,7 +91,7 @@ impl MeshBuilder for AnnulusMesh {
     }
 }
 
-impl Extrudable for AnnulusMesh {
+impl Extrudable for AnnulusBuilder {
     fn perimeter(&self) -> Vec<PerimeterSegment> {
         let vert_count = 2 * self.resolution;
         vec![

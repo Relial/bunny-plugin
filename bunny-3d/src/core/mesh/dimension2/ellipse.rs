@@ -6,12 +6,12 @@ use crate::{
 };
 
 #[derive(Clone, Copy, Debug)]
-pub struct EllipseMesh {
+pub struct EllipseBuilder {
     pub half_size: Vec2,
     pub resolution: u32,
 }
 
-impl Default for EllipseMesh {
+impl Default for EllipseBuilder {
     fn default() -> Self {
         Self {
             half_size: Vec2::new(1.0, 0.5),
@@ -20,7 +20,7 @@ impl Default for EllipseMesh {
     }
 }
 
-impl EllipseMesh {
+impl EllipseBuilder {
     #[inline]
     pub const fn new(half_width: f32, half_height: f32) -> Self {
         Self {
@@ -44,12 +44,12 @@ impl EllipseMesh {
     }
 }
 
-impl Primitive2d for EllipseMesh {}
+impl Primitive2d for EllipseBuilder {}
 
-impl MeshBuilder for EllipseMesh {
+impl MeshBuilder for EllipseBuilder {
     fn build(&self) -> Mesh {
         // From https://docs.rs/bevy_mesh/0.19.0/src/bevy_mesh/primitives/dim2.rs.html#596
-        let EllipseMesh {
+        let EllipseBuilder {
             half_size,
             resolution,
         } = *self;
@@ -81,7 +81,7 @@ impl MeshBuilder for EllipseMesh {
     }
 }
 
-impl Extrudable for EllipseMesh {
+impl Extrudable for EllipseBuilder {
     fn perimeter(&self) -> Vec<PerimeterSegment> {
         vec![PerimeterSegment::Smooth {
             indices: (0..self.resolution).chain([0]).collect(),

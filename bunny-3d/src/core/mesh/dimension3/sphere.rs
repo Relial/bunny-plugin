@@ -6,13 +6,13 @@ use crate::{
 };
 
 #[derive(Clone, Copy, Debug)]
-pub struct SphereMesh {
+pub struct SphereBuilder {
     pub radius: f32,
     pub sectors: u32,
     pub stacks: u32,
 }
 
-impl Default for SphereMesh {
+impl Default for SphereBuilder {
     fn default() -> Self {
         Self {
             radius: 1.0,
@@ -22,7 +22,7 @@ impl Default for SphereMesh {
     }
 }
 
-impl SphereMesh {
+impl SphereBuilder {
     #[inline]
     pub const fn new(radius: f32) -> Self {
         Self {
@@ -45,10 +45,10 @@ impl SphereMesh {
     }
 }
 
-impl MeshBuilder for SphereMesh {
+impl MeshBuilder for SphereBuilder {
     fn build(&self) -> Mesh {
         // From https://docs.rs/bevy_mesh/0.19.0/src/bevy_mesh/primitives/dim3/sphere.rs.html#172
-        let SphereMesh {
+        let SphereBuilder {
             radius,
             sectors,
             stacks,

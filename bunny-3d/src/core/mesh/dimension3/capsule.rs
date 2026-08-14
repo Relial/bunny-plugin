@@ -9,7 +9,7 @@ pub const CAPSULE_LONGITUDES: u32 = 24;
 pub const CAPSULE_LATITUDES: u32 = 12;
 
 #[derive(Clone, Copy, Debug)]
-pub struct CapsuleMesh {
+pub struct CapsuleBuilder {
     pub radius: f32,
     pub half_length: f32,
     pub rings: u32,
@@ -17,7 +17,7 @@ pub struct CapsuleMesh {
     pub latitudes: u32,
 }
 
-impl Default for CapsuleMesh {
+impl Default for CapsuleBuilder {
     fn default() -> Self {
         Self {
             radius: 0.5,
@@ -29,7 +29,7 @@ impl Default for CapsuleMesh {
     }
 }
 
-impl CapsuleMesh {
+impl CapsuleBuilder {
     #[inline]
     pub const fn new(radius: f32, length: f32) -> Self {
         Self {
@@ -60,10 +60,10 @@ impl CapsuleMesh {
     }
 }
 
-impl MeshBuilder for CapsuleMesh {
+impl MeshBuilder for CapsuleBuilder {
     fn build(&self) -> Mesh {
         // From https://docs.rs/bevy_mesh/0.19.0/src/bevy_mesh/primitives/dim3/capsule.rs.html#96
-        let CapsuleMesh {
+        let CapsuleBuilder {
             radius,
             half_length,
             rings,

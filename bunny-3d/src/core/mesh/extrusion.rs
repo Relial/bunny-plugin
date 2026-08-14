@@ -2,7 +2,7 @@ use glam::Vec3;
 
 use crate::{
     draw_list::PrimitiveTopology,
-    mesh::{CircleMesh, Mesh, MeshBuilder},
+    mesh::{CircleBuilder, Mesh, MeshBuilder},
 };
 
 pub enum PerimeterSegment {
@@ -63,7 +63,7 @@ where
     }
 }
 
-impl ExtrusionMesh<CircleMesh> {
+impl ExtrusionMesh<CircleBuilder> {
     pub fn resolution(mut self, resolution: u32) -> Self {
         self.base_shape.resolution = resolution;
         self

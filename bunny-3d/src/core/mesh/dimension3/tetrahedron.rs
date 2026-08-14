@@ -2,17 +2,17 @@ use glam::{Mat3, Vec3};
 
 use crate::{
     draw_list::PrimitiveTopology,
-    mesh::{Mesh, MeshBuilder, TriangleMesh, uv_coords},
+    mesh::{Mesh, MeshBuilder, TriangleBuilder, uv_coords},
 };
 
 #[derive(Clone, Copy, Debug)]
-pub struct TetrahedronMesh {
+pub struct TetrahedronBuilder {
     pub vertices: [Vec3; 4],
 }
 
 // From https://docs.rs/bevy_math/0.19.0/src/bevy_math/primitives/dim3.rs.html#1440
 
-impl Default for TetrahedronMesh {
+impl Default for TetrahedronBuilder {
     fn default() -> Self {
         Self {
             vertices: [
@@ -25,7 +25,7 @@ impl Default for TetrahedronMesh {
     }
 }
 
-impl TetrahedronMesh {
+impl TetrahedronBuilder {
     #[inline]
     pub const fn new(a: Vec3, b: Vec3, c: Vec3, d: Vec3) -> Self {
         Self {
@@ -43,18 +43,18 @@ impl TetrahedronMesh {
     }
 
     #[inline]
-    fn faces(&self) -> [TriangleMesh; 4] {
+    fn faces(&self) -> [TriangleBuilder; 4] {
         let [a, b, c, d] = self.vertices;
         [
-            TriangleMesh::new(b, c, d),
-            TriangleMesh::new(a, c, d).reversed(),
-            TriangleMesh::new(a, b, d),
-            TriangleMesh::new(a, b, c).reversed(),
+            TriangleBuilder::new(b, c, d),
+            TriangleBuilder::new(a, c, d).reversed(),
+            TriangleBuilder::new(a, b, d),
+            TriangleBuilder::new(a, b, c).reversed(),
         ]
     }
 }
 
-impl MeshBuilder for TetrahedronMesh {
+impl MeshBuilder for TetrahedronBuilder {
     fn build(&self) -> Mesh {
         // From https://docs.rs/bevy_mesh/0.19.0/src/bevy_mesh/primitives/dim3/tetrahedron.rs.html#15
         let mut faces: Vec<_> = self.faces().into();
@@ -62,7 +62,7 @@ impl MeshBuilder for TetrahedronMesh {
         // If the tetrahedron has negative orientation, reverse all the triangles so that
         // they still face outward.
         if self.signed_volume().is_sign_negative() {
-            faces.iter_mut().for_each(TriangleMesh::reverse);
+            faces.iter_mut().for_each(TriangleBuilder::reverse);
         }
 
         let mut positions = vec![];

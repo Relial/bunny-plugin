@@ -6,11 +6,11 @@ use crate::{
 };
 
 #[derive(Clone, Debug)]
-pub struct PolyLine {
+pub struct PolyLineBuilder {
     pub vertices: Vec<Vec3>,
 }
 
-impl FromIterator<Vec3> for PolyLine {
+impl FromIterator<Vec3> for PolyLineBuilder {
     fn from_iter<T: IntoIterator<Item = Vec3>>(iter: T) -> Self {
         Self {
             vertices: iter.into_iter().collect(),
@@ -18,7 +18,7 @@ impl FromIterator<Vec3> for PolyLine {
     }
 }
 
-impl Default for PolyLine {
+impl Default for PolyLineBuilder {
     fn default() -> Self {
         Self {
             vertices: vec![Vec3::new(-0.5, 0.0, 0.0), Vec3::new(0.5, 0.0, 0.0)],
@@ -26,7 +26,7 @@ impl Default for PolyLine {
     }
 }
 
-impl PolyLine {
+impl PolyLineBuilder {
     #[inline]
     pub fn new(vertices: impl IntoIterator<Item = Vec3>) -> Self {
         Self::from_iter(vertices)
@@ -43,7 +43,7 @@ impl PolyLine {
     }
 }
 
-impl MeshBuilder for PolyLine {
+impl MeshBuilder for PolyLineBuilder {
     fn build(&self) -> Mesh {
         let positions = self.vertices.iter().map(|v| v.to_array()).collect();
         let indices = (0..self.vertices.len() as u32 - 1)

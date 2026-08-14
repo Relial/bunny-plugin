@@ -4,13 +4,13 @@ use crate::{
 };
 
 #[derive(Clone, Copy, Debug)]
-pub struct Capsule2dMesh {
+pub struct Capsule2dBuilder {
     pub radius: f32,
     pub half_length: f32,
     pub resolution: u32,
 }
 
-impl Default for Capsule2dMesh {
+impl Default for Capsule2dBuilder {
     fn default() -> Self {
         Self {
             radius: 0.5,
@@ -20,7 +20,7 @@ impl Default for Capsule2dMesh {
     }
 }
 
-impl Capsule2dMesh {
+impl Capsule2dBuilder {
     #[inline]
     pub const fn new(radius: f32, length: f32) -> Self {
         Self {
@@ -37,13 +37,13 @@ impl Capsule2dMesh {
     }
 }
 
-impl Primitive2d for Capsule2dMesh {}
+impl Primitive2d for Capsule2dBuilder {}
 
-impl MeshBuilder for Capsule2dMesh {
+impl MeshBuilder for Capsule2dBuilder {
     fn build(&self) -> Mesh {
         // From https://docs.rs/bevy_mesh/0.19.1/src/bevy_mesh/primitives/dim2.rs.html#1163
 
-        let Capsule2dMesh {
+        let Capsule2dBuilder {
             radius,
             half_length,
             resolution,
@@ -111,7 +111,7 @@ impl MeshBuilder for Capsule2dMesh {
     }
 }
 
-impl Extrudable for Capsule2dMesh {
+impl Extrudable for Capsule2dBuilder {
     fn perimeter(&self) -> Vec<PerimeterSegment> {
         let resolution = self.resolution;
         let top_semi_indices = (0..resolution).collect();

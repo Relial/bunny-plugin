@@ -4,14 +4,14 @@ use crate::{
 };
 
 #[derive(Clone, Copy, Debug)]
-pub struct ConeMesh {
+pub struct ConeBuilder {
     pub radius: f32,
     pub height: f32,
     pub resolution: u32,
     pub anchor: ConeAnchor,
 }
 
-impl Default for ConeMesh {
+impl Default for ConeBuilder {
     fn default() -> Self {
         Self {
             radius: 0.5,
@@ -22,7 +22,7 @@ impl Default for ConeMesh {
     }
 }
 
-impl ConeMesh {
+impl ConeBuilder {
     #[inline]
     pub const fn new(radius: f32, height: f32) -> Self {
         Self {
@@ -46,11 +46,11 @@ impl ConeMesh {
     }
 }
 
-impl MeshBuilder for ConeMesh {
+impl MeshBuilder for ConeBuilder {
     fn build(&self) -> Mesh {
         // From https://docs.rs/bevy_mesh/0.19.1/src/bevy_mesh/primitives/dim3/cone.rs.html#72
 
-        let ConeMesh {
+        let ConeBuilder {
             radius,
             height,
             resolution,

@@ -6,11 +6,11 @@ use crate::{
 };
 
 #[derive(Clone, Copy, Debug)]
-pub struct CuboidMesh {
+pub struct CuboidBuilder {
     pub half_size: Vec3,
 }
 
-impl Default for CuboidMesh {
+impl Default for CuboidBuilder {
     fn default() -> Self {
         Self {
             half_size: Vec3::splat(0.5),
@@ -18,7 +18,7 @@ impl Default for CuboidMesh {
     }
 }
 
-impl CuboidMesh {
+impl CuboidBuilder {
     #[inline]
     pub const fn new(x_length: f32, y_length: f32, z_length: f32) -> Self {
         Self::from_size(Vec3::new(x_length, y_length, z_length))
@@ -51,7 +51,7 @@ impl CuboidMesh {
     }
 }
 
-impl MeshBuilder for CuboidMesh {
+impl MeshBuilder for CuboidBuilder {
     fn build(&self) -> Mesh {
         // From https://docs.rs/bevy_mesh/0.19.0/src/bevy_mesh/primitives/dim3/cuboid.rs.html#23
         let min = -self.half_size;

@@ -5,7 +5,7 @@ use crate::{
     mesh::{Extrudable, Inset, Mesh, MeshBuilder, PerimeterSegment, Primitive2d},
 };
 
-pub struct RingMesh<P>
+pub struct RingBuilder<P>
 where
     P: Primitive2d + MeshBuilder,
 {
@@ -13,7 +13,7 @@ where
     pub inner_shape: P,
 }
 
-impl<P> RingMesh<P>
+impl<P> RingBuilder<P>
 where
     P: Primitive2d + MeshBuilder,
 {
@@ -31,16 +31,16 @@ where
     }
 }
 
-impl<P: Primitive2d + MeshBuilder> Primitive2d for RingMesh<P> {}
+impl<P: Primitive2d + MeshBuilder> Primitive2d for RingBuilder<P> {}
 
-impl<P: Primitive2d + MeshBuilder + Clone + Inset> RingMesh<P> {
+impl<P: Primitive2d + MeshBuilder + Clone + Inset> RingBuilder<P> {
     pub fn from_primitive_and_thickness(primitive: P, thickness: f32) -> Self {
         let hollow = primitive.clone().inset(thickness);
-        RingMesh::new(primitive, hollow)
+        RingBuilder::new(primitive, hollow)
     }
 }
 
-impl<P> MeshBuilder for RingMesh<P>
+impl<P> MeshBuilder for RingBuilder<P>
 where
     P: Primitive2d + MeshBuilder,
 {
@@ -97,7 +97,7 @@ where
     }
 }
 
-impl<P> Extrudable for RingMesh<P>
+impl<P> Extrudable for RingBuilder<P>
 where
     P: Primitive2d + Extrudable,
 {

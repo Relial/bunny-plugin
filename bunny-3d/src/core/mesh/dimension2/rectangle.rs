@@ -6,11 +6,11 @@ use crate::{
 };
 
 #[derive(Clone, Copy, Debug)]
-pub struct RectangleMesh {
+pub struct RectangleBuilder {
     pub half_size: Vec2,
 }
 
-impl Default for RectangleMesh {
+impl Default for RectangleBuilder {
     fn default() -> Self {
         Self {
             half_size: Vec2::splat(0.5),
@@ -18,7 +18,7 @@ impl Default for RectangleMesh {
     }
 }
 
-impl RectangleMesh {
+impl RectangleBuilder {
     #[inline]
     pub const fn new(width: f32, height: f32) -> Self {
         Self::from_size(Vec2::new(width, height))
@@ -46,9 +46,9 @@ impl RectangleMesh {
     }
 }
 
-impl Primitive2d for RectangleMesh {}
+impl Primitive2d for RectangleBuilder {}
 
-impl MeshBuilder for RectangleMesh {
+impl MeshBuilder for RectangleBuilder {
     fn build(&self) -> Mesh {
         // From https://docs.rs/bevy_mesh/0.19.0/src/bevy_mesh/primitives/dim2.rs.html#1072
         let [hw, hh] = [self.half_size.x, self.half_size.y];
@@ -64,7 +64,7 @@ impl MeshBuilder for RectangleMesh {
     }
 }
 
-impl Extrudable for RectangleMesh {
+impl Extrudable for RectangleBuilder {
     fn perimeter(&self) -> Vec<PerimeterSegment> {
         vec![PerimeterSegment::Flat {
             indices: vec![0, 1, 2, 3, 0],

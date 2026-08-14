@@ -4,7 +4,7 @@ use crate::{
 };
 
 #[derive(Clone, Copy, Debug)]
-pub struct CylinderMesh {
+pub struct CylinderBuilder {
     pub radius: f32,
     pub half_height: f32,
     pub resolution: u32,
@@ -13,7 +13,7 @@ pub struct CylinderMesh {
     pub anchor: CylinderAnchor,
 }
 
-impl Default for CylinderMesh {
+impl Default for CylinderBuilder {
     fn default() -> Self {
         Self {
             radius: 0.5,
@@ -26,7 +26,7 @@ impl Default for CylinderMesh {
     }
 }
 
-impl CylinderMesh {
+impl CylinderBuilder {
     #[inline]
     pub const fn new(radius: f32, height: f32) -> Self {
         Self {
@@ -64,7 +64,7 @@ impl CylinderMesh {
     }
 }
 
-impl MeshBuilder for CylinderMesh {
+impl MeshBuilder for CylinderBuilder {
     fn build(&self) -> Mesh {
         // From https://docs.rs/bevy_mesh/0.19.1/src/bevy_mesh/primitives/dim3/cylinder.rs.html#97
         let resolution = self.resolution;

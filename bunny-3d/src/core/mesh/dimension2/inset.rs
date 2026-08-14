@@ -2,20 +2,23 @@
 
 use glam::Vec2;
 
-use crate::mesh::{Capsule2dMesh, CircleMesh, Primitive2d, RectangleMesh, RhombusMesh, Triangle2d};
+use crate::mesh::{
+    Capsule2dBuilder, CircleBuilder, Primitive2d, RectangleBuilder, RhombusBuilder,
+    Triangle2dBuilder,
+};
 
 pub trait Inset: Primitive2d {
     fn inset(self, distance: f32) -> Self;
 }
 
-impl Inset for CircleMesh {
+impl Inset for CircleBuilder {
     fn inset(mut self, distance: f32) -> Self {
         self.radius -= distance;
         self
     }
 }
 
-impl Inset for Triangle2d {
+impl Inset for Triangle2dBuilder {
     fn inset(self, distance: f32) -> Self {
         fn find_inset_point(a: Vec2, b: Vec2, c: Vec2, distance: f32) -> Vec2 {
             let unit_vector_ab = (b - a).normalize();
@@ -37,7 +40,7 @@ impl Inset for Triangle2d {
     }
 }
 
-impl Inset for RhombusMesh {
+impl Inset for RhombusBuilder {
     fn inset(mut self, distance: f32) -> Self {
         let [half_width, half_height] = self.half_diagonals.into();
         let angle = f32::atan(half_height / half_width);
@@ -48,14 +51,14 @@ impl Inset for RhombusMesh {
     }
 }
 
-impl Inset for Capsule2dMesh {
+impl Inset for Capsule2dBuilder {
     fn inset(mut self, distance: f32) -> Self {
         self.radius -= distance;
         self
     }
 }
 
-impl Inset for RectangleMesh {
+impl Inset for RectangleBuilder {
     fn inset(mut self, distance: f32) -> Self {
         self.half_size -= Vec2::splat(distance);
         self

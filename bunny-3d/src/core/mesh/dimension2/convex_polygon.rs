@@ -6,13 +6,13 @@ use crate::{
 };
 
 #[derive(Clone, Debug)]
-pub struct ConvexPolygonMesh {
+pub struct ConvexPolygonBuilder {
     pub vertices: Vec<Vec2>,
 }
 
-impl Primitive2d for ConvexPolygonMesh {}
+impl Primitive2d for ConvexPolygonBuilder {}
 
-impl MeshBuilder for ConvexPolygonMesh {
+impl MeshBuilder for ConvexPolygonBuilder {
     fn build(&self) -> Mesh {
         // From https://docs.rs/bevy_mesh/0.19.1/src/bevy_mesh/primitives/dim2.rs.html#430
         let len = self.vertices.len();
@@ -43,7 +43,7 @@ impl MeshBuilder for ConvexPolygonMesh {
     }
 }
 
-impl Extrudable for ConvexPolygonMesh {
+impl Extrudable for ConvexPolygonBuilder {
     fn perimeter(&self) -> Vec<PerimeterSegment> {
         vec![PerimeterSegment::Flat {
             indices: (0..self.vertices.len() as u32).chain([0]).collect(),

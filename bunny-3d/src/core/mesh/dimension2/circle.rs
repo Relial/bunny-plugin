@@ -1,12 +1,12 @@
-use crate::mesh::{EllipseMesh, Extrudable, Mesh, MeshBuilder, PerimeterSegment, Primitive2d};
+use crate::mesh::{EllipseBuilder, Extrudable, Mesh, MeshBuilder, PerimeterSegment, Primitive2d};
 
 #[derive(Clone, Copy, Debug)]
-pub struct CircleMesh {
+pub struct CircleBuilder {
     pub radius: f32,
     pub resolution: u32,
 }
 
-impl Default for CircleMesh {
+impl Default for CircleBuilder {
     fn default() -> Self {
         Self {
             radius: 0.5,
@@ -15,7 +15,7 @@ impl Default for CircleMesh {
     }
 }
 
-impl CircleMesh {
+impl CircleBuilder {
     #[inline]
     pub const fn new(radius: f32) -> Self {
         Self {
@@ -31,17 +31,17 @@ impl CircleMesh {
     }
 }
 
-impl Primitive2d for CircleMesh {}
+impl Primitive2d for CircleBuilder {}
 
-impl MeshBuilder for CircleMesh {
+impl MeshBuilder for CircleBuilder {
     fn build(&self) -> Mesh {
-        EllipseMesh::new(self.radius, self.radius)
+        EllipseBuilder::new(self.radius, self.radius)
             .resolution(self.resolution)
             .build()
     }
 }
 
-impl Extrudable for CircleMesh {
+impl Extrudable for CircleBuilder {
     fn perimeter(&self) -> Vec<PerimeterSegment> {
         vec![PerimeterSegment::Smooth {
             indices: (0..self.resolution).chain([0]).collect(),

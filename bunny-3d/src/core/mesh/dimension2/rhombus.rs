@@ -8,11 +8,11 @@ use crate::{
 };
 
 #[derive(Clone, Copy, Debug)]
-pub struct RhombusMesh {
+pub struct RhombusBuilder {
     pub half_diagonals: Vec2,
 }
 
-impl Default for RhombusMesh {
+impl Default for RhombusBuilder {
     fn default() -> Self {
         Self {
             half_diagonals: Vec2::splat(0.5),
@@ -20,7 +20,7 @@ impl Default for RhombusMesh {
     }
 }
 
-impl RhombusMesh {
+impl RhombusBuilder {
     #[inline]
     pub const fn new(horizontal_diagonal: f32, vertical_diagonal: f32) -> Self {
         Self {
@@ -44,9 +44,9 @@ impl RhombusMesh {
     }
 }
 
-impl Primitive2d for RhombusMesh {}
+impl Primitive2d for RhombusBuilder {}
 
-impl MeshBuilder for RhombusMesh {
+impl MeshBuilder for RhombusBuilder {
     fn build(&self) -> Mesh {
         // From https://docs.rs/bevy_mesh/0.19.1/src/bevy_mesh/primitives/dim2.rs.html#916
 
@@ -63,7 +63,7 @@ impl MeshBuilder for RhombusMesh {
     }
 }
 
-impl Extrudable for RhombusMesh {
+impl Extrudable for RhombusBuilder {
     fn perimeter(&self) -> Vec<PerimeterSegment> {
         vec![PerimeterSegment::Flat {
             indices: vec![0, 1, 2, 3, 0],
