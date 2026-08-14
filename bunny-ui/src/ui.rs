@@ -603,6 +603,7 @@ impl<'a> BunnyUi<'a> {
     }
 
     /// Get a texture loaded by the manager by its filename
+    ///
     /// The textures are loaded asynchronously, so you should not assume this returns what you want at startup
     #[inline]
     pub fn get_shared_texture(&self, texture_file_name: impl AsRef<str>) -> Option<SizedTexture> {
@@ -613,6 +614,7 @@ impl<'a> BunnyUi<'a> {
     }
 
     /// Textures loaded by the manager
+    ///
     /// The textures are loaded asynchronously, so you should not assume this returns what you want at startup
     #[inline]
     pub fn shared_textures(&self) -> &[NamedTexture] {
@@ -622,6 +624,7 @@ impl<'a> BunnyUi<'a> {
             .unwrap_or_default()
     }
 
+    /// Get information about the game camera
     #[inline]
     pub fn camera(&self) -> &Camera {
         &self.camera

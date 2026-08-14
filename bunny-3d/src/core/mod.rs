@@ -37,7 +37,8 @@ pub struct Bunny3d {
 }
 
 impl Bunny3d {
-    pub fn add(&mut self, mesh: &Mesh, draw_options: &DrawOptions) {
+    /// Convert the mesh into a GPU friendly format and add it to this frame's draw list.
+    pub fn draw(&mut self, mesh: &Mesh, draw_options: &DrawOptions) {
         if draw_options.draw_on_top {
             self.no_depth_buffer_draws.add(mesh, draw_options);
         } else {
@@ -45,6 +46,9 @@ impl Bunny3d {
         }
     }
 
+    /// Allocate a texture on the GPU. Every call to this allocates, so this should only be called once per texture.
+    ///
+    /// If you want cached texture loading, use load_texture instead
     pub fn allocate_texture<'a>(&mut self, texture: impl Into<TextureSource<'a>>) -> TextureId {
         self.textures.allocate(texture)
     }
@@ -55,6 +59,7 @@ impl Bunny3d {
     }
 
     /// Get a texture loaded from the bunny_textures directory.
+    ///
     /// The textures are loaded asynchronously, so you should not assume this returns what you want at startup.
     #[inline]
     pub fn get_shared_texture(&self, texture_file_name: impl AsRef<str>) -> Option<SizedTexture> {
@@ -62,6 +67,7 @@ impl Bunny3d {
     }
 
     /// Textures loaded from the bunny_textures directory.
+    ///
     /// The textures are loaded asynchronously, so you should not assume this returns what you want at startup.
     #[inline]
     pub fn shared_textures(&self) -> &[NamedTexture] {
@@ -82,6 +88,7 @@ impl Bunny3d {
         self.asset_loader.load_obj(path, uv_origin)
     }
 
+    /// Get information about the game camera
     #[inline]
     pub fn camera(&self) -> &Camera {
         &self.camera
@@ -142,12 +149,14 @@ impl DrawOptions {
         }
     }
 
+    /// Draw on top of all game visuals. BunnyUi draws will still happen on top of this.
     #[inline]
     pub fn draw_on_top(mut self, draw_on_top: bool) -> Self {
         self.draw_on_top = draw_on_top;
         self
     }
 
+    /// Choose between wireframe and solid.
     #[inline]
     pub fn fill(mut self, fill: FillMode) -> Self {
         self.fill = fill;
@@ -185,6 +194,7 @@ impl DrawOptions {
         self
     }
 
+    /// Apply a vertex color to all vertices
     #[inline]
     pub fn color(mut self, color: impl Into<GpuColor>) -> Self {
         self.color = color.into();
