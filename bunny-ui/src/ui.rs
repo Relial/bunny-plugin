@@ -19,7 +19,7 @@ use crate::{
     image_source::ImageSource,
     input_state::{Input, InputState, PointerState},
     layout::Layout,
-    paint::paintlist::PaintList,
+    paint::{paintlist::PaintList, text::fonts::FontFamily},
     painter::Painter,
     response::{InnerResponse, Response},
     style::{Interaction, Spacing, Style, Visuals},
@@ -43,6 +43,7 @@ pub struct BunnyUi<'a> {
     available_rect: Rect,
     style: RArc<Style>,
     camera: RArc<Camera>,
+    fonts: RArc<RVec<FontFamily>>,
     next_salt: u64,
     pixels_per_point: f32,
     opacity_factor: f32,
@@ -78,6 +79,7 @@ impl<'a> BunnyUi<'a> {
         style: RArc<Style>,
         shared_textures: Option<RArc<SharedTextures>>,
         camera: RArc<Camera>,
+        fonts: RArc<RVec<FontFamily>>,
     ) -> Self {
         Self {
             components: RVec::new(),
@@ -87,6 +89,7 @@ impl<'a> BunnyUi<'a> {
             last_frame_responses,
             input,
             shared_textures: shared_textures.into(),
+            fonts,
             available_rect,
             pixels_per_point,
             style,
@@ -132,6 +135,7 @@ impl<'a> BunnyUi<'a> {
             last_frame_responses: self.last_frame_responses.clone(),
             input: self.input.clone(),
             shared_textures: self.shared_textures.clone(),
+            fonts: self.fonts.clone(),
             available_rect: self.available_rect,
             pixels_per_point: self.pixels_per_point,
             style,
@@ -628,5 +632,11 @@ impl<'a> BunnyUi<'a> {
     #[inline]
     pub fn camera(&self) -> &Camera {
         &self.camera
+    }
+
+    /// Get fonts available to the manager
+    #[inline]
+    pub fn fonts(&self) -> &[FontFamily] {
+        &self.fonts
     }
 }

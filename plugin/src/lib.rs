@@ -16,7 +16,7 @@ pub static BUNNY_API_VERSION: u32 = 3;
 
 use abi_stable::std_types::{
     ROption::{self, RNone, RSome},
-    RString, RVec,
+    RString,
 };
 use anyhow::{Result, anyhow};
 use tracing_subscriber::filter::LevelFilter;
@@ -62,21 +62,14 @@ impl MhfoInfo {
 pub struct PluginContext {
     mhfo_info: MhfoInfo,
     config_dir: RString,
-    fonts: RVec<RString>,
     log_level: LogLevel,
 }
 
 impl PluginContext {
-    pub fn new(
-        mhfo_info: MhfoInfo,
-        config_dir: impl Into<RString>,
-        fonts: RVec<RString>,
-        log_level: LogLevel,
-    ) -> Self {
+    pub fn new(mhfo_info: MhfoInfo, config_dir: impl Into<RString>, log_level: LogLevel) -> Self {
         Self {
             mhfo_info,
             config_dir: config_dir.into(),
-            fonts,
             log_level,
         }
     }
@@ -89,11 +82,6 @@ impl PluginContext {
     #[inline]
     pub fn config_dir(&self) -> &Path {
         Path::new(self.config_dir.as_str())
-    }
-
-    #[inline]
-    pub fn fonts(&self) -> impl Iterator<Item = &str> {
-        self.fonts.iter().map(|s| s.as_str())
     }
 
     #[inline]
