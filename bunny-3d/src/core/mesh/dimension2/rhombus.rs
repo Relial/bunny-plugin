@@ -59,7 +59,7 @@ impl MeshBuilder for RhombusBuilder {
         ];
         let uvs = vec![[1.0, 0.5], [0.5, 0.0], [0.0, 0.5], [0.5, 1.0]];
         let indices = vec![2, 0, 1, 2, 3, 0];
-        Mesh::new(positions, uvs, indices, PrimitiveTopology::TriangleList)
+        Mesh::new(positions, uvs, vec![], indices, PrimitiveTopology::TriangleList)
     }
 }
 

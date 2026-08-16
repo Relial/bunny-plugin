@@ -155,7 +155,7 @@ impl MeshBuilder for CylinderBuilder {
             CylinderAnchor::MidPoint => (),
         };
 
-        Mesh::new(positions, uvs, indices, PrimitiveTopology::TriangleList)
+        Mesh::new(positions, uvs, vec![], indices, PrimitiveTopology::TriangleList)
     }
 }
 

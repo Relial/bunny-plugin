@@ -53,6 +53,7 @@ impl Bunny3d {
         self.textures.allocate(texture)
     }
 
+    /// Textures allocated this frame
     #[inline]
     pub fn allocations_len(&self) -> usize {
         self.textures.allocations_len()
@@ -129,7 +130,7 @@ pub struct DrawOptions {
     pub fill: FillMode,
     pub transform: Transform,
     pub texture: Option<TextureId>,
-    pub color: GpuColor,
+    pub override_vertex_color: Option<GpuColor>,
 }
 
 impl Default for DrawOptions {
@@ -145,7 +146,7 @@ impl DrawOptions {
             fill: FillMode::Wireframe,
             transform: Transform::IDENTITY,
             texture: None,
-            color: GpuColor::WHITE,
+            override_vertex_color: None,
         }
     }
 
@@ -194,10 +195,10 @@ impl DrawOptions {
         self
     }
 
-    /// Apply a vertex color to all vertices
+    /// Override all vertex colors
     #[inline]
     pub fn color(mut self, color: impl Into<GpuColor>) -> Self {
-        self.color = color.into();
+        self.override_vertex_color = Some(color.into());
         self
     }
 }

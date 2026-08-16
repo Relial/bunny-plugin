@@ -35,7 +35,7 @@ impl MeshBuilder for TriangleBuilder {
         let positions = self.vertices.iter().map(|v| v.to_array()).collect();
         let uvs = uv_coords(self).into();
         let indices = vec![0, 1, 2];
-        Mesh::new(positions, uvs, indices, PrimitiveTopology::TriangleList)
+        Mesh::new(positions, uvs, vec![], indices, PrimitiveTopology::TriangleList)
     }
 }
 

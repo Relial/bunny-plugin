@@ -125,6 +125,6 @@ impl MeshBuilder for TorusBuilder {
             }
         }
 
-        Mesh::new(positions, uvs, indices, PrimitiveTopology::TriangleList)
+        Mesh::new(positions, uvs, vec![], indices, PrimitiveTopology::TriangleList)
     }
 }

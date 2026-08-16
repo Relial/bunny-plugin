@@ -1,5 +1,6 @@
 use abi_stable::std_types::RArc;
 use anyhow::{Context, Result, anyhow};
+use bytemuck::{Pod, Zeroable};
 use epaint::Color32;
 use shared::{
     camera::Camera,
@@ -247,24 +248,37 @@ impl Bunny3dBackend {
 
 /// GBRA
 #[repr(C)]
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Pod, Zeroable)]
 pub struct GpuColor([u8; 4]);
 
 impl GpuColor {
     pub const WHITE: Self = Self::from_rgb(255, 255, 255);
 
+    #[inline]
     pub const fn from_rgb(r: u8, g: u8, b: u8) -> Self {
         Self([b, g, r, 255])
     }
 
+    #[inline]
     pub const fn from_rgba(r: u8, g: u8, b: u8, a: u8) -> Self {
         Self([b, g, r, a])
     }
 
+    #[inline]
+    pub const fn from_rgba_float(r: f32, g: f32, b: f32, a: f32) -> Self {
+        let r = (r * u8::MAX as f32).round() as u8;
+        let g = (g * u8::MAX as f32).round() as u8;
+        let b = (b * u8::MAX as f32).round() as u8;
+        let a = (a * u8::MAX as f32).round() as u8;
+        Self::from_rgba(r, g, b, a)
+    }
+
+    #[inline]
     pub const fn from_rgba_bytes(bytes: &[u8]) -> Self {
         Self([bytes[2], bytes[1], bytes[0], bytes[3]])
     }
 
+    #[inline]
     pub const fn from_bgra_bytes(bytes: &[u8]) -> Self {
         Self([bytes[0], bytes[1], bytes[2], bytes[3]])
     }

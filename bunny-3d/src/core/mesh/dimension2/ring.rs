@@ -93,7 +93,7 @@ where
         let mut positions = outer_positions;
         positions.extend_from_slice(&inner_positions);
 
-        Mesh::new(positions, uvs, indices, PrimitiveTopology::TriangleList)
+        Mesh::new(positions, uvs, vec![], indices, PrimitiveTopology::TriangleList)
     }
 }
 

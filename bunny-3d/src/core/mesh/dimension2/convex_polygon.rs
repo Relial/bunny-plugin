@@ -39,7 +39,7 @@ impl MeshBuilder for ConvexPolygonBuilder {
         for i in 2..len as u32 {
             indices.extend_from_slice(&[0, i - 1, i]);
         }
-        Mesh::new(positions, uvs, indices, PrimitiveTopology::TriangleList)
+        Mesh::new(positions, uvs, vec![], indices, PrimitiveTopology::TriangleList)
     }
 }
 

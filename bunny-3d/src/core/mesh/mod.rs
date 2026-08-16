@@ -26,6 +26,7 @@ impl<T: MeshBuilder> From<T> for Mesh {
 pub struct Mesh {
     pub positions: Vec<[f32; 3]>,
     pub uvs: Vec<[f32; 2]>,
+    pub colors: Vec<GpuColor>,
     pub indices: Vec<u32>,
     pub primitive_topology: PrimitiveTopology,
 }
@@ -34,12 +35,14 @@ impl Mesh {
     pub fn new(
         positions: Vec<[f32; 3]>,
         uvs: Vec<[f32; 2]>,
+        colors: Vec<GpuColor>,
         indices: Vec<u32>,
         primitive_topology: PrimitiveTopology,
     ) -> Self {
         Self {
             positions,
             uvs,
+            colors,
             indices,
             primitive_topology,
         }
@@ -119,29 +122,62 @@ impl Mesh {
         &self,
         vertex_buffer: &mut [u8],
         vertex_size: usize,
-        color: GpuColor,
+        override_color: Option<GpuColor>,
     ) {
-        let position_size = std::mem::size_of::<[f32; 3]>();
+        const POSITION_SIZE: usize = std::mem::size_of::<[f32; 3]>();
+        const COLOR_SIZE: usize = std::mem::size_of::<GpuColor>();
+        const UV_SIZE: usize = std::mem::size_of::<[f32; 2]>();
+
         let vertex_count = self.positions.len();
+
         let positions: &[u8] = cast_slice(&self.positions);
         for (vertex_index, position_bytes) in positions
-            .chunks_exact(position_size)
+            .as_chunks::<POSITION_SIZE>()
+            .0
+            .iter()
             .take(vertex_count)
             .enumerate()
         {
             let offset = vertex_index * vertex_size;
-            vertex_buffer[offset..offset + position_size].copy_from_slice(position_bytes);
-            let offset = offset + position_size;
-            vertex_buffer[offset..offset + std::mem::size_of::<GpuColor>()]
-                .copy_from_slice(color.as_bytes());
+            vertex_buffer[offset..offset + POSITION_SIZE].copy_from_slice(position_bytes);
         }
 
-        let uv_size = std::mem::size_of::<[f32; 2]>();
+        if let Some(color) = override_color {
+            let color_bytes = color.as_bytes();
+            for vertex_index in 0..vertex_count {
+                let offset = vertex_index * vertex_size + POSITION_SIZE;
+                vertex_buffer[offset..offset + COLOR_SIZE].copy_from_slice(color_bytes);
+            }
+        } else if !self.colors.is_empty() {
+            let colors: &[u8] = cast_slice(&self.colors);
+            for (vertex_index, color_bytes) in colors
+                .as_chunks::<COLOR_SIZE>()
+                .0
+                .iter()
+                .take(vertex_count)
+                .enumerate()
+            {
+                let offset = vertex_index * vertex_size + POSITION_SIZE;
+                vertex_buffer[offset..offset + COLOR_SIZE].copy_from_slice(color_bytes);
+            }
+        } else {
+            let color_bytes = GpuColor::WHITE.as_bytes();
+            for vertex_index in 0..vertex_count {
+                let offset = vertex_index * vertex_size + POSITION_SIZE;
+                vertex_buffer[offset..offset + COLOR_SIZE].copy_from_slice(color_bytes);
+            }
+        }
+
         let uvs: &[u8] = cast_slice(&self.uvs);
-        for (vertex_index, uv_bytes) in uvs.chunks_exact(uv_size).take(vertex_count).enumerate() {
-            let offset =
-                vertex_index * vertex_size + position_size + std::mem::size_of::<GpuColor>();
-            vertex_buffer[offset..offset + uv_size].copy_from_slice(uv_bytes);
+        for (vertex_index, uv_bytes) in uvs
+            .as_chunks::<UV_SIZE>()
+            .0
+            .iter()
+            .take(vertex_count)
+            .enumerate()
+        {
+            let offset = vertex_index * vertex_size + POSITION_SIZE + COLOR_SIZE;
+            vertex_buffer[offset..offset + UV_SIZE].copy_from_slice(uv_bytes);
         }
     }
 
@@ -170,7 +206,18 @@ impl TryFrom<bevy_mesh::Mesh> for Mesh {
             .map(|v| match v {
                 VertexAttributeValues::Float32x2(uvs) => uvs,
                 _ => vec![],
-            });
+            })
+            .unwrap_or_default();
+        let colors = value
+            .remove_attribute(bevy_mesh::Mesh::ATTRIBUTE_COLOR)
+            .map(|v| match v {
+                VertexAttributeValues::Float32x4(colors) => colors
+                    .into_iter()
+                    .map(|rgba| GpuColor::from_rgba_float(rgba[0], rgba[1], rgba[2], rgba[3]))
+                    .collect(),
+                _ => vec![],
+            })
+            .unwrap_or_default();
         let indices = value
             .remove_indices()
             .ok_or(anyhow!("Bevy mesh missing indices"))?;
@@ -180,7 +227,8 @@ impl TryFrom<bevy_mesh::Mesh> for Mesh {
         };
         Ok(Mesh {
             positions: vertices,
-            uvs: uvs.unwrap_or_default(),
+            uvs,
+            colors,
             indices,
             primitive_topology,
         })
@@ -232,6 +280,13 @@ impl TryFrom<TobjMesh> for Mesh {
         let mut uvs: Vec<[f32; 2]> = try_cast_slice(&mesh.texcoords)
             .map_err(|e| anyhow!("Failed to cast texcoords to [f32; 2]: {e:#}"))?
             .to_vec();
+        let colors: Vec<GpuColor> = mesh
+            .vertex_color
+            .as_chunks::<3>()
+            .0
+            .iter()
+            .map(|rgb| GpuColor::from_rgba_float(rgb[0], rgb[1], rgb[2], 1.0))
+            .collect();
         if uv_origin == UvOrigin::BottomLeft {
             uvs.iter_mut().for_each(|uv| uv[1] = 1.0 - uv[1]);
         }
@@ -239,6 +294,7 @@ impl TryFrom<TobjMesh> for Mesh {
         Ok(Self::new(
             vertices,
             uvs,
+            colors,
             indices,
             PrimitiveTopology::TriangleList,
         ))

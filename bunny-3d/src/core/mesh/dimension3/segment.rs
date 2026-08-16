@@ -47,6 +47,6 @@ impl MeshBuilder for SegmentBuilder {
     fn build(&self) -> Mesh {
         let positions = self.vertices.map(|v| v.to_array()).into();
         let indices = vec![0, 1];
-        Mesh::new(positions, vec![], indices, PrimitiveTopology::LineList)
+        Mesh::new(positions, vec![], vec![], indices, PrimitiveTopology::LineList)
     }
 }

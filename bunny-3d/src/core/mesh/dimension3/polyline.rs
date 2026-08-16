@@ -49,6 +49,6 @@ impl MeshBuilder for PolyLineBuilder {
         let indices = (0..self.vertices.len() as u32 - 1)
             .flat_map(|i| [i, i + 1])
             .collect();
-        Mesh::new(positions, vec![], indices, PrimitiveTopology::LineList)
+        Mesh::new(positions, vec![], vec![], indices, PrimitiveTopology::LineList)
     }
 }

@@ -352,6 +352,6 @@ impl MeshBuilder for CapsuleBuilder {
         let vs: Vec<[f32; 3]> = vs.into_iter().map(Into::into).collect();
         let vts: Vec<[f32; 2]> = vts.into_iter().map(Into::into).collect();
 
-        Mesh::new(vs, vts, tris, PrimitiveTopology::TriangleList)
+        Mesh::new(vs, vts, vec![], tris, PrimitiveTopology::TriangleList)
     }
 }

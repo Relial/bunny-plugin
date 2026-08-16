@@ -104,6 +104,6 @@ impl MeshBuilder for SphereBuilder {
             }
         }
 
-        Mesh::new(vertices, uvs, indices, PrimitiveTopology::TriangleList)
+        Mesh::new(vertices, uvs, vec![], indices, PrimitiveTopology::TriangleList)
     }
 }

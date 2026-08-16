@@ -103,6 +103,6 @@ impl MeshBuilder for CuboidBuilder {
             20, 21, 22, 22, 23, 20, // bottom
         ];
 
-        Mesh::new(positions, uvs, indices, PrimitiveTopology::TriangleList)
+        Mesh::new(positions, uvs, vec![], indices, PrimitiveTopology::TriangleList)
     }
 }

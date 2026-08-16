@@ -87,7 +87,7 @@ impl MeshBuilder for AnnulusBuilder {
             indices.extend_from_slice(&[next_outer, next_inner, inner_vertex]);
         }
 
-        Mesh::new(positions, uvs, indices, PrimitiveTopology::TriangleList)
+        Mesh::new(positions, uvs, vec![], indices, PrimitiveTopology::TriangleList)
     }
 }
 

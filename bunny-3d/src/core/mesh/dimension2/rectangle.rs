@@ -60,7 +60,7 @@ impl MeshBuilder for RectangleBuilder {
         ];
         let uvs = vec![[1.0, 0.0], [0.0, 0.0], [0.0, 1.0], [1.0, 1.0]];
         let indices = vec![0, 1, 2, 0, 2, 3];
-        Mesh::new(positions, uvs, indices, PrimitiveTopology::TriangleList)
+        Mesh::new(positions, uvs, vec![], indices, PrimitiveTopology::TriangleList)
     }
 }
 

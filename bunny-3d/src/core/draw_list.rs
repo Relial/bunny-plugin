@@ -43,7 +43,7 @@ impl DrawList {
             &mut self.vertex_bytes
                 [self.vertex_bytes_position..self.vertex_bytes_position + vertex_size_required],
             vertex_size,
-            draw_options.color,
+            draw_options.override_vertex_color,
         );
 
         let mat = draw_options.transform.to_matrix_d3d();
@@ -114,8 +114,16 @@ pub enum PrimitiveTopology {
 }
 
 impl PrimitiveTopology {
+    #[inline]
     pub fn to_d3d(self) -> D3DPRIMITIVETYPE {
-        match self {
+        self.into()
+    }
+}
+
+impl From<PrimitiveTopology> for D3DPRIMITIVETYPE {
+    #[inline]
+    fn from(value: PrimitiveTopology) -> Self {
+        match value {
             PrimitiveTopology::PointList => D3DPT_POINTLIST,
             PrimitiveTopology::LineList => D3DPT_LINELIST,
             PrimitiveTopology::TriangleList => D3DPT_TRIANGLELIST,

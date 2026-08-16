@@ -107,7 +107,7 @@ impl MeshBuilder for Capsule2dBuilder {
         // Add indices for bottom right triangle of the part between the semicircles
         indices.extend_from_slice(&[resolution, vertex_count - 1, 0]);
 
-        Mesh::new(positions, uvs, indices, PrimitiveTopology::TriangleList)
+        Mesh::new(positions, uvs, vec![], indices, PrimitiveTopology::TriangleList)
     }
 }
 

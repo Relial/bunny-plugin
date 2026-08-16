@@ -77,7 +77,7 @@ impl MeshBuilder for EllipseBuilder {
             indices.extend_from_slice(&[0, i, i + 1]);
         }
 
-        Mesh::new(positions, uvs, indices, PrimitiveTopology::TriangleList)
+        Mesh::new(positions, uvs, vec![], indices, PrimitiveTopology::TriangleList)
     }
 }
 
