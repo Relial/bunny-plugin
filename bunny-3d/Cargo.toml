@@ -7,6 +7,7 @@ edition = "2024"
 default = []
 bevy = ["dep:bevy_mesh"]
 tobj = ["dep:tobj"]
+backend = ["tobj"]
 
 [dependencies]
 anyhow = "1.0.104"

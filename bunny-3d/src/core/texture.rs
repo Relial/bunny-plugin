@@ -6,7 +6,7 @@ use abi_stable::std_types::{
 use image::DynamicImage;
 use shared::texture::{NamedTexture, SharedTextures, SizedTexture, TextureId};
 
-use crate::backend::GpuColor;
+use crate::GpuColor;
 
 #[derive(Debug)]
 #[repr(C)]

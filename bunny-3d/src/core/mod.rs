@@ -2,18 +2,23 @@ use std::path::Path;
 
 use abi_stable::std_types::RArc;
 use anyhow::Result;
+use bytemuck::{Pod, Zeroable};
+use epaint::Color32;
 use glam::{Quat, Vec3};
+#[cfg(feature = "backend")]
+use shared::texture::SharedTextures;
 use shared::{
     camera::Camera,
-    texture::{NamedTexture, SharedTextures, SizedTexture, TextureId},
+    texture::{NamedTexture, SizedTexture, TextureId},
 };
 
+#[cfg(feature = "backend")]
+use crate::texture::TextureAllocation;
 use crate::{
-    backend::GpuColor,
     core::{
         asset_loader::{AssetLoader, MeshPoll, TexturePoll},
         draw_list::DrawList,
-        texture::{TextureAllocation, TextureSource, Textures},
+        texture::{TextureSource, Textures},
     },
     mesh::{Mesh, UvOrigin},
 };
@@ -96,6 +101,7 @@ impl Bunny3d {
     }
 }
 
+#[cfg(feature = "backend")]
 impl Bunny3d {
     pub(crate) fn start_frame(&mut self, camera: RArc<Camera>) {
         self.normal_draws.start_frame();
@@ -200,5 +206,55 @@ impl DrawOptions {
     pub fn color(mut self, color: impl Into<GpuColor>) -> Self {
         self.override_vertex_color = Some(color.into());
         self
+    }
+}
+
+/// GBRA
+#[repr(C)]
+#[derive(Clone, Copy, Debug, PartialEq, Pod, Zeroable)]
+pub struct GpuColor([u8; 4]);
+
+impl GpuColor {
+    pub const WHITE: Self = Self::from_rgb(255, 255, 255);
+
+    #[inline]
+    pub const fn from_rgb(r: u8, g: u8, b: u8) -> Self {
+        Self([b, g, r, 255])
+    }
+
+    #[inline]
+    pub const fn from_rgba(r: u8, g: u8, b: u8, a: u8) -> Self {
+        Self([b, g, r, a])
+    }
+
+    #[inline]
+    pub const fn from_rgba_float(r: f32, g: f32, b: f32, a: f32) -> Self {
+        let r = (r * u8::MAX as f32).round() as u8;
+        let g = (g * u8::MAX as f32).round() as u8;
+        let b = (b * u8::MAX as f32).round() as u8;
+        let a = (a * u8::MAX as f32).round() as u8;
+        Self::from_rgba(r, g, b, a)
+    }
+
+    #[inline]
+    pub const fn from_rgba_bytes(bytes: &[u8]) -> Self {
+        Self([bytes[2], bytes[1], bytes[0], bytes[3]])
+    }
+
+    #[inline]
+    pub const fn from_bgra_bytes(bytes: &[u8]) -> Self {
+        Self([bytes[0], bytes[1], bytes[2], bytes[3]])
+    }
+
+    #[inline]
+    pub fn as_bytes(&self) -> &[u8] {
+        &self.0
+    }
+}
+
+impl From<Color32> for GpuColor {
+    fn from(value: Color32) -> Self {
+        let cols = value.to_array();
+        Self([cols[2], cols[1], cols[0], cols[3]])
     }
 }

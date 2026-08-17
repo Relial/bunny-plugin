@@ -2,7 +2,7 @@ use anyhow::{Result, anyhow};
 use bytemuck::cast_slice;
 use glam::{Quat, Vec3};
 
-use crate::{Transform, backend::GpuColor, core::draw_list::PrimitiveTopology};
+use crate::{GpuColor, Transform, core::draw_list::PrimitiveTopology};
 
 mod dimension2;
 mod dimension3;

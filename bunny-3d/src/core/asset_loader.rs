@@ -1,9 +1,9 @@
+#[cfg(feature = "backend")]
+use std::{ffi::OsString, os::windows::ffi::OsStringExt as _, path::PathBuf, thread};
 use std::{
-    ffi::OsString,
     hash::{BuildHasherDefault, Hash, Hasher},
-    os::windows::ffi::{OsStrExt, OsStringExt},
-    path::{Path, PathBuf},
-    thread,
+    os::windows::ffi::OsStrExt,
+    path::Path,
 };
 
 use abi_stable::{
@@ -16,6 +16,7 @@ use abi_stable::{
     },
 };
 use anyhow::{Result, anyhow};
+#[cfg(feature = "backend")]
 use image::{DynamicImage, ImageReader};
 use rapidhash::fast::RapidHasher;
 use shared::texture::TextureId;
@@ -112,6 +113,7 @@ impl AssetLoader {
     }
 }
 
+#[cfg(feature = "backend")]
 impl AssetLoader {
     pub(crate) fn initialize_loads(&mut self) {
         // We do the work on the manager side so that plugins don't all individually compile the image/tobj loading process
@@ -119,6 +121,8 @@ impl AssetLoader {
 
         for Tuple2(texture_hash, path_wide_bytes) in self.uninitialized_textures.drain(..) {
             thread::spawn({
+                use std::{ffi::OsString, os::windows::ffi::OsStringExt as _, path::PathBuf};
+
                 let tex = self.textures.clone();
                 let path_str = OsString::from_wide(&path_wide_bytes);
                 let path: PathBuf = path_str.into();
@@ -134,7 +138,6 @@ impl AssetLoader {
             });
         }
 
-        #[cfg(feature = "tobj")]
         for Tuple3(meshes_hash, path_wide_bytes, uv_origin) in self.uninitialized_meshes.drain(..) {
             thread::spawn({
                 let meshes = self.meshes.clone();
@@ -174,6 +177,7 @@ pub enum TexturePoll {
     Pending,
 }
 
+#[allow(dead_code)]
 #[derive(Debug)]
 #[repr(C)]
 enum TexturePollInner {
@@ -199,7 +203,7 @@ enum MeshPollInner {
 pub struct LoadedMeshes(RArc<RVec<Mesh>>);
 
 impl LoadedMeshes {
-    #[cfg(feature = "tobj")]
+    #[cfg(feature = "backend")]
     fn new(meshes: RVec<Mesh>) -> Self {
         Self(RArc::new(meshes))
     }
@@ -216,12 +220,13 @@ fn hash_path(path: impl AsRef<Path>) -> u64 {
     hasher.finish()
 }
 
+#[cfg(feature = "backend")]
 fn load_image_from_path(path: impl AsRef<Path>) -> Result<DynamicImage> {
     let image = ImageReader::open(path)?.decode()?;
     Ok(image)
 }
 
-#[cfg(feature = "tobj")]
+#[cfg(feature = "backend")]
 fn load_obj_from_path(path: impl AsRef<Path>, uv_origin: UvOrigin) -> Result<RVec<Mesh>> {
     tobj::load_obj(path.as_ref(), &tobj::GPU_LOAD_OPTIONS)?
         .0

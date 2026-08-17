@@ -9,7 +9,7 @@ use windows::Win32::Graphics::Direct3D9::{
 };
 
 use crate::{
-    backend::GpuColor,
+    GpuColor,
     core::texture::{TextureAllocation, TextureData},
 };
 

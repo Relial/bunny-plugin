@@ -1,14 +1,18 @@
 use abi_stable::std_types::RVec;
+#[cfg(feature = "backend")]
 use anyhow::{Context as _, Result};
 use shared::texture::TextureId;
 use windows::Win32::Graphics::Direct3D9::{
-    D3DPRIMITIVETYPE, D3DPT_LINELIST, D3DPT_POINTLIST, D3DPT_TRIANGLELIST, D3DRS_FILLMODE,
-    D3DTRANSFORMSTATETYPE, IDirect3DDevice9,
+    D3DPRIMITIVETYPE, D3DPT_LINELIST, D3DPT_POINTLIST, D3DPT_TRIANGLELIST,
+};
+#[cfg(feature = "backend")]
+use windows::Win32::Graphics::Direct3D9::{
+    D3DRS_FILLMODE, D3DTRANSFORMSTATETYPE, IDirect3DDevice9,
 };
 use windows_numerics::Matrix4x4;
 
 use crate::{
-    backend::VERTEX_SIZE,
+    VERTEX_SIZE,
     core::{DrawOptions, FillMode, mesh::Mesh},
 };
 
@@ -22,11 +26,6 @@ pub struct DrawList {
 }
 
 impl DrawList {
-    #[inline]
-    pub fn is_empty(&self) -> bool {
-        self.descriptors.is_empty()
-    }
-
     pub fn add(&mut self, mesh: &Mesh, draw_options: &DrawOptions) {
         let indices_count = mesh.index_count();
         let indices = mesh.index_buffer_bytes();
@@ -59,7 +58,13 @@ impl DrawList {
     }
 }
 
+#[cfg(feature = "backend")]
 impl DrawList {
+    #[inline]
+    pub fn is_empty(&self) -> bool {
+        self.descriptors.is_empty()
+    }
+
     pub fn start_frame(&mut self) {
         self.vertex_bytes_position = 0;
         self.index_bytes.clear();
@@ -90,6 +95,7 @@ pub struct MeshDescriptor {
     pub primitive_topology: PrimitiveTopology,
 }
 
+#[cfg(feature = "backend")]
 impl MeshDescriptor {
     pub fn setup(&self, device: &IDirect3DDevice9) -> Result<()> {
         unsafe {
