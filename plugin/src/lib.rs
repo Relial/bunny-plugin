@@ -10,7 +10,6 @@ pub use bunny_ui;
 #[cfg(feature = "3d")]
 pub use bunny_3d;
 
-#[cfg(feature = "plugin")]
 #[unsafe(no_mangle)]
 pub static BUNNY_API_VERSION: u32 = 3;
 
@@ -27,7 +26,7 @@ pub mod hook;
 pub mod hook_builder;
 pub mod hook_cell;
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 #[repr(C)]
 pub enum GameMode {
     LowGrade,

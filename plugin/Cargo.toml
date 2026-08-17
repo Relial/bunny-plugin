@@ -4,12 +4,11 @@ version = "0.2.0"
 edition = "2024"
 
 [features]
-default = ["ui", "plugin"]
+default = ["ui"]
 ui = ["dep:bunny-ui"]
 3d = ["dep:bunny-3d"]
 bevy = ["3d", "bunny-3d/bevy"]
 tobj = ["3d", "bunny-3d/tobj"]
-plugin = []
 
 [dependencies]
 abi_stable = "0.11.3"
