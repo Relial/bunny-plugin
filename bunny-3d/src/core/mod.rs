@@ -130,7 +130,7 @@ pub enum FillMode {
     Solid = 3,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug)]
 pub struct DrawOptions {
     pub draw_on_top: bool,
     pub fill: FillMode,
