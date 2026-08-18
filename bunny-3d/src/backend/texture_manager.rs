@@ -1,6 +1,6 @@
 use abi_stable::rvec;
 use anyhow::{Context, Result, anyhow};
-use epaint::Color32;
+use ecolor::Color32;
 use rapidhash::RapidHashMap;
 use shared::texture::TextureId;
 use windows::Win32::Graphics::Direct3D9::{
