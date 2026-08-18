@@ -1,5 +1,5 @@
 use abi_stable::std_types::RBox;
-use egui::Color32;
+use ecolor::Color32;
 
 use crate::{
     elements::Container,
@@ -191,12 +191,12 @@ impl crate::elements::UiContainer for FrameComponent<'_> {
         self,
         ui: &mut egui::Ui,
         responses: &mut abi_stable::std_types::RHashMap<
-            egui::Id,
+            crate::Id,
             crate::response::Response,
             rapidhash::fast::RandomState,
         >,
         pointer_state: abi_stable::std_types::RArc<crate::input_state::PointerState>,
-        id: egui::Id,
+        id: crate::Id,
     ) -> crate::response::Response {
         let frame: egui::Frame = self.frame.into();
         let resp = frame

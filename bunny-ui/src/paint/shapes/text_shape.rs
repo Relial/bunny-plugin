@@ -2,7 +2,8 @@ use abi_stable::std_types::{
     RBox,
     ROption::{self, RNone, RSome},
 };
-use egui::{Color32, Pos2};
+use ecolor::Color32;
+use emath::Pos2;
 
 use crate::{
     align::Align2,

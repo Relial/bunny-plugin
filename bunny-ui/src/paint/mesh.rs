@@ -2,13 +2,12 @@ use abi_stable::std_types::{
     ROption::{self, RSome},
     RVec,
 };
-use egui::{
-    Color32, Pos2, Rect, Vec2,
-    emath::{Rot2, TSTransform},
-    epaint::{Vertex, WHITE_UV},
-};
+use ecolor::Color32;
+use emath::{Pos2, Rect, Rot2, TSTransform, Vec2};
 
 use crate::image_source::ImageSource;
+
+pub const WHITE_UV: Pos2 = Pos2 { x: 0.0, y: 0.0 };
 
 #[derive(Clone, Debug, Default, PartialEq)]
 #[repr(C)]
@@ -159,8 +158,41 @@ impl<'a> Mesh<'a> {
         };
         Ok(egui::Mesh {
             indices: self.indices.into(),
-            vertices: self.vertices.into(),
+            vertices: bytemuck::cast_slice(self.vertices.as_slice()).into(),
             texture_id,
         })
+    }
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "manager", derive(bytemuck::Pod, bytemuck::Zeroable))]
+#[repr(C)]
+pub struct Vertex {
+    pub pos: Pos2,
+    pub uv: Pos2,
+    pub color: Color32,
+}
+
+impl Vertex {
+    #[inline]
+    pub fn untextured(pos: Pos2, color: Color32) -> Self {
+        Self {
+            pos,
+            uv: WHITE_UV,
+            color,
+        }
+    }
+}
+
+#[cfg(feature = "manager")]
+impl From<Vertex> for egui::epaint::Vertex {
+    #[inline]
+    fn from(value: Vertex) -> Self {
+        Self {
+            pos: value.pos,
+            uv: value.uv,
+            color: value.color,
+        }
     }
 }

@@ -1,14 +1,19 @@
 use abi_stable::std_types::RArc;
 use abi_stable::std_types::ROption::RSome;
-use egui::response::Flags;
-use egui::{Id, Pos2, Rect, Vec2};
+use emath::{Pos2, Rect, Vec2};
 
+use crate::Id;
 use crate::containers::popup::{Popup, PopupKind};
 use crate::containers::tooltip::Tooltip;
 use crate::input::PointerButton;
 use crate::input_state::PointerState;
 use crate::ui::BunnyUi;
 use crate::widget_text::WidgetText;
+
+#[cfg(feature = "manager")]
+type EguiId = egui::Id;
+#[cfg(not(feature = "manager"))]
+type EguiId = u64;
 
 #[derive(Clone, Debug)]
 #[repr(C)]
@@ -17,7 +22,7 @@ pub struct Response {
     pub rect: Rect,
     pub interact_rect: Rect,
     pub id: Id,
-    pub egui_id: Id,
+    pub(crate) egui_id: EguiId,
     pub flags: Flags,
 }
 
@@ -29,7 +34,7 @@ impl Response {
             egui_id: egui_resp.id,
             rect: egui_resp.rect,
             interact_rect: egui_resp.interact_rect,
-            flags: egui_resp.flags,
+            flags: egui_resp.flags.into(),
             pointer_state,
         }
     }
@@ -38,7 +43,7 @@ impl Response {
     pub fn rect_only(id: Id, rect: Rect, pointer_state: RArc<PointerState>) -> Self {
         Self {
             id,
-            egui_id: id,
+            egui_id: EguiId::NULL,
             rect,
             interact_rect: rect,
             flags: Flags::empty(),
@@ -267,10 +272,23 @@ impl<'a> Response {
 }
 
 impl Default for Response {
+    #[cfg(feature = "manager")]
     fn default() -> Self {
         Self {
             id: Id::NULL,
-            egui_id: Id::NULL,
+            egui_id: EguiId::NULL,
+            rect: Rect::ZERO,
+            interact_rect: Rect::ZERO,
+            flags: Flags::empty(),
+            pointer_state: Default::default(),
+        }
+    }
+
+    #[cfg(not(feature = "manager"))]
+    fn default() -> Self {
+        Self {
+            id: Id::NULL,
+            egui_id: u64::MAX,
             rect: Rect::ZERO,
             interact_rect: Rect::ZERO,
             flags: Flags::empty(),
@@ -290,5 +308,87 @@ impl<R> InnerResponse<R> {
     #[inline]
     pub fn new(inner: R, response: Response) -> Self {
         Self { inner, response }
+    }
+}
+
+#[derive(Clone, Copy, Debug)]
+#[repr(C)]
+pub struct Flags(u16);
+
+bitflags::bitflags! {
+    impl Flags: u16 {
+        /// Was the widget enabled?
+        /// If `false`, there was no interaction attempted (not even hover).
+        const ENABLED = 1<<0;
+
+        /// The pointer is above this widget with no other blocking it.
+        const CONTAINS_POINTER = 1<<1;
+
+        /// The pointer is hovering above this widget or the widget was clicked/tapped this frame.
+        const HOVERED = 1<<2;
+
+        /// The widget is highlighted via a call to [`Response::highlight`] or
+        /// [`Context::highlight_widget`].
+        const HIGHLIGHTED = 1<<3;
+
+        /// This widget was clicked this frame.
+        ///
+        /// Which pointer and how many times we don't know,
+        /// and ask [`crate::InputState`] about at runtime.
+        ///
+        /// This is only set to true if the widget was clicked
+        /// by an actual mouse.
+        const CLICKED = 1<<4;
+
+        /// This widget should act as if clicked due
+        /// to something else than a click.
+        ///
+        /// This is set to true if the widget has keyboard focus and
+        /// the user hit the Space or Enter key.
+        const FAKE_PRIMARY_CLICKED = 1<<5;
+
+        /// This widget was long-pressed on a touch screen to simulate a secondary click.
+        const LONG_TOUCHED = 1<<6;
+
+        /// The widget started being dragged this frame.
+        const DRAG_STARTED = 1<<7;
+
+        /// The widget is being dragged.
+        const DRAGGED = 1<<8;
+
+        /// The widget was being dragged, but now it has been released.
+        const DRAG_STOPPED = 1<<9;
+
+        /// Is the pointer button currently down on this widget?
+        /// This is true if the pointer is pressing down or dragging a widget
+        const IS_POINTER_BUTTON_DOWN_ON = 1<<10;
+
+        /// Was the underlying data changed?
+        ///
+        /// e.g. the slider was dragged, text was entered in a [`TextEdit`](crate::TextEdit) etc.
+        /// Always `false` for something like a [`Button`](crate::Button).
+        ///
+        /// Note that this can be `true` even if the user did not interact with the widget,
+        /// for instance if an existing slider value was clamped to the given range.
+        const CHANGED = 1<<11;
+
+        /// Should this container be closed?
+        const CLOSE = 1<<12;
+    }
+}
+
+#[cfg(feature = "manager")]
+impl From<Flags> for egui::response::Flags {
+    #[inline]
+    fn from(value: Flags) -> Self {
+        Self::from_bits_retain(value.bits())
+    }
+}
+
+#[cfg(feature = "manager")]
+impl From<egui::response::Flags> for Flags {
+    #[inline]
+    fn from(value: egui::response::Flags) -> Self {
+        Self::from_bits_retain(value.bits())
     }
 }

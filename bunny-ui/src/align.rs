@@ -1,4 +1,4 @@
-use egui::{Pos2, Rangef, Rect, Vec2, emath::fast_midpoint, pos2, vec2};
+use emath::{Pos2, Rangef, Rect, Vec2, fast_midpoint, pos2, vec2};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]

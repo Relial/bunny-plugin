@@ -1,6 +1,6 @@
-use egui::{Rect, Sense};
+use emath::Rect;
 
-use crate::elements::Widget;
+use crate::{elements::Widget, sense::Sense};
 
 #[repr(C)]
 pub struct Interact {
@@ -23,6 +23,6 @@ impl From<Interact> for Widget<'_> {
 #[cfg(feature = "manager")]
 impl egui::Widget for Interact {
     fn ui(self, ui: &mut egui::Ui) -> egui::Response {
-        ui.interact(self.rect, ui.next_auto_id(), self.sense)
+        ui.interact(self.rect, ui.next_auto_id(), self.sense.into())
     }
 }

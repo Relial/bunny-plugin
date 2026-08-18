@@ -1,4 +1,4 @@
-use egui::{Pos2, Rect, Vec2};
+use emath::{Pos2, Rect, Vec2};
 
 use crate::align::Align2;
 

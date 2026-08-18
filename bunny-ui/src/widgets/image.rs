@@ -3,13 +3,15 @@ use abi_stable::std_types::{
     ROption::{self, RNone, RSome},
     RString, Tuple2,
 };
-use egui::{Color32, NumExt, Rect, Sense, Vec2, pos2};
+use ecolor::Color32;
+use emath::{NumExt as _, Rect, Vec2, pos2};
 
 use crate::{
     elements::Widget,
     image_source::ImageSource,
     load::{Bytes, SizeHint},
     paint::{corner_radius::CornerRadius, textures::TextureOptions},
+    sense::Sense,
 };
 
 #[repr(C)]
@@ -198,7 +200,7 @@ impl egui::Widget for Image<'_> {
             .bg_fill(image_options.bg_fill)
             .tint(image_options.tint)
             .corner_radius(image_options.corner_radius)
-            .sense(sense)
+            .sense(sense.into())
             .max_size(size.max_size)
             .maintain_aspect_ratio(size.maintain_aspect_ratio);
         if let RSome(Tuple2(angle, origin)) = image_options.rotation {

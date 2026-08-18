@@ -7,7 +7,7 @@ use abi_stable::{
         RVec,
     },
 };
-use egui::{Pos2, Vec2};
+use emath::{Pos2, Vec2};
 
 use crate::{
     input::{KeyEvent, KeyboardShortcut, Modifiers, PointerButton},

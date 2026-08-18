@@ -1,5 +1,6 @@
 use abi_stable::std_types::RVec;
-use egui::{Color32, Pos2};
+use ecolor::Color32;
+use emath::Pos2;
 
 use crate::paint::{shapes::shape::Shape, stroke::PathStroke};
 

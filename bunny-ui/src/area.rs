@@ -2,7 +2,7 @@ use abi_stable::std_types::{
     ROption::{self, RNone, RSome},
     Tuple2,
 };
-use egui::{Pos2, Rect, Vec2};
+use emath::{Pos2, Rect, Vec2};
 
 use crate::align::Align2;
 

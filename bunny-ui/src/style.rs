@@ -1,5 +1,6 @@
 use abi_stable::std_types::ROption;
-use egui::{Color32, Rangef, Vec2};
+use ecolor::Color32;
+use emath::{Rangef, Vec2};
 
 use crate::{
     align::Align,
@@ -396,7 +397,7 @@ impl Visuals {
 
     #[inline(always)]
     pub fn gray_out(&self, color: Color32) -> Color32 {
-        egui::ecolor::tint_color_towards(color, self.widgets.noninteractive.weak_bg_fill)
+        ecolor::tint_color_towards(color, self.widgets.noninteractive.weak_bg_fill)
     }
 }
 

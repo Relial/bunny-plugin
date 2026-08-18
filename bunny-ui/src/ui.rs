@@ -1,5 +1,6 @@
 use abi_stable::std_types::{RArc, RHashMap, ROption, RVec, Tuple2};
-use egui::{Color32, Id, Rect, Sense, Vec2, vec2};
+use ecolor::Color32;
+use emath::{Rect, Vec2, vec2};
 use rapidhash::fast::RandomState;
 use shared::{
     camera::Camera,
@@ -7,6 +8,7 @@ use shared::{
 };
 
 use crate::{
+    Id,
     align::Align,
     containers::{
         allocate_ui::AllocateUi, collapsing_header::CollapsingHeader, indent::Indent,
@@ -19,6 +21,7 @@ use crate::{
     paint::text::fonts::FontFamily,
     painter::Painter,
     response::{InnerResponse, Response},
+    sense::Sense,
     style::{Interaction, Spacing, Style, Visuals},
     ui_builder::UiBuilder,
     widget_text::{RichText, WidgetText},
@@ -124,16 +127,16 @@ impl<'a> BunnyUi<'a> {
     }
 
     pub fn new_child(&mut self, layout: Option<Layout>) -> Self {
-        let next_salt = self.next_salt;
-        let id = self.next_id();
-        self.next_salt = next_salt;
+        let current = self.next_salt;
+        let child_salt = self.next_id().hashed().value();
+        self.next_salt = current;
         let mut style = self.style.clone();
         if style.changed {
             RArc::make_mut(&mut style).changed = false;
         }
         BunnyUi {
             components: RVec::new(),
-            next_salt: id.value(),
+            next_salt: child_salt,
             painter: self.painter.clone(),
             layout: layout.unwrap_or(self.layout),
             last_frame_responses: self.last_frame_responses.clone(),

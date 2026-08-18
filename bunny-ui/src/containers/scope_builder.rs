@@ -21,12 +21,12 @@ impl crate::elements::UiContainer for ScopeBuilder<'_> {
         self,
         ui: &mut egui::Ui,
         responses: &mut abi_stable::std_types::RHashMap<
-            egui::Id,
+            crate::Id,
             crate::response::Response,
             rapidhash::fast::RandomState,
         >,
         pointer_state: abi_stable::std_types::RArc<crate::input_state::PointerState>,
-        id: egui::Id,
+        id: crate::Id,
     ) -> crate::response::Response {
         let egui_resp = ui
             .scope_builder(self.ui_builder.into(), |ui| {

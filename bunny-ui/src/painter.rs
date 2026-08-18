@@ -5,10 +5,8 @@ use abi_stable::{
     rvec,
     std_types::{RArc, RString, RVec},
 };
-use egui::{
-    Color32, Pos2, Rangef, Rect, Rgba, Vec2,
-    emath::{GuiRounding, Rot2},
-};
+use ecolor::{Color32, Rgba};
+use emath::{GuiRounding as _, Pos2, Rangef, Rect, Rot2, Vec2};
 
 use crate::{
     align::Align2,

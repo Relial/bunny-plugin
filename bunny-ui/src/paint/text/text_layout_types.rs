@@ -5,13 +5,10 @@ use abi_stable::{
     rvec,
     std_types::{
         ROption::{self, RNone, RSome},
-        RString, RVec, Tuple2,
+        RString, RVec,
     },
 };
-use egui::{
-    Color32,
-    epaint::text::{IntoTag, Tag},
-};
+use ecolor::Color32;
 
 use crate::{
     align::Align,
@@ -203,46 +200,10 @@ impl LayoutSection {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Default)]
-#[repr(C)]
-pub struct VariationCoords(RVec<Tuple2<Tag, f32>>);
-
-impl VariationCoords {
-    pub fn new<T: IntoTag>(values: impl IntoIterator<Item = (T, f32)>) -> Self {
-        Self(
-            values
-                .into_iter()
-                .map(|(t, c)| Tuple2(t.into_tag(), c))
-                .collect(),
-        )
-    }
-
-    #[inline(always)]
-    pub fn push(&mut self, tag: impl IntoTag, coord: f32) {
-        self.0.push(Tuple2(tag.into_tag(), coord));
-    }
-
-    pub fn remove(&mut self, index: usize) {
-        self.0.remove(index);
-    }
-
-    pub fn clear(&mut self) {
-        self.0.clear();
-    }
-}
-
-#[cfg(feature = "manager")]
-impl From<VariationCoords> for egui::epaint::text::VariationCoords {
-    fn from(value: VariationCoords) -> Self {
-        Self::new(value.0.into_iter().map(|t| t.into()))
-    }
-}
-
 #[derive(Clone, Debug, PartialEq)]
 #[repr(C)]
 pub struct TextFormat {
     pub font_id: FontId,
-    pub coords: VariationCoords,
     pub line_height: ROption<f32>,
     pub underline: Stroke,
     pub strikethrough: Stroke,
@@ -263,7 +224,6 @@ impl Default for TextFormat {
             color: Color32::GRAY,
             background: Color32::TRANSPARENT,
             expand_bg: 1.0,
-            coords: VariationCoords::default(),
             italics: false,
             underline: Stroke::NONE,
             strikethrough: Stroke::NONE,
@@ -296,7 +256,6 @@ impl TextFormat {
             color,
             background,
             expand_bg,
-            coords,
             italics,
             underline,
             strikethrough,
@@ -309,7 +268,7 @@ impl TextFormat {
             color,
             background,
             expand_bg,
-            coords: coords.into(),
+            coords: Default::default(),
             italics,
             underline: underline.into(),
             strikethrough: strikethrough.into(),

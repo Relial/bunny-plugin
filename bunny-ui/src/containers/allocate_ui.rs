@@ -1,4 +1,4 @@
-use egui::Vec2;
+use emath::Vec2;
 
 use crate::{elements::Container, layout::Layout, ui::BunnyUi};
 
@@ -25,12 +25,12 @@ impl crate::elements::UiContainer for AllocateUi<'_> {
         self,
         ui: &mut egui::Ui,
         responses: &mut abi_stable::std_types::RHashMap<
-            egui::Id,
+            crate::Id,
             crate::response::Response,
             rapidhash::fast::RandomState,
         >,
         pointer_state: abi_stable::std_types::RArc<crate::input_state::PointerState>,
-        id: egui::Id,
+        id: crate::Id,
     ) -> crate::response::Response {
         let egui_resp = ui
             .allocate_ui_with_layout(self.desired_size, self.layout.into(), |ui| {

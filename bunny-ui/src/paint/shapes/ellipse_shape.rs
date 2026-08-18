@@ -1,4 +1,5 @@
-use egui::{Color32, Pos2, Vec2, emath::Rot2};
+use ecolor::Color32;
+use emath::{Pos2, Rot2, Vec2};
 
 use crate::paint::{shapes::shape::Shape, stroke::Stroke};
 

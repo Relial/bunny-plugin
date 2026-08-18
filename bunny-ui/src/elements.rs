@@ -1,12 +1,14 @@
 use abi_stable::std_types::RBox;
 #[cfg(feature = "manager")]
 use abi_stable::std_types::{RArc, RHashMap};
-use egui::Vec2;
 #[cfg(feature = "manager")]
-use egui::{Id, Ui, Widget as _};
+use egui::{Ui, Widget as _};
+use emath::Vec2;
 #[cfg(feature = "manager")]
 use rapidhash::fast::RandomState;
 
+#[cfg(feature = "manager")]
+use crate::{Id, input_state::PointerState, response::Response};
 use crate::{
     containers::{
         allocate_ui::AllocateUi, collapsing_header::CollapsingHeaderComponent,
@@ -21,8 +23,6 @@ use crate::{
         slider::Slider, spinner::Spinner, text_edit::builder::TextEdit,
     },
 };
-#[cfg(feature = "manager")]
-use crate::{input_state::PointerState, response::Response};
 
 #[cfg(feature = "manager")]
 pub(crate) trait UiComponent {

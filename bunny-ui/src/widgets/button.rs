@@ -2,7 +2,7 @@ use abi_stable::std_types::{
     RBox,
     ROption::{self, RNone, RSome},
 };
-use egui::Color32;
+use ecolor::Color32;
 
 use crate::{
     elements::Widget,

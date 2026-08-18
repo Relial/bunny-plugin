@@ -1,4 +1,5 @@
-use egui::{Color32, Pos2, emath::RectTransform};
+use ecolor::Color32;
+use emath::{Pos2, RectTransform};
 
 use crate::paint::stroke::PathStroke;
 

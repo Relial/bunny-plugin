@@ -1,10 +1,7 @@
-use std::hash::Hash;
-
 use abi_stable::std_types::ROption::{self, RNone, RSome};
-use egui::Id;
 
 use crate::{
-    elements::Container, layout::Layout, response::InnerResponse, ui::BunnyUi,
+    Id, elements::Container, layout::Layout, response::InnerResponse, ui::BunnyUi,
     widget_text::WidgetText,
 };
 
@@ -44,8 +41,8 @@ impl CollapsingHeader {
     }
 
     #[inline]
-    pub fn id_salt(mut self, id_salt: impl Hash) -> Self {
-        self.id = RSome(Id::new(id_salt));
+    pub fn id_salt(mut self, id: u64) -> Self {
+        self.id = RSome(Id::new(id));
         self
     }
 
@@ -90,12 +87,12 @@ impl crate::elements::UiContainer for CollapsingHeaderComponent<'_> {
         self,
         ui: &mut egui::Ui,
         responses: &mut abi_stable::std_types::RHashMap<
-            egui::Id,
+            crate::Id,
             crate::response::Response,
             rapidhash::fast::RandomState,
         >,
         pointer_state: abi_stable::std_types::RArc<crate::input_state::PointerState>,
-        id: egui::Id,
+        id: crate::Id,
     ) -> crate::response::Response {
         let mut header = egui::CollapsingHeader::new(self.collapsing_header.text)
             .id_salt(self.collapsing_header.id)

@@ -1,9 +1,7 @@
-use std::hash::Hash;
-
 use abi_stable::std_types::ROption::{self, RNone, RSome};
-use egui::{Id, Vec2};
+use emath::Vec2;
 
-use crate::{elements::Container, layout::Layout, response::InnerResponse, ui::BunnyUi};
+use crate::{Id, elements::Container, layout::Layout, response::InnerResponse, ui::BunnyUi};
 
 #[repr(C)]
 pub struct Grid {
@@ -17,9 +15,9 @@ pub struct Grid {
 }
 
 impl Grid {
-    pub fn new(id_salt: impl Hash) -> Self {
+    pub fn new(id: u64) -> Self {
         Self {
-            id: Id::new(id_salt),
+            id: Id::new(id),
             num_columns: RNone,
             min_col_width: RNone,
             min_row_height: RNone,
@@ -92,12 +90,12 @@ impl crate::elements::UiContainer for GridComponent<'_> {
         self,
         ui: &mut egui::Ui,
         responses: &mut abi_stable::std_types::RHashMap<
-            egui::Id,
+            crate::Id,
             crate::response::Response,
             rapidhash::fast::RandomState,
         >,
         pointer_state: abi_stable::std_types::RArc<crate::input_state::PointerState>,
-        id: egui::Id,
+        id: crate::Id,
     ) -> crate::response::Response {
         let mut grid = egui::Grid::new(self.grid.id)
             .max_col_width(self.grid.max_col_width)

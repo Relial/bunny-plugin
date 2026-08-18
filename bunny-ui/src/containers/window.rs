@@ -3,9 +3,11 @@ use abi_stable::std_types::{
     ROption::{self, RNone, RSome},
     RString,
 };
-use egui::{Color32, Id, Pos2, Rect, Vec2};
+use ecolor::Color32;
+use emath::{Pos2, Rect, Vec2};
 
 use crate::{
+    Id,
     align::Align2,
     area::Area,
     containers::{
@@ -324,7 +326,7 @@ impl WindowComponent<'_> {
         };
         let painter = ui.painter();
         if let RSome(open) = self.window.open {
-            let id = self.window.id.with("close button");
+            let id: egui::Id = self.window.id.with("close button").into();
             let widget_state = ui
                 .read_response(id)
                 .map(|r| r.widget_state())
@@ -367,15 +369,15 @@ impl crate::elements::UiContainer for WindowComponent<'_> {
         mut self,
         ui: &mut egui::Ui,
         responses: &mut abi_stable::std_types::RHashMap<
-            egui::Id,
+            crate::Id,
             crate::response::Response,
             rapidhash::fast::RandomState,
         >,
         pointer_state: abi_stable::std_types::RArc<crate::input_state::PointerState>,
-        id: egui::Id,
+        id: crate::Id,
     ) -> crate::response::Response {
         let mut window = egui::Window::new("")
-            .id(self.window.id)
+            .id(self.window.id.into())
             .title_bar(false)
             .enabled(self.window.area.enabled)
             .interactable(self.window.area.interactable)

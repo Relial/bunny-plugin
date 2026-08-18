@@ -12,7 +12,6 @@ use abi_stable::{
         string::{Drain, IntoIter},
     },
 };
-use egui::{TextBuffer, text_selection::text_cursor_state::byte_index_from_char_index};
 
 macro_rules! deref_coerced_impl_cmp_traits {
     (
@@ -302,7 +301,8 @@ impl<'a> FromIterator<&'a char> for BunnyString {
     }
 }
 
-impl TextBuffer for BunnyString {
+#[cfg(feature = "manager")]
+impl egui::TextBuffer for BunnyString {
     fn is_mutable(&self) -> bool {
         true
     }
@@ -312,6 +312,8 @@ impl TextBuffer for BunnyString {
     }
 
     fn insert_text(&mut self, text: &str, char_index: usize) -> usize {
+        use egui::text_selection::text_cursor_state::byte_index_from_char_index;
+
         let byte_idx = byte_index_from_char_index(self.as_str(), char_index);
 
         self.insert_str(byte_idx, text);
@@ -320,6 +322,8 @@ impl TextBuffer for BunnyString {
     }
 
     fn delete_char_range(&mut self, char_range: std::ops::Range<usize>) {
+        use egui::text_selection::text_cursor_state::byte_index_from_char_index;
+
         assert!(
             char_range.start <= char_range.end,
             "start must be <= end, but got {char_range:?}"

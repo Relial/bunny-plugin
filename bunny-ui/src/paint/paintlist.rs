@@ -1,5 +1,5 @@
 use abi_stable::std_types::RVec;
-use egui::{Rect, emath::TSTransform};
+use emath::{Rect, TSTransform};
 use tracing::warn;
 
 use crate::paint::shapes::shape::Shape;

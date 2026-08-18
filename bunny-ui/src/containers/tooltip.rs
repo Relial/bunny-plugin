@@ -2,13 +2,14 @@ use abi_stable::std_types::{
     RBox,
     ROption::{self, RNone, RSome},
 };
-use egui::{Id, Sense};
 
 use crate::{
+    Id,
     containers::popup::{Popup, PopupAnchor, PopupKind},
     elements::Container,
     layout::Layout,
     response::{InnerResponse, Response},
+    sense::Sense,
     ui::BunnyUi,
 };
 
@@ -115,12 +116,12 @@ impl crate::elements::UiContainer for TooltipComponent<'_> {
         self,
         ui: &mut egui::Ui,
         responses: &mut abi_stable::std_types::RHashMap<
-            egui::Id,
+            crate::Id,
             crate::response::Response,
             rapidhash::fast::RandomState,
         >,
         pointer_state: abi_stable::std_types::RArc<crate::input_state::PointerState>,
-        id: egui::Id,
+        id: crate::Id,
     ) -> crate::response::Response {
         if !self.tooltip.popup.is_open(ui) {
             return Response::empty(id, pointer_state);

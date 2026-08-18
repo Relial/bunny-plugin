@@ -2,9 +2,11 @@ use abi_stable::std_types::{
     RBox,
     ROption::{self, RNone, RSome},
 };
-use egui::{Color32, Id, Vec2};
+use ecolor::Color32;
+use emath::Vec2;
 
 use crate::{
+    Id,
     align::{Align, Align2},
     containers::frame::Frame,
     elements::Widget,
@@ -219,7 +221,7 @@ impl egui::Widget for TextEdit<'_> {
         .min_size(self.min_size);
 
         if let RSome(id) = self.id {
-            text_edit = text_edit.id(id);
+            text_edit = text_edit.id(id.into());
         }
         if let RSome(frame) = self.frame {
             text_edit = text_edit.frame(frame.into());

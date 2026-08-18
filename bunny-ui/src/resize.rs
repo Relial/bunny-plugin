@@ -1,4 +1,4 @@
-use egui::{Vec2, vec2};
+use emath::{Vec2, vec2};
 
 use crate::vec2b::Vec2b;
 

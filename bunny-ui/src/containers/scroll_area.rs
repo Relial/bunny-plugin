@@ -1,5 +1,5 @@
 use abi_stable::std_types::ROption::{self, RNone};
-use egui::Vec2;
+use emath::Vec2;
 
 use crate::{margin::Margin, vec2b::Vec2b};
 

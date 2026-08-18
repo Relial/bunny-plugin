@@ -5,16 +5,18 @@ edition = "2024"
 
 [features]
 default = []
-manager = ["dep:egui"]
-serde = ["dep:serde", "egui/serde"]
+manager = ["dep:egui", "dep:bytemuck"]
+serde = ["dep:serde", "egui?/serde", "ecolor/serde", "emath/serde"]
 
 [dependencies]
 abi_stable = "0.11.3"
 anyhow = "1.0.104"
-egui = { version = "0.34.3", default-features = false, features = ["rayon"], optional = true }
-epaint = { version = "0.34.3", default-features = false }
-nohash-hasher = "0.2.0"
+egui = { version = "0.34.3", default-features = false, features = ["rayon", "bytemuck"], optional = true }
+ecolor = { version = "0.34.3", default-features = false }
+emath = { version = "0.34.3", default-features = false }
 rapidhash = "4.5.1"
 serde = { version = "1.0.229", features = ["derive"], optional = true }
 tracing = "0.1.44"
 shared = { path = "../shared" }
+bitflags = "2.13.1"
+bytemuck = { version = "1.25.2", features = ["derive"], optional = true }

@@ -2,7 +2,8 @@ use abi_stable::{
     rvec,
     std_types::{RBox, ROption::RNone, RString, RVec},
 };
-use egui::{Color32, Pos2, Rangef, Rect, Vec2, emath::TSTransform, epaint::Vertex, pos2};
+use ecolor::Color32;
+use emath::{Pos2, Rangef, Rect, TSTransform, Vec2, pos2};
 use tracing::error;
 
 use crate::{
@@ -11,7 +12,7 @@ use crate::{
     image_source::ImageSource,
     paint::{
         corner_radius::CornerRadius,
-        mesh::Mesh,
+        mesh::{Mesh, Vertex},
         shapes::{
             bezier_shape::{CubicBezierShape, QuadraticBezierShape},
             circle_shape::CircleShape,

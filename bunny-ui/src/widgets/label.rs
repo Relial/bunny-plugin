@@ -2,10 +2,9 @@ use abi_stable::std_types::{
     RBox,
     ROption::{self, RNone, RSome},
 };
-use egui::Sense;
 
 use crate::{
-    align::Align, elements::Widget, paint::text::text_layout_types::TextWrapMode,
+    align::Align, elements::Widget, paint::text::text_layout_types::TextWrapMode, sense::Sense,
     widget_text::WidgetText,
 };
 
@@ -89,7 +88,7 @@ impl egui::Widget for Label {
             label = label.wrap_mode(wrap_mode.into());
         }
         if let RSome(sense) = self.sense {
-            label = label.sense(sense);
+            label = label.sense(sense.into());
         }
         if let RSome(selectable) = self.selectable {
             label = label.selectable(selectable);

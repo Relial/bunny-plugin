@@ -1,4 +1,4 @@
-use egui::Color32;
+use ecolor::Color32;
 
 use crate::paint::color::ColorMode;
 

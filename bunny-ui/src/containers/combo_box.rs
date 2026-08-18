@@ -1,10 +1,7 @@
-use std::hash::Hash;
-
 use abi_stable::std_types::ROption::{self, RNone, RSome};
-use egui::Id;
 
 use crate::{
-    containers::popup::PopupCloseBehavior, elements::Container, layout::Layout,
+    Id, containers::popup::PopupCloseBehavior, elements::Container, layout::Layout,
     paint::text::text_layout_types::TextWrapMode, response::InnerResponse, ui::BunnyUi,
     widget_text::WidgetText,
 };
@@ -21,9 +18,9 @@ pub struct ComboBox {
 }
 
 impl ComboBox {
-    pub fn new(id_salt: impl Hash, label: impl Into<WidgetText>) -> Self {
+    pub fn new(id: u64, label: impl Into<WidgetText>) -> Self {
         Self {
-            id: Id::new(id_salt),
+            id: Id::new(id),
             label: RSome(label.into()),
             selected_text: Default::default(),
             width: RNone,
@@ -33,9 +30,9 @@ impl ComboBox {
         }
     }
 
-    pub fn from_id_salt(id_salt: impl Hash) -> Self {
+    pub fn from_id(id: u64) -> Self {
         Self {
-            id: Id::new(id_salt),
+            id: Id::new(id),
             label: RNone,
             selected_text: Default::default(),
             width: RNone,
@@ -114,12 +111,12 @@ impl crate::elements::UiContainer for ComboBoxComponent<'_> {
         self,
         ui: &mut egui::Ui,
         responses: &mut abi_stable::std_types::RHashMap<
-            egui::Id,
+            crate::Id,
             crate::response::Response,
             rapidhash::fast::RandomState,
         >,
         pointer_state: abi_stable::std_types::RArc<crate::input_state::PointerState>,
-        id: egui::Id,
+        id: crate::Id,
     ) -> crate::response::Response {
         let mut combo_box = if let RSome(label) = self.combo_box.label {
             egui::ComboBox::new(self.combo_box.id, label)

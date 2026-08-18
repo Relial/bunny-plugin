@@ -1,5 +1,5 @@
 use abi_stable::std_types::ROption::RSome;
-use egui::Color32;
+use ecolor::Color32;
 
 use crate::paint::{
     color::ColorMode,

@@ -5,7 +5,7 @@ use abi_stable::std_types::{
     ROption::{self, RSome},
     RString,
 };
-use egui::Color32;
+use ecolor::Color32;
 
 use crate::style::TextStyle;
 

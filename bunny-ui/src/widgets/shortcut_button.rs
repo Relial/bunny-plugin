@@ -1,7 +1,6 @@
 use abi_stable::std_types::ROption::{self, RNone, RSome};
-use egui::Id;
 
-use crate::{elements::Widget, input::KeyboardShortcut, paint::corner_radius::CornerRadius};
+use crate::{Id, elements::Widget, input::KeyboardShortcut, paint::corner_radius::CornerRadius};
 
 #[repr(C)]
 pub struct ShortcutButton<'a> {
@@ -12,12 +11,12 @@ pub struct ShortcutButton<'a> {
 }
 
 impl<'a> ShortcutButton<'a> {
-    pub fn new(shortcut: &'a mut KeyboardShortcut, id: impl Into<Id>) -> Self {
+    pub fn new(shortcut: &'a mut KeyboardShortcut, id: Id) -> Self {
         Self {
             bind: shortcut,
             keybind_not_set: false,
             corner_radius: RNone,
-            id: id.into(),
+            id,
         }
     }
 

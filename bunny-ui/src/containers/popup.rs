@@ -2,9 +2,10 @@ use abi_stable::std_types::{
     RBox,
     ROption::{self, RNone, RSome},
 };
-use egui::{Context, Id, Pos2, Rect, Sense};
+use emath::{Pos2, Rect};
 
 use crate::{
+    Id,
     align::Align,
     containers::frame::Frame,
     elements::Container,
@@ -12,6 +13,7 @@ use crate::{
     paint::paintlist::Order,
     rect_align::RectAlign,
     response::{InnerResponse, Response},
+    sense::Sense,
     ui::BunnyUi,
 };
 
@@ -24,8 +26,9 @@ pub enum PopupAnchor {
     Position(Pos2),
 }
 
+#[cfg(feature = "manager")]
 impl PopupAnchor {
-    pub fn rect(self, popup_id: Id, ctx: &Context) -> Option<Rect> {
+    pub fn rect(self, popup_id: egui::Id, ctx: &egui::Context) -> Option<Rect> {
         match self {
             PopupAnchor::ParentRect(rect) => Some(rect),
             PopupAnchor::Pointer => ctx.pointer_hover_pos().map(Rect::from_pos),
@@ -333,21 +336,23 @@ impl<'a> Popup<'a> {
         self.anchor
     }
 
-    pub fn get_anchor_rect(&self, ctx: &Context) -> Option<Rect> {
-        self.anchor.rect(self.id, ctx)
+    #[cfg(feature = "manager")]
+    pub fn get_anchor_rect(&self, ctx: &egui::Context) -> Option<Rect> {
+        self.anchor.rect(self.id.into(), ctx)
     }
 
     pub fn get_id(&self) -> Id {
         self.id
     }
 
-    pub fn is_open(&self, ctx: &Context) -> bool {
+    #[cfg(feature = "manager")]
+    pub fn is_open(&self, ctx: &egui::Context) -> bool {
         #[allow(deprecated)]
         match &self.open_kind {
             OpenKind::Open => true,
             OpenKind::Closed => false,
             OpenKind::Bool(open) => **open,
-            OpenKind::Memory { .. } => ctx.memory(|mem| mem.is_popup_open(self.id)),
+            OpenKind::Memory { .. } => ctx.memory(|mem| mem.is_popup_open(self.id.into())),
         }
     }
 
@@ -396,11 +401,12 @@ impl<'a> Popup<'a> {
 
     #[cfg(feature = "manager")]
     pub(crate) fn egui(self, ui: &mut egui::Ui, id: Id) -> egui::Popup<'a> {
+        let id: egui::Id = id.into();
         let mut popup = egui::Popup::new(id, ui.ctx().clone(), self.anchor, ui.layer_id())
             .align(self.rect_align.into())
             .kind(self.kind.into())
             .gap(self.gap)
-            .sense(self.sense)
+            .sense(self.sense.into())
             .layout(self.layout.into())
             .close_behavior(egui::PopupCloseBehavior::IgnoreClicks); // Must be handled manually because our interactions are 1 frame behind egui's
 
@@ -445,11 +451,13 @@ impl Popup<'_> {
         response.id.with("popup")
     }
 
-    pub fn is_id_open(ctx: &Context, popup_id: Id) -> bool {
+    #[cfg(feature = "manager")]
+    pub fn is_id_open(ctx: &egui::Context, popup_id: egui::Id) -> bool {
         ctx.memory(|mem| mem.is_popup_open(popup_id))
     }
 
-    pub fn position_of_id(ctx: &Context, popup_id: Id) -> Option<Pos2> {
+    #[cfg(feature = "manager")]
+    pub fn position_of_id(ctx: &egui::Context, popup_id: egui::Id) -> Option<Pos2> {
         ctx.memory(|mem| mem.popup_position(popup_id))
     }
 }
@@ -466,12 +474,12 @@ impl crate::elements::UiContainer for PopupComponent<'_> {
         self,
         ui: &mut egui::Ui,
         responses: &mut abi_stable::std_types::RHashMap<
-            egui::Id,
+            crate::Id,
             crate::response::Response,
             rapidhash::fast::RandomState,
         >,
         pointer_state: abi_stable::std_types::RArc<crate::input_state::PointerState>,
-        id: egui::Id,
+        id: crate::Id,
     ) -> crate::response::Response {
         let popup = self.popup.egui(ui, id);
 

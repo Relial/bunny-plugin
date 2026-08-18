@@ -1,4 +1,4 @@
-use egui::Color32;
+use ecolor::Color32;
 
 #[repr(C)]
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]

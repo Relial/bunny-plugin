@@ -1,4 +1,4 @@
-use egui::Vec2;
+use emath::Vec2;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]

@@ -1,7 +1,7 @@
 use abi_stable::std_types::ROption::{self, RSome};
-use egui::{Rect, Sense};
+use emath::Rect;
 
-use crate::layout::Layout;
+use crate::{layout::Layout, sense::Sense};
 
 #[derive(Default)]
 #[repr(C)]
@@ -67,7 +67,7 @@ impl From<UiBuilder> for egui::UiBuilder {
             layout: value.layout.map(|l| l.into()).into(),
             disabled: value.disabled,
             invisible: value.invisible,
-            sense: value.sense.into(),
+            sense: value.sense.map(|s| s.into()).into(),
             ..Default::default()
         }
     }

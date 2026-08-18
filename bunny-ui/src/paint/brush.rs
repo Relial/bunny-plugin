@@ -1,4 +1,4 @@
-use egui::Rect;
+use emath::Rect;
 
 use crate::image_source::ImageSource;
 
