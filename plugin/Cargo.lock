@@ -2698,7 +2698,6 @@ version = "0.1.0"
 dependencies = [
  "abi_stable",
  "anyhow",
- "egui",
  "glam 0.33.2",
  "rapidhash",
 ]

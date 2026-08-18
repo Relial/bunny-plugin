@@ -1,9 +1,9 @@
 use std::borrow::Cow;
 
 use abi_stable::std_types::RCowStr;
-use anyhow::Result;
-use egui::{Context, load::TexturePoll};
-use shared::texture::{NamedTexture, SizedTexture};
+use anyhow::{Result, anyhow};
+use egui::{Context, Vec2, load::TexturePoll};
+use shared::texture::{NamedTexture, SizedTexture, TextureId};
 
 use crate::load::Bytes;
 
@@ -47,7 +47,22 @@ impl<'a> TryFrom<ImageSource<'a>> for egui::ImageSource<'a> {
                 let uri_cow: Cow<'a, str> = uri.into();
                 Ok(Self::Uri(uri_cow))
             }
-            ImageSource::Texture(texture) => Ok(Self::Texture(texture.try_into()?)),
+            ImageSource::Texture(texture) => {
+                let id = match texture.id {
+                    TextureId::Managed3d(_) => {
+                        Err(anyhow!("Managed 3d textures can't be used with BunnyUi"))
+                    }
+                    TextureId::Shared(id) => Ok(egui::TextureId::User(id)),
+                }?;
+                Ok(egui::load::SizedTexture {
+                    id,
+                    size: Vec2 {
+                        x: texture.size[0] as f32,
+                        y: texture.size[1] as f32,
+                    },
+                }
+                .into())
+            }
             ImageSource::Bytes { uri, bytes } => {
                 let uri_cow: Cow<'static, str> = uri.into();
                 let bytes = match bytes.into_inner() {

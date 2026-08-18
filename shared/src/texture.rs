@@ -1,6 +1,4 @@
 use abi_stable::std_types::{RHashMap, RString, RVec};
-use anyhow::anyhow;
-use egui::Vec2;
 use rapidhash::fast::RandomState;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -64,26 +62,6 @@ pub struct SizedTexture {
 impl SizedTexture {
     pub fn new(id: TextureId, size: [usize; 2]) -> Self {
         Self { id, size }
-    }
-}
-
-impl TryFrom<SizedTexture> for egui::load::SizedTexture {
-    type Error = anyhow::Error;
-
-    fn try_from(value: SizedTexture) -> Result<Self, Self::Error> {
-        let id = match value.id {
-            TextureId::Managed3d(_) => {
-                Err(anyhow!("Managed 3d textures can't be used with BunnyUi"))
-            }
-            TextureId::Shared(id) => Ok(egui::TextureId::User(id)),
-        }?;
-        Ok(Self {
-            id,
-            size: Vec2 {
-                x: value.size[0] as f32,
-                y: value.size[1] as f32,
-            },
-        })
     }
 }
 
