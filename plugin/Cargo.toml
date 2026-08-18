@@ -7,9 +7,10 @@ edition = "2024"
 default = ["ui"]
 ui = ["dep:bunny-ui"]
 3d = ["dep:bunny-3d"]
-bevy = ["3d", "bunny-3d/bevy"]
-tobj = ["3d", "bunny-3d/tobj"]
-serde = ["bunny-ui/serde", "bunny-3d/serde"]
+bevy = ["bunny-3d?/bevy"]
+tobj = ["bunny-3d?/tobj"]
+serde = ["bunny-ui?/serde", "bunny-3d?/serde"]
+image = ["bunny-3d?/image"]
 
 [dependencies]
 abi_stable = "0.11.3"

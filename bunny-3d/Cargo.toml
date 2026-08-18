@@ -8,7 +8,7 @@ default = []
 bevy = ["dep:bevy_mesh"]
 tobj = ["dep:tobj"]
 backend = ["dep:windows", "tobj", "image"]
-serde = ["dep:serde", "glam/serde"]
+serde = ["dep:serde", "glam/serde", "ecolor/serde", "image?/serde"]
 image = ["dep:image"]
 
 [dependencies]
