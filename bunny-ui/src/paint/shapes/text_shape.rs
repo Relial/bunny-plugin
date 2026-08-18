@@ -9,8 +9,8 @@ use crate::{
     paint::{shapes::shape::Shape, stroke::Stroke, text::text_layout_types::LayoutJob},
 };
 
-#[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
+#[repr(C)]
 pub struct TextShape {
     pub layout_job: RBox<LayoutJob>,
     pub pos: Pos2,

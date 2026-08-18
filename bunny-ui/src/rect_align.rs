@@ -2,9 +2,9 @@ use egui::{Pos2, Rect, Vec2};
 
 use crate::align::Align2;
 
-#[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[repr(C)]
 pub struct RectAlign {
     pub parent: Align2,
     pub child: Align2,

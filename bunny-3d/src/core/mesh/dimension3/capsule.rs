@@ -9,6 +9,7 @@ pub const CAPSULE_LONGITUDES: u32 = 24;
 pub const CAPSULE_LATITUDES: u32 = 12;
 
 #[derive(Clone, Copy, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CapsuleBuilder {
     pub radius: f32,
     pub half_length: f32,

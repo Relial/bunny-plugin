@@ -2,8 +2,9 @@ use egui::{Color32, Pos2};
 
 use crate::paint::{shapes::shape::Shape, stroke::Stroke};
 
-#[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[repr(C)]
 pub struct CircleShape {
     pub center: Pos2,
     pub stroke: Stroke,

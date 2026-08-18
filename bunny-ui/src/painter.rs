@@ -26,8 +26,8 @@ use crate::{
     },
 };
 
-#[repr(C)]
 #[derive(Clone)]
+#[repr(C)]
 pub struct Painter<'a> {
     paint_list: RArc<RRwLock<PaintList<'a>>>,
     clip_rect: Rect,

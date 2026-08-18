@@ -124,6 +124,7 @@ impl Bunny3d {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[repr(C)]
 pub enum FillMode {
     Wireframe = 2,
@@ -212,6 +213,7 @@ impl DrawOptions {
 /// GBRA
 #[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq, Pod, Zeroable)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct GpuColor([u8; 4]);
 
 impl GpuColor {

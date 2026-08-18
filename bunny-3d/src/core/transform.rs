@@ -4,6 +4,7 @@ use glam::{Mat4, Quat, Vec3};
 use windows_numerics::Matrix4x4;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Transform {
     pub translation: Vec3,
     pub rotation: Quat,

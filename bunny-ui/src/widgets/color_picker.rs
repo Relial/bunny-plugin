@@ -2,6 +2,7 @@ use egui::Color32;
 
 use crate::elements::Widget;
 
+#[repr(C)]
 pub struct ColorPicker<'a> {
     color: &'a mut Color32,
 }

@@ -1,8 +1,7 @@
 use crate::key::Key;
 
-#[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[repr(C)]
 pub struct KeyEvent {
     pub key: Key,
     pub modifiers: Modifiers,
@@ -10,8 +9,9 @@ pub struct KeyEvent {
     pub repeat: bool,
 }
 
-#[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[repr(C)]
 pub enum PointerButton {
     Primary = 0,
     Secondary = 1,
@@ -32,9 +32,9 @@ impl From<egui::PointerButton> for PointerButton {
     }
 }
 
-#[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[repr(C)]
 pub struct Modifiers {
     pub alt: bool,
     pub ctrl: bool,
@@ -129,9 +129,9 @@ impl From<egui::Modifiers> for Modifiers {
     }
 }
 
-#[repr(C)]
 #[derive(Clone, Copy, PartialEq, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[repr(C)]
 pub struct KeyboardShortcut {
     pub logical_key: Key,
     pub modifiers: Modifiers,

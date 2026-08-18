@@ -1,16 +1,16 @@
 pub mod fonts;
 pub mod text_layout_types;
 
-#[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq)]
+#[repr(C)]
 pub struct TextOptions {
     pub max_texture_side: usize,
     pub alpha_from_coverage: AlphaFromCoverage,
     pub font_hinting: bool,
 }
 
-#[repr(C)]
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[repr(C)]
 pub enum AlphaFromCoverage {
     Linear,
     Gamma(f32),

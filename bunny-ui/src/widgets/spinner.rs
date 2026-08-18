@@ -3,8 +3,8 @@ use egui::Color32;
 
 use crate::elements::Widget;
 
-#[repr(C)]
 #[derive(Default)]
+#[repr(C)]
 pub struct Spinner {
     size: ROption<f32>,
     color: ROption<Color32>,

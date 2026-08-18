@@ -4,9 +4,9 @@ use abi_stable::std_types::RString;
 
 use crate::style::TextStyle;
 
-#[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[repr(C)]
 pub struct FontId {
     pub family: FontFamily,
     pub size: f32,
@@ -51,9 +51,9 @@ impl FontId {
     }
 }
 
-#[repr(C)]
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[repr(C)]
 pub enum FontFamily {
     #[default]
     Proportional,
@@ -88,8 +88,8 @@ impl std::fmt::Display for FontFamily {
     }
 }
 
-#[repr(C)]
 #[derive(Clone, Debug, Default)]
+#[repr(C)]
 pub enum FontSelection {
     #[default]
     Default,

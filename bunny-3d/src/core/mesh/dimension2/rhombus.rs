@@ -8,6 +8,7 @@ use crate::{
 };
 
 #[derive(Clone, Copy, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct RhombusBuilder {
     pub half_diagonals: Vec2,
 }

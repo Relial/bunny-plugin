@@ -10,8 +10,8 @@ use crate::{
     align::Align2, area::Area, containers::{frame::Frame, scroll_area::{ScrollArea, ScrollBarVisibility, ScrollSource}}, elements::{Container, UiContainer}, input_state::PointerState, layout::Layout, paint::{corner_radius::CornerRadius, stroke::Stroke}, resize::Resize, response::{InnerResponse, Response}, ui::BunnyUi, vec2b::Vec2b,
 };
 
-#[repr(C)]
 #[derive(Clone, Debug, Default)]
+#[repr(C)]
 pub struct TitleBar {
     title: ROption<RString>,
     close_button: bool,

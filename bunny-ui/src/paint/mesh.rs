@@ -11,8 +11,8 @@ use egui::{
 
 use crate::image_source::ImageSource;
 
-#[repr(C)]
 #[derive(Clone, Debug, Default, PartialEq)]
+#[repr(C)]
 pub struct Mesh<'a> {
     pub texture_source: ROption<ImageSource<'a>>,
     pub indices: RVec<u32>,

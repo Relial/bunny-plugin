@@ -7,8 +7,8 @@ use shared::texture::{NamedTexture, SizedTexture, TextureId};
 
 use crate::load::Bytes;
 
-#[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
+#[repr(C)]
 pub enum ImageSource<'a> {
     Uri(RCowStr<'a>),
     Texture(SizedTexture),

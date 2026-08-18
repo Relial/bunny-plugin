@@ -12,8 +12,9 @@ use crate::{
     shadow::Shadow,
 };
 
-#[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[repr(C)]
 pub enum TextStyle {
     Small,
     Body,
@@ -22,8 +23,8 @@ pub enum TextStyle {
     Heading,
 }
 
-#[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
+#[repr(C)]
 pub struct Style {
     visuals: Visuals,
     spacing: Spacing,
@@ -129,8 +130,8 @@ impl Style {
     }
 }
 
-#[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
+#[repr(C)]
 pub struct Spacing {
     pub scroll: ScrollStyle,
     pub item_spacing: Vec2,
@@ -155,8 +156,8 @@ pub struct Spacing {
     pub indent_ends_with_horizontal_line: bool,
 }
 
-#[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
+#[repr(C)]
 pub struct ScrollStyle {
     pub fade: ScrollFadeStyle,
     pub content_margin: Margin,
@@ -228,8 +229,9 @@ impl ScrollStyle {
     }
 }
 
-#[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[repr(C)]
 pub struct ScrollFadeStyle {
     pub strength: f32,
     pub size: f32,
@@ -244,8 +246,9 @@ impl Default for ScrollFadeStyle {
     }
 }
 
-#[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[repr(C)]
 pub struct ScrollAnimation {
     pub duration: Rangef,
     pub points_per_second: f32,
@@ -283,8 +286,8 @@ impl ScrollAnimation {
     }
 }
 
-#[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
+#[repr(C)]
 pub struct Interaction {
     pub interact_radius: f32,
     pub resize_grab_radius_side: f32,
@@ -297,8 +300,9 @@ pub struct Interaction {
     pub show_tooltips_only_when_still: bool,
 }
 
-#[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[repr(C)]
 pub struct TextCursorStyle {
     pub stroke: Stroke,
     pub on_duration: f32,
@@ -319,8 +323,8 @@ impl Default for TextCursorStyle {
     }
 }
 
-#[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
+#[repr(C)]
 pub struct Visuals {
     pub widgets: Widgets,
     pub text_cursor: TextCursorStyle,
@@ -395,22 +399,25 @@ impl Visuals {
     }
 }
 
-#[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[repr(C)]
 pub struct Selection {
     pub stroke: Stroke,
     pub bg_fill: Color32,
 }
 
-#[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[repr(C)]
 pub enum HandleShape {
     Rect { aspect_ratio: f32 },
     Circle,
 }
 
-#[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[repr(C)]
 pub struct Widgets {
     pub noninteractive: WidgetVisuals,
     pub inactive: WidgetVisuals,
@@ -419,8 +426,9 @@ pub struct Widgets {
     pub open: WidgetVisuals,
 }
 
-#[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[repr(C)]
 pub struct WidgetVisuals {
     pub bg_stroke: Stroke,
     pub fg_stroke: Stroke,
@@ -437,8 +445,9 @@ impl WidgetVisuals {
     }
 }
 
-#[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[repr(C)]
 pub enum NumericColorSpace {
     GammaByte,
     Linear,

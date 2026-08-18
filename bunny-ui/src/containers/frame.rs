@@ -14,8 +14,8 @@ use crate::{
     ui::BunnyUi,
 };
 
-#[repr(C)]
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[repr(C)]
 pub struct Frame {
     pub stroke: Stroke,
     pub shadow: Shadow,
@@ -174,6 +174,7 @@ impl From<Frame> for egui::Frame {
     }
 }
 
+#[repr(C)]
 pub struct FrameComponent<'a> {
     contents: BunnyUi<'a>,
     frame: Frame,

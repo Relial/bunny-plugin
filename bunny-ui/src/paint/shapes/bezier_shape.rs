@@ -2,8 +2,9 @@ use egui::{Color32, Pos2, emath::RectTransform};
 
 use crate::paint::stroke::PathStroke;
 
-#[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[repr(C)]
 pub struct QuadraticBezierShape {
     pub points: [Pos2; 3],
     pub stroke: PathStroke,
@@ -68,8 +69,9 @@ impl From<QuadraticBezierShape> for egui::epaint::QuadraticBezierShape {
     }
 }
 
-#[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[repr(C)]
 pub struct CubicBezierShape {
     pub points: [Pos2; 4],
     pub stroke: PathStroke,

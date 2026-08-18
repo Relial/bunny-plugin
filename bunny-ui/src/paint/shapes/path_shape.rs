@@ -3,8 +3,9 @@ use egui::{Color32, Pos2};
 
 use crate::paint::{shapes::shape::Shape, stroke::PathStroke};
 
-#[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[repr(C)]
 pub struct PathShape {
     pub points: RVec<Pos2>,
     pub stroke: PathStroke,

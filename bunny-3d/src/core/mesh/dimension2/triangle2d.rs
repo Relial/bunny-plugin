@@ -3,6 +3,7 @@ use glam::Vec2;
 use crate::mesh::{Extrudable, Mesh, MeshBuilder, PerimeterSegment, Primitive2d, TriangleBuilder};
 
 #[derive(Clone, Copy, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Triangle2dBuilder {
     pub vertices: [Vec2; 3],
 }

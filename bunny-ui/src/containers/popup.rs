@@ -9,8 +9,8 @@ use crate::{
     align::Align, containers::frame::Frame, elements::{Container, UiContainer}, input_state::PointerState, layout::Layout, paint::paintlist::Order, rect_align::RectAlign, response::{InnerResponse, Response}, ui::BunnyUi,
 };
 
-#[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(C)]
 pub enum PopupAnchor {
     ParentRect(Rect),
     Pointer,
@@ -59,8 +59,8 @@ impl From<PopupAnchor> for egui::PopupAnchor {
     }
 }
 
-#[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+#[repr(C)]
 pub enum PopupCloseBehavior {
     #[default]
     CloseOnClick,
@@ -78,8 +78,8 @@ impl From<PopupCloseBehavior> for egui::PopupCloseBehavior {
     }
 }
 
-#[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(C)]
 pub enum SetOpenCommand {
     Bool(bool),
     Toggle,
@@ -94,8 +94,8 @@ impl From<SetOpenCommand> for egui::SetOpenCommand {
     }
 }
 
-#[repr(C)]
 #[derive(Debug)]
+#[repr(C)]
 pub enum OpenKind<'a> {
     Open,
     Closed,
@@ -103,8 +103,8 @@ pub enum OpenKind<'a> {
     Memory { set: ROption<SetOpenCommand> },
 }
 
-#[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(C)]
 pub enum PopupKind {
     Popup,
     Tooltip,
@@ -130,8 +130,8 @@ impl From<PopupKind> for egui::PopupKind {
     }
 }
 
-#[repr(C)]
 #[derive(Clone, Copy, PartialEq, Debug)]
+#[repr(C)]
 struct PopupClick {
     popup_interact_rect: Rect,
     click_pos: Pos2,

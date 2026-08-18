@@ -1,7 +1,7 @@
 use abi_stable::std_types::ROption::{self, RNone};
 
-#[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(C)]
 pub struct TextureOptions {
     pub mipmap_mode: ROption<TextureFilter>,
     pub magnification: TextureFilter,
@@ -90,8 +90,8 @@ impl From<TextureOptions> for egui::TextureOptions {
     }
 }
 
-#[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(C)]
 pub enum TextureFilter {
     Nearest,
     Linear,
@@ -107,8 +107,8 @@ impl From<TextureFilter> for egui::TextureFilter {
     }
 }
 
-#[repr(C)]
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+#[repr(C)]
 pub enum TextureWrapMode {
     #[default]
     ClampToEdge,

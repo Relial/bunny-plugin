@@ -1,8 +1,8 @@
 use egui::Vec2;
 
-#[repr(C)]
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[repr(C)]
 pub struct Margin {
     pub left: i8,
     pub right: i8,

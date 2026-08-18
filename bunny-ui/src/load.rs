@@ -3,8 +3,8 @@ use std::ops::Deref;
 use abi_stable::std_types::RCowSlice;
 use egui::emath::Float;
 
-#[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq)]
+#[repr(C)]
 pub enum SizeHint {
     Scale(f32),
     Width(u32),
@@ -61,8 +61,8 @@ impl From<SizeHint> for egui::SizeHint {
     }
 }
 
-#[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
+#[repr(C)]
 pub struct Bytes(RCowSlice<'static, u8>);
 
 impl Bytes {

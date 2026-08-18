@@ -1,6 +1,6 @@
-#[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[repr(C)]
 pub struct CornerRadius {
     pub nw: u8,
     pub ne: u8,

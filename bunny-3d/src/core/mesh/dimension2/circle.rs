@@ -1,6 +1,7 @@
 use crate::mesh::{EllipseBuilder, Extrudable, Mesh, MeshBuilder, PerimeterSegment, Primitive2d};
 
 #[derive(Clone, Copy, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CircleBuilder {
     pub radius: f32,
     pub resolution: u32,

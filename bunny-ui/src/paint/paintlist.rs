@@ -4,8 +4,8 @@ use tracing::{debug, warn};
 
 use crate::paint::shapes::shape::Shape;
 
-#[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[repr(C)]
 pub enum Order {
     Background,
     Middle,
@@ -14,12 +14,12 @@ pub enum Order {
     Debug,
 }
 
-#[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(C)]
 pub struct ShapeIdx(pub usize);
 
-#[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
+#[repr(C)]
 pub struct PaintList<'a>(RVec<ClippedShape<'a>>);
 
 impl Default for PaintList<'_> {
@@ -122,8 +122,8 @@ impl<'a> PaintList<'a> {
     }
 }
 
-#[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
+#[repr(C)]
 pub struct ClippedShape<'a> {
     pub shape: Shape<'a>,
     pub clip_rect: Rect,

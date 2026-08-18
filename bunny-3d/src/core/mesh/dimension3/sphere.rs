@@ -6,6 +6,7 @@ use crate::{
 };
 
 #[derive(Clone, Copy, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SphereBuilder {
     pub radius: f32,
     pub sectors: u32,

@@ -9,8 +9,9 @@ use egui::Color32;
 
 use crate::style::TextStyle;
 
-#[repr(C)]
 #[derive(Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[repr(C)]
 pub enum WidgetText {
     Text(RString),
     RichText(RBox<RichText>),
@@ -61,8 +62,9 @@ impl From<RichText> for WidgetText {
     }
 }
 
-#[repr(C)]
 #[derive(Default, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[repr(C)]
 pub struct RichText {
     text: RString,
     size: ROption<f32>,

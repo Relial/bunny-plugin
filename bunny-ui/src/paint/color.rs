@@ -1,8 +1,8 @@
 use egui::Color32;
 
-#[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[repr(C)]
 pub enum ColorMode {
     Solid(Color32),
 }

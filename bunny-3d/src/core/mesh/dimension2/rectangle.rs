@@ -6,6 +6,7 @@ use crate::{
 };
 
 #[derive(Clone, Copy, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct RectangleBuilder {
     pub half_size: Vec2,
 }

@@ -10,8 +10,8 @@ use crate::input_state::PointerState;
 use crate::ui::BunnyUi;
 use crate::widget_text::WidgetText;
 
-#[repr(C)]
 #[derive(Clone, Debug)]
+#[repr(C)]
 pub struct Response {
     pub pointer_state: RArc<PointerState>,
     pub rect: Rect,
@@ -276,8 +276,8 @@ impl Default for Response {
     }
 }
 
-#[repr(C)]
 #[derive(Clone)]
+#[repr(C)]
 pub struct InnerResponse<R> {
     pub inner: R,
     pub response: Response,

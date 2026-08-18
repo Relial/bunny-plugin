@@ -4,6 +4,7 @@ use crate::{
 };
 
 #[derive(Clone, Copy, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct AnnulusBuilder {
     pub inner_radius: f32,
     pub outer_radius: f32,

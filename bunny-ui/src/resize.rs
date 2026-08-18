@@ -2,6 +2,8 @@ use egui::{Vec2, vec2};
 
 use crate::vec2b::Vec2b;
 
+#[derive(Clone, Copy, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[repr(C)]
 pub struct Resize {
     pub(crate) min_size: Vec2,

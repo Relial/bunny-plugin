@@ -6,8 +6,8 @@ use egui::{Pos2, Rect, Vec2};
 
 use crate::align::Align2;
 
-#[repr(C)]
 #[derive(Clone, Debug)]
+#[repr(C)]
 pub struct Area {
     pub(crate) constrain_rect: ROption<Rect>,
     pub(crate) anchor: ROption<Tuple2<Align2, Vec2>>,

@@ -4,6 +4,7 @@ use crate::{
 };
 
 #[derive(Clone, Copy, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CylinderBuilder {
     pub radius: f32,
     pub half_height: f32,
@@ -160,6 +161,7 @@ impl MeshBuilder for CylinderBuilder {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum CylinderAnchor {
     #[default]
     MidPoint,

@@ -6,6 +6,7 @@ use crate::{
 };
 
 #[derive(Clone, Copy, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct EllipseBuilder {
     pub half_size: Vec2,
     pub resolution: u32,

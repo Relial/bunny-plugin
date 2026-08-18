@@ -3,8 +3,8 @@ use egui::Vec2;
 
 use crate::{margin::Margin, vec2b::Vec2b};
 
-#[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(C)]
 pub enum ScrollBarVisibility {
     AlwaysHidden,
     VisibleWhenNeeded,

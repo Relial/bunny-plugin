@@ -2,8 +2,9 @@ use egui::{Color32, Pos2, Vec2, emath::Rot2};
 
 use crate::paint::{shapes::shape::Shape, stroke::Stroke};
 
-#[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[repr(C)]
 pub struct EllipseShape {
     pub center: Pos2,
     pub radius: Vec2,

@@ -3,11 +3,12 @@ use egui::Id;
 
 use crate::{elements::Widget, input::KeyboardShortcut, paint::corner_radius::CornerRadius};
 
+#[repr(C)]
 pub struct ShortcutButton<'a> {
     bind: &'a mut KeyboardShortcut,
-    keybind_not_set: bool,
-    corner_radius: ROption<CornerRadius>,
     id: Id,
+    corner_radius: ROption<CornerRadius>,
+    keybind_not_set: bool,
 }
 
 impl<'a> ShortcutButton<'a> {

@@ -8,7 +8,7 @@ default = []
 bevy = ["dep:bevy_mesh"]
 tobj = ["dep:tobj"]
 backend = ["tobj"]
-serde = ["dep:serde"]
+serde = ["dep:serde", "glam/serde"]
 
 [dependencies]
 anyhow = "1.0.104"

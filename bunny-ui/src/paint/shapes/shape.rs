@@ -28,8 +28,8 @@ use crate::{
     },
 };
 
-#[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
+#[repr(C)]
 pub enum Shape<'a> {
     Noop,
     Vec(RVec<Shape<'a>>),

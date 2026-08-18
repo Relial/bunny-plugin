@@ -14,8 +14,8 @@ use crate::{
     key::Key,
 };
 
-#[repr(C)]
 #[derive(Clone, Default)]
+#[repr(C)]
 pub struct Input(RArc<RRwLock<InputState>>);
 
 impl std::fmt::Debug for Input {
@@ -38,8 +38,8 @@ impl Input {
     }
 }
 
-#[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq)]
+#[repr(C)]
 pub struct InputOptions {
     pub max_click_duration: f64,
     pub max_double_click_delay: f64,
@@ -170,8 +170,8 @@ impl InputState {
     }
 }
 
-#[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(C)]
 pub struct Click {
     pub pos: Pos2,
     pub count: u32,
@@ -188,8 +188,8 @@ impl Click {
     }
 }
 
-#[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(C)]
 pub enum PointerEvent {
     Moved(Pos2),
     Pressed {
@@ -222,8 +222,8 @@ impl PointerEvent {
     }
 }
 
-#[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
+#[repr(C)]
 pub struct PointerState {
     pointer_events: RVec<PointerEvent>,
     options: InputOptions,

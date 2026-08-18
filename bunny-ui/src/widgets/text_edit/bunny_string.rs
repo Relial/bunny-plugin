@@ -55,8 +55,8 @@ macro_rules! deref_coerced_impl_cmp_traits {
 
 /// An FFI safe string type that implements egui::widgets::text_edit::TextBuffer.
 /// For use with bunny_ui::widgets::TextEdit
-#[repr(C)]
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[repr(C)]
 pub struct BunnyString(RString);
 
 impl BunnyString {

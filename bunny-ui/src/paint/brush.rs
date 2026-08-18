@@ -4,8 +4,8 @@ use anyhow::{Result, anyhow};
 
 use crate::image_source::ImageSource;
 
-#[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
+#[repr(C)]
 pub struct Brush<'a> {
     pub fill_texture_source: ImageSource<'a>,
     pub uv: Rect,

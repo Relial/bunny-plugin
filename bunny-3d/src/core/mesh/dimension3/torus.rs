@@ -8,6 +8,7 @@ use crate::{
 };
 
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct TorusBuilder {
     pub minor_radius: f32,
     pub major_radius: f32,

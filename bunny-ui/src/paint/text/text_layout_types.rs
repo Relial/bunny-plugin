@@ -17,8 +17,8 @@ use crate::{
     paint::{stroke::Stroke, text::fonts::FontId},
 };
 
-#[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
+#[repr(C)]
 pub struct LayoutJob {
     pub text: RString,
     pub sections: RVec<LayoutSection>,
@@ -174,8 +174,8 @@ impl LayoutJob {
     }
 }
 
-#[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
+#[repr(C)]
 pub struct LayoutSection {
     pub format: TextFormat,
     pub byte_range: [usize; 2],
@@ -200,8 +200,8 @@ impl LayoutSection {
     }
 }
 
-#[repr(C)]
 #[derive(Clone, Debug, PartialEq, Default)]
+#[repr(C)]
 pub struct VariationCoords(RVec<Tuple2<Tag, f32>>);
 
 impl VariationCoords {
@@ -234,8 +234,8 @@ impl From<VariationCoords> for egui::epaint::text::VariationCoords {
     }
 }
 
-#[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
+#[repr(C)]
 pub struct TextFormat {
     pub font_id: FontId,
     pub coords: VariationCoords,
@@ -313,8 +313,8 @@ impl TextFormat {
     }
 }
 
-#[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(C)]
 pub enum TextWrapMode {
     Extend,
     Wrap,
@@ -341,8 +341,8 @@ impl From<egui::TextWrapMode> for TextWrapMode {
     }
 }
 
-#[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq)]
+#[repr(C)]
 pub struct TextWrapping {
     pub max_rows: usize,
     pub overflow_character: ROption<char>,

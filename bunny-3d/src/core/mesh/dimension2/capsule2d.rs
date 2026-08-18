@@ -4,6 +4,7 @@ use crate::{
 };
 
 #[derive(Clone, Copy, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Capsule2dBuilder {
     pub radius: f32,
     pub half_length: f32,

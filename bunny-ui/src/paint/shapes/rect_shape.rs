@@ -17,8 +17,8 @@ use crate::{
     },
 };
 
-#[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
+#[repr(C)]
 pub struct RectShape<'a> {
     pub brush: ROption<RBox<Brush<'a>>>,
     pub rect: Rect,

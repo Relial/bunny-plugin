@@ -3,8 +3,8 @@ use egui::{Rect, Sense};
 
 use crate::layout::Layout;
 
-#[repr(C)]
 #[derive(Default)]
+#[repr(C)]
 pub struct UiBuilder {
     pub layout: ROption<Layout>,
     pub max_rect: ROption<Rect>,

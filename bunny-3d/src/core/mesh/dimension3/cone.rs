@@ -4,6 +4,7 @@ use crate::{
 };
 
 #[derive(Clone, Copy, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ConeBuilder {
     pub radius: f32,
     pub height: f32,
@@ -128,6 +129,7 @@ impl MeshBuilder for ConeBuilder {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum ConeAnchor {
     #[default]
     MidPoint,

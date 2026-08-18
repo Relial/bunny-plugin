@@ -9,16 +9,16 @@ use egui::Ui;
 
 use crate::{elements::Widget, num::Num, style::HandleShape, widget_text::WidgetText};
 
-#[repr(C)]
 #[derive(Clone, Copy)]
+#[repr(C)]
 struct SliderSpec {
     smallest_positive: f64,
     largest_finite: f64,
     logarithmic: bool,
 }
 
-#[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(C)]
 pub enum SliderOrientation {
     Horizontal,
     Vertical,
@@ -33,8 +33,8 @@ impl From<SliderOrientation> for egui::SliderOrientation {
     }
 }
 
-#[repr(C)]
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+#[repr(C)]
 pub enum SliderClamping {
     Never,
     Edits,
@@ -52,8 +52,8 @@ impl From<SliderClamping> for egui::SliderClamping {
     }
 }
 
-#[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(C)]
 pub enum NumberCustomFormat {
     Binary {
         min_width: usize,
