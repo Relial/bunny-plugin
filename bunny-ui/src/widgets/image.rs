@@ -3,8 +3,7 @@ use abi_stable::std_types::{
     ROption::{self, RNone, RSome},
     RString, Tuple2,
 };
-pub use egui::Sense;
-use egui::{Color32, NumExt, Rect, Vec2, pos2};
+use egui::{Color32, NumExt, Rect, Sense, Vec2, pos2};
 
 use crate::{
     elements::Widget,
@@ -177,6 +176,7 @@ impl<'a> From<Image<'a>> for Widget<'a> {
     }
 }
 
+#[cfg(feature = "manager")]
 impl egui::Widget for Image<'_> {
     fn ui(self, ui: &mut egui::Ui) -> egui::Response {
         let Image {

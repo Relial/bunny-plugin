@@ -2,7 +2,7 @@ use abi_stable::std_types::{
     RBox,
     ROption::{self, RNone, RSome},
 };
-use egui::{Color32, Context, Pos2};
+use egui::{Color32, Pos2};
 
 use crate::{
     align::Align2,
@@ -69,8 +69,9 @@ impl From<TextShape> for Shape<'_> {
     }
 }
 
+#[cfg(feature = "manager")]
 impl TextShape {
-    pub fn to_egui(self, ctx: &Context) -> egui::epaint::TextShape {
+    pub fn to_egui(self, ctx: &egui::Context) -> egui::epaint::TextShape {
         let TextShape {
             pos,
             layout_job,

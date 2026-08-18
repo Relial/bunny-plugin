@@ -32,17 +32,20 @@ impl<'a> ShortcutButton<'a> {
     }
 }
 
+#[cfg(feature = "manager")]
 fn get_expecting(ui: &egui::Ui, id: Id) -> bool {
     ui.ctx()
         .memory_mut(|mem| *mem.data.get_temp_mut_or_default(ui.make_persistent_id(id)))
 }
 
+#[cfg(feature = "manager")]
 fn set_expecting(ui: &egui::Ui, id: Id, expecting: bool) {
     ui.ctx().memory_mut(|mem| {
         *mem.data.get_temp_mut_or_default(ui.make_persistent_id(id)) = expecting;
     });
 }
 
+#[cfg(feature = "manager")]
 impl egui::Widget for ShortcutButton<'_> {
     fn ui(self, ui: &mut egui::Ui) -> egui::Response {
         let text = if self.keybind_not_set {

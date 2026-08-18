@@ -242,6 +242,7 @@ impl RectAlign {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<RectAlign> for egui::RectAlign {
     fn from(value: RectAlign) -> Self {
         Self {

@@ -40,6 +40,7 @@ impl From<CircleShape> for Shape<'_> {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<CircleShape> for egui::epaint::CircleShape {
     fn from(value: CircleShape) -> Self {
         let CircleShape {

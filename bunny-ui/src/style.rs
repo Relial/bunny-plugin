@@ -41,6 +41,7 @@ pub struct Style {
     pub always_scroll_the_only_direction: bool,
 }
 
+#[cfg(feature = "manager")]
 impl Style {
     pub fn to_egui(&self, egui_style: &mut egui::Style) {
         let s = egui_style;
@@ -453,6 +454,7 @@ pub enum NumericColorSpace {
     Linear,
 }
 
+#[cfg(feature = "manager")]
 impl From<TextStyle> for egui::TextStyle {
     fn from(value: TextStyle) -> Self {
         match value {
@@ -465,6 +467,7 @@ impl From<TextStyle> for egui::TextStyle {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<egui::TextStyle> for TextStyle {
     fn from(value: egui::TextStyle) -> Self {
         match value {
@@ -478,6 +481,7 @@ impl From<egui::TextStyle> for TextStyle {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<&Spacing> for egui::Spacing {
     fn from(value: &Spacing) -> Self {
         Self {
@@ -505,6 +509,7 @@ impl From<&Spacing> for egui::Spacing {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<&egui::Spacing> for Spacing {
     fn from(value: &egui::Spacing) -> Self {
         Self {
@@ -533,6 +538,7 @@ impl From<&egui::Spacing> for Spacing {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<ScrollStyle> for egui::style::ScrollStyle {
     fn from(value: ScrollStyle) -> Self {
         Self {
@@ -556,6 +562,7 @@ impl From<ScrollStyle> for egui::style::ScrollStyle {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<egui::style::ScrollStyle> for ScrollStyle {
     fn from(value: egui::style::ScrollStyle) -> Self {
         Self {
@@ -579,6 +586,7 @@ impl From<egui::style::ScrollStyle> for ScrollStyle {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<ScrollFadeStyle> for egui::style::ScrollFadeStyle {
     fn from(value: ScrollFadeStyle) -> Self {
         Self {
@@ -588,6 +596,7 @@ impl From<ScrollFadeStyle> for egui::style::ScrollFadeStyle {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<egui::style::ScrollFadeStyle> for ScrollFadeStyle {
     fn from(value: egui::style::ScrollFadeStyle) -> Self {
         Self {
@@ -597,6 +606,7 @@ impl From<egui::style::ScrollFadeStyle> for ScrollFadeStyle {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<ScrollAnimation> for egui::style::ScrollAnimation {
     fn from(value: ScrollAnimation) -> Self {
         Self {
@@ -606,6 +616,7 @@ impl From<ScrollAnimation> for egui::style::ScrollAnimation {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<egui::style::ScrollAnimation> for ScrollAnimation {
     fn from(value: egui::style::ScrollAnimation) -> Self {
         Self {
@@ -615,6 +626,7 @@ impl From<egui::style::ScrollAnimation> for ScrollAnimation {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<&Interaction> for egui::style::Interaction {
     fn from(value: &Interaction) -> Self {
         Self {
@@ -630,6 +642,7 @@ impl From<&Interaction> for egui::style::Interaction {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<&egui::style::Interaction> for Interaction {
     fn from(value: &egui::style::Interaction) -> Self {
         Self {
@@ -646,6 +659,7 @@ impl From<&egui::style::Interaction> for Interaction {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<TextCursorStyle> for egui::style::TextCursorStyle {
     fn from(value: TextCursorStyle) -> Self {
         Self {
@@ -658,6 +672,7 @@ impl From<TextCursorStyle> for egui::style::TextCursorStyle {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<egui::style::TextCursorStyle> for TextCursorStyle {
     fn from(value: egui::style::TextCursorStyle) -> Self {
         Self {
@@ -670,6 +685,7 @@ impl From<egui::style::TextCursorStyle> for TextCursorStyle {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<&Visuals> for egui::style::Visuals {
     fn from(value: &Visuals) -> Self {
         Self {
@@ -712,6 +728,7 @@ impl From<&Visuals> for egui::style::Visuals {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<&egui::style::Visuals> for Visuals {
     fn from(value: &egui::style::Visuals) -> Self {
         Self {
@@ -754,6 +771,7 @@ impl From<&egui::style::Visuals> for Visuals {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<Selection> for egui::style::Selection {
     fn from(value: Selection) -> Self {
         Self {
@@ -763,6 +781,7 @@ impl From<Selection> for egui::style::Selection {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<egui::style::Selection> for Selection {
     fn from(value: egui::style::Selection) -> Self {
         Selection {
@@ -772,6 +791,7 @@ impl From<egui::style::Selection> for Selection {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<HandleShape> for egui::style::HandleShape {
     fn from(value: HandleShape) -> Self {
         match value {
@@ -781,6 +801,7 @@ impl From<HandleShape> for egui::style::HandleShape {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<egui::style::HandleShape> for HandleShape {
     fn from(value: egui::style::HandleShape) -> Self {
         match value {
@@ -790,6 +811,7 @@ impl From<egui::style::HandleShape> for HandleShape {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<Widgets> for egui::style::Widgets {
     fn from(value: Widgets) -> Self {
         Self {
@@ -802,6 +824,7 @@ impl From<Widgets> for egui::style::Widgets {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<egui::style::Widgets> for Widgets {
     fn from(value: egui::style::Widgets) -> Self {
         Self {
@@ -814,6 +837,7 @@ impl From<egui::style::Widgets> for Widgets {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<WidgetVisuals> for egui::style::WidgetVisuals {
     fn from(value: WidgetVisuals) -> Self {
         Self {
@@ -827,6 +851,7 @@ impl From<WidgetVisuals> for egui::style::WidgetVisuals {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<egui::style::WidgetVisuals> for WidgetVisuals {
     fn from(value: egui::style::WidgetVisuals) -> Self {
         Self {
@@ -840,6 +865,7 @@ impl From<egui::style::WidgetVisuals> for WidgetVisuals {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<NumericColorSpace> for egui::style::NumericColorSpace {
     fn from(value: NumericColorSpace) -> Self {
         match value {
@@ -849,6 +875,7 @@ impl From<NumericColorSpace> for egui::style::NumericColorSpace {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<egui::style::NumericColorSpace> for NumericColorSpace {
     fn from(value: egui::style::NumericColorSpace) -> Self {
         match value {

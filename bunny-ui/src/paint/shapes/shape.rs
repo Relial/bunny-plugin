@@ -1,11 +1,8 @@
-use std::sync::Arc;
-
 use abi_stable::{
     rvec,
     std_types::{RBox, ROption::RNone, RString, RVec},
 };
-use anyhow::Result;
-use egui::{Color32, Context, Pos2, Rangef, Rect, Vec2, emath::TSTransform, epaint::Vertex, pos2};
+use egui::{Color32, Pos2, Rangef, Rect, Vec2, emath::TSTransform, epaint::Vertex, pos2};
 use tracing::error;
 
 use crate::{
@@ -434,8 +431,9 @@ fn dashes_from_line(
     }
 }
 
+#[cfg(feature = "manager")]
 impl<'a> Shape<'a> {
-    pub fn to_egui(self, ctx: &Context) -> Result<egui::Shape> {
+    pub fn to_egui(self, ctx: &egui::Context) -> anyhow::Result<egui::Shape> {
         match self {
             Shape::Noop => Ok(egui::Shape::Noop),
             Shape::Vec(shapes) => Ok(egui::Shape::Vec(
@@ -453,7 +451,7 @@ impl<'a> Shape<'a> {
             Shape::Path(path_shape) => Ok(egui::Shape::Path(path_shape.into())),
             Shape::Rect(rect_shape) => Ok(egui::Shape::Rect(rect_shape.to_egui(ctx)?)),
             Shape::Text(text_shape) => Ok(egui::Shape::Text(text_shape.to_egui(ctx))),
-            Shape::Mesh(mesh) => Ok(egui::Shape::Mesh(Arc::new(
+            Shape::Mesh(mesh) => Ok(egui::Shape::Mesh(std::sync::Arc::new(
                 RBox::into_inner(mesh).to_egui(ctx)?,
             ))),
             Shape::QuadraticBezier(bezier) => Ok(egui::Shape::QuadraticBezier(bezier.into())),

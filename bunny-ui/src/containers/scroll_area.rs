@@ -18,6 +18,7 @@ impl Default for ScrollBarVisibility {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<ScrollBarVisibility> for egui::scroll_area::ScrollBarVisibility {
     fn from(value: ScrollBarVisibility) -> Self {
         match value {

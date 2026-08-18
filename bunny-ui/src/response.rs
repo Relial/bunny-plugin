@@ -22,6 +22,7 @@ pub struct Response {
 }
 
 impl Response {
+    #[cfg(feature = "manager")]
     pub fn new(id: Id, egui_resp: egui::Response, pointer_state: RArc<PointerState>) -> Self {
         Self {
             id,
@@ -33,6 +34,7 @@ impl Response {
         }
     }
 
+    #[cfg(feature = "manager")]
     pub fn rect_only(id: Id, rect: Rect, pointer_state: RArc<PointerState>) -> Self {
         Self {
             id,
@@ -44,6 +46,7 @@ impl Response {
         }
     }
 
+    #[cfg(feature = "manager")]
     pub fn empty(id: Id, pointer_state: RArc<PointerState>) -> Self {
         Self {
             id,

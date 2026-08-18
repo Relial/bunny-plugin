@@ -19,6 +19,7 @@ impl Shadow {
     };
 }
 
+#[cfg(feature = "manager")]
 impl From<Shadow> for egui::Shadow {
     fn from(value: Shadow) -> Self {
         Self {
@@ -30,6 +31,7 @@ impl From<Shadow> for egui::Shadow {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<egui::Shadow> for Shadow {
     fn from(value: egui::Shadow) -> Self {
         Self {

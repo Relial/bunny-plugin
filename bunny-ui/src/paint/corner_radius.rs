@@ -44,6 +44,7 @@ impl From<f32> for CornerRadius {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<CornerRadius> for egui::CornerRadius {
     fn from(value: CornerRadius) -> Self {
         Self {
@@ -55,6 +56,7 @@ impl From<CornerRadius> for egui::CornerRadius {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<egui::CornerRadius> for CornerRadius {
     fn from(value: egui::CornerRadius) -> Self {
         Self {

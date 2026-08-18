@@ -1,8 +1,5 @@
-use abi_stable::{
-    external_types::RRwLock,
-    std_types::{RArc, RHashMap, ROption, RVec, Tuple2},
-};
-use egui::{Color32, Id, Rect, Sense, Ui, Vec2, vec2};
+use abi_stable::std_types::{RArc, RHashMap, ROption, RVec, Tuple2};
+use egui::{Color32, Id, Rect, Sense, Vec2, vec2};
 use rapidhash::fast::RandomState;
 use shared::{
     camera::Camera,
@@ -15,11 +12,11 @@ use crate::{
         allocate_ui::AllocateUi, collapsing_header::CollapsingHeader, indent::Indent,
         scope_builder::ScopeBuilder,
     },
-    elements::{Component, Container, MiscComponent, UiContainer, Widget},
+    elements::{Component, Container, MiscComponent, Widget},
     image_source::ImageSource,
-    input_state::{Input, InputState, PointerState},
+    input_state::{Input, InputState},
     layout::Layout,
-    paint::{paintlist::PaintList, text::fonts::FontFamily},
+    paint::text::fonts::FontFamily,
     painter::Painter,
     response::{InnerResponse, Response},
     style::{Interaction, Spacing, Style, Visuals},
@@ -50,12 +47,13 @@ pub struct BunnyUi<'a> {
     enabled: bool,
 }
 
+#[cfg(feature = "manager")]
 impl<'a> BunnyUi<'a> {
     pub fn ui(
         self,
-        ui: &mut Ui,
+        ui: &mut egui::Ui,
         new_responses: &mut RHashMap<Id, Response, RandomState>,
-        pointer_state: RArc<PointerState>,
+        pointer_state: RArc<crate::input_state::PointerState>,
     ) {
         self.style.to_egui(ui.style_mut());
         ui.set_opacity(self.opacity_factor);
@@ -63,6 +61,8 @@ impl<'a> BunnyUi<'a> {
             ui.disable();
         }
         for Tuple2(id, component) in self.components {
+            use crate::elements::UiContainer as _;
+
             let response = component.ui(ui, new_responses, pointer_state.clone(), id);
             new_responses.insert(id, response);
         }
@@ -73,7 +73,9 @@ impl<'a> BunnyUi<'a> {
         initial_id: Id,
         last_frame_responses: RArc<RHashMap<Id, Response, RandomState>>,
         input: Input,
-        paint_list: RArc<RRwLock<PaintList<'a>>>,
+        paint_list: RArc<
+            abi_stable::external_types::RRwLock<crate::paint::paintlist::PaintList<'a>>,
+        >,
         available_rect: Rect,
         pixels_per_point: f32,
         style: RArc<Style>,
@@ -98,7 +100,9 @@ impl<'a> BunnyUi<'a> {
             enabled: true,
         }
     }
+}
 
+impl<'a> BunnyUi<'a> {
     #[inline]
     pub fn available_size(&self) -> Vec2 {
         self.available_rect.size()

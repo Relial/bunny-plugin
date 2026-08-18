@@ -1,7 +1,6 @@
 use std::ops::Deref;
 
 use abi_stable::std_types::RCowSlice;
-use egui::emath::Float;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 #[repr(C)]
@@ -41,9 +40,12 @@ impl SizeHint {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<SizeHint> for egui::SizeHint {
     #[inline(always)]
     fn from(value: SizeHint) -> Self {
+        use egui::emath::Float as _;
+
         match value {
             SizeHint::Scale(scale) => Self::Scale(scale.ord()),
             SizeHint::Width(width) => Self::Width(width),

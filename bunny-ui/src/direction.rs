@@ -26,6 +26,7 @@ impl Direction {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<Direction> for egui::Direction {
     fn from(value: Direction) -> Self {
         match value {

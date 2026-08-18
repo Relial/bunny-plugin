@@ -1,4 +1,4 @@
-use std::{borrow::Cow, sync::Arc};
+use std::borrow::Cow;
 
 use abi_stable::std_types::{
     RBox,
@@ -194,6 +194,7 @@ impl From<Cow<'_, str>> for RichText {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<WidgetText> for egui::WidgetText {
     fn from(value: WidgetText) -> Self {
         match value {
@@ -231,7 +232,7 @@ impl From<WidgetText> for egui::WidgetText {
                 if rt.raised {
                     new = new.raised();
                 }
-                egui::WidgetText::RichText(Arc::new(new))
+                egui::WidgetText::RichText(std::sync::Arc::new(new))
             }
         }
     }

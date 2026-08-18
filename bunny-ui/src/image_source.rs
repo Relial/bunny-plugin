@@ -1,9 +1,7 @@
 use std::borrow::Cow;
 
 use abi_stable::std_types::RCowStr;
-use anyhow::{Result, anyhow};
-use egui::{Context, Vec2, load::TexturePoll};
-use shared::texture::{NamedTexture, SizedTexture, TextureId};
+use shared::texture::{NamedTexture, SizedTexture};
 
 use crate::load::Bytes;
 
@@ -27,7 +25,11 @@ impl<'a> ImageSource<'a> {
         }
     }
 
-    pub(crate) fn get_texture(self, ctx: &Context) -> Result<TexturePoll> {
+    #[cfg(feature = "manager")]
+    pub(crate) fn get_texture(
+        self,
+        ctx: &egui::Context,
+    ) -> anyhow::Result<egui::load::TexturePoll> {
         let source: egui::ImageSource = self.try_into()?;
         let res = source.load(
             ctx,
@@ -38,6 +40,7 @@ impl<'a> ImageSource<'a> {
     }
 }
 
+#[cfg(feature = "manager")]
 impl<'a> TryFrom<ImageSource<'a>> for egui::ImageSource<'a> {
     type Error = anyhow::Error;
 
@@ -49,14 +52,14 @@ impl<'a> TryFrom<ImageSource<'a>> for egui::ImageSource<'a> {
             }
             ImageSource::Texture(texture) => {
                 let id = match texture.id {
-                    TextureId::Managed3d(_) => {
-                        Err(anyhow!("Managed 3d textures can't be used with BunnyUi"))
-                    }
-                    TextureId::Shared(id) => Ok(egui::TextureId::User(id)),
+                    shared::texture::TextureId::Managed3d(_) => Err(anyhow::anyhow!(
+                        "Managed 3d textures can't be used with BunnyUi"
+                    )),
+                    shared::texture::TextureId::Shared(id) => Ok(egui::TextureId::User(id)),
                 }?;
                 Ok(egui::load::SizedTexture {
                     id,
-                    size: Vec2 {
+                    size: egui::Vec2 {
                         x: texture.size[0] as f32,
                         y: texture.size[1] as f32,
                     },

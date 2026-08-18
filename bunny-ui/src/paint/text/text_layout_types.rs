@@ -1,3 +1,4 @@
+#[cfg(feature = "manager")]
 use std::{collections::BTreeMap, sync::Arc};
 
 use abi_stable::{
@@ -143,6 +144,7 @@ impl LayoutJob {
     }
 }
 
+#[cfg(feature = "manager")]
 impl LayoutJob {
     pub(crate) fn convert_to_egui(
         self,
@@ -182,6 +184,7 @@ pub struct LayoutSection {
     pub leading_space: f32,
 }
 
+#[cfg(feature = "manager")]
 impl LayoutSection {
     pub(crate) fn convert_to_egui(
         self,
@@ -228,6 +231,7 @@ impl VariationCoords {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<VariationCoords> for egui::epaint::text::VariationCoords {
     fn from(value: VariationCoords) -> Self {
         Self::new(value.0.into_iter().map(|t| t.into()))
@@ -279,6 +283,7 @@ impl TextFormat {
     }
 }
 
+#[cfg(feature = "manager")]
 impl TextFormat {
     pub(crate) fn convert_to_egui(
         self,
@@ -321,6 +326,7 @@ pub enum TextWrapMode {
     Truncate,
 }
 
+#[cfg(feature = "manager")]
 impl From<TextWrapMode> for egui::TextWrapMode {
     fn from(value: TextWrapMode) -> Self {
         match value {
@@ -331,6 +337,7 @@ impl From<TextWrapMode> for egui::TextWrapMode {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<egui::TextWrapMode> for TextWrapMode {
     fn from(value: egui::TextWrapMode) -> Self {
         match value {
@@ -394,6 +401,7 @@ impl TextWrapping {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<TextWrapping> for egui::epaint::text::TextWrapping {
     fn from(value: TextWrapping) -> Self {
         let TextWrapping {

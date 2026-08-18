@@ -72,6 +72,7 @@ impl TextureOptions {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<TextureOptions> for egui::TextureOptions {
     #[inline(always)]
     fn from(value: TextureOptions) -> Self {
@@ -97,6 +98,7 @@ pub enum TextureFilter {
     Linear,
 }
 
+#[cfg(feature = "manager")]
 impl From<TextureFilter> for egui::TextureFilter {
     #[inline(always)]
     fn from(value: TextureFilter) -> Self {
@@ -116,6 +118,7 @@ pub enum TextureWrapMode {
     MirroredRepeat,
 }
 
+#[cfg(feature = "manager")]
 impl From<TextureWrapMode> for egui::TextureWrapMode {
     #[inline(always)]
     fn from(value: TextureWrapMode) -> Self {

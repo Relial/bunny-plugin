@@ -55,6 +55,7 @@ impl From<PathShape> for Shape<'_> {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<PathShape> for egui::epaint::PathShape {
     fn from(value: PathShape) -> Self {
         let PathShape {

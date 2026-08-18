@@ -168,6 +168,7 @@ impl Layout {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<Layout> for egui::Layout {
     fn from(value: Layout) -> Self {
         Self {

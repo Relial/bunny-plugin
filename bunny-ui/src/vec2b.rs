@@ -62,6 +62,7 @@ impl std::ops::IndexMut<usize> for Vec2b {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<Vec2b> for egui::Vec2b {
     fn from(value: Vec2b) -> Self {
         Self {

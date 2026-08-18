@@ -43,6 +43,7 @@ where
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<Stroke> for egui::Stroke {
     fn from(value: Stroke) -> Self {
         Self {
@@ -52,6 +53,7 @@ impl From<Stroke> for egui::Stroke {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<egui::Stroke> for Stroke {
     fn from(value: egui::Stroke) -> Self {
         Self {
@@ -70,6 +72,7 @@ pub enum StrokeKind {
     Outside,
 }
 
+#[cfg(feature = "manager")]
 impl From<StrokeKind> for egui::StrokeKind {
     fn from(value: StrokeKind) -> Self {
         match value {
@@ -104,6 +107,7 @@ impl PathStroke {
     };
 }
 
+#[cfg(feature = "manager")]
 impl From<PathStroke> for egui::epaint::PathStroke {
     fn from(value: PathStroke) -> Self {
         let PathStroke { width, color, kind } = value;

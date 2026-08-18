@@ -17,6 +17,7 @@ impl ColorMode {
     pub const TRANSPARENT: Self = Self::Solid(Color32::TRANSPARENT);
 }
 
+#[cfg(feature = "manager")]
 impl From<ColorMode> for egui::epaint::ColorMode {
     fn from(value: ColorMode) -> Self {
         match value {

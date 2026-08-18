@@ -2,7 +2,7 @@ use abi_stable::std_types::{
     RBox,
     ROption::{self, RNone, RSome},
 };
-use egui::{Color32, Ui};
+use egui::Color32;
 
 use crate::{
     elements::Widget,
@@ -80,8 +80,9 @@ impl Button {
     }
 }
 
+#[cfg(feature = "manager")]
 impl egui::Widget for Button {
-    fn ui(self, ui: &mut Ui) -> egui::Response {
+    fn ui(self, ui: &mut egui::Ui) -> egui::Response {
         let mut button = egui::Button::new(self.text).selected(self.selected);
         if let RSome(fill) = self.fill {
             button = button.fill(fill);

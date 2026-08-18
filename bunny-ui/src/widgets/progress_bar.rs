@@ -79,6 +79,7 @@ impl ProgressBar {
     }
 }
 
+#[cfg(feature = "manager")]
 impl egui::Widget for ProgressBar {
     fn ui(self, ui: &mut egui::Ui) -> egui::Response {
         let mut bar = egui::ProgressBar::new(self.progress).animate(self.animate);

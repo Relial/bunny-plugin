@@ -1,18 +1,10 @@
 use std::hash::Hash;
 
-use abi_stable::std_types::{
-    RArc, RHashMap,
-    ROption::{self, RNone, RSome},
-};
-use egui::{Id, Ui};
-use rapidhash::fast::RandomState;
+use abi_stable::std_types::ROption::{self, RNone, RSome};
+use egui::Id;
 
 use crate::{
-    elements::{Container, UiContainer},
-    input_state::PointerState,
-    layout::Layout,
-    response::{InnerResponse, Response},
-    ui::BunnyUi,
+    elements::Container, layout::Layout, response::InnerResponse, ui::BunnyUi,
     widget_text::WidgetText,
 };
 
@@ -92,14 +84,19 @@ pub struct CollapsingHeaderComponent<'a> {
     collapsing_header: CollapsingHeader,
 }
 
-impl UiContainer for CollapsingHeaderComponent<'_> {
+#[cfg(feature = "manager")]
+impl crate::elements::UiContainer for CollapsingHeaderComponent<'_> {
     fn ui(
         self,
-        ui: &mut Ui,
-        responses: &mut RHashMap<Id, Response, RandomState>,
-        pointer_state: RArc<PointerState>,
-        id: Id,
-    ) -> Response {
+        ui: &mut egui::Ui,
+        responses: &mut abi_stable::std_types::RHashMap<
+            egui::Id,
+            crate::response::Response,
+            rapidhash::fast::RandomState,
+        >,
+        pointer_state: abi_stable::std_types::RArc<crate::input_state::PointerState>,
+        id: egui::Id,
+    ) -> crate::response::Response {
         let mut header = egui::CollapsingHeader::new(self.collapsing_header.text)
             .id_salt(self.collapsing_header.id)
             .default_open(self.collapsing_header.default_open)
@@ -117,7 +114,7 @@ impl UiContainer for CollapsingHeaderComponent<'_> {
                 self.contents.ui(ui, responses, pointer_state.clone())
             })
         };
-        Response::new(id, resp.header_response, pointer_state)
+        crate::response::Response::new(id, resp.header_response, pointer_state)
     }
 }
 

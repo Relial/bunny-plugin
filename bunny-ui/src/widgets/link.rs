@@ -11,6 +11,7 @@ impl Link {
     }
 }
 
+#[cfg(feature = "manager")]
 impl egui::Widget for Link {
     fn ui(self, ui: &mut egui::Ui) -> egui::Response {
         ui.link(self.text)

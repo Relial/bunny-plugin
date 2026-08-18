@@ -5,7 +5,6 @@ use abi_stable::std_types::{
     ROption::{self, RNone, RSome},
     RString,
 };
-use egui::Ui;
 
 use crate::{elements::Widget, num::Num, widgets::slider::NumberCustomFormat};
 
@@ -147,8 +146,9 @@ impl<'a> DragValue<'a> {
     }
 }
 
+#[cfg(feature = "manager")]
 impl egui::Widget for DragValue<'_> {
-    fn ui(mut self, ui: &mut Ui) -> egui::Response {
+    fn ui(mut self, ui: &mut egui::Ui) -> egui::Response {
         let mut drag_value = egui::DragValue::from_get_set(|v: Option<f64>| {
             if let Some(v) = v {
                 self.value.set(v);

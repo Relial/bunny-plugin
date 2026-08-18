@@ -194,6 +194,7 @@ impl<'t> TextEdit<'t> {
     }
 }
 
+#[cfg(feature = "manager")]
 impl egui::Widget for TextEdit<'_> {
     fn ui(self, ui: &mut egui::Ui) -> egui::Response {
         let mut text_edit = if self.multiline {

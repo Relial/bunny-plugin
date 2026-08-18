@@ -20,6 +20,7 @@ pub enum PointerButton {
     Extra2 = 4,
 }
 
+#[cfg(feature = "manager")]
 impl From<egui::PointerButton> for PointerButton {
     fn from(value: egui::PointerButton) -> Self {
         match value {
@@ -119,6 +120,7 @@ impl std::ops::BitOrAssign for Modifiers {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<egui::Modifiers> for Modifiers {
     fn from(value: egui::Modifiers) -> Self {
         Self {
@@ -170,6 +172,7 @@ impl KeyboardShortcut {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<egui::KeyboardShortcut> for KeyboardShortcut {
     fn from(value: egui::KeyboardShortcut) -> Self {
         Self {

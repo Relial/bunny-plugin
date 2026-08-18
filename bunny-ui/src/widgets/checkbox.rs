@@ -1,5 +1,3 @@
-use egui::Ui;
-
 use crate::{elements::Widget, widget_text::WidgetText};
 
 #[repr(C)]
@@ -33,8 +31,9 @@ impl CheckBox {
     }
 }
 
+#[cfg(feature = "manager")]
 impl egui::Widget for CheckBox {
-    fn ui(self, ui: &mut Ui) -> egui::Response {
+    fn ui(self, ui: &mut egui::Ui) -> egui::Response {
         let mut temp = self.checked;
         let checkbox = if let Some(text) = self.text {
             egui::Checkbox::new(&mut temp, text)

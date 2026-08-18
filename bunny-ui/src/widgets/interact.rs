@@ -1,4 +1,4 @@
-use egui::{Rect, Sense, Ui};
+use egui::{Rect, Sense};
 
 use crate::elements::Widget;
 
@@ -20,8 +20,9 @@ impl From<Interact> for Widget<'_> {
     }
 }
 
+#[cfg(feature = "manager")]
 impl egui::Widget for Interact {
-    fn ui(self, ui: &mut Ui) -> egui::Response {
+    fn ui(self, ui: &mut egui::Ui) -> egui::Response {
         ui.interact(self.rect, ui.next_auto_id(), self.sense)
     }
 }

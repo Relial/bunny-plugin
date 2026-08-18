@@ -1,14 +1,12 @@
 use abi_stable::std_types::{
-    RArc, RBox, RHashMap,
+    RBox,
     ROption::{self, RNone, RSome},
 };
-use egui::{Id, Sense, Ui};
-use rapidhash::fast::RandomState;
+use egui::{Id, Sense};
 
 use crate::{
     containers::popup::{Popup, PopupAnchor, PopupKind},
-    elements::{Container, UiContainer},
-    input_state::PointerState,
+    elements::Container,
     layout::Layout,
     response::{InnerResponse, Response},
     ui::BunnyUi,
@@ -111,14 +109,19 @@ pub struct TooltipComponent<'a> {
     contents: BunnyUi<'a>,
 }
 
-impl UiContainer for TooltipComponent<'_> {
+#[cfg(feature = "manager")]
+impl crate::elements::UiContainer for TooltipComponent<'_> {
     fn ui(
         self,
-        ui: &mut Ui,
-        responses: &mut RHashMap<Id, Response, RandomState>,
-        pointer_state: RArc<PointerState>,
-        id: Id,
-    ) -> Response {
+        ui: &mut egui::Ui,
+        responses: &mut abi_stable::std_types::RHashMap<
+            egui::Id,
+            crate::response::Response,
+            rapidhash::fast::RandomState,
+        >,
+        pointer_state: abi_stable::std_types::RArc<crate::input_state::PointerState>,
+        id: egui::Id,
+    ) -> crate::response::Response {
         if !self.tooltip.popup.is_open(ui) {
             return Response::empty(id, pointer_state);
         }

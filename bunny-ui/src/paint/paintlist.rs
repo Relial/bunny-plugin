@@ -1,6 +1,6 @@
 use abi_stable::std_types::RVec;
-use egui::{Rect, Ui, emath::TSTransform};
-use tracing::{debug, warn};
+use egui::{Rect, emath::TSTransform};
+use tracing::warn;
 
 use crate::paint::shapes::shape::Shape;
 
@@ -33,7 +33,8 @@ impl<'a> PaintList<'a> {
         Self::default()
     }
 
-    pub fn ui(&mut self, ui: &mut Ui) {
+    #[cfg(feature = "manager")]
+    pub fn ui(&mut self, ui: &mut egui::Ui) {
         // shape.to_egui() will cause a deadlock if called inside ui.graphics_mut(), which means we need to process shapes beforehand and so need the allocation
         // if egui::Context::write() were public this could be avoided
         let shapes_clip_rects: Vec<(egui::Shape, Rect)> = self
@@ -42,7 +43,7 @@ impl<'a> PaintList<'a> {
             .filter_map(|s| match s.shape.to_egui(ui) {
                 Ok(egui_shape) => Some((egui_shape, s.clip_rect)),
                 Err(e) => {
-                    debug!("Failed to convert Shape to Egui: {e}");
+                    tracing::debug!("Failed to convert Shape to Egui: {e}");
                     None
                 }
             })

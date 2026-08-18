@@ -28,6 +28,7 @@ impl Spinner {
     }
 }
 
+#[cfg(feature = "manager")]
 impl egui::Widget for Spinner {
     fn ui(self, ui: &mut egui::Ui) -> egui::Response {
         let mut spinner = egui::Spinner::new();

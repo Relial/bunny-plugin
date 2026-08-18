@@ -5,7 +5,6 @@ use abi_stable::std_types::{
     ROption::{self, RNone, RSome},
     RString,
 };
-use egui::Ui;
 
 use crate::{elements::Widget, num::Num, style::HandleShape, widget_text::WidgetText};
 
@@ -24,6 +23,7 @@ pub enum SliderOrientation {
     Vertical,
 }
 
+#[cfg(feature = "manager")]
 impl From<SliderOrientation> for egui::SliderOrientation {
     fn from(value: SliderOrientation) -> Self {
         match value {
@@ -42,6 +42,7 @@ pub enum SliderClamping {
     Always,
 }
 
+#[cfg(feature = "manager")]
 impl From<SliderClamping> for egui::SliderClamping {
     fn from(value: SliderClamping) -> Self {
         match value {
@@ -272,8 +273,9 @@ impl<'a> Slider<'a> {
     }
 }
 
+#[cfg(feature = "manager")]
 impl egui::Widget for Slider<'_> {
-    fn ui(mut self, ui: &mut Ui) -> egui::Response {
+    fn ui(mut self, ui: &mut egui::Ui) -> egui::Response {
         let mut slider =
             egui::Slider::from_get_set(self.range[0]..=self.range[1], |v: Option<f64>| {
                 if let Some(v) = v {

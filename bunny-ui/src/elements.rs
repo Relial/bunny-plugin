@@ -1,5 +1,10 @@
-use abi_stable::std_types::{RArc, RBox, RHashMap};
-use egui::{Id, Ui, Vec2, Widget as _};
+use abi_stable::std_types::RBox;
+#[cfg(feature = "manager")]
+use abi_stable::std_types::{RArc, RHashMap};
+use egui::Vec2;
+#[cfg(feature = "manager")]
+use egui::{Id, Ui, Widget as _};
+#[cfg(feature = "manager")]
 use rapidhash::fast::RandomState;
 
 use crate::{
@@ -9,8 +14,6 @@ use crate::{
         popup::PopupComponent, scope_builder::ScopeBuilder, tooltip::TooltipComponent,
         window::WindowComponent,
     },
-    input_state::PointerState,
-    response::Response,
     widgets::{
         button::Button, checkbox::CheckBox, color_picker::ColorPicker, drag_value::DragValue,
         image::Image, interact::Interact, label::Label, link::Link, progress_bar::ProgressBar,
@@ -18,11 +21,15 @@ use crate::{
         slider::Slider, spinner::Spinner, text_edit::builder::TextEdit,
     },
 };
+#[cfg(feature = "manager")]
+use crate::{input_state::PointerState, response::Response};
 
+#[cfg(feature = "manager")]
 pub(crate) trait UiComponent {
     fn ui(self, ui: &mut Ui, pointer_state: RArc<PointerState>, id: Id) -> Response;
 }
 
+#[cfg(feature = "manager")]
 pub(crate) trait UiContainer {
     fn ui(
         self,
@@ -33,6 +40,7 @@ pub(crate) trait UiContainer {
     ) -> Response;
 }
 
+#[allow(unused)]
 #[repr(C)]
 pub(crate) enum Container<'a> {
     CollapsingHeader(CollapsingHeaderComponent<'a>),
@@ -47,6 +55,7 @@ pub(crate) enum Container<'a> {
     Frame(RBox<FrameComponent<'a>>),
 }
 
+#[cfg(feature = "manager")]
 impl UiContainer for Container<'_> {
     fn ui(
         self,
@@ -80,6 +89,7 @@ impl UiContainer for Container<'_> {
     }
 }
 
+#[allow(unused)]
 #[repr(C)]
 pub(crate) enum Widget<'a> {
     Label(RBox<Label>),
@@ -99,6 +109,7 @@ pub(crate) enum Widget<'a> {
     ColorPicker(ColorPicker<'a>),
 }
 
+#[cfg(feature = "manager")]
 impl egui::Widget for Widget<'_> {
     fn ui(self, ui: &mut Ui) -> egui::Response {
         match self {
@@ -121,6 +132,7 @@ impl egui::Widget for Widget<'_> {
     }
 }
 
+#[allow(unused)]
 #[repr(C)]
 pub(crate) enum MiscComponent {
     Space(f32),
@@ -128,6 +140,7 @@ pub(crate) enum MiscComponent {
     AllocateSpace(Vec2),
 }
 
+#[cfg(feature = "manager")]
 impl UiComponent for MiscComponent {
     fn ui(self, ui: &mut Ui, pointer_state: RArc<PointerState>, id: Id) -> Response {
         match self {
@@ -147,6 +160,7 @@ impl UiComponent for MiscComponent {
     }
 }
 
+#[allow(unused)]
 #[repr(C)]
 pub(crate) enum Component<'a> {
     Container(RBox<Container<'a>>),
@@ -154,6 +168,7 @@ pub(crate) enum Component<'a> {
     MiscComponent(MiscComponent),
 }
 
+#[cfg(feature = "manager")]
 impl UiContainer for Component<'_> {
     fn ui(
         self,

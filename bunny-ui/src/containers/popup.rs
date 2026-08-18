@@ -1,12 +1,18 @@
 use abi_stable::std_types::{
-    RArc, RBox, RHashMap,
+    RBox,
     ROption::{self, RNone, RSome},
 };
-use egui::{Context, Id, Pos2, Rect, Sense, Ui};
-use rapidhash::fast::RandomState;
+use egui::{Context, Id, Pos2, Rect, Sense};
 
 use crate::{
-    align::Align, containers::frame::Frame, elements::{Container, UiContainer}, input_state::PointerState, layout::Layout, paint::paintlist::Order, rect_align::RectAlign, response::{InnerResponse, Response}, ui::BunnyUi,
+    align::Align,
+    containers::frame::Frame,
+    elements::Container,
+    layout::Layout,
+    paint::paintlist::Order,
+    rect_align::RectAlign,
+    response::{InnerResponse, Response},
+    ui::BunnyUi,
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -48,6 +54,7 @@ impl From<&Response> for PopupAnchor {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<PopupAnchor> for egui::PopupAnchor {
     fn from(value: PopupAnchor) -> Self {
         match value {
@@ -68,6 +75,7 @@ pub enum PopupCloseBehavior {
     IgnoreClicks,
 }
 
+#[cfg(feature = "manager")]
 impl From<PopupCloseBehavior> for egui::PopupCloseBehavior {
     fn from(value: PopupCloseBehavior) -> Self {
         match value {
@@ -85,6 +93,7 @@ pub enum SetOpenCommand {
     Toggle,
 }
 
+#[cfg(feature = "manager")]
 impl From<SetOpenCommand> for egui::SetOpenCommand {
     fn from(value: SetOpenCommand) -> Self {
         match value {
@@ -120,6 +129,7 @@ impl PopupKind {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<PopupKind> for egui::PopupKind {
     fn from(value: PopupKind) -> Self {
         match value {
@@ -384,7 +394,8 @@ impl<'a> Popup<'a> {
         inner
     }
 
-    pub(crate) fn egui(self, ui: &mut Ui, id: Id) -> egui::Popup<'a> {
+    #[cfg(feature = "manager")]
+    pub(crate) fn egui(self, ui: &mut egui::Ui, id: Id) -> egui::Popup<'a> {
         let mut popup = egui::Popup::new(id, ui.ctx().clone(), self.anchor, ui.layer_id())
             .align(self.rect_align.into())
             .kind(self.kind.into())
@@ -449,14 +460,19 @@ pub struct PopupComponent<'a> {
     popup: Popup<'a>,
 }
 
-impl UiContainer for PopupComponent<'_> {
+#[cfg(feature = "manager")]
+impl crate::elements::UiContainer for PopupComponent<'_> {
     fn ui(
         self,
-        ui: &mut Ui,
-        responses: &mut RHashMap<Id, Response, RandomState>,
-        pointer_state: RArc<PointerState>,
-        id: Id,
-    ) -> Response {
+        ui: &mut egui::Ui,
+        responses: &mut abi_stable::std_types::RHashMap<
+            egui::Id,
+            crate::response::Response,
+            rapidhash::fast::RandomState,
+        >,
+        pointer_state: abi_stable::std_types::RArc<crate::input_state::PointerState>,
+        id: egui::Id,
+    ) -> crate::response::Response {
         let popup = self.popup.egui(ui, id);
 
         let inner = popup.show(|ui| {

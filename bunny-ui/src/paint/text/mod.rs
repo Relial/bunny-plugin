@@ -18,6 +18,7 @@ pub enum AlphaFromCoverage {
     TwoCoverageMinusCoverageSq,
 }
 
+#[cfg(feature = "manager")]
 impl From<TextOptions> for egui::epaint::text::TextOptions {
     fn from(value: TextOptions) -> Self {
         Self {
@@ -28,6 +29,7 @@ impl From<TextOptions> for egui::epaint::text::TextOptions {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<egui::epaint::text::TextOptions> for TextOptions {
     fn from(value: egui::epaint::text::TextOptions) -> Self {
         Self {
@@ -38,6 +40,7 @@ impl From<egui::epaint::text::TextOptions> for TextOptions {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<AlphaFromCoverage> for egui::epaint::image::AlphaFromCoverage {
     fn from(value: AlphaFromCoverage) -> Self {
         match value {
@@ -48,6 +51,7 @@ impl From<AlphaFromCoverage> for egui::epaint::image::AlphaFromCoverage {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<egui::epaint::image::AlphaFromCoverage> for AlphaFromCoverage {
     fn from(value: egui::epaint::image::AlphaFromCoverage) -> Self {
         match value {

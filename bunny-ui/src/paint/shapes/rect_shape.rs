@@ -1,11 +1,8 @@
-use std::sync::Arc;
-
 use abi_stable::std_types::{
     RBox,
     ROption::{self, RNone, RSome},
 };
-use anyhow::Result;
-use egui::{Color32, Context, Pos2, Rect, emath::Rot2};
+use egui::{Color32, Pos2, Rect, emath::Rot2};
 
 use crate::{
     image_source::ImageSource,
@@ -129,8 +126,9 @@ impl<'a> From<RectShape<'a>> for Shape<'a> {
     }
 }
 
+#[cfg(feature = "manager")]
 impl<'a> RectShape<'a> {
-    pub fn to_egui(self, ctx: &Context) -> Result<egui::epaint::RectShape> {
+    pub fn to_egui(self, ctx: &egui::Context) -> anyhow::Result<egui::epaint::RectShape> {
         let RectShape {
             rect,
             corner_radius,
@@ -142,9 +140,9 @@ impl<'a> RectShape<'a> {
             brush,
             angle,
         } = self;
-        let brush: Option<Arc<egui::epaint::Brush>> = if let RSome(brush) = brush {
+        let brush: Option<std::sync::Arc<egui::epaint::Brush>> = if let RSome(brush) = brush {
             let egui_brush = RBox::into_inner(brush).to_egui(ctx)?;
-            Some(Arc::new(egui_brush))
+            Some(std::sync::Arc::new(egui_brush))
         } else {
             None
         };

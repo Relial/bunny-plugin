@@ -1,14 +1,12 @@
-use abi_stable::std_types::{RArc, RBox, RHashMap};
+use abi_stable::std_types::RBox;
 use egui::Color32;
-use rapidhash::fast::RandomState;
 
 use crate::{
-    elements::{Container, UiContainer},
-    input_state::PointerState,
+    elements::Container,
     layout::Layout,
     margin::Margin,
     paint::{corner_radius::CornerRadius, stroke::Stroke},
-    response::{InnerResponse, Response},
+    response::InnerResponse,
     shadow::Shadow,
     style::Style,
     ui::BunnyUi,
@@ -161,6 +159,7 @@ impl Frame {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<Frame> for egui::Frame {
     fn from(value: Frame) -> Self {
         Self {
@@ -186,20 +185,25 @@ impl<'a> From<FrameComponent<'a>> for Container<'a> {
     }
 }
 
-impl UiContainer for FrameComponent<'_> {
+#[cfg(feature = "manager")]
+impl crate::elements::UiContainer for FrameComponent<'_> {
     fn ui(
         self,
         ui: &mut egui::Ui,
-        responses: &mut RHashMap<egui::Id, Response, RandomState>,
-        pointer_state: RArc<PointerState>,
+        responses: &mut abi_stable::std_types::RHashMap<
+            egui::Id,
+            crate::response::Response,
+            rapidhash::fast::RandomState,
+        >,
+        pointer_state: abi_stable::std_types::RArc<crate::input_state::PointerState>,
         id: egui::Id,
-    ) -> Response {
+    ) -> crate::response::Response {
         let frame: egui::Frame = self.frame.into();
         let resp = frame
             .show(ui, |ui| {
                 self.contents.ui(ui, responses, pointer_state.clone());
             })
             .response;
-        Response::new(id, resp, pointer_state)
+        crate::response::Response::new(id, resp, pointer_state)
     }
 }

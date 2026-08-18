@@ -1,3 +1,4 @@
+#[cfg(feature = "manager")]
 use std::{collections::BTreeMap, sync::Arc};
 
 use abi_stable::std_types::RString;
@@ -38,6 +39,7 @@ impl FontId {
     }
 }
 
+#[cfg(feature = "manager")]
 impl FontId {
     pub(crate) fn convert_to_egui(
         self,
@@ -61,6 +63,7 @@ pub enum FontFamily {
     Name(RString),
 }
 
+#[cfg(feature = "manager")]
 impl FontFamily {
     pub fn to_egui(self, font_data: &BTreeMap<String, Arc<egui::FontData>>) -> egui::FontFamily {
         match self {
@@ -111,6 +114,7 @@ impl From<TextStyle> for FontSelection {
     }
 }
 
+#[cfg(feature = "manager")]
 impl FontSelection {
     pub fn convert_to_egui(self, ui: &egui::Ui) -> egui::FontSelection {
         match self {

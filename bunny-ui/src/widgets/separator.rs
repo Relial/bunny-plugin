@@ -1,5 +1,4 @@
 use abi_stable::std_types::ROption::{self, RNone, RSome};
-use egui::Ui;
 
 use crate::elements::Widget;
 
@@ -47,8 +46,9 @@ impl Default for Separator {
     }
 }
 
+#[cfg(feature = "manager")]
 impl egui::Widget for Separator {
-    fn ui(self, ui: &mut Ui) -> egui::Response {
+    fn ui(self, ui: &mut egui::Ui) -> egui::Response {
         let mut separator = egui::Separator::default();
         if let RSome(spacing) = self.spacing {
             separator = separator.spacing(spacing);

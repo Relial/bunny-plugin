@@ -7,7 +7,7 @@ use abi_stable::{
         RVec,
     },
 };
-use egui::{Pos2, RawInput, Vec2};
+use egui::{Pos2, Vec2};
 
 use crate::{
     input::{KeyEvent, KeyboardShortcut, Modifiers, PointerButton},
@@ -33,6 +33,7 @@ impl Input {
         writer(&mut self.0.write())
     }
 
+    #[cfg(feature = "manager")]
     pub fn collect(&self, egui_input: &egui::InputState, options: InputOptions) {
         self.write(|i| i.collect(egui_input, options));
     }
@@ -86,6 +87,7 @@ impl Default for InputState {
 }
 
 impl InputState {
+    #[cfg(feature = "manager")]
     pub fn collect(&mut self, egui_input: &egui::InputState, options: InputOptions) {
         self.pointer
             .collect(egui_input.time, &egui_input.raw, options);
@@ -263,7 +265,8 @@ impl Default for PointerState {
 }
 
 impl PointerState {
-    pub fn collect(&mut self, time: f64, new: &RawInput, options: InputOptions) {
+    #[cfg(feature = "manager")]
+    pub fn collect(&mut self, time: f64, new: &egui::RawInput, options: InputOptions) {
         self.time = time;
         self.options = options;
         self.pointer_events.clear();
@@ -509,6 +512,7 @@ impl PointerState {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<egui::InputOptions> for InputOptions {
     fn from(value: egui::InputOptions) -> Self {
         Self {

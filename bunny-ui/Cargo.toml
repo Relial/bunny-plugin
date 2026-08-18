@@ -4,14 +4,15 @@ version = "0.2.0"
 edition = "2024"
 
 [features]
-default = ["serde"]
-manager = []
+default = []
+manager = ["dep:egui"]
 serde = ["dep:serde", "egui/serde"]
 
 [dependencies]
 abi_stable = "0.11.3"
 anyhow = "1.0.104"
-egui = { version = "0.34.3", features = ["rayon"] }
+egui = { version = "0.34.3", default-features = false, features = ["rayon"], optional = true }
+epaint = { version = "0.34.3", default-features = false }
 nohash-hasher = "0.2.0"
 rapidhash = "4.5.1"
 serde = { version = "1.0.229", features = ["derive"], optional = true }

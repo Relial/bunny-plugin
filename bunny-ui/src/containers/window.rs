@@ -1,13 +1,24 @@
 use abi_stable::std_types::{
-    RArc, RBox, RHashMap,
+    RBox,
     ROption::{self, RNone, RSome},
     RString,
 };
-use egui::{Color32, Id, Pos2, Rect, Ui, Vec2, vec2};
-use rapidhash::fast::RandomState;
+use egui::{Color32, Id, Pos2, Rect, Vec2};
 
 use crate::{
-    align::Align2, area::Area, containers::{frame::Frame, scroll_area::{ScrollArea, ScrollBarVisibility, ScrollSource}}, elements::{Container, UiContainer}, input_state::PointerState, layout::Layout, paint::{corner_radius::CornerRadius, stroke::Stroke}, resize::Resize, response::{InnerResponse, Response}, ui::BunnyUi, vec2b::Vec2b,
+    align::Align2,
+    area::Area,
+    containers::{
+        frame::Frame,
+        scroll_area::{ScrollArea, ScrollBarVisibility, ScrollSource},
+    },
+    elements::Container,
+    layout::Layout,
+    paint::{corner_radius::CornerRadius, stroke::Stroke},
+    resize::Resize,
+    response::InnerResponse,
+    ui::BunnyUi,
+    vec2b::Vec2b,
 };
 
 #[derive(Clone, Debug, Default)]
@@ -302,8 +313,9 @@ pub struct WindowComponent<'a> {
     contents: BunnyUi<'a>,
 }
 
+#[cfg(feature = "manager")]
 impl WindowComponent<'_> {
-    fn ui_title_bar(&mut self, ui: &mut Ui) {
+    fn ui_title_bar(&mut self, ui: &mut egui::Ui) {
         let title_bar_height = 24.0;
         let rect = {
             let mut rect = ui.max_rect();
@@ -319,7 +331,7 @@ impl WindowComponent<'_> {
                 .unwrap_or_default();
             let close_color = ui.visuals().widgets.state(widget_state).fg_stroke.color;
             let close_rect = painter.text(
-                rect.right_center() - vec2(4.0, 0.0),
+                rect.right_center() - egui::vec2(4.0, 0.0),
                 egui::Align2::RIGHT_CENTER,
                 "❌",
                 egui::FontId::proportional(14.0),
@@ -349,14 +361,19 @@ impl WindowComponent<'_> {
     }
 }
 
-impl UiContainer for WindowComponent<'_> {
+#[cfg(feature = "manager")]
+impl crate::elements::UiContainer for WindowComponent<'_> {
     fn ui(
         mut self,
         ui: &mut egui::Ui,
-        responses: &mut RHashMap<Id, Response, RandomState>,
-        pointer_state: RArc<PointerState>,
-        id: Id,
-    ) -> Response {
+        responses: &mut abi_stable::std_types::RHashMap<
+            egui::Id,
+            crate::response::Response,
+            rapidhash::fast::RandomState,
+        >,
+        pointer_state: abi_stable::std_types::RArc<crate::input_state::PointerState>,
+        id: egui::Id,
+    ) -> crate::response::Response {
         let mut window = egui::Window::new("")
             .id(self.window.id)
             .title_bar(false)
@@ -398,9 +415,9 @@ impl UiContainer for WindowComponent<'_> {
             self.contents.ui(ui, responses, pointer_state.clone());
         });
         if let Some(inner) = inner {
-            Response::new(id, inner.response, pointer_state)
+            crate::response::Response::new(id, inner.response, pointer_state)
         } else {
-            Response::empty(id, pointer_state)
+            crate::response::Response::empty(id, pointer_state)
         }
     }
 }

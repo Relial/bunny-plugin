@@ -2,7 +2,7 @@ use abi_stable::std_types::{
     RBox,
     ROption::{self, RNone, RSome},
 };
-use egui::{Sense, Ui};
+use egui::Sense;
 
 use crate::{
     align::Align, elements::Widget, paint::text::text_layout_types::TextWrapMode,
@@ -80,8 +80,9 @@ impl Label {
     }
 }
 
+#[cfg(feature = "manager")]
 impl egui::Widget for Label {
-    fn ui(self, ui: &mut Ui) -> egui::Response {
+    fn ui(self, ui: &mut egui::Ui) -> egui::Response {
         let mut label =
             egui::Label::new(self.text).show_tooltip_when_elided(self.show_tooltip_when_elided);
         if let RSome(wrap_mode) = self.wrap_mode {

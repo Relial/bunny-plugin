@@ -57,6 +57,7 @@ impl From<EllipseShape> for Shape<'_> {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<EllipseShape> for egui::epaint::EllipseShape {
     fn from(value: EllipseShape) -> Self {
         let EllipseShape {

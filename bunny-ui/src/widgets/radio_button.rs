@@ -21,6 +21,7 @@ impl From<RadioButton> for Widget<'_> {
     }
 }
 
+#[cfg(feature = "manager")]
 impl egui::Widget for RadioButton {
     fn ui(self, ui: &mut egui::Ui) -> egui::Response {
         ui.radio(self.checked, self.text)

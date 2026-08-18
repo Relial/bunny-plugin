@@ -2,9 +2,8 @@ use abi_stable::std_types::{
     ROption::{self, RSome},
     RVec,
 };
-use anyhow::{Result, anyhow};
 use egui::{
-    Color32, Context, Pos2, Rect, TextureId, Vec2,
+    Color32, Pos2, Rect, Vec2,
     emath::{Rot2, TSTransform},
     epaint::{Vertex, WHITE_UV},
 };
@@ -144,18 +143,19 @@ impl<'a> Mesh<'a> {
     }
 }
 
+#[cfg(feature = "manager")]
 impl<'a> Mesh<'a> {
-    pub fn to_egui(self, ctx: &Context) -> Result<egui::Mesh> {
+    pub fn to_egui(self, ctx: &egui::Context) -> anyhow::Result<egui::Mesh> {
         let texture_id = if let RSome(texture_loader) = self.texture_source {
             let texture_poll = texture_loader.get_texture(ctx)?;
             match texture_poll {
                 egui::load::TexturePoll::Pending { size: _ } => {
-                    return Err(anyhow!("Texture is loading"));
+                    return Err(anyhow::anyhow!("Texture is loading"));
                 }
                 egui::load::TexturePoll::Ready { texture } => texture.id,
             }
         } else {
-            TextureId::Managed(0)
+            egui::TextureId::Managed(0)
         };
         Ok(egui::Mesh {
             indices: self.indices.into(),

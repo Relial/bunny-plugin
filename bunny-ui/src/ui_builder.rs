@@ -58,6 +58,7 @@ impl UiBuilder {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<UiBuilder> for egui::UiBuilder {
     fn from(value: UiBuilder) -> Self {
         Self {

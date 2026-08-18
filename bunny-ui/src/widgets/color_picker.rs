@@ -13,6 +13,7 @@ impl<'a> ColorPicker<'a> {
     }
 }
 
+#[cfg(feature = "manager")]
 impl egui::Widget for ColorPicker<'_> {
     fn ui(self, ui: &mut egui::Ui) -> egui::Response {
         ui.color_edit_button_srgba(self.color)

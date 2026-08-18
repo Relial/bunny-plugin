@@ -1,14 +1,6 @@
-use abi_stable::std_types::{RArc, RHashMap};
-use egui::{Id, Ui, Vec2};
-use rapidhash::fast::RandomState;
+use egui::Vec2;
 
-use crate::{
-    elements::{Container, UiContainer},
-    input_state::PointerState,
-    layout::Layout,
-    response::Response,
-    ui::BunnyUi,
-};
+use crate::{elements::Container, layout::Layout, ui::BunnyUi};
 
 #[repr(C)]
 pub struct AllocateUi<'a> {
@@ -27,20 +19,25 @@ impl<'a> AllocateUi<'a> {
     }
 }
 
-impl UiContainer for AllocateUi<'_> {
+#[cfg(feature = "manager")]
+impl crate::elements::UiContainer for AllocateUi<'_> {
     fn ui(
         self,
-        ui: &mut Ui,
-        responses: &mut RHashMap<Id, Response, RandomState>,
-        pointer_state: RArc<PointerState>,
-        id: Id,
-    ) -> Response {
+        ui: &mut egui::Ui,
+        responses: &mut abi_stable::std_types::RHashMap<
+            egui::Id,
+            crate::response::Response,
+            rapidhash::fast::RandomState,
+        >,
+        pointer_state: abi_stable::std_types::RArc<crate::input_state::PointerState>,
+        id: egui::Id,
+    ) -> crate::response::Response {
         let egui_resp = ui
             .allocate_ui_with_layout(self.desired_size, self.layout.into(), |ui| {
                 self.contents.ui(ui, responses, pointer_state.clone())
             })
             .response;
-        Response::new(id, egui_resp, pointer_state)
+        crate::response::Response::new(id, egui_resp, pointer_state)
     }
 }
 

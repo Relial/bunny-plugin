@@ -65,6 +65,7 @@ impl Align {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<Align> for egui::Align {
     fn from(value: Align) -> Self {
         match value {
@@ -75,6 +76,7 @@ impl From<Align> for egui::Align {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<egui::Align> for Align {
     fn from(value: egui::Align) -> Self {
         match value {
@@ -178,6 +180,7 @@ impl Align2 {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<Align2> for egui::Align2 {
     fn from(value: Align2) -> Self {
         Self([value.x().into(), value.y().into()])

@@ -345,6 +345,7 @@ impl Key {
     }
 }
 
+#[cfg(feature = "manager")]
 impl From<egui::Key> for Key {
     fn from(value: egui::Key) -> Self {
         match value {
