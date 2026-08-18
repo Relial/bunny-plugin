@@ -8,7 +8,7 @@ pub mod backend;
 
 #[cfg(feature = "bevy")]
 pub use bevy_mesh;
-pub use epaint::Color32;
+pub use ecolor::Color32;
 pub use glam::{Quat, Vec3};
 pub use image;
 #[cfg(feature = "tobj")]

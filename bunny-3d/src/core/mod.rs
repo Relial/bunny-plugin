@@ -3,7 +3,7 @@ use std::path::Path;
 use abi_stable::std_types::RArc;
 use anyhow::Result;
 use bytemuck::{Pod, Zeroable};
-use epaint::Color32;
+use ecolor::Color32;
 use glam::{Quat, Vec3};
 #[cfg(feature = "backend")]
 use shared::texture::SharedTextures;

@@ -806,7 +806,7 @@ dependencies = [
  "anyhow",
  "bevy_mesh",
  "bytemuck",
- "epaint",
+ "ecolor",
  "glam 0.33.2",
  "image",
  "rapidhash",
