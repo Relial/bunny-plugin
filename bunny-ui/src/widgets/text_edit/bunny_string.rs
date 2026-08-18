@@ -13,7 +13,6 @@ use abi_stable::{
     },
 };
 use egui::{TextBuffer, text_selection::text_cursor_state::byte_index_from_char_index};
-use serde::{Deserialize, Serialize};
 
 macro_rules! deref_coerced_impl_cmp_traits {
     (
@@ -261,7 +260,8 @@ impl fmt::Write for BunnyString {
     }
 }
 
-impl Serialize for BunnyString {
+#[cfg(feature = "serde")]
+impl serde::Serialize for BunnyString {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -270,7 +270,8 @@ impl Serialize for BunnyString {
     }
 }
 
-impl<'de> Deserialize<'de> for BunnyString {
+#[cfg(feature = "serde")]
+impl<'de> serde::Deserialize<'de> for BunnyString {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: serde::Deserializer<'de>,

@@ -1,9 +1,8 @@
-use serde::{Deserialize, Serialize};
-
 use crate::{align::Align, direction::Direction};
 
 #[repr(C)]
-#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Layout {
     pub main_dir: Direction,
     pub main_align: Align,

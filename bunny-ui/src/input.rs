@@ -1,9 +1,8 @@
-use serde::{Deserialize, Serialize};
-
 use crate::key::Key;
 
 #[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct KeyEvent {
     pub key: Key,
     pub modifiers: Modifiers,
@@ -34,7 +33,8 @@ impl From<egui::PointerButton> for PointerButton {
 }
 
 #[repr(C)]
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Modifiers {
     pub alt: bool,
     pub ctrl: bool,
@@ -130,7 +130,8 @@ impl From<egui::Modifiers> for Modifiers {
 }
 
 #[repr(C)]
-#[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(Clone, Copy, PartialEq, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct KeyboardShortcut {
     pub logical_key: Key,
     pub modifiers: Modifiers,

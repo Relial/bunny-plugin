@@ -1,12 +1,12 @@
 use std::{collections::BTreeMap, sync::Arc};
 
 use abi_stable::std_types::RString;
-use serde::{Deserialize, Serialize};
 
 use crate::style::TextStyle;
 
 #[repr(C)]
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct FontId {
     pub family: FontFamily,
     pub size: f32,
@@ -52,7 +52,8 @@ impl FontId {
 }
 
 #[repr(C)]
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum FontFamily {
     #[default]
     Proportional,

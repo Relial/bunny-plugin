@@ -1,8 +1,8 @@
 use egui::{Pos2, Rangef, Rect, Vec2, emath::fast_midpoint, pos2, vec2};
-use serde::{Deserialize, Serialize};
 
 #[repr(C)]
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Align {
     Min,
     Center,
@@ -86,7 +86,8 @@ impl From<egui::Align> for Align {
 }
 
 #[repr(C)]
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Align2(pub [Align; 2]);
 
 impl Align2 {

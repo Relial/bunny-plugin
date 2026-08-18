@@ -1,7 +1,6 @@
-use serde::{Deserialize, Serialize};
-
 #[repr(C)]
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Direction {
     LeftToRight,
     RightToLeft,

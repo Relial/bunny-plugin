@@ -1,7 +1,6 @@
-use serde::{Deserialize, Serialize};
-
 #[repr(C)]
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Vec2b {
     pub x: bool,
     pub y: bool,
