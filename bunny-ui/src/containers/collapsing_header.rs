@@ -41,8 +41,8 @@ impl CollapsingHeader {
     }
 
     #[inline]
-    pub fn id_salt(mut self, id: u64) -> Self {
-        self.id = RSome(Id::new(id));
+    pub fn id(mut self, id: Id) -> Self {
+        self.id = RSome(id);
         self
     }
 

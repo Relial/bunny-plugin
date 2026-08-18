@@ -18,9 +18,9 @@ pub struct ComboBox {
 }
 
 impl ComboBox {
-    pub fn new(id: u64, label: impl Into<WidgetText>) -> Self {
+    pub fn new(id: Id, label: impl Into<WidgetText>) -> Self {
         Self {
-            id: Id::new(id),
+            id,
             label: RSome(label.into()),
             selected_text: Default::default(),
             width: RNone,
@@ -30,9 +30,9 @@ impl ComboBox {
         }
     }
 
-    pub fn from_id(id: u64) -> Self {
+    pub fn from_id(id: Id) -> Self {
         Self {
-            id: Id::new(id),
+            id,
             label: RNone,
             selected_text: Default::default(),
             width: RNone,

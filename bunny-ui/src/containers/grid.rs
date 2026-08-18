@@ -15,9 +15,9 @@ pub struct Grid {
 }
 
 impl Grid {
-    pub fn new(id: u64) -> Self {
+    pub fn new(id: Id) -> Self {
         Self {
-            id: Id::new(id),
+            id,
             num_columns: RNone,
             min_col_width: RNone,
             min_row_height: RNone,
