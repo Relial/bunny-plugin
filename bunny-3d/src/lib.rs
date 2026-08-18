@@ -10,6 +10,7 @@ pub mod backend;
 pub use bevy_mesh;
 pub use ecolor::Color32;
 pub use glam;
+#[cfg(feature = "image")]
 pub use image;
 #[cfg(feature = "tobj")]
 pub use tobj;

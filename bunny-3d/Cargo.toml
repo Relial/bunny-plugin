@@ -7,19 +7,20 @@ edition = "2024"
 default = []
 bevy = ["dep:bevy_mesh"]
 tobj = ["dep:tobj"]
-backend = ["tobj"]
+backend = ["dep:windows", "tobj", "image"]
 serde = ["dep:serde", "glam/serde"]
+image = ["dep:image"]
 
 [dependencies]
 anyhow = "1.0.104"
 bevy_mesh = { version = "0.19.0", optional = true }
 windows-numerics = "0.3.1"
 glam = "0.33.2"
-windows = { version = "0.62.2", features = ["Win32_Graphics_Direct3D9", "Win32_Graphics_Gdi"] }
+windows = { version = "0.62.2", features = ["Win32_Graphics_Direct3D9", "Win32_Graphics_Gdi"], optional = true }
 ecolor = "0.34.3"
 tracing = "0.1.44"
 rapidhash = "4.5.1"
-image = "0.25.10"
+image = { version = "0.25.10", optional = true }
 abi_stable = "0.11.3"
 bytemuck = { version = "1.25.2", features = ["derive"] }
 serde = { version = "1.0.229", features = ["derive"], optional = true }

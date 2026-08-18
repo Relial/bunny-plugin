@@ -2,12 +2,9 @@ use abi_stable::std_types::RVec;
 #[cfg(feature = "backend")]
 use anyhow::{Context as _, Result};
 use shared::texture::TextureId;
-use windows::Win32::Graphics::Direct3D9::{
-    D3DPRIMITIVETYPE, D3DPT_LINELIST, D3DPT_POINTLIST, D3DPT_TRIANGLELIST,
-};
 #[cfg(feature = "backend")]
 use windows::Win32::Graphics::Direct3D9::{
-    D3DRS_FILLMODE, D3DTRANSFORMSTATETYPE, IDirect3DDevice9,
+    D3DPRIMITIVETYPE, D3DPT_LINELIST, D3DPT_POINTLIST, D3DPT_TRIANGLELIST, D3DRS_FILLMODE, D3DTRANSFORMSTATETYPE, IDirect3DDevice9,
 };
 use windows_numerics::Matrix4x4;
 
@@ -119,6 +116,7 @@ pub enum PrimitiveTopology {
     TriangleList,
 }
 
+#[cfg(feature = "backend")]
 impl PrimitiveTopology {
     #[inline]
     pub fn to_d3d(self) -> D3DPRIMITIVETYPE {
@@ -126,6 +124,7 @@ impl PrimitiveTopology {
     }
 }
 
+#[cfg(feature = "backend")]
 impl From<PrimitiveTopology> for D3DPRIMITIVETYPE {
     #[inline]
     fn from(value: PrimitiveTopology) -> Self {

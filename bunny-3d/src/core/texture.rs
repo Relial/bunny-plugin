@@ -3,7 +3,6 @@ use abi_stable::std_types::{
     ROption::{self, RSome},
     RVec,
 };
-use image::DynamicImage;
 use shared::texture::{NamedTexture, SharedTextures, SizedTexture, TextureId};
 
 use crate::GpuColor;
@@ -40,16 +39,9 @@ impl Textures {
         self.allocations.push(allocation);
     }
 
-    pub fn allocate<'a>(&mut self, texture: impl Into<TextureSource<'a>>) -> TextureId {
+    pub fn allocate(&mut self, texture: impl Into<TextureData>) -> TextureId {
         let id = self.advance_id();
-
-        let data = match texture.into() {
-            TextureSource::Image(image) => image.into(),
-            TextureSource::RawPixels { size, pixels } => TextureData {
-                pixels: pixels.into(),
-                size,
-            },
-        };
+        let data = texture.into();
         self.allocate_from_data(data, id);
         id
     }
@@ -93,20 +85,6 @@ pub struct TextureAllocation {
     pub id: TextureId,
 }
 
-pub enum TextureSource<'a> {
-    Image(&'a DynamicImage),
-    RawPixels {
-        size: [u32; 2],
-        pixels: Vec<GpuColor>,
-    },
-}
-
-impl<'a> From<&'a DynamicImage> for TextureSource<'a> {
-    fn from(value: &'a DynamicImage) -> Self {
-        Self::Image(value)
-    }
-}
-
 #[derive(Debug, Default)]
 #[repr(C)]
 pub struct TextureData {
@@ -114,8 +92,22 @@ pub struct TextureData {
     pub size: [u32; 2],
 }
 
-impl From<&DynamicImage> for TextureData {
-    fn from(image: &DynamicImage) -> Self {
+impl TextureData {
+    pub fn from_raw_pixels(
+        pixels: impl IntoIterator<Item = GpuColor>,
+        width: u32,
+        height: u32,
+    ) -> Self {
+        Self {
+            pixels: pixels.into_iter().collect(),
+            size: [width, height],
+        }
+    }
+}
+
+#[cfg(feature = "image")]
+impl From<&image::DynamicImage> for TextureData {
+    fn from(image: &image::DynamicImage) -> Self {
         let size = [image.width(), image.height()];
         let rgba = image.to_rgba8().into_flat_samples();
         let (chunks, _) = rgba.as_slice().as_chunks::<4>();

@@ -18,9 +18,10 @@ use crate::{
     core::{
         asset_loader::{AssetLoader, MeshPoll, TexturePoll},
         draw_list::DrawList,
-        texture::{TextureSource, Textures},
+        texture::Textures,
     },
     mesh::{Mesh, UvOrigin},
+    texture::TextureData,
 };
 
 pub mod asset_loader;
@@ -54,7 +55,7 @@ impl Bunny3d {
     /// Allocate a texture on the GPU. Every call to this allocates, so this should only be called once per texture.
     ///
     /// If you want cached texture loading, use load_texture instead
-    pub fn allocate_texture<'a>(&mut self, texture: impl Into<TextureSource<'a>>) -> TextureId {
+    pub fn allocate_texture(&mut self, texture: impl Into<TextureData>) -> TextureId {
         self.textures.allocate(texture)
     }
 
