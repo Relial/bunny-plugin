@@ -1,16 +1,15 @@
 use abi_stable::std_types::{
-    RArc,
     ROption::{self, RSome},
     RVec,
 };
-use shared::texture::{NamedTexture, SharedTextures, SizedTexture, TextureId};
+use shared::texture::{SharedTextures, TextureId};
 
 use crate::GpuColor;
 
 #[derive(Debug)]
 #[repr(C)]
 pub struct Textures {
-    shared_textures: ROption<RArc<SharedTextures>>,
+    shared_textures: ROption<SharedTextures>,
     allocations: RVec<TextureAllocation>,
     next_id: u64,
 }
@@ -51,20 +50,10 @@ impl Textures {
         self.allocations.len()
     }
 
+    /// Textures loaded by the manager
     #[inline]
-    pub fn get_texture(&self, texture_file_name: impl AsRef<str>) -> Option<SizedTexture> {
-        self.shared_textures
-            .as_ref()
-            .into_option()
-            .and_then(|s| s.get_texture(texture_file_name))
-    }
-
-    #[inline]
-    pub fn textures(&self) -> &[NamedTexture] {
-        self.shared_textures
-            .as_ref()
-            .map(|s| s.textures())
-            .unwrap_or_default()
+    pub fn shared_textures(&self) -> Option<SharedTextures> {
+        self.shared_textures.clone().into_option()
     }
 }
 
@@ -73,7 +62,7 @@ impl Textures {
         self.allocations.drain(..)
     }
 
-    pub fn add_shared(&mut self, shared: RArc<SharedTextures>) {
+    pub fn add_shared(&mut self, shared: SharedTextures) {
         self.shared_textures = RSome(shared);
     }
 }

@@ -9,7 +9,7 @@ use glam::{Quat, Vec3};
 use shared::texture::SharedTextures;
 use shared::{
     camera::Camera,
-    texture::{NamedTexture, SizedTexture, TextureId},
+    texture::{SharedTextures, TextureId},
 };
 
 #[cfg(feature = "backend")]
@@ -65,20 +65,9 @@ impl Bunny3d {
         self.textures.allocations_len()
     }
 
-    /// Get a texture loaded from the bunny_textures directory.
-    ///
-    /// The textures are loaded asynchronously, so you should not assume this returns what you want at startup.
     #[inline]
-    pub fn get_shared_texture(&self, texture_file_name: impl AsRef<str>) -> Option<SizedTexture> {
-        self.textures.get_texture(texture_file_name)
-    }
-
-    /// Textures loaded from the bunny_textures directory.
-    ///
-    /// The textures are loaded asynchronously, so you should not assume this returns what you want at startup.
-    #[inline]
-    pub fn shared_textures(&self) -> &[NamedTexture] {
-        self.textures.textures()
+    pub fn shared_textures(&self) -> Option<SharedTextures> {
+        self.textures.shared_textures()
     }
 
     /// Asynchronously load a texture from an image file path
@@ -115,7 +104,7 @@ impl Bunny3d {
         self.textures.extract_allocations()
     }
 
-    pub(crate) fn add_shared(&mut self, shared: RArc<SharedTextures>) {
+    pub(crate) fn add_shared(&mut self, shared: SharedTextures) {
         self.textures.add_shared(shared);
     }
 

@@ -1,4 +1,4 @@
-use abi_stable::std_types::{RHashMap, RString, RVec};
+use abi_stable::std_types::{RArc, RHashMap, RString, RVec};
 use rapidhash::fast::RandomState;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -26,13 +26,39 @@ impl std::fmt::Display for TextureId {
 
 #[derive(Clone, Debug, Default)]
 #[repr(C)]
-pub struct SharedTextures {
+pub struct SharedTextures(RArc<SharedTexturesImpl>);
+
+impl SharedTextures {
+    pub fn new(textures: impl IntoIterator<Item = (RString, SizedTexture)>) -> Self {
+        Self(RArc::new(SharedTexturesImpl::new(textures)))
+    }
+
+    /// Get a texture loaded by the manager by its filename
+    ///
+    /// The textures are loaded asynchronously, so you should not assume this returns what you want at startup
+    #[inline]
+    pub fn get_texture(&self, name: impl AsRef<str>) -> Option<SizedTexture> {
+        self.0.get_texture(name)
+    }
+
+    /// Textures loaded by the manager
+    ///
+    /// The textures are loaded asynchronously, so you should not assume this returns what you want at startup
+    #[inline]
+    pub fn textures(&self) -> &[NamedTexture] {
+        self.0.textures()
+    }
+}
+
+#[derive(Clone, Debug, Default)]
+#[repr(C)]
+struct SharedTexturesImpl {
     list: RVec<NamedTexture>,
     map: RHashMap<RString, SizedTexture, RandomState>,
 }
 
-impl SharedTextures {
-    pub fn new(textures: impl IntoIterator<Item = (RString, SizedTexture)>) -> Self {
+impl SharedTexturesImpl {
+    fn new(textures: impl IntoIterator<Item = (RString, SizedTexture)>) -> Self {
         let (map, list) = textures
             .into_iter()
             .map(|(name, tex)| ((name.clone(), tex), NamedTexture::new(name, tex)))
@@ -42,12 +68,12 @@ impl SharedTextures {
     }
 
     #[inline]
-    pub fn get_texture(&self, name: impl AsRef<str>) -> Option<SizedTexture> {
+    fn get_texture(&self, name: impl AsRef<str>) -> Option<SizedTexture> {
         self.map.get(name.as_ref()).copied()
     }
 
     #[inline]
-    pub fn textures(&self) -> &[NamedTexture] {
+    fn textures(&self) -> &[NamedTexture] {
         self.list.as_slice()
     }
 }

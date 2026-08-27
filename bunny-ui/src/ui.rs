@@ -2,10 +2,7 @@ use abi_stable::std_types::{RArc, RHashMap, ROption, RVec, Tuple2};
 use ecolor::Color32;
 use emath::{Rect, Vec2, vec2};
 use rapidhash::fast::RandomState;
-use shared::{
-    camera::Camera,
-    texture::{NamedTexture, SharedTextures, SizedTexture},
-};
+use shared::{camera::Camera, texture::SharedTextures};
 
 use crate::{
     Id,
@@ -39,7 +36,7 @@ pub struct BunnyUi<'a> {
     pub layout: Layout,
     last_frame_responses: RArc<RHashMap<Id, Response, RandomState>>,
     input: Input,
-    shared_textures: ROption<RArc<SharedTextures>>,
+    shared_textures: ROption<SharedTextures>,
     available_rect: Rect,
     style: RArc<Style>,
     camera: RArc<Camera>,
@@ -82,7 +79,7 @@ impl<'a> BunnyUi<'a> {
         available_rect: Rect,
         pixels_per_point: f32,
         style: RArc<Style>,
-        shared_textures: Option<RArc<SharedTextures>>,
+        shared_textures: Option<SharedTextures>,
         camera: RArc<Camera>,
         fonts: CustomFonts,
     ) -> Self {
@@ -613,32 +610,16 @@ impl<'a> BunnyUi<'a> {
         self.add(Image::new(source))
     }
 
-    /// Get a texture loaded by the manager by its filename
-    ///
-    /// The textures are loaded asynchronously, so you should not assume this returns what you want at startup
-    #[inline]
-    pub fn get_shared_texture(&self, texture_file_name: impl AsRef<str>) -> Option<SizedTexture> {
-        self.shared_textures
-            .as_ref()
-            .into_option()
-            .and_then(|s| s.get_texture(texture_file_name))
-    }
-
-    /// Textures loaded by the manager
-    ///
-    /// The textures are loaded asynchronously, so you should not assume this returns what you want at startup
-    #[inline]
-    pub fn shared_textures(&self) -> &[NamedTexture] {
-        self.shared_textures
-            .as_ref()
-            .map(|s| s.textures())
-            .unwrap_or_default()
-    }
-
     /// Get information about the game camera
     #[inline]
     pub fn camera(&self) -> &Camera {
         &self.camera
+    }
+
+    /// Textures loaded by the manager
+    #[inline]
+    pub fn shared_textures(&self) -> Option<SharedTextures> {
+        self.shared_textures.clone().into_option()
     }
 
     /// Fonts loaded by the manager

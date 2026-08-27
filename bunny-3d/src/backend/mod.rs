@@ -239,7 +239,7 @@ impl Bunny3dBackend {
         self.texture_manager.add_shared(textures);
     }
 
-    pub fn add_shared_textures(&mut self, textures: RArc<SharedTextures>) {
+    pub fn add_shared_textures(&mut self, textures: SharedTextures) {
         self.data.add_shared(textures);
     }
 }
