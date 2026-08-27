@@ -18,7 +18,7 @@ use crate::{
     image_source::ImageSource,
     input_state::{Input, InputState},
     layout::Layout,
-    paint::text::fonts::FontFamily,
+    paint::text::fonts::CustomFonts,
     painter::Painter,
     response::{InnerResponse, Response},
     sense::Sense,
@@ -43,7 +43,7 @@ pub struct BunnyUi<'a> {
     available_rect: Rect,
     style: RArc<Style>,
     camera: RArc<Camera>,
-    fonts: RArc<RVec<FontFamily>>,
+    pub fonts: CustomFonts,
     next_salt: u64,
     pixels_per_point: f32,
     opacity_factor: f32,
@@ -84,7 +84,7 @@ impl<'a> BunnyUi<'a> {
         style: RArc<Style>,
         shared_textures: Option<RArc<SharedTextures>>,
         camera: RArc<Camera>,
-        fonts: RArc<RVec<FontFamily>>,
+        fonts: CustomFonts,
     ) -> Self {
         Self {
             components: RVec::new(),
@@ -641,9 +641,9 @@ impl<'a> BunnyUi<'a> {
         &self.camera
     }
 
-    /// Get fonts available to the manager
+    /// Fonts loaded by the manager
     #[inline]
-    pub fn fonts(&self) -> &[FontFamily] {
-        &self.fonts
+    pub fn custom_fonts(&self) -> CustomFonts {
+        self.fonts.clone()
     }
 }

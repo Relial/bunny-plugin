@@ -26,7 +26,7 @@ use crate::{
     },
 };
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug)]
 #[repr(C)]
 pub enum Shape<'a> {
     Noop,

@@ -18,7 +18,7 @@ pub enum Order {
 #[repr(C)]
 pub struct ShapeIdx(pub usize);
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug)]
 #[repr(C)]
 pub struct PaintList<'a>(RVec<ClippedShape<'a>>);
 
@@ -123,7 +123,7 @@ impl<'a> PaintList<'a> {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug)]
 #[repr(C)]
 pub struct ClippedShape<'a> {
     pub shape: Shape<'a>,

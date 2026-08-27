@@ -15,7 +15,7 @@ use crate::{
     paint::{stroke::Stroke, text::fonts::FontId},
 };
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug)]
 #[repr(C)]
 pub struct LayoutJob {
     pub text: RString,
@@ -173,7 +173,7 @@ impl LayoutJob {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug)]
 #[repr(C)]
 pub struct LayoutSection {
     pub format: TextFormat,
@@ -200,7 +200,7 @@ impl LayoutSection {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug)]
 #[repr(C)]
 pub struct TextFormat {
     pub font_id: FontId,

@@ -10,7 +10,7 @@ use crate::{
     paint::{shapes::shape::Shape, stroke::Stroke, text::text_layout_types::LayoutJob},
 };
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug)]
 #[repr(C)]
 pub struct TextShape {
     pub layout_job: RBox<LayoutJob>,
