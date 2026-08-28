@@ -68,6 +68,7 @@ impl From<SizeHint> for egui::SizeHint {
 pub struct Bytes(RCowSlice<'static, u8>);
 
 impl Bytes {
+    #[inline]
     pub fn into_inner(self) -> RCowSlice<'static, u8> {
         self.0
     }

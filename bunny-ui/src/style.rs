@@ -457,6 +457,7 @@ pub enum NumericColorSpace {
 
 #[cfg(feature = "manager")]
 impl From<TextStyle> for egui::TextStyle {
+    #[inline]
     fn from(value: TextStyle) -> Self {
         match value {
             TextStyle::Small => Self::Small,
@@ -470,6 +471,7 @@ impl From<TextStyle> for egui::TextStyle {
 
 #[cfg(feature = "manager")]
 impl From<egui::TextStyle> for TextStyle {
+    #[inline]
     fn from(value: egui::TextStyle) -> Self {
         match value {
             egui::TextStyle::Small => Self::Small,
@@ -589,6 +591,7 @@ impl From<egui::style::ScrollStyle> for ScrollStyle {
 
 #[cfg(feature = "manager")]
 impl From<ScrollFadeStyle> for egui::style::ScrollFadeStyle {
+    #[inline]
     fn from(value: ScrollFadeStyle) -> Self {
         Self {
             strength: value.strength,
@@ -599,6 +602,7 @@ impl From<ScrollFadeStyle> for egui::style::ScrollFadeStyle {
 
 #[cfg(feature = "manager")]
 impl From<egui::style::ScrollFadeStyle> for ScrollFadeStyle {
+    #[inline]
     fn from(value: egui::style::ScrollFadeStyle) -> Self {
         Self {
             strength: value.strength,
@@ -609,6 +613,7 @@ impl From<egui::style::ScrollFadeStyle> for ScrollFadeStyle {
 
 #[cfg(feature = "manager")]
 impl From<ScrollAnimation> for egui::style::ScrollAnimation {
+    #[inline]
     fn from(value: ScrollAnimation) -> Self {
         Self {
             points_per_second: value.points_per_second,
@@ -619,6 +624,7 @@ impl From<ScrollAnimation> for egui::style::ScrollAnimation {
 
 #[cfg(feature = "manager")]
 impl From<egui::style::ScrollAnimation> for ScrollAnimation {
+    #[inline]
     fn from(value: egui::style::ScrollAnimation) -> Self {
         Self {
             points_per_second: value.points_per_second,
@@ -629,6 +635,7 @@ impl From<egui::style::ScrollAnimation> for ScrollAnimation {
 
 #[cfg(feature = "manager")]
 impl From<&Interaction> for egui::style::Interaction {
+    #[inline]
     fn from(value: &Interaction) -> Self {
         Self {
             interact_radius: value.interact_radius,
@@ -645,6 +652,7 @@ impl From<&Interaction> for egui::style::Interaction {
 
 #[cfg(feature = "manager")]
 impl From<&egui::style::Interaction> for Interaction {
+    #[inline]
     fn from(value: &egui::style::Interaction) -> Self {
         Self {
             changed: false,
@@ -662,6 +670,7 @@ impl From<&egui::style::Interaction> for Interaction {
 
 #[cfg(feature = "manager")]
 impl From<TextCursorStyle> for egui::style::TextCursorStyle {
+    #[inline]
     fn from(value: TextCursorStyle) -> Self {
         Self {
             stroke: value.stroke.into(),
@@ -675,6 +684,7 @@ impl From<TextCursorStyle> for egui::style::TextCursorStyle {
 
 #[cfg(feature = "manager")]
 impl From<egui::style::TextCursorStyle> for TextCursorStyle {
+    #[inline]
     fn from(value: egui::style::TextCursorStyle) -> Self {
         Self {
             stroke: value.stroke.into(),
@@ -774,6 +784,7 @@ impl From<&egui::style::Visuals> for Visuals {
 
 #[cfg(feature = "manager")]
 impl From<Selection> for egui::style::Selection {
+    #[inline]
     fn from(value: Selection) -> Self {
         Self {
             bg_fill: value.bg_fill,
@@ -784,6 +795,7 @@ impl From<Selection> for egui::style::Selection {
 
 #[cfg(feature = "manager")]
 impl From<egui::style::Selection> for Selection {
+    #[inline]
     fn from(value: egui::style::Selection) -> Self {
         Selection {
             bg_fill: value.bg_fill,
@@ -794,6 +806,7 @@ impl From<egui::style::Selection> for Selection {
 
 #[cfg(feature = "manager")]
 impl From<HandleShape> for egui::style::HandleShape {
+    #[inline]
     fn from(value: HandleShape) -> Self {
         match value {
             HandleShape::Circle => Self::Circle,
@@ -804,6 +817,7 @@ impl From<HandleShape> for egui::style::HandleShape {
 
 #[cfg(feature = "manager")]
 impl From<egui::style::HandleShape> for HandleShape {
+    #[inline]
     fn from(value: egui::style::HandleShape) -> Self {
         match value {
             egui::style::HandleShape::Circle => Self::Circle,
@@ -814,6 +828,7 @@ impl From<egui::style::HandleShape> for HandleShape {
 
 #[cfg(feature = "manager")]
 impl From<Widgets> for egui::style::Widgets {
+    #[inline]
     fn from(value: Widgets) -> Self {
         Self {
             noninteractive: value.noninteractive.into(),
@@ -827,6 +842,7 @@ impl From<Widgets> for egui::style::Widgets {
 
 #[cfg(feature = "manager")]
 impl From<egui::style::Widgets> for Widgets {
+    #[inline]
     fn from(value: egui::style::Widgets) -> Self {
         Self {
             noninteractive: value.noninteractive.into(),
@@ -840,6 +856,7 @@ impl From<egui::style::Widgets> for Widgets {
 
 #[cfg(feature = "manager")]
 impl From<WidgetVisuals> for egui::style::WidgetVisuals {
+    #[inline]
     fn from(value: WidgetVisuals) -> Self {
         Self {
             bg_fill: value.bg_fill,
@@ -854,6 +871,7 @@ impl From<WidgetVisuals> for egui::style::WidgetVisuals {
 
 #[cfg(feature = "manager")]
 impl From<egui::style::WidgetVisuals> for WidgetVisuals {
+    #[inline]
     fn from(value: egui::style::WidgetVisuals) -> Self {
         Self {
             bg_fill: value.bg_fill,
@@ -868,6 +886,7 @@ impl From<egui::style::WidgetVisuals> for WidgetVisuals {
 
 #[cfg(feature = "manager")]
 impl From<NumericColorSpace> for egui::style::NumericColorSpace {
+    #[inline]
     fn from(value: NumericColorSpace) -> Self {
         match value {
             NumericColorSpace::GammaByte => Self::GammaByte,
@@ -878,6 +897,7 @@ impl From<NumericColorSpace> for egui::style::NumericColorSpace {
 
 #[cfg(feature = "manager")]
 impl From<egui::style::NumericColorSpace> for NumericColorSpace {
+    #[inline]
     fn from(value: egui::style::NumericColorSpace) -> Self {
         match value {
             egui::style::NumericColorSpace::GammaByte => Self::GammaByte,

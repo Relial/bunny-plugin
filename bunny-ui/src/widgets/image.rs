@@ -167,12 +167,14 @@ impl<'a> Image<'a> {
 }
 
 impl<'a, T: Into<ImageSource<'a>>> From<T> for Image<'a> {
+    #[inline]
     fn from(value: T) -> Self {
         Image::new(value)
     }
 }
 
 impl<'a> From<Image<'a>> for Widget<'a> {
+    #[inline]
     fn from(value: Image<'a>) -> Self {
         Self::Image(RBox::new(value))
     }
@@ -279,6 +281,7 @@ pub enum ImageFit {
 }
 
 impl ImageFit {
+    #[inline]
     pub fn resolve(self, available_size: Vec2, image_size: Vec2) -> Vec2 {
         match self {
             ImageFit::Original { scale } => image_size * scale,

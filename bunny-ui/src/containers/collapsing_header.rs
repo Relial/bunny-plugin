@@ -116,6 +116,7 @@ impl crate::elements::UiContainer for CollapsingHeaderComponent<'_> {
 }
 
 impl<'a> From<CollapsingHeaderComponent<'a>> for Container<'a> {
+    #[inline]
     fn from(value: CollapsingHeaderComponent<'a>) -> Self {
         Self::CollapsingHeader(value)
     }

@@ -62,6 +62,7 @@ impl From<Vec2> for Margin {
 
 #[cfg(feature = "manager")]
 impl From<Margin> for egui::Margin {
+    #[inline]
     fn from(value: Margin) -> Self {
         Self {
             left: value.left,
@@ -74,6 +75,7 @@ impl From<Margin> for egui::Margin {
 
 #[cfg(feature = "manager")]
 impl From<egui::Margin> for Margin {
+    #[inline]
     fn from(value: egui::Margin) -> Self {
         Self {
             left: value.left,

@@ -36,6 +36,7 @@ impl CircleShape {
 }
 
 impl From<CircleShape> for Shape<'_> {
+    #[inline]
     fn from(value: CircleShape) -> Self {
         Self::Circle(value)
     }

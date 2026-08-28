@@ -25,6 +25,7 @@ impl<'a> Mesh<'a> {
         }
     }
 
+    #[inline]
     pub fn clear(&mut self) {
         self.indices.clear();
         self.vertices.clear();
@@ -39,6 +40,7 @@ impl<'a> Mesh<'a> {
         }
     }
 
+    #[inline]
     pub fn is_empty(&self) -> bool {
         self.indices.is_empty() && self.vertices.is_empty()
     }

@@ -19,6 +19,7 @@ pub struct Label {
 }
 
 impl Label {
+    #[inline]
     pub fn new(text: impl Into<WidgetText>) -> Self {
         Self {
             text: text.into(),
@@ -102,6 +103,7 @@ impl egui::Widget for Label {
 }
 
 impl From<Label> for Widget<'_> {
+    #[inline]
     fn from(value: Label) -> Self {
         Self::Label(RBox::new(value))
     }

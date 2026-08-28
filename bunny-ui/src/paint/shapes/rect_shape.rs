@@ -122,6 +122,7 @@ impl<'a> RectShape<'a> {
 }
 
 impl<'a> From<RectShape<'a>> for Shape<'a> {
+    #[inline]
     fn from(value: RectShape<'a>) -> Self {
         Self::Rect(value)
     }

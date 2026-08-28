@@ -191,18 +191,21 @@ impl UiContainer for Component<'_> {
 }
 
 impl<'a> From<Container<'a>> for Component<'a> {
+    #[inline]
     fn from(value: Container<'a>) -> Self {
         Self::Container(RBox::new(value))
     }
 }
 
 impl<'a> From<Widget<'a>> for Component<'a> {
+    #[inline]
     fn from(value: Widget<'a>) -> Self {
         Self::Widget(RBox::new(value))
     }
 }
 
 impl From<MiscComponent> for Component<'_> {
+    #[inline]
     fn from(value: MiscComponent) -> Self {
         Self::MiscComponent(value)
     }

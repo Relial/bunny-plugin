@@ -31,11 +31,13 @@ pub struct TitleBar {
 }
 
 impl TitleBar {
+    #[inline]
     pub fn title(mut self, title: impl Into<RString>) -> Self {
         self.title = RSome(title.into());
         self
     }
 
+    #[inline]
     pub fn close_button(mut self, close_button: bool) -> Self {
         self.close_button = close_button;
         self

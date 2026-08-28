@@ -42,6 +42,7 @@ impl crate::elements::UiContainer for AllocateUi<'_> {
 }
 
 impl<'a> From<AllocateUi<'a>> for Container<'a> {
+    #[inline]
     fn from(value: AllocateUi<'a>) -> Self {
         Self::AllocateUi(value)
     }

@@ -174,6 +174,7 @@ pub struct LayoutSection {
 
 #[cfg(feature = "manager")]
 impl From<LayoutSection> for egui::epaint::text::LayoutSection {
+    #[inline]
     fn from(value: LayoutSection) -> Self {
         let LayoutSection {
             format,

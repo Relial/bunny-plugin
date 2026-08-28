@@ -33,6 +33,7 @@ impl Align {
         }
     }
 
+    #[inline]
     pub fn flip(self) -> Self {
         match self {
             Align::Min => Self::Max,
@@ -67,6 +68,7 @@ impl Align {
 
 #[cfg(feature = "manager")]
 impl From<Align> for egui::Align {
+    #[inline]
     fn from(value: Align) -> Self {
         match value {
             Align::Min => Self::Min,
@@ -78,6 +80,7 @@ impl From<Align> for egui::Align {
 
 #[cfg(feature = "manager")]
 impl From<egui::Align> for Align {
+    #[inline]
     fn from(value: egui::Align) -> Self {
         match value {
             egui::Align::Min => Self::Min,
@@ -115,18 +118,22 @@ impl Align2 {
         self.0[1]
     }
 
+    #[inline]
     pub fn to_sign(self) -> Vec2 {
         vec2(self.x().to_sign(), self.y().to_sign())
     }
 
+    #[inline]
     pub fn flip_x(self) -> Self {
         Self([self.x().flip(), self.y()])
     }
 
+    #[inline]
     pub fn flip_y(self) -> Self {
         Self([self.x(), self.y().flip()])
     }
 
+    #[inline]
     pub fn flip(self) -> Self {
         Self([self.x().flip(), self.y().flip()])
     }
@@ -182,6 +189,7 @@ impl Align2 {
 
 #[cfg(feature = "manager")]
 impl From<Align2> for egui::Align2 {
+    #[inline]
     fn from(value: Align2) -> Self {
         Self([value.x().into(), value.y().into()])
     }

@@ -51,6 +51,7 @@ impl PathShape {
 }
 
 impl From<PathShape> for Shape<'_> {
+    #[inline]
     fn from(value: PathShape) -> Self {
         Shape::Path(value)
     }

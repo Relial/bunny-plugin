@@ -22,6 +22,7 @@ pub enum PointerButton {
 
 #[cfg(feature = "manager")]
 impl From<egui::PointerButton> for PointerButton {
+    #[inline]
     fn from(value: egui::PointerButton) -> Self {
         match value {
             egui::PointerButton::Primary => Self::Primary,
@@ -109,12 +110,14 @@ impl Modifiers {
 impl std::ops::BitOr for Modifiers {
     type Output = Self;
 
+    #[inline]
     fn bitor(self, rhs: Self) -> Self::Output {
         self.plus(rhs)
     }
 }
 
 impl std::ops::BitOrAssign for Modifiers {
+    #[inline]
     fn bitor_assign(&mut self, rhs: Self) {
         *self = *self | rhs;
     }
@@ -122,6 +125,7 @@ impl std::ops::BitOrAssign for Modifiers {
 
 #[cfg(feature = "manager")]
 impl From<egui::Modifiers> for Modifiers {
+    #[inline]
     fn from(value: egui::Modifiers) -> Self {
         Self {
             alt: value.alt,
@@ -174,6 +178,7 @@ impl KeyboardShortcut {
 
 #[cfg(feature = "manager")]
 impl From<egui::KeyboardShortcut> for KeyboardShortcut {
+    #[inline]
     fn from(value: egui::KeyboardShortcut) -> Self {
         Self {
             modifiers: value.modifiers.into(),

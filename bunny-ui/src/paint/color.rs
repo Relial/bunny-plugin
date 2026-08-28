@@ -8,6 +8,7 @@ pub enum ColorMode {
 }
 
 impl Default for ColorMode {
+    #[inline]
     fn default() -> Self {
         Self::TRANSPARENT
     }
@@ -19,6 +20,7 @@ impl ColorMode {
 
 #[cfg(feature = "manager")]
 impl From<ColorMode> for egui::epaint::ColorMode {
+    #[inline]
     fn from(value: ColorMode) -> Self {
         match value {
             ColorMode::Solid(color32) => Self::Solid(color32),

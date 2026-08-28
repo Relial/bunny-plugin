@@ -25,6 +25,7 @@ impl Stroke {
         color: Color32::TRANSPARENT,
     };
 
+    #[inline]
     pub fn new(width: f32, color: impl Into<Color32>) -> Self {
         Self {
             width,
@@ -45,6 +46,7 @@ where
 
 #[cfg(feature = "manager")]
 impl From<Stroke> for egui::Stroke {
+    #[inline]
     fn from(value: Stroke) -> Self {
         Self {
             width: value.width,
@@ -55,6 +57,7 @@ impl From<Stroke> for egui::Stroke {
 
 #[cfg(feature = "manager")]
 impl From<egui::Stroke> for Stroke {
+    #[inline]
     fn from(value: egui::Stroke) -> Self {
         Self {
             width: value.width,
@@ -74,6 +77,7 @@ pub enum StrokeKind {
 
 #[cfg(feature = "manager")]
 impl From<StrokeKind> for egui::StrokeKind {
+    #[inline]
     fn from(value: StrokeKind) -> Self {
         match value {
             StrokeKind::Inside => Self::Inside,
@@ -109,6 +113,7 @@ impl PathStroke {
 
 #[cfg(feature = "manager")]
 impl From<PathStroke> for egui::epaint::PathStroke {
+    #[inline]
     fn from(value: PathStroke) -> Self {
         let PathStroke { width, color, kind } = value;
         Self {

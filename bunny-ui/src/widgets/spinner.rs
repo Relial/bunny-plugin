@@ -44,6 +44,7 @@ impl egui::Widget for Spinner {
 }
 
 impl From<Spinner> for Widget<'_> {
+    #[inline]
     fn from(value: Spinner) -> Self {
         Self::Spinner(value)
     }

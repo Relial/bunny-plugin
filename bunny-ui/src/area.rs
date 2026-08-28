@@ -52,10 +52,12 @@ impl Area {
         self
     }
 
+    #[inline]
     pub fn is_enabled(&self) -> bool {
         self.enabled
     }
 
+    #[inline]
     pub fn is_movable(&self) -> bool {
         self.movable && self.enabled
     }

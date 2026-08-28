@@ -25,6 +25,7 @@ pub enum SliderOrientation {
 
 #[cfg(feature = "manager")]
 impl From<SliderOrientation> for egui::SliderOrientation {
+    #[inline]
     fn from(value: SliderOrientation) -> Self {
         match value {
             SliderOrientation::Horizontal => Self::Horizontal,
@@ -44,6 +45,7 @@ pub enum SliderClamping {
 
 #[cfg(feature = "manager")]
 impl From<SliderClamping> for egui::SliderClamping {
+    #[inline]
     fn from(value: SliderClamping) -> Self {
         match value {
             SliderClamping::Never => Self::Never,
@@ -340,6 +342,7 @@ impl egui::Widget for Slider<'_> {
 }
 
 impl<'a> From<Slider<'a>> for Widget<'a> {
+    #[inline]
     fn from(value: Slider<'a>) -> Self {
         Self::Slider(RBox::new(value))
     }

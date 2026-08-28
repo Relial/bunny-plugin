@@ -195,6 +195,7 @@ pub enum Key {
 }
 
 impl Key {
+    #[inline]
     pub fn symbol_or_name(self) -> &'static str {
         match self {
             Self::ArrowDown => "⏷",
@@ -224,6 +225,7 @@ impl Key {
         }
     }
 
+    #[inline]
     pub fn name(self) -> &'static str {
         match self {
             Self::ArrowDown => "Down",
@@ -347,6 +349,7 @@ impl Key {
 
 #[cfg(feature = "manager")]
 impl From<egui::Key> for Key {
+    #[inline]
     fn from(value: egui::Key) -> Self {
         match value {
             egui::Key::ArrowDown => Self::ArrowDown,

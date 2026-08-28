@@ -55,6 +55,7 @@ impl QuadraticBezierShape {
 
 #[cfg(feature = "manager")]
 impl From<QuadraticBezierShape> for egui::epaint::QuadraticBezierShape {
+    #[inline]
     fn from(value: QuadraticBezierShape) -> Self {
         let QuadraticBezierShape {
             points,
@@ -125,6 +126,7 @@ impl CubicBezierShape {
 
 #[cfg(feature = "manager")]
 impl From<CubicBezierShape> for egui::epaint::CubicBezierShape {
+    #[inline]
     fn from(value: CubicBezierShape) -> Self {
         let CubicBezierShape {
             points,

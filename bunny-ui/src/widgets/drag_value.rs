@@ -193,6 +193,7 @@ impl egui::Widget for DragValue<'_> {
 }
 
 impl<'a> From<DragValue<'a>> for Widget<'a> {
+    #[inline]
     fn from(value: DragValue<'a>) -> Self {
         Self::DragValue(RBox::new(value))
     }

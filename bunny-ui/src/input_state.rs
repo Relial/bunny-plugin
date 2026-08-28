@@ -25,10 +25,12 @@ impl std::fmt::Debug for Input {
 }
 
 impl Input {
+    #[inline]
     pub fn read<R>(&self, reader: impl FnOnce(&InputState) -> R) -> R {
         reader(&self.0.read())
     }
 
+    #[inline]
     pub fn write<R>(&self, writer: impl FnOnce(&mut InputState) -> R) -> R {
         writer(&mut self.0.write())
     }
@@ -181,10 +183,12 @@ pub struct Click {
 }
 
 impl Click {
+    #[inline]
     pub fn is_double(&self) -> bool {
         self.count == 2
     }
 
+    #[inline]
     pub fn is_triple(&self) -> bool {
         self.count == 3
     }
@@ -205,14 +209,17 @@ pub enum PointerEvent {
 }
 
 impl PointerEvent {
+    #[inline]
     pub fn is_press(&self) -> bool {
         matches!(self, Self::Pressed { .. })
     }
 
+    #[inline]
     pub fn is_release(&self) -> bool {
         matches!(self, Self::Released { .. })
     }
 
+    #[inline]
     pub fn is_click(&self) -> bool {
         matches!(
             self,
@@ -514,6 +521,7 @@ impl PointerState {
 
 #[cfg(feature = "manager")]
 impl From<egui::InputOptions> for InputOptions {
+    #[inline]
     fn from(value: egui::InputOptions) -> Self {
         Self {
             max_click_dist: value.max_click_dist,

@@ -34,6 +34,7 @@ impl crate::elements::UiContainer for Indent<'_> {
 }
 
 impl<'a> From<Indent<'a>> for Container<'a> {
+    #[inline]
     fn from(value: Indent<'a>) -> Self {
         Self::Indent(value)
     }

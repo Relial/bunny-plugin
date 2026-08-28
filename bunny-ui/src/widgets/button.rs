@@ -23,6 +23,7 @@ pub struct Button {
 }
 
 impl Button {
+    #[inline]
     pub fn new(text: impl Into<WidgetText>) -> Self {
         Self {
             text: text.into(),
@@ -36,6 +37,7 @@ impl Button {
         }
     }
 
+    #[inline]
     pub fn selectable(selected: bool, text: impl Into<WidgetText>) -> Self {
         Self::new(text)
             .selected(selected)
@@ -43,37 +45,44 @@ impl Button {
             .frame(true)
     }
 
+    #[inline]
     pub fn fill(mut self, fill: impl Into<Color32>) -> Self {
         self.fill = RSome(fill.into());
         self
     }
 
+    #[inline]
     pub fn stroke(mut self, stroke: impl Into<Stroke>) -> Self {
         self.stroke = RSome(stroke.into());
         self.frame = RSome(true);
         self
     }
 
+    #[inline]
     pub fn small(mut self) -> Self {
         self.small = true;
         self
     }
 
+    #[inline]
     pub fn frame(mut self, frame: bool) -> Self {
         self.frame = RSome(frame);
         self
     }
 
+    #[inline]
     pub fn frame_when_inactive(mut self, frame_when_inactive: bool) -> Self {
         self.frame_when_inactive = frame_when_inactive;
         self
     }
 
+    #[inline]
     pub fn corner_radius(mut self, corner_radius: impl Into<CornerRadius>) -> Self {
         self.corner_radius = RSome(corner_radius.into());
         self
     }
 
+    #[inline]
     pub fn selected(mut self, selected: bool) -> Self {
         self.selected = selected;
         self
@@ -104,6 +113,7 @@ impl egui::Widget for Button {
 }
 
 impl From<Button> for Widget<'_> {
+    #[inline]
     fn from(value: Button) -> Self {
         Self::Button(RBox::new(value))
     }

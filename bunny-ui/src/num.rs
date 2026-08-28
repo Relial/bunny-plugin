@@ -13,10 +13,12 @@ pub enum Num<'a> {
 }
 
 impl Num<'_> {
+    #[inline]
     pub fn integer(&self) -> bool {
         !matches!(self, Self::F32(_) | Self::F64(_))
     }
 
+    #[inline]
     pub fn set(&mut self, value: f64) {
         match self {
             Num::F32(f) => **f = value as f32,
@@ -32,6 +34,7 @@ impl Num<'_> {
         }
     }
 
+    #[inline]
     pub fn to_f64(&self) -> f64 {
         match self {
             Num::F32(f) => **f as f64,
@@ -47,6 +50,7 @@ impl Num<'_> {
         }
     }
 
+    #[inline]
     pub fn min(&self) -> f64 {
         match self {
             Num::F32(_) | Num::F64(_) => f64::NEG_INFINITY,
@@ -58,6 +62,7 @@ impl Num<'_> {
         }
     }
 
+    #[inline]
     pub fn max(&self) -> f64 {
         match self {
             Num::F32(_) | Num::F64(_) => f64::INFINITY,
@@ -74,60 +79,70 @@ impl Num<'_> {
 }
 
 impl<'a> From<&'a mut f32> for Num<'a> {
+    #[inline]
     fn from(value: &'a mut f32) -> Self {
         Self::F32(value)
     }
 }
 
 impl<'a> From<&'a mut f64> for Num<'a> {
+    #[inline]
     fn from(value: &'a mut f64) -> Self {
         Self::F64(value)
     }
 }
 
 impl<'a> From<&'a mut u8> for Num<'a> {
+    #[inline]
     fn from(value: &'a mut u8) -> Self {
         Self::U8(value)
     }
 }
 
 impl<'a> From<&'a mut u16> for Num<'a> {
+    #[inline]
     fn from(value: &'a mut u16) -> Self {
         Self::U16(value)
     }
 }
 
 impl<'a> From<&'a mut u32> for Num<'a> {
+    #[inline]
     fn from(value: &'a mut u32) -> Self {
         Self::U32(value)
     }
 }
 
 impl<'a> From<&'a mut u64> for Num<'a> {
+    #[inline]
     fn from(value: &'a mut u64) -> Self {
         Self::U64(value)
     }
 }
 
 impl<'a> From<&'a mut i8> for Num<'a> {
+    #[inline]
     fn from(value: &'a mut i8) -> Self {
         Self::I8(value)
     }
 }
 
 impl<'a> From<&'a mut i16> for Num<'a> {
+    #[inline]
     fn from(value: &'a mut i16) -> Self {
         Self::I16(value)
     }
 }
 
 impl<'a> From<&'a mut i32> for Num<'a> {
+    #[inline]
     fn from(value: &'a mut i32) -> Self {
         Self::I32(value)
     }
 }
 
 impl<'a> From<&'a mut i64> for Num<'a> {
+    #[inline]
     fn from(value: &'a mut i64) -> Self {
         Self::I64(value)
     }

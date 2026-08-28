@@ -20,6 +20,7 @@ pub enum AlphaFromCoverage {
 
 #[cfg(feature = "manager")]
 impl From<TextOptions> for egui::epaint::text::TextOptions {
+    #[inline]
     fn from(value: TextOptions) -> Self {
         Self {
             max_texture_side: value.max_texture_side,
@@ -31,6 +32,7 @@ impl From<TextOptions> for egui::epaint::text::TextOptions {
 
 #[cfg(feature = "manager")]
 impl From<egui::epaint::text::TextOptions> for TextOptions {
+    #[inline]
     fn from(value: egui::epaint::text::TextOptions) -> Self {
         Self {
             max_texture_side: value.max_texture_side,
@@ -42,6 +44,7 @@ impl From<egui::epaint::text::TextOptions> for TextOptions {
 
 #[cfg(feature = "manager")]
 impl From<AlphaFromCoverage> for egui::epaint::image::AlphaFromCoverage {
+    #[inline]
     fn from(value: AlphaFromCoverage) -> Self {
         match value {
             AlphaFromCoverage::Linear => Self::Linear,
@@ -53,6 +56,7 @@ impl From<AlphaFromCoverage> for egui::epaint::image::AlphaFromCoverage {
 
 #[cfg(feature = "manager")]
 impl From<egui::epaint::image::AlphaFromCoverage> for AlphaFromCoverage {
+    #[inline]
     fn from(value: egui::epaint::image::AlphaFromCoverage) -> Self {
         match value {
             egui::epaint::AlphaFromCoverage::Linear => Self::Linear,

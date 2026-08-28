@@ -147,6 +147,7 @@ impl crate::elements::UiContainer for ComboBoxComponent<'_> {
 }
 
 impl<'a> From<ComboBoxComponent<'a>> for Container<'a> {
+    #[inline]
     fn from(value: ComboBoxComponent<'a>) -> Self {
         Self::ComboBox(value)
     }

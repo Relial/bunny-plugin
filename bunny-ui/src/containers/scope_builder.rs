@@ -38,6 +38,7 @@ impl crate::elements::UiContainer for ScopeBuilder<'_> {
 }
 
 impl<'a> From<ScopeBuilder<'a>> for Container<'a> {
+    #[inline]
     fn from(value: ScopeBuilder<'a>) -> Self {
         Self::Scope(value)
     }

@@ -59,10 +59,12 @@ macro_rules! deref_coerced_impl_cmp_traits {
 pub struct BunnyString(RString);
 
 impl BunnyString {
+    #[inline]
     pub const fn new() -> Self {
         Self(RString::new())
     }
 
+    #[inline]
     pub fn with_capacity(cap: usize) -> Self {
         Self(RString::with_capacity(cap))
     }
@@ -87,42 +89,52 @@ impl BunnyString {
         self.0.capacity()
     }
 
+    #[inline]
     pub fn into_string(self) -> String {
         self.0.into_string()
     }
 
+    #[inline]
     pub fn reserve(&mut self, additional: usize) {
         self.0.reserve(additional);
     }
 
+    #[inline]
     pub fn shrink_to_fit(&mut self) {
         self.0.shrink_to_fit();
     }
 
+    #[inline]
     pub fn reserve_exact(&mut self, additional: usize) {
         self.0.reserve_exact(additional);
     }
 
+    #[inline]
     pub fn push(&mut self, ch: char) {
         self.0.push(ch);
     }
 
+    #[inline]
     pub fn push_str(&mut self, str: &str) {
         self.0.push_str(str);
     }
 
+    #[inline]
     pub fn pop(&mut self) -> Option<char> {
         self.0.pop()
     }
 
+    #[inline]
     pub fn remove(&mut self, idx: usize) -> char {
         self.0.remove(idx)
     }
 
+    #[inline]
     pub fn insert(&mut self, idx: usize, ch: char) {
         self.0.insert(idx, ch);
     }
 
+    #[inline]
     pub fn insert_str(&mut self, idx: usize, string: &str) {
         self.0.insert_str(idx, string);
     }
@@ -135,10 +147,12 @@ impl BunnyString {
         self.0.retain(pred);
     }
 
+    #[inline]
     pub fn clear(&mut self) {
         self.0.clear();
     }
 
+    #[inline]
     pub fn drain<I>(&mut self, range: I) -> Drain<'_>
     where
         str: Index<I, Output = str>,
@@ -148,6 +162,7 @@ impl BunnyString {
 }
 
 impl Default for BunnyString {
+    #[inline]
     fn default() -> Self {
         Self::new()
     }
@@ -168,24 +183,28 @@ deref_coerced_impl_cmp_traits! {
 }
 
 impl From<String> for BunnyString {
+    #[inline]
     fn from(value: String) -> Self {
         Self(value.into())
     }
 }
 
 impl From<BunnyString> for String {
+    #[inline]
     fn from(value: BunnyString) -> Self {
         value.0.into_string()
     }
 }
 
 impl From<RString> for BunnyString {
+    #[inline]
     fn from(value: RString) -> Self {
         Self(value)
     }
 }
 
 impl From<BunnyString> for RString {
+    #[inline]
     fn from(value: BunnyString) -> Self {
         value.0
     }
@@ -201,30 +220,35 @@ impl FromStr for BunnyString {
 }
 
 impl From<&str> for BunnyString {
+    #[inline]
     fn from(value: &str) -> Self {
         Self(value.into())
     }
 }
 
 impl<'a> From<Cow<'a, str>> for BunnyString {
+    #[inline]
     fn from(value: Cow<'a, str>) -> Self {
         Self(value.into())
     }
 }
 
 impl Borrow<str> for BunnyString {
+    #[inline]
     fn borrow(&self) -> &str {
         &self.0
     }
 }
 
 impl AsRef<str> for BunnyString {
+    #[inline]
     fn as_ref(&self) -> &str {
         &self.0
     }
 }
 
 impl AsRef<[u8]> for BunnyString {
+    #[inline]
     fn as_ref(&self) -> &[u8] {
         self.0.as_bytes()
     }

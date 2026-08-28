@@ -20,11 +20,13 @@ impl<'a> ShortcutButton<'a> {
         }
     }
 
+    #[inline]
     pub fn keybind_not_set(mut self, keybind_not_set: bool) -> Self {
         self.keybind_not_set = keybind_not_set;
         self
     }
 
+    #[inline]
     pub fn corner_radius(mut self, corner_radius: impl Into<CornerRadius>) -> Self {
         self.corner_radius = RSome(corner_radius.into());
         self
@@ -101,6 +103,7 @@ impl egui::Widget for ShortcutButton<'_> {
 }
 
 impl<'a> From<ShortcutButton<'a>> for Widget<'a> {
+    #[inline]
     fn from(value: ShortcutButton<'a>) -> Self {
         Self::ShortcutButton(value)
     }

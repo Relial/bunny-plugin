@@ -100,6 +100,7 @@ impl<'a> From<&'a String> for ImageSource<'a> {
 }
 
 impl From<String> for ImageSource<'static> {
+    #[inline]
     fn from(value: String) -> Self {
         Self::Uri(value.into())
     }
@@ -120,12 +121,14 @@ impl<'a> From<Cow<'a, str>> for ImageSource<'a> {
 }
 
 impl<'a> From<RCowStr<'a>> for ImageSource<'a> {
+    #[inline]
     fn from(value: RCowStr<'a>) -> Self {
         Self::Uri(value)
     }
 }
 
 impl<'a> From<&RCowStr<'a>> for ImageSource<'a> {
+    #[inline]
     fn from(value: &RCowStr<'a>) -> Self {
         Self::Uri(value.clone())
     }
@@ -172,18 +175,21 @@ impl<T: Into<Bytes>> From<(String, T)> for ImageSource<'static> {
 }
 
 impl From<&NamedTexture> for ImageSource<'_> {
+    #[inline]
     fn from(value: &NamedTexture) -> Self {
         Self::Texture(*value.texture())
     }
 }
 
 impl From<&SizedTexture> for ImageSource<'_> {
+    #[inline]
     fn from(value: &SizedTexture) -> Self {
         Self::Texture(*value)
     }
 }
 
 impl From<SizedTexture> for ImageSource<'_> {
+    #[inline]
     fn from(value: SizedTexture) -> Self {
         Self::Texture(value)
     }

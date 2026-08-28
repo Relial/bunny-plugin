@@ -332,6 +332,7 @@ impl<'a> Popup<'a> {
         self
     }
 
+    #[inline]
     pub fn get_anchor(&self) -> PopupAnchor {
         self.anchor
     }
@@ -341,6 +342,7 @@ impl<'a> Popup<'a> {
         self.anchor.rect(self.id.into(), ctx)
     }
 
+    #[inline]
     pub fn get_id(&self) -> Id {
         self.id
     }

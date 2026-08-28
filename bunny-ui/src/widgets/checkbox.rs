@@ -8,6 +8,7 @@ pub struct CheckBox {
 }
 
 impl CheckBox {
+    #[inline]
     pub fn new(checked: bool, text: impl Into<WidgetText>) -> Self {
         Self {
             text: Some(text.into()),
@@ -16,6 +17,7 @@ impl CheckBox {
         }
     }
 
+    #[inline]
     pub fn without_text(checked: bool) -> Self {
         Self {
             text: None,
@@ -46,6 +48,7 @@ impl egui::Widget for CheckBox {
 }
 
 impl From<CheckBox> for Widget<'_> {
+    #[inline]
     fn from(value: CheckBox) -> Self {
         Self::CheckBox(value)
     }

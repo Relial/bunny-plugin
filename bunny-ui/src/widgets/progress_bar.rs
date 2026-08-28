@@ -24,6 +24,7 @@ pub struct ProgressBar {
 }
 
 impl ProgressBar {
+    #[inline]
     pub fn new(progress: f32) -> Self {
         Self {
             text: RNone,
@@ -107,6 +108,7 @@ impl egui::Widget for ProgressBar {
 }
 
 impl From<ProgressBar> for Widget<'_> {
+    #[inline]
     fn from(value: ProgressBar) -> Self {
         Self::ProgressBar(RBox::new(value))
     }

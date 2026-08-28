@@ -16,6 +16,7 @@ impl CornerRadius {
         se: 0,
     };
 
+    #[inline]
     pub const fn same(radius: u8) -> Self {
         Self {
             nw: radius,
@@ -27,18 +28,21 @@ impl CornerRadius {
 }
 
 impl Default for CornerRadius {
+    #[inline]
     fn default() -> Self {
         Self::ZERO
     }
 }
 
 impl From<u8> for CornerRadius {
+    #[inline]
     fn from(value: u8) -> Self {
         Self::same(value)
     }
 }
 
 impl From<f32> for CornerRadius {
+    #[inline]
     fn from(value: f32) -> Self {
         Self::same(value.round() as u8)
     }
@@ -46,6 +50,7 @@ impl From<f32> for CornerRadius {
 
 #[cfg(feature = "manager")]
 impl From<CornerRadius> for egui::CornerRadius {
+    #[inline]
     fn from(value: CornerRadius) -> Self {
         Self {
             nw: value.nw,
@@ -58,6 +63,7 @@ impl From<CornerRadius> for egui::CornerRadius {
 
 #[cfg(feature = "manager")]
 impl From<egui::CornerRadius> for CornerRadius {
+    #[inline]
     fn from(value: egui::CornerRadius) -> Self {
         Self {
             nw: value.nw,

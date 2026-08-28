@@ -33,6 +33,7 @@ impl Frame {
         shadow: Shadow::NONE,
     };
 
+    #[inline]
     pub const fn new() -> Self {
         Self::NONE
     }
@@ -161,6 +162,7 @@ impl Frame {
 
 #[cfg(feature = "manager")]
 impl From<Frame> for egui::Frame {
+    #[inline]
     fn from(value: Frame) -> Self {
         Self {
             inner_margin: value.inner_margin.into(),
@@ -180,6 +182,7 @@ pub struct FrameComponent<'a> {
 }
 
 impl<'a> From<FrameComponent<'a>> for Container<'a> {
+    #[inline]
     fn from(value: FrameComponent<'a>) -> Self {
         Self::Frame(RBox::new(value))
     }

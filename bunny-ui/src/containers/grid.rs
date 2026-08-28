@@ -15,6 +15,7 @@ pub struct Grid {
 }
 
 impl Grid {
+    #[inline]
     pub fn new(id: Id) -> Self {
         Self {
             id,
@@ -123,6 +124,7 @@ impl crate::elements::UiContainer for GridComponent<'_> {
 }
 
 impl<'a> From<GridComponent<'a>> for Container<'a> {
+    #[inline]
     fn from(value: GridComponent<'a>) -> Self {
         Self::Grid(value)
     }

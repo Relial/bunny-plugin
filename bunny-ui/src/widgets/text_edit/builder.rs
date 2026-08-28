@@ -238,6 +238,7 @@ impl egui::Widget for TextEdit<'_> {
 }
 
 impl<'a> From<TextEdit<'a>> for Widget<'a> {
+    #[inline]
     fn from(value: TextEdit<'a>) -> Self {
         Widget::TextEdit(RBox::new(value))
     }

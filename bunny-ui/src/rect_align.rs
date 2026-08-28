@@ -244,6 +244,7 @@ impl RectAlign {
 
 #[cfg(feature = "manager")]
 impl From<RectAlign> for egui::RectAlign {
+    #[inline]
     fn from(value: RectAlign) -> Self {
         Self {
             parent: value.parent.into(),

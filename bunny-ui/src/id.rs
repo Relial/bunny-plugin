@@ -40,6 +40,7 @@ impl Id {
 
 #[cfg(feature = "manager")]
 impl From<Id> for egui::Id {
+    #[inline]
     fn from(value: Id) -> Self {
         Self::new(value)
     }

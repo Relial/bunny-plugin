@@ -21,6 +21,7 @@ impl Shadow {
 
 #[cfg(feature = "manager")]
 impl From<Shadow> for egui::Shadow {
+    #[inline]
     fn from(value: Shadow) -> Self {
         Self {
             offset: value.offset,
@@ -33,6 +34,7 @@ impl From<Shadow> for egui::Shadow {
 
 #[cfg(feature = "manager")]
 impl From<egui::Shadow> for Shadow {
+    #[inline]
     fn from(value: egui::Shadow) -> Self {
         Self {
             offset: value.offset,

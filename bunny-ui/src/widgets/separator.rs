@@ -10,26 +10,31 @@ pub struct Separator {
 }
 
 impl Separator {
+    #[inline]
     pub fn spacing(mut self, spacing: f32) -> Self {
         self.spacing = RSome(spacing);
         self
     }
 
+    #[inline]
     pub fn horizontal(mut self) -> Self {
         self.is_horizontal_line = RSome(true);
         self
     }
 
+    #[inline]
     pub fn vertical(mut self) -> Self {
         self.is_horizontal_line = RSome(false);
         self
     }
 
+    #[inline]
     pub fn grow(mut self, grow: f32) -> Self {
         self.grow += grow;
         self
     }
 
+    #[inline]
     pub fn shrink(mut self, shrink: f32) -> Self {
         self.grow -= shrink;
         self
@@ -70,6 +75,7 @@ impl egui::Widget for Separator {
 }
 
 impl From<Separator> for Widget<'_> {
+    #[inline]
     fn from(value: Separator) -> Self {
         Self::Separator(value)
     }

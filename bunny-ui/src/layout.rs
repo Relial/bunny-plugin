@@ -170,6 +170,7 @@ impl Layout {
 
 #[cfg(feature = "manager")]
 impl From<Layout> for egui::Layout {
+    #[inline]
     fn from(value: Layout) -> Self {
         Self {
             main_dir: value.main_dir.into(),

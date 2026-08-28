@@ -27,12 +27,14 @@ impl Vec2b {
 }
 
 impl From<bool> for Vec2b {
+    #[inline]
     fn from(value: bool) -> Self {
         Self { x: value, y: value }
     }
 }
 
 impl From<[bool; 2]> for Vec2b {
+    #[inline]
     fn from([x, y]: [bool; 2]) -> Self {
         Self { x, y }
     }
@@ -64,6 +66,7 @@ impl std::ops::IndexMut<usize> for Vec2b {
 
 #[cfg(feature = "manager")]
 impl From<Vec2b> for egui::Vec2b {
+    #[inline]
     fn from(value: Vec2b) -> Self {
         Self {
             x: value.x,

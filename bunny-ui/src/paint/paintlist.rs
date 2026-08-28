@@ -63,6 +63,7 @@ impl<'a> PaintList<'a> {
         self.0.is_empty()
     }
 
+    #[inline]
     pub fn next_idx(&self) -> ShapeIdx {
         ShapeIdx(self.0.len())
     }
@@ -114,10 +115,12 @@ impl<'a> PaintList<'a> {
         }
     }
 
+    #[inline]
     pub fn all_entries(&self) -> impl ExactSizeIterator<Item = &ClippedShape<'a>> {
         self.0.iter()
     }
 
+    #[inline]
     pub fn clear(&mut self) {
         self.0.clear();
     }

@@ -60,6 +60,7 @@ impl Sense {
 
 #[cfg(feature = "manager")]
 impl From<Sense> for egui::Sense {
+    #[inline]
     fn from(value: Sense) -> Self {
         let bits = value.bits();
         Self::from_bits_retain(bits)
