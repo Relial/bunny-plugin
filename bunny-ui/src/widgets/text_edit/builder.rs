@@ -208,7 +208,7 @@ impl egui::Widget for TextEdit<'_> {
         .prefix(self.prefix)
         .suffix(self.suffix)
         .password(self.password)
-        .font(self.font_selection.convert_to_egui(ui))
+        .font(self.font_selection)
         .text_color_opt(self.text_color.into())
         .interactive(self.interactive)
         .margin(self.margin)

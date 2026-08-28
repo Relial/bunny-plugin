@@ -1,6 +1,3 @@
-#[cfg(feature = "manager")]
-use std::{collections::BTreeMap, sync::Arc};
-
 use abi_stable::{
     rvec,
     std_types::{
@@ -142,27 +139,21 @@ impl LayoutJob {
 }
 
 #[cfg(feature = "manager")]
-impl LayoutJob {
-    pub(crate) fn convert_to_egui(
-        self,
-        font_data: &BTreeMap<String, Arc<egui::FontData>>,
-    ) -> egui::epaint::text::LayoutJob {
+impl From<LayoutJob> for egui::epaint::text::LayoutJob {
+    fn from(value: LayoutJob) -> Self {
         let LayoutJob {
             text,
             sections,
             wrap,
             first_row_min_height,
-            break_on_newline,
             halign,
+            break_on_newline,
             justify,
             round_output_to_gui,
-        } = self;
-        egui::epaint::text::LayoutJob {
+        } = value;
+        Self {
             text: text.into(),
-            sections: sections
-                .into_iter()
-                .map(|section| section.convert_to_egui(font_data))
-                .collect(),
+            sections: sections.into_iter().map(LayoutSection::into).collect(),
             wrap: wrap.into(),
             first_row_min_height,
             break_on_newline,
@@ -182,20 +173,17 @@ pub struct LayoutSection {
 }
 
 #[cfg(feature = "manager")]
-impl LayoutSection {
-    pub(crate) fn convert_to_egui(
-        self,
-        font_data: &BTreeMap<String, Arc<egui::FontData>>,
-    ) -> egui::epaint::text::LayoutSection {
+impl From<LayoutSection> for egui::epaint::text::LayoutSection {
+    fn from(value: LayoutSection) -> Self {
         let LayoutSection {
-            leading_space,
-            byte_range,
             format,
-        } = self;
-        egui::epaint::text::LayoutSection {
+            byte_range,
+            leading_space,
+        } = value;
+        Self {
             leading_space,
             byte_range: byte_range[0]..byte_range[1],
-            format: format.convert_to_egui(font_data),
+            format: format.into(),
         }
     }
 }
@@ -244,25 +232,23 @@ impl TextFormat {
 }
 
 #[cfg(feature = "manager")]
-impl TextFormat {
-    pub(crate) fn convert_to_egui(
-        self,
-        font_data: &BTreeMap<String, Arc<egui::FontData>>,
-    ) -> egui::epaint::text::TextFormat {
+impl From<TextFormat> for egui::epaint::text::TextFormat {
+    #[inline]
+    fn from(value: TextFormat) -> Self {
         let TextFormat {
             font_id,
-            extra_letter_spacing,
             line_height,
+            underline,
+            strikethrough,
+            extra_letter_spacing,
             color,
             background,
             expand_bg,
-            italics,
-            underline,
-            strikethrough,
             valign,
-        } = self;
-        egui::epaint::text::TextFormat {
-            font_id: font_id.convert_to_egui(font_data),
+            italics,
+        } = value;
+        Self {
+            font_id: font_id.into(),
             extra_letter_spacing,
             line_height: line_height.into(),
             color,
@@ -287,6 +273,7 @@ pub enum TextWrapMode {
 
 #[cfg(feature = "manager")]
 impl From<TextWrapMode> for egui::TextWrapMode {
+    #[inline]
     fn from(value: TextWrapMode) -> Self {
         match value {
             TextWrapMode::Extend => Self::Extend,
@@ -298,6 +285,7 @@ impl From<TextWrapMode> for egui::TextWrapMode {
 
 #[cfg(feature = "manager")]
 impl From<egui::TextWrapMode> for TextWrapMode {
+    #[inline]
     fn from(value: egui::TextWrapMode) -> Self {
         match value {
             egui::TextWrapMode::Extend => Self::Extend,
@@ -362,6 +350,7 @@ impl TextWrapping {
 
 #[cfg(feature = "manager")]
 impl From<TextWrapping> for egui::epaint::text::TextWrapping {
+    #[inline]
     fn from(value: TextWrapping) -> Self {
         let TextWrapping {
             max_width,

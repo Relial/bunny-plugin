@@ -1,5 +1,5 @@
 #[cfg(feature = "manager")]
-use std::{collections::BTreeMap, sync::Arc};
+use std::sync::Arc;
 
 use abi_stable::std_types::{RArc, RHashMap, RString, RVec};
 use rapidhash::fast::RandomState;
@@ -46,15 +46,13 @@ impl FontId {
 }
 
 #[cfg(feature = "manager")]
-impl FontId {
-    pub(crate) fn convert_to_egui(
-        self,
-        font_data: &BTreeMap<String, Arc<egui::FontData>>,
-    ) -> egui::FontId {
-        let FontId { size, family } = self;
-        egui::FontId {
+impl From<FontId> for egui::FontId {
+    #[inline]
+    fn from(value: FontId) -> Self {
+        let FontId { family, size } = value;
+        Self {
             size,
-            family: family.to_egui(font_data),
+            family: family.into(),
         }
     }
 }
@@ -69,19 +67,16 @@ pub enum FontFamily {
 }
 
 #[cfg(feature = "manager")]
-impl FontFamily {
-    pub fn to_egui(self, font_data: &BTreeMap<String, Arc<egui::FontData>>) -> egui::FontFamily {
-        match self {
-            FontFamily::Proportional => egui::FontFamily::Proportional,
-            FontFamily::Monospace => egui::FontFamily::Monospace,
+impl From<FontFamily> for egui::FontFamily {
+    #[inline]
+    fn from(value: FontFamily) -> Self {
+        match value {
+            FontFamily::Proportional => Self::Proportional,
+            FontFamily::Monospace => Self::Monospace,
             FontFamily::Custom(custom_font) => unsafe {
                 Arc::increment_strong_count(custom_font.arc_ptr);
                 let name = Arc::from_raw(custom_font.arc_ptr);
-                if font_data.contains_key(name.as_ref()) {
-                    egui::FontFamily::Name(name)
-                } else {
-                    egui::FontFamily::Proportional
-                }
+                Self::Name(name)
             },
         }
     }
@@ -174,6 +169,11 @@ impl NamedCustomFont {
     pub fn name(&self) -> &str {
         self.name.as_str()
     }
+
+    #[inline]
+    pub fn font(&self) -> CustomFont {
+        self.font
+    }
 }
 
 #[derive(Clone, Debug, Default)]
@@ -200,18 +200,12 @@ impl From<TextStyle> for FontSelection {
 }
 
 #[cfg(feature = "manager")]
-impl FontSelection {
-    pub fn convert_to_egui(self, ui: &egui::Ui) -> egui::FontSelection {
-        match self {
-            FontSelection::Default => egui::FontSelection::Default,
-            FontSelection::FontId(font_id) => {
-                let id = ui.fonts(|i| {
-                    let data = &i.definitions().font_data;
-                    font_id.convert_to_egui(data)
-                });
-                egui::FontSelection::FontId(id)
-            }
-            FontSelection::Style(text_style) => egui::FontSelection::Style(text_style.into()),
+impl From<FontSelection> for egui::FontSelection {
+    fn from(value: FontSelection) -> Self {
+        match value {
+            FontSelection::Default => Self::Default,
+            FontSelection::FontId(font_id) => Self::FontId(font_id.into()),
+            FontSelection::Style(text_style) => Self::Style(text_style.into()),
         }
     }
 }

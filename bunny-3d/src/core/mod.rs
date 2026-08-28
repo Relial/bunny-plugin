@@ -5,8 +5,6 @@ use anyhow::Result;
 use bytemuck::{Pod, Zeroable};
 use ecolor::Color32;
 use glam::{Quat, Vec3};
-#[cfg(feature = "backend")]
-use shared::texture::SharedTextures;
 use shared::{
     camera::Camera,
     texture::{SharedTextures, TextureId},
