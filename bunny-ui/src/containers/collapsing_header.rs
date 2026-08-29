@@ -95,7 +95,6 @@ impl crate::elements::UiContainer for CollapsingHeaderComponent<'_> {
         id: crate::Id,
     ) -> crate::response::Response {
         let mut header = egui::CollapsingHeader::new(self.collapsing_header.text)
-            .id_salt(self.collapsing_header.id)
             .default_open(self.collapsing_header.default_open)
             .open(self.collapsing_header.open.into())
             .show_background(self.collapsing_header.show_background);
