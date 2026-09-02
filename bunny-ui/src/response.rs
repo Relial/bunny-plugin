@@ -1,5 +1,4 @@
 use abi_stable::std_types::RArc;
-use abi_stable::std_types::ROption::RSome;
 use emath::{Pos2, Rect, Vec2};
 
 use crate::Id;
@@ -109,7 +108,7 @@ impl Response {
         if any_click {
             if self.contains_pointer() || self.hovered() {
                 false
-            } else if let RSome(pos) = pointer_interact_pos {
+            } else if let Some(pos) = pointer_interact_pos {
                 !self.interact_rect.contains(pos)
             } else {
                 false
@@ -189,7 +188,7 @@ impl Response {
     #[inline]
     pub fn hover_pos(&self) -> Option<Pos2> {
         if self.hovered() {
-            self.pointer_state.latest_pos().into()
+            self.pointer_state.latest_pos()
         } else {
             None
         }

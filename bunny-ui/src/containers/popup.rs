@@ -374,11 +374,11 @@ impl<'a> Popup<'a> {
             }
             PopupCloseBehavior::CloseOnClickOutside => {
                 if let Some(resp) = response
-                    && let RSome(interact_pos) = ui.input(|i| {
+                    && let Some(interact_pos) = ui.input(|i| {
                         if i.pointer.any_click() {
                             i.pointer.interact_pos()
                         } else {
-                            RNone
+                            None
                         }
                     })
                 {

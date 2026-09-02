@@ -402,17 +402,17 @@ impl PointerState {
 
     #[inline(always)]
     pub fn press_start_time(&self) -> Option<f64> {
-        self.press_start_time.into()
+        self.press_start_time.into_option()
     }
 
     #[inline(always)]
-    pub fn latest_pos(&self) -> ROption<Pos2> {
-        self.latest_pos
+    pub fn latest_pos(&self) -> Option<Pos2> {
+        self.latest_pos.into()
     }
 
     #[inline(always)]
-    pub fn interact_pos(&self) -> ROption<Pos2> {
-        self.interact_pos
+    pub fn interact_pos(&self) -> Option<Pos2> {
+        self.interact_pos.into_option()
     }
 
     #[inline(always)]
