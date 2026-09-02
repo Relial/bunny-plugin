@@ -2,7 +2,10 @@
 
 use std::{path::Path, str::FromStr};
 
-pub use shared::texture::TextureId;
+pub use shared::{
+    camera::*,
+    texture::{NamedTexture, SizedTexture, TextureId},
+};
 
 #[cfg(feature = "ui")]
 pub use bunny_ui;
