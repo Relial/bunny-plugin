@@ -823,6 +823,7 @@ version = "0.3.0"
 dependencies = [
  "abi_stable",
  "anyhow",
+ "bitflags",
  "bunny-3d",
  "bunny-ui",
  "ilhook",

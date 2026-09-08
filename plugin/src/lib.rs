@@ -28,6 +28,7 @@ use crate::hook::{Bunny3dCallback, Hooks, SimpleCallback, UiCallback};
 pub mod hook;
 pub mod hook_builder;
 pub mod hook_cell;
+pub mod game_version;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 #[repr(C)]
