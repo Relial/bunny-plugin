@@ -11,6 +11,7 @@ bevy = ["bunny-3d?/bevy"]
 tobj = ["bunny-3d?/tobj"]
 serde = ["bunny-ui?/serde", "bunny-3d?/serde", "bitflags/serde"]
 image = ["bunny-3d?/image"]
+manager = []
 
 [dependencies]
 abi_stable = "0.11.3"
