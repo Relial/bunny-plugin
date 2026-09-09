@@ -188,6 +188,8 @@ impl PluginInfo {
     }
 
     /// Specify that the plugin shouldn't be unloaded. The plugin's toggle checkmark will be faded and uninteractable.
+    ///
+    /// Does nothing if init_fail is set
     #[inline]
     pub fn no_unload(mut self) -> Self {
         self.no_unload = true;
