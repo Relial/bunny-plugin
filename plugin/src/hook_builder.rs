@@ -1,7 +1,9 @@
 use ilhook::{
     HookError,
-    x86::{CallbackOption, HookFlags, HookPoint, HookType, Hooker},
+    x86::{CallbackOption, HookFlags, HookPoint, Hooker},
 };
+
+pub use ilhook::x86::{HookType, Registers};
 
 /// An ilhook hook builder that doesn't support CallbackOptions, and so implements Send and Sync for stuffing into a static
 pub struct NoCbHookBuilder(Hooker);
