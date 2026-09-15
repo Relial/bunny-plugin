@@ -1,5 +1,6 @@
 use ecolor::Color32;
 use emath::Pos2;
+use mint::Point2;
 
 use crate::paint::{shapes::shape::Shape, stroke::Stroke};
 
@@ -15,9 +16,13 @@ pub struct CircleShape {
 
 impl CircleShape {
     #[inline]
-    pub fn filled(center: Pos2, radius: f32, fill_color: impl Into<Color32>) -> Self {
+    pub fn filled(
+        center: impl Into<Point2<f32>>,
+        radius: f32,
+        fill_color: impl Into<Color32>,
+    ) -> Self {
         Self {
-            center,
+            center: center.into().into(),
             radius,
             fill: fill_color.into(),
             stroke: Default::default(),
@@ -25,9 +30,9 @@ impl CircleShape {
     }
 
     #[inline]
-    pub fn stroke(center: Pos2, radius: f32, stroke: impl Into<Stroke>) -> Self {
+    pub fn stroke(center: impl Into<Point2<f32>>, radius: f32, stroke: impl Into<Stroke>) -> Self {
         Self {
-            center,
+            center: center.into().into(),
             radius,
             fill: Default::default(),
             stroke: stroke.into(),

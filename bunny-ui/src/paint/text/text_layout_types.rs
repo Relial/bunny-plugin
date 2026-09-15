@@ -8,7 +8,7 @@ use abi_stable::{
 use ecolor::Color32;
 
 use crate::{
-    align::Align,
+    Align,
     paint::{stroke::Stroke, text::fonts::FontId},
 };
 

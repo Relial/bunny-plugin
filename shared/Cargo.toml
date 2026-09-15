@@ -7,4 +7,5 @@ edition = "2024"
 anyhow = "1.0.104"
 abi_stable = "0.11.3"
 rapidhash = "4.5.1"
-glam = "0.33.2"
+glam = { version = "0.33.2", features = ["mint"] }
+mint = "0.5.9"

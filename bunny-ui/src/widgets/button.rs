@@ -1,14 +1,7 @@
-use abi_stable::std_types::{
-    RBox,
-    ROption::{self, RNone, RSome},
-};
+use abi_stable::std_types::ROption::{self, RNone, RSome};
 use ecolor::Color32;
 
-use crate::{
-    elements::Widget,
-    paint::{corner_radius::CornerRadius, stroke::Stroke},
-    widget_text::WidgetText,
-};
+use crate::{WidgetText, paint::{corner_radius::CornerRadius, stroke::Stroke}};
 
 #[repr(C)]
 pub struct Button {
@@ -109,12 +102,5 @@ impl egui::Widget for Button {
             button = button.corner_radius(corner_radius);
         }
         ui.add(button)
-    }
-}
-
-impl From<Button> for Widget<'_> {
-    #[inline]
-    fn from(value: Button) -> Self {
-        Self::Button(RBox::new(value))
     }
 }

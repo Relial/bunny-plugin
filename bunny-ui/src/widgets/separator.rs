@@ -1,7 +1,5 @@
 use abi_stable::std_types::ROption::{self, RNone, RSome};
 
-use crate::elements::Widget;
-
 #[repr(C)]
 pub struct Separator {
     spacing: ROption<f32>,
@@ -71,12 +69,5 @@ impl egui::Widget for Separator {
             }
         }
         ui.add(separator)
-    }
-}
-
-impl From<Separator> for Widget<'_> {
-    #[inline]
-    fn from(value: Separator) -> Self {
-        Self::Separator(value)
     }
 }

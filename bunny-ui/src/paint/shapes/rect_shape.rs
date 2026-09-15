@@ -4,9 +4,10 @@ use abi_stable::std_types::{
 };
 use ecolor::Color32;
 use emath::{Pos2, Rect, Rot2};
+use mint::Point2;
 
 use crate::{
-    image_source::ImageSource,
+    ImageSource,
     paint::{
         brush::Brush,
         corner_radius::CornerRadius,
@@ -111,7 +112,8 @@ impl<'a> RectShape<'a> {
     }
 
     #[inline]
-    pub fn with_angle_and_pivot(mut self, angle: f32, pivot: Pos2) -> Self {
+    pub fn with_angle_and_pivot(mut self, angle: f32, pivot: impl Into<Point2<f32>>) -> Self {
+        let pivot: Pos2 = pivot.into().into();
         self.angle = angle;
         let rot = Rot2::from_angle(angle);
         let center = self.rect.center();

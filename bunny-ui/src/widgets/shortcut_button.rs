@@ -1,6 +1,7 @@
 use abi_stable::std_types::ROption::{self, RNone, RSome};
+use egui::Id;
 
-use crate::{Id, elements::Widget, input::KeyboardShortcut, paint::corner_radius::CornerRadius};
+use crate::{KeyboardShortcut, paint::corner_radius::CornerRadius};
 
 #[repr(C)]
 pub struct ShortcutButton<'a> {
@@ -99,12 +100,5 @@ impl egui::Widget for ShortcutButton<'_> {
             set_expecting(ui, self.id, expecting);
         }
         response
-    }
-}
-
-impl<'a> From<ShortcutButton<'a>> for Widget<'a> {
-    #[inline]
-    fn from(value: ShortcutButton<'a>) -> Self {
-        Self::ShortcutButton(value)
     }
 }

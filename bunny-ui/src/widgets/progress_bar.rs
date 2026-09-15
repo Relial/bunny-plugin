@@ -1,10 +1,7 @@
-use abi_stable::std_types::{
-    RBox,
-    ROption::{self, RNone, RSome},
-};
+use abi_stable::std_types::ROption::{self, RNone, RSome};
 use ecolor::Color32;
 
-use crate::{elements::Widget, paint::corner_radius::CornerRadius, widget_text::WidgetText};
+use crate::{WidgetText, paint::corner_radius::CornerRadius};
 
 #[repr(C)]
 pub enum ProgressBarText {
@@ -104,12 +101,5 @@ impl egui::Widget for ProgressBar {
         }
 
         bar.ui(ui)
-    }
-}
-
-impl From<ProgressBar> for Widget<'_> {
-    #[inline]
-    fn from(value: ProgressBar) -> Self {
-        Self::ProgressBar(RBox::new(value))
     }
 }

@@ -1,18 +1,11 @@
-use abi_stable::std_types::{
-    RBox,
-    ROption::{self, RNone, RSome},
-};
+use abi_stable::std_types::ROption::{self, RNone, RSome};
 use ecolor::Color32;
+use egui::Id;
 use emath::Vec2;
+use mint::Vector2;
 
 use crate::{
-    Id,
-    align::{Align, Align2},
-    containers::frame::Frame,
-    elements::Widget,
-    margin::Margin,
-    paint::text::fonts::FontSelection,
-    widget_text::WidgetText,
+    Align, Align2, Margin, WidgetText, containers::frame::Frame, paint::text::fonts::FontSelection,
     widgets::text_edit::bunny_string::BunnyString,
 };
 
@@ -190,8 +183,8 @@ impl<'t> TextEdit<'t> {
     }
 
     #[inline]
-    pub fn min_size(mut self, min_size: Vec2) -> Self {
-        self.min_size = min_size;
+    pub fn min_size(mut self, min_size: impl Into<Vector2<f32>>) -> Self {
+        self.min_size = min_size.into().into();
         self
     }
 }
@@ -221,7 +214,7 @@ impl egui::Widget for TextEdit<'_> {
         .min_size(self.min_size);
 
         if let RSome(id) = self.id {
-            text_edit = text_edit.id(id.into());
+            text_edit = text_edit.id(id);
         }
         if let RSome(frame) = self.frame {
             text_edit = text_edit.frame(frame.into());
@@ -234,12 +227,5 @@ impl egui::Widget for TextEdit<'_> {
         }
 
         text_edit.show(ui).response.response
-    }
-}
-
-impl<'a> From<TextEdit<'a>> for Widget<'a> {
-    #[inline]
-    fn from(value: TextEdit<'a>) -> Self {
-        Widget::TextEdit(RBox::new(value))
     }
 }

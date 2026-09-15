@@ -1,393 +1,318 @@
-use abi_stable::std_types::RArc;
-use emath::{Pos2, Rect, Vec2};
+use egui::{Id, Pos2, Rect, Sense, Vec2};
+use mint::Vector2;
+use vtable::VBox;
 
-use crate::Id;
-use crate::containers::popup::{Popup, PopupKind};
-use crate::containers::tooltip::Tooltip;
-use crate::input::PointerButton;
-use crate::input_state::PointerState;
-use crate::ui::BunnyUi;
-use crate::widget_text::WidgetText;
+use crate::{
+    Align, PointerButton, WidgetText, closure::PluginClosure, style::ScrollAnimation, ui::BunnyUi,
+    vtable::response::ResponseFfiVTable,
+};
 
-#[cfg(feature = "manager")]
-type EguiId = egui::Id;
-#[cfg(not(feature = "manager"))]
-type EguiId = u64;
-
-#[derive(Clone, Debug)]
 #[repr(C)]
-pub struct Response {
-    pub pointer_state: RArc<PointerState>,
-    pub rect: Rect,
-    pub interact_rect: Rect,
-    pub id: Id,
-    pub(crate) egui_id: EguiId,
-    pub flags: Flags,
-}
+pub struct BunnyResponse(VBox<ResponseFfiVTable>);
 
-impl Response {
-    #[cfg(feature = "manager")]
-    pub fn new(id: Id, egui_resp: egui::Response, pointer_state: RArc<PointerState>) -> Self {
-        Self {
-            id,
-            egui_id: egui_resp.id,
-            rect: egui_resp.rect,
-            interact_rect: egui_resp.interact_rect,
-            flags: egui_resp.flags.into(),
-            pointer_state,
-        }
+impl BunnyResponse {
+    #[inline]
+    pub fn id(&self) -> Id {
+        self.0.id()
     }
 
-    #[cfg(feature = "manager")]
-    pub fn rect_only(id: Id, rect: Rect, pointer_state: RArc<PointerState>) -> Self {
-        Self {
-            id,
-            egui_id: EguiId::NULL,
-            rect,
-            interact_rect: rect,
-            flags: Flags::empty(),
-            pointer_state,
-        }
+    #[inline]
+    pub fn rect(&self) -> Rect {
+        self.0.rect()
     }
 
-    #[cfg(feature = "manager")]
-    pub fn empty(id: Id, pointer_state: RArc<PointerState>) -> Self {
-        Self {
-            id,
-            pointer_state,
-            ..Default::default()
-        }
+    #[inline]
+    pub fn interact_rect(&self) -> Rect {
+        self.0.interact_rect()
     }
 
-    #[inline(always)]
+    #[inline]
+    pub fn sense(&self) -> Sense {
+        self.0.sense()
+    }
+
+    #[inline]
+    pub fn parent_id(&self) -> Id {
+        self.0.parent_id()
+    }
+
+    #[inline]
     pub fn clicked(&self) -> bool {
-        self.flags.contains(Flags::FAKE_PRIMARY_CLICKED) || self.clicked_by(PointerButton::Primary)
+        self.0.clicked()
     }
 
     #[inline]
     pub fn clicked_by(&self, button: PointerButton) -> bool {
-        self.flags.contains(Flags::CLICKED) && self.pointer_state.button_clicked(button)
+        self.0.clicked_by(button)
     }
 
     #[inline]
     pub fn secondary_clicked(&self) -> bool {
-        self.clicked_by(PointerButton::Secondary)
+        self.0.secondary_clicked()
     }
 
     #[inline]
     pub fn middle_clicked(&self) -> bool {
-        self.clicked_by(PointerButton::Middle)
+        self.0.middle_clicked()
     }
 
     #[inline]
     pub fn double_clicked(&self) -> bool {
-        self.double_clicked_by(PointerButton::Primary)
+        self.0.double_clicked()
     }
 
     #[inline]
     pub fn triple_clicked(&self) -> bool {
-        self.triple_clicked_by(PointerButton::Primary)
+        self.0.triple_clicked()
     }
 
     #[inline]
     pub fn double_clicked_by(&self, button: PointerButton) -> bool {
-        self.flags.contains(Flags::CLICKED) && self.pointer_state.button_double_clicked(button)
+        self.0.double_clicked_by(button)
     }
 
     #[inline]
     pub fn triple_clicked_by(&self, button: PointerButton) -> bool {
-        self.flags.contains(Flags::CLICKED) && self.pointer_state.button_triple_clicked(button)
+        self.0.triple_clicked_by(button)
     }
 
+    #[inline]
+    pub fn clicked_with_open_in_background(&self) -> bool {
+        self.0.clicked_with_open_in_background()
+    }
+
+    #[inline]
     pub fn clicked_elsewhere(&self) -> bool {
-        let (pointer_interact_pos, any_click) = (
-            self.pointer_state.interact_pos(),
-            self.pointer_state.any_click(),
-        );
-
-        if any_click {
-            if self.contains_pointer() || self.hovered() {
-                false
-            } else if let Some(pos) = pointer_interact_pos {
-                !self.interact_rect.contains(pos)
-            } else {
-                false
-            }
-        } else {
-            false
-        }
+        self.0.clicked_elsewhere()
     }
 
-    #[inline(always)]
+    #[inline]
     pub fn enabled(&self) -> bool {
-        self.flags.contains(Flags::ENABLED)
+        self.0.enabled()
     }
 
-    #[inline(always)]
+    #[inline]
     pub fn hovered(&self) -> bool {
-        self.flags.contains(Flags::HOVERED)
+        self.0.hovered()
     }
 
-    #[inline(always)]
+    #[inline]
     pub fn contains_pointer(&self) -> bool {
-        self.flags.contains(Flags::CONTAINS_POINTER)
+        self.0.contains_pointer()
     }
 
-    #[inline(always)]
-    pub fn highlighted(&self) -> bool {
-        self.flags.contains(Flags::HIGHLIGHTED)
+    #[inline]
+    pub fn gained_focus(&self) -> bool {
+        self.0.gained_focus()
+    }
+
+    #[inline]
+    pub fn lost_focus(&self) -> bool {
+        self.0.lost_focus()
+    }
+
+    #[inline]
+    pub fn request_focus(&self) {
+        self.0.request_focus();
+    }
+
+    #[inline]
+    pub fn surrender_focus(&self) {
+        self.0.surrender_focus();
     }
 
     #[inline]
     pub fn drag_started(&self) -> bool {
-        self.flags.contains(Flags::DRAG_STARTED)
+        self.0.drag_started()
     }
 
     #[inline]
     pub fn drag_started_by(&self, button: PointerButton) -> bool {
-        self.drag_started() && self.pointer_state.button_down(button)
+        self.0.drag_started_by(button)
     }
 
-    #[inline(always)]
+    #[inline]
     pub fn dragged(&self) -> bool {
-        self.flags.contains(Flags::DRAGGED)
+        self.0.dragged()
     }
 
     #[inline]
     pub fn dragged_by(&self, button: PointerButton) -> bool {
-        self.dragged() && self.pointer_state.button_down(button)
+        self.0.dragged_by(button)
     }
 
     #[inline]
     pub fn drag_stopped(&self) -> bool {
-        self.flags.contains(Flags::DRAG_STOPPED)
+        self.0.drag_stopped()
     }
 
+    #[inline]
     pub fn drag_stopped_by(&self, button: PointerButton) -> bool {
-        self.drag_stopped() && self.pointer_state.button_released(button)
+        self.0.drag_stopped_by(button)
     }
 
     #[inline]
     pub fn drag_delta(&self) -> Vec2 {
-        if self.dragged() {
-            self.pointer_state.delta()
-        } else {
-            Vec2::ZERO
-        }
+        self.0.drag_delta()
     }
 
     #[inline]
     pub fn total_drag_delta(&self) -> Option<Vec2> {
-        if self.dragged() {
-            self.pointer_state.total_drag_delta()
-        } else {
-            None
-        }
+        self.0.total_drag_delta().into_option()
+    }
+
+    #[inline]
+    pub fn drag_motion(&self) -> Vec2 {
+        self.0.drag_motion()
+    }
+
+    #[inline]
+    pub fn interact_pointer_pos(&self) -> Option<Pos2> {
+        self.0.interact_pointer_pos().into_option()
+    }
+
+    #[inline]
+    pub fn intrinsic_size(&self) -> Option<Vec2> {
+        self.0.intrinsic_size().into_option()
+    }
+
+    #[inline]
+    pub fn set_intrinsic_size(&mut self, size: impl Into<Vector2<f32>>) {
+        self.0.set_intrinsic_size(size.into().into());
     }
 
     #[inline]
     pub fn hover_pos(&self) -> Option<Pos2> {
-        if self.hovered() {
-            self.pointer_state.latest_pos()
-        } else {
-            None
-        }
+        self.0.hover_pos().into_option()
     }
 
-    #[inline(always)]
+    #[inline]
     pub fn is_pointer_button_down_on(&self) -> bool {
-        self.flags.contains(Flags::IS_POINTER_BUTTON_DOWN_ON)
+        self.0.is_pointer_button_down_on()
     }
 
-    #[inline(always)]
+    #[inline]
     pub fn changed(&self) -> bool {
-        self.flags.contains(Flags::CHANGED)
+        self.0.changed()
     }
 
-    #[inline(always)]
+    #[inline]
     pub fn mark_changed(&mut self) {
-        self.flags.set(Flags::CHANGED, true);
+        self.0.mark_changed();
     }
 
-    pub fn show_tooltip_text(&self, ui: &mut BunnyUi, text: impl Into<WidgetText>) {
-        self.show_tooltip_ui(ui, |ui| {
-            ui.label(text);
-        });
+    #[inline]
+    pub fn should_close(&self) -> bool {
+        self.0.should_close()
     }
 
-    pub fn on_hover_text(self, ui: &mut BunnyUi, text: impl Into<WidgetText>) -> Self {
-        self.on_hover_ui(ui, |ui| {
-            ui.label(text);
-        })
+    #[inline]
+    pub fn set_close(&mut self) {
+        self.0.set_close();
     }
 
-    pub fn on_hover_text_at_pointer(self, ui: &mut BunnyUi, text: impl Into<WidgetText>) -> Self {
-        self.on_hover_ui_at_pointer(ui, |ui| {
-            ui.label(text);
-        })
-    }
-}
-
-impl<'a> Response {
-    pub fn on_hover_ui(
-        self,
-        ui: &mut BunnyUi<'a>,
-        add_contents: impl FnOnce(&mut BunnyUi<'a>),
-    ) -> Self {
-        Tooltip::for_enabled(&self).show(ui, add_contents);
+    #[inline]
+    pub fn on_hover_ui(self, mut add_contents: impl FnMut(&mut BunnyUi)) -> Self {
+        let closure = PluginClosure::new(&mut add_contents);
+        self.0.on_hover_ui(closure);
         self
     }
 
-    pub fn on_disabled_hover_ui(
-        self,
-        ui: &mut BunnyUi<'a>,
-        add_contents: impl FnOnce(&mut BunnyUi<'a>),
-    ) -> Self {
-        Tooltip::for_disabled(&self).show(ui, add_contents);
+    #[inline]
+    pub fn on_disabled_hover_ui(self, mut add_contents: impl FnMut(&mut BunnyUi)) -> Self {
+        let closure = PluginClosure::new(&mut add_contents);
+        self.0.on_disabled_hover_ui(closure);
         self
     }
 
-    pub fn on_hover_ui_at_pointer(
-        self,
-        ui: &mut BunnyUi<'a>,
-        add_contents: impl FnOnce(&mut BunnyUi<'a>),
-    ) -> Self {
-        Tooltip::for_enabled(&self)
-            .at_pointer()
-            .gap(12.0)
-            .show(ui, add_contents);
+    #[inline]
+    pub fn on_hover_ui_at_pointer(self, mut add_contents: impl FnMut(&mut BunnyUi)) -> Self {
+        let closure = PluginClosure::new(&mut add_contents);
+        self.0.on_hover_ui_at_pointer(closure);
         self
     }
 
-    pub fn show_tooltip_ui(
-        &self,
-        ui: &mut BunnyUi<'a>,
-        add_contents: impl FnOnce(&mut BunnyUi<'a>),
-    ) {
-        Popup::from_response(self)
-            .kind(PopupKind::Tooltip)
-            .show(ui, add_contents);
+    #[inline]
+    pub fn show_tooltip_ui(&self, mut add_contents: impl FnMut(&mut BunnyUi)) {
+        let closure = PluginClosure::new(&mut add_contents);
+        self.0.show_tooltip_ui(closure);
+    }
+
+    #[inline]
+    pub fn show_tooltip_text(&self, text: impl Into<WidgetText>) {
+        self.0.show_tooltip_text(text.into());
+    }
+
+    #[inline]
+    pub fn is_tooltip_open(&self) -> bool {
+        self.0.is_tooltip_open()
+    }
+
+    #[inline]
+    pub fn on_hover_text_at_pointer(self, text: impl Into<WidgetText>) -> Self {
+        self.0.on_hover_text_at_pointer(text.into());
+        self
+    }
+
+    #[inline]
+    pub fn on_hover_text(self, text: impl Into<WidgetText>) -> Self {
+        self.0.on_hover_text(text.into());
+        self
+    }
+
+    #[inline]
+    pub fn highlight(mut self) -> Self {
+        self.0.highlight();
+        self
+    }
+
+    #[inline]
+    pub fn on_disabled_hover_text(self, text: impl Into<WidgetText>) -> Self {
+        self.0.on_disabled_hover_text(text.into());
+        self
+    }
+
+    #[inline]
+    pub fn interact(&self, sense: Sense) -> Self {
+        self.0.interact(sense)
+    }
+
+    #[inline]
+    pub fn scroll_to_me(&self, align: Option<Align>) {
+        self.0.scroll_to_me(align.into());
+    }
+
+    #[inline]
+    pub fn scroll_to_me_animation(&self, align: Option<Align>, animation: ScrollAnimation) {
+        self.0.scroll_to_me_animation(align.into(), animation);
+    }
+
+    #[inline]
+    pub fn context_menu(&self, mut add_contents: impl FnMut(&mut BunnyUi)) -> Option<Self> {
+        let closure = PluginClosure::new(&mut add_contents);
+        self.0.context_menu(closure).into_option()
+    }
+
+    #[inline]
+    pub fn context_menu_opened(&self) -> bool {
+        self.0.context_menu_opened()
+    }
+
+    #[inline]
+    pub fn paint_debug_info(&self) {
+        self.0.paint_debug_info();
     }
 }
 
-impl Default for Response {
-    #[cfg(feature = "manager")]
-    fn default() -> Self {
-        Self {
-            id: Id::NULL,
-            egui_id: EguiId::NULL,
-            rect: Rect::ZERO,
-            interact_rect: Rect::ZERO,
-            flags: Flags::empty(),
-            pointer_state: Default::default(),
-        }
-    }
-
-    #[cfg(not(feature = "manager"))]
-    fn default() -> Self {
-        Self {
-            id: Id::NULL,
-            egui_id: u64::MAX,
-            rect: Rect::ZERO,
-            interact_rect: Rect::ZERO,
-            flags: Flags::empty(),
-            pointer_state: Default::default(),
-        }
+impl From<VBox<ResponseFfiVTable>> for BunnyResponse {
+    #[inline]
+    fn from(value: VBox<ResponseFfiVTable>) -> Self {
+        Self(value)
     }
 }
 
-#[derive(Clone)]
 #[repr(C)]
-pub struct InnerResponse<R> {
+pub struct BunnyInnerResponse<R> {
     pub inner: R,
-    pub response: Response,
-}
-
-impl<R> InnerResponse<R> {
-    #[inline]
-    pub fn new(inner: R, response: Response) -> Self {
-        Self { inner, response }
-    }
-}
-
-#[derive(Clone, Copy, Debug)]
-#[repr(C)]
-pub struct Flags(u16);
-
-bitflags::bitflags! {
-    impl Flags: u16 {
-        /// Was the widget enabled?
-        /// If `false`, there was no interaction attempted (not even hover).
-        const ENABLED = 1<<0;
-
-        /// The pointer is above this widget with no other blocking it.
-        const CONTAINS_POINTER = 1<<1;
-
-        /// The pointer is hovering above this widget or the widget was clicked/tapped this frame.
-        const HOVERED = 1<<2;
-
-        /// The widget is highlighted via a call to [`Response::highlight`] or
-        /// [`Context::highlight_widget`].
-        const HIGHLIGHTED = 1<<3;
-
-        /// This widget was clicked this frame.
-        ///
-        /// Which pointer and how many times we don't know,
-        /// and ask [`crate::InputState`] about at runtime.
-        ///
-        /// This is only set to true if the widget was clicked
-        /// by an actual mouse.
-        const CLICKED = 1<<4;
-
-        /// This widget should act as if clicked due
-        /// to something else than a click.
-        ///
-        /// This is set to true if the widget has keyboard focus and
-        /// the user hit the Space or Enter key.
-        const FAKE_PRIMARY_CLICKED = 1<<5;
-
-        /// This widget was long-pressed on a touch screen to simulate a secondary click.
-        const LONG_TOUCHED = 1<<6;
-
-        /// The widget started being dragged this frame.
-        const DRAG_STARTED = 1<<7;
-
-        /// The widget is being dragged.
-        const DRAGGED = 1<<8;
-
-        /// The widget was being dragged, but now it has been released.
-        const DRAG_STOPPED = 1<<9;
-
-        /// Is the pointer button currently down on this widget?
-        /// This is true if the pointer is pressing down or dragging a widget
-        const IS_POINTER_BUTTON_DOWN_ON = 1<<10;
-
-        /// Was the underlying data changed?
-        ///
-        /// e.g. the slider was dragged, text was entered in a [`TextEdit`](crate::TextEdit) etc.
-        /// Always `false` for something like a [`Button`](crate::Button).
-        ///
-        /// Note that this can be `true` even if the user did not interact with the widget,
-        /// for instance if an existing slider value was clamped to the given range.
-        const CHANGED = 1<<11;
-
-        /// Should this container be closed?
-        const CLOSE = 1<<12;
-    }
-}
-
-#[cfg(feature = "manager")]
-impl From<Flags> for egui::response::Flags {
-    #[inline]
-    fn from(value: Flags) -> Self {
-        Self::from_bits_retain(value.bits())
-    }
-}
-
-#[cfg(feature = "manager")]
-impl From<egui::response::Flags> for Flags {
-    #[inline]
-    fn from(value: egui::response::Flags) -> Self {
-        Self::from_bits_retain(value.bits())
-    }
+    pub response: BunnyResponse,
 }

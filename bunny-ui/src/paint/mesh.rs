@@ -4,8 +4,9 @@ use abi_stable::std_types::{
 };
 use ecolor::Color32;
 use emath::{Pos2, Rect, Rot2, TSTransform, Vec2};
+use mint::{Point2, Vector2};
 
-use crate::image_source::ImageSource;
+use crate::ImageSource;
 
 pub const WHITE_UV: Pos2 = Pos2 { x: 0.0, y: 0.0 };
 
@@ -62,7 +63,7 @@ impl<'a> Mesh<'a> {
     }
 
     #[inline(always)]
-    pub fn colored_vertex(&mut self, pos: Pos2, color: Color32) {
+    pub fn colored_vertex(&mut self, pos: impl Into<Point2<f32>>, color: Color32) {
         debug_assert!(
             self.texture_source.is_none(),
             "Mesh has an assigned texture"
@@ -125,7 +126,8 @@ impl<'a> Mesh<'a> {
         self.add_rect_with_uv(rect, [WHITE_UV, WHITE_UV].into(), color);
     }
 
-    pub fn translate(&mut self, delta: Vec2) {
+    pub fn translate(&mut self, delta: impl Into<Vector2<f32>>) {
+        let delta: Vec2 = delta.into().into();
         for v in &mut self.vertices {
             v.pos += delta;
         }
@@ -137,7 +139,8 @@ impl<'a> Mesh<'a> {
         }
     }
 
-    pub fn rotate(&mut self, rot: Rot2, origin: Pos2) {
+    pub fn rotate(&mut self, rot: Rot2, origin: impl Into<Point2<f32>>) {
+        let origin: Pos2 = origin.into().into();
         for v in &mut self.vertices {
             v.pos = origin + rot * (v.pos - origin);
         }
@@ -178,9 +181,9 @@ pub struct Vertex {
 
 impl Vertex {
     #[inline]
-    pub fn untextured(pos: Pos2, color: Color32) -> Self {
+    pub fn untextured(pos: impl Into<Point2<f32>>, color: Color32) -> Self {
         Self {
-            pos,
+            pos: pos.into().into(),
             uv: WHITE_UV,
             color,
         }

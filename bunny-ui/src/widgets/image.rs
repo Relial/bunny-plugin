@@ -1,17 +1,17 @@
 use abi_stable::std_types::{
-    RBox, RCowStr,
+    RCowStr,
     ROption::{self, RNone, RSome},
     RString, Tuple2,
 };
 use ecolor::Color32;
+use egui::Sense;
 use emath::{NumExt as _, Rect, Vec2, pos2};
+use mint::Vector2;
 
 use crate::{
-    elements::Widget,
-    image_source::ImageSource,
-    load::{Bytes, SizeHint},
+    ImageSource, SizeHint,
+    load::Bytes,
     paint::{corner_radius::CornerRadius, textures::TextureOptions},
-    sense::Sense,
 };
 
 #[repr(C)]
@@ -79,8 +79,8 @@ impl<'a> Image<'a> {
     }
 
     #[inline]
-    pub fn max_size(mut self, size: Vec2) -> Self {
-        self.size.max_size = size;
+    pub fn max_size(mut self, size: impl Into<Vector2<f32>>) -> Self {
+        self.size.max_size = size.into().into();
         self
     }
 
@@ -97,14 +97,14 @@ impl<'a> Image<'a> {
     }
 
     #[inline]
-    pub fn fit_to_exact_size(mut self, size: Vec2) -> Self {
-        self.size.fit = ImageFit::Exact(size);
+    pub fn fit_to_exact_size(mut self, size: impl Into<Vector2<f32>>) -> Self {
+        self.size.fit = ImageFit::Exact(size.into().into());
         self
     }
 
     #[inline]
-    pub fn fit_to_fraction(mut self, fraction: Vec2) -> Self {
-        self.size.fit = ImageFit::Fraction(fraction);
+    pub fn fit_to_fraction(mut self, fraction: impl Into<Vector2<f32>>) -> Self {
+        self.size.fit = ImageFit::Fraction(fraction.into().into());
         self
     }
 
@@ -138,8 +138,8 @@ impl<'a> Image<'a> {
     }
 
     #[inline]
-    pub fn rotate(mut self, angle: f32, origin: Vec2) -> Self {
-        self.image_options.rotation = RSome(Tuple2(angle, origin));
+    pub fn rotate(mut self, angle: f32, origin: impl Into<Vector2<f32>>) -> Self {
+        self.image_options.rotation = RSome(Tuple2(angle, origin.into().into()));
         self.image_options.corner_radius = CornerRadius::ZERO;
         self
     }
@@ -173,13 +173,6 @@ impl<'a, T: Into<ImageSource<'a>>> From<T> for Image<'a> {
     }
 }
 
-impl<'a> From<Image<'a>> for Widget<'a> {
-    #[inline]
-    fn from(value: Image<'a>) -> Self {
-        Self::Image(RBox::new(value))
-    }
-}
-
 #[cfg(feature = "manager")]
 impl egui::Widget for Image<'_> {
     fn ui(self, ui: &mut egui::Ui) -> egui::Response {
@@ -202,7 +195,7 @@ impl egui::Widget for Image<'_> {
             .bg_fill(image_options.bg_fill)
             .tint(image_options.tint)
             .corner_radius(image_options.corner_radius)
-            .sense(sense.into())
+            .sense(sense)
             .max_size(size.max_size)
             .maintain_aspect_ratio(size.maintain_aspect_ratio);
         if let RSome(Tuple2(angle, origin)) = image_options.rotation {
@@ -244,7 +237,8 @@ impl Default for ImageSize {
 }
 
 impl ImageSize {
-    pub fn hint(&self, available_size: Vec2, pixels_per_point: f32) -> SizeHint {
+    pub fn hint(&self, available_size: impl Into<Vector2<f32>>, pixels_per_point: f32) -> SizeHint {
+        let available_size: Vec2 = available_size.into().into();
         let Self {
             maintain_aspect_ratio,
             max_size,
@@ -282,7 +276,9 @@ pub enum ImageFit {
 
 impl ImageFit {
     #[inline]
-    pub fn resolve(self, available_size: Vec2, image_size: Vec2) -> Vec2 {
+    pub fn resolve(self, available_size: impl Into<Vector2<f32>>, image_size: impl Into<Vector2<f32>>) -> Vec2 {
+        let available_size: Vec2 = available_size.into().into();
+        let image_size: Vec2 = image_size.into().into();
         match self {
             ImageFit::Original { scale } => image_size * scale,
             ImageFit::Fraction(vec2) => available_size * vec2,

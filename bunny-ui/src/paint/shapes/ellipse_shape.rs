@@ -1,5 +1,6 @@
 use ecolor::Color32;
 use emath::{Pos2, Rot2, Vec2};
+use mint::{Point2, Vector2};
 
 use crate::paint::{shapes::shape::Shape, stroke::Stroke};
 
@@ -16,10 +17,14 @@ pub struct EllipseShape {
 
 impl EllipseShape {
     #[inline]
-    pub fn filled(center: Pos2, radius: Vec2, fill_color: impl Into<Color32>) -> Self {
+    pub fn filled(
+        center: impl Into<Point2<f32>>,
+        radius: impl Into<Vector2<f32>>,
+        fill_color: impl Into<Color32>,
+    ) -> Self {
         Self {
-            center,
-            radius,
+            center: center.into().into(),
+            radius: radius.into().into(),
             fill: fill_color.into(),
             stroke: Default::default(),
             angle: 0.0,
@@ -27,10 +32,14 @@ impl EllipseShape {
     }
 
     #[inline]
-    pub fn stroke(center: Pos2, radius: Vec2, stroke: impl Into<Stroke>) -> Self {
+    pub fn stroke(
+        center: impl Into<Point2<f32>>,
+        radius: impl Into<Vector2<f32>>,
+        stroke: impl Into<Stroke>,
+    ) -> Self {
         Self {
-            center,
-            radius,
+            center: center.into().into(),
+            radius: radius.into().into(),
             fill: Default::default(),
             stroke: stroke.into(),
             angle: 0.0,
@@ -44,7 +53,8 @@ impl EllipseShape {
     }
 
     #[inline]
-    pub fn with_angle_and_pivot(mut self, angle: f32, pivot: Pos2) -> Self {
+    pub fn with_angle_and_pivot(mut self, angle: f32, pivot: impl Into<Point2<f32>>) -> Self {
+        let pivot: Pos2 = pivot.into().into();
         self.angle = angle;
         let rot = Rot2::from_angle(angle);
         self.center = pivot + rot * (self.center - pivot);

@@ -1,4 +1,4 @@
-use crate::{align::Align, direction::Direction};
+use crate::types::{align::Align, direction::Direction};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]

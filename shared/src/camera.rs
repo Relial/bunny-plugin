@@ -1,8 +1,9 @@
 use glam::{Mat4, Vec2, Vec3, Vec3A};
+use mint::Vector2;
 
 // https://docs.rs/bevy_camera/0.19.1/src/bevy_camera/camera.rs.html
 
-/// Contains information about the game camera and lets you calculate screen positions from world positions
+/// Contains information about the game camera
 #[repr(C)]
 #[derive(Clone, Copy, Debug, Default)]
 pub struct Camera {
@@ -14,14 +15,19 @@ pub struct Camera {
 }
 
 impl Camera {
-    pub fn new(view: Mat4, projection: Mat4, position: Vec3, screen_size: Vec2) -> Self {
+    pub fn new(
+        view: Mat4,
+        projection: Mat4,
+        position: Vec3,
+        screen_size: impl Into<Vector2<f32>>,
+    ) -> Self {
         let proj_view = projection * view;
         Self {
             view,
             projection,
             proj_view,
             position,
-            screen_size,
+            screen_size: screen_size.into().into(),
         }
     }
 
@@ -114,7 +120,12 @@ impl Camera {
         (!ndc.is_nan()).then_some(ndc.into())
     }
 
-    pub fn screen_to_world(&self, screen_position: Vec2, view: Mat4, proj: Mat4) -> Option<Ray> {
+    pub fn screen_to_world(
+        &self,
+        screen_position: impl Into<Vector2<f32>>,
+        view: Mat4,
+        proj: Mat4,
+    ) -> Option<Ray> {
         let ndc_xy = self.screen_to_ndc(screen_position);
         let ndc_point_near = ndc_xy.extend(f32::EPSILON).into();
         let ndc_point_far = ndc_xy.extend(1.0).into();
@@ -137,7 +148,8 @@ impl Camera {
         })
     }
 
-    pub fn screen_to_ndc(&self, screen_position: Vec2) -> Vec2 {
+    pub fn screen_to_ndc(&self, screen_position: impl Into<Vector2<f32>>) -> Vec2 {
+        let screen_position: Vec2 = screen_position.into().into();
         let relative = screen_position / self.screen_size;
         let mut ndc = relative * 2.0 - Vec2::ONE;
         ndc.y = -ndc.y;

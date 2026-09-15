@@ -1,11 +1,10 @@
 pub mod button;
 pub mod checkbox;
-pub mod drag_value;
+// pub mod drag_value;
 pub mod image;
 pub mod label;
 pub mod separator;
-pub mod slider;
-pub mod interact;
+// pub mod slider;
 pub mod link;
 pub mod progress_bar;
 pub mod radio_button;

@@ -1,4 +1,4 @@
-use crate::{elements::Widget, widget_text::WidgetText};
+use crate::WidgetText;
 
 #[repr(C)]
 pub struct RadioButton {
@@ -13,13 +13,6 @@ impl RadioButton {
             checked,
             text: text.into(),
         }
-    }
-}
-
-impl From<RadioButton> for Widget<'_> {
-    #[inline]
-    fn from(value: RadioButton) -> Self {
-        Self::RadioButton(value)
     }
 }
 

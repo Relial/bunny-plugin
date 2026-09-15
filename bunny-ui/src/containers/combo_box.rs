@@ -2,7 +2,7 @@ use abi_stable::std_types::ROption::{self, RNone, RSome};
 
 use crate::{
     Id, containers::popup::PopupCloseBehavior, elements::Container, layout::Layout,
-    paint::text::text_layout_types::TextWrapMode, response::InnerResponse, ui::BunnyUi,
+    paint::text::text_layout_types::TextWrapMode, response::InnerResponse, ui_old::BunnyUi,
     widget_text::WidgetText,
 };
 

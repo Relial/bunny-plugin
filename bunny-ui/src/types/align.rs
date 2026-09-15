@@ -1,4 +1,5 @@
 use emath::{Pos2, Rangef, Rect, Vec2, fast_midpoint, pos2, vec2};
+use mint::{Point2, Vector2};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -152,7 +153,9 @@ impl Align2 {
         Rect::from_min_size(pos2(x, y), rect.size())
     }
 
-    pub fn anchor_size(self, pos: Pos2, size: Vec2) -> Rect {
+    pub fn anchor_size(self, pos: impl Into<Point2<f32>>, size: impl Into<Vector2<f32>>) -> Rect {
+        let pos = pos.into();
+        let size = size.into();
         let x = match self.x() {
             Align::Min => pos.x,
             Align::Center => pos.x - 0.5 * size.x,
@@ -163,10 +166,11 @@ impl Align2 {
             Align::Center => pos.y - 0.5 * size.y,
             Align::Max => pos.y - size.y,
         };
-        Rect::from_min_size(pos2(x, y), size)
+        Rect::from_min_size(pos2(x, y), size.into())
     }
 
-    pub fn align_size_within_rect(self, size: Vec2, frame: Rect) -> Rect {
+    pub fn align_size_within_rect(self, size: impl Into<Vector2<f32>>, frame: Rect) -> Rect {
+        let size = size.into();
         let x_range = self.x().align_size_within_range(size.x, frame.x_range());
         let y_range = self.y().align_size_within_range(size.y, frame.y_range());
         Rect::from_x_y_ranges(x_range, y_range)

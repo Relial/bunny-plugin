@@ -3,8 +3,9 @@ use abi_stable::std_types::{
     Tuple2,
 };
 use emath::{Pos2, Rect, Vec2};
+use mint::{Point2, Vector2};
 
-use crate::align::Align2;
+use crate::types::align::Align2;
 
 #[derive(Clone, Debug)]
 #[repr(C)]
@@ -70,14 +71,14 @@ impl Area {
     }
 
     #[inline]
-    pub fn default_pos(mut self, default_pos: impl Into<Pos2>) -> Self {
-        self.default_pos = RSome(default_pos.into());
+    pub fn default_pos(mut self, default_pos: impl Into<Point2<f32>>) -> Self {
+        self.default_pos = RSome(default_pos.into().into());
         self
     }
 
     #[inline]
-    pub fn default_size(mut self, default_size: impl Into<Vec2>) -> Self {
-        self.default_size = default_size.into();
+    pub fn default_size(mut self, default_size: impl Into<Vector2<f32>>) -> Self {
+        self.default_size = default_size.into().into();
         self
     }
 
@@ -94,8 +95,8 @@ impl Area {
     }
 
     #[inline]
-    pub fn fixed_pos(mut self, fixed_pos: impl Into<Pos2>) -> Self {
-        self.new_pos = RSome(fixed_pos.into());
+    pub fn fixed_pos(mut self, fixed_pos: impl Into<Point2<f32>>) -> Self {
+        self.new_pos = RSome(fixed_pos.into().into());
         self.movable = false;
         self
     }
@@ -120,14 +121,14 @@ impl Area {
     }
 
     #[inline]
-    pub fn current_pos(mut self, current_pos: impl Into<Pos2>) -> Self {
-        self.new_pos = RSome(current_pos.into());
+    pub fn current_pos(mut self, current_pos: impl Into<Point2<f32>>) -> Self {
+        self.new_pos = RSome(current_pos.into().into());
         self
     }
 
     #[inline]
-    pub fn anchor(mut self, align: Align2, offset: impl Into<Vec2>) -> Self {
-        self.anchor = RSome(Tuple2(align, offset.into()));
+    pub fn anchor(mut self, align: Align2, offset: impl Into<Vector2<f32>>) -> Self {
+        self.anchor = RSome(Tuple2(align, offset.into().into()));
         self.movable(false)
     }
 }

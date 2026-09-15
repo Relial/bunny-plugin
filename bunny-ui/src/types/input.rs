@@ -1,4 +1,4 @@
-use crate::key::Key;
+use crate::types::key::Key;
 
 #[derive(Clone, Debug, PartialEq)]
 #[repr(C)]
@@ -18,6 +18,19 @@ pub enum PointerButton {
     Middle = 2,
     Extra1 = 3,
     Extra2 = 4,
+}
+
+#[cfg(feature = "manager")]
+impl From<PointerButton> for egui::PointerButton {
+    fn from(value: PointerButton) -> Self {
+        match value {
+            PointerButton::Primary => Self::Primary,
+            PointerButton::Secondary => Self::Secondary,
+            PointerButton::Middle => Self::Middle,
+            PointerButton::Extra1 => Self::Extra1,
+            PointerButton::Extra2 => Self::Extra2,
+        }
+    }
 }
 
 #[cfg(feature = "manager")]

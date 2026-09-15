@@ -3,13 +3,12 @@ use abi_stable::{
     std_types::{RBox, ROption::RNone, RString, RVec},
 };
 use ecolor::Color32;
-use emath::{Pos2, Rangef, Rect, TSTransform, Vec2, pos2};
+use emath::{Pos2, Rangef, Rect, TSTransform, pos2};
+use mint::{Point2, Vector2};
 use tracing::error;
 
 use crate::{
-    align::Align2,
-    direction::Direction,
-    image_source::ImageSource,
+    Align2, Direction, ImageSource,
     paint::{
         corner_radius::CornerRadius,
         mesh::{Mesh, Vertex},
@@ -96,12 +95,18 @@ impl<'a> Shape<'a> {
     }
 
     #[inline]
-    pub fn line(points: impl Into<RVec<Pos2>>, stroke: impl Into<PathStroke>) -> Self {
+    pub fn line<P: Into<Point2<f32>>>(
+        points: impl IntoIterator<Item = P>,
+        stroke: impl Into<PathStroke>,
+    ) -> Self {
         Self::Path(PathShape::line(points, stroke))
     }
 
     #[inline]
-    pub fn closed_line(points: impl Into<RVec<Pos2>>, stroke: impl Into<PathStroke>) -> Self {
+    pub fn closed_line<P: Into<Point2<f32>>>(
+        points: impl IntoIterator<Item = P>,
+        stroke: impl Into<PathStroke>,
+    ) -> Self {
         Self::Path(PathShape::closed_line(points, stroke))
     }
 
@@ -189,8 +194,8 @@ impl<'a> Shape<'a> {
     }
 
     #[inline]
-    pub fn convex_polygon(
-        points: &[Pos2],
+    pub fn convex_polygon<P: Into<Point2<f32>>>(
+        points: impl IntoIterator<Item = P>,
         fill: impl Into<Color32>,
         stroke: impl Into<PathStroke>,
     ) -> Self {
@@ -198,22 +203,38 @@ impl<'a> Shape<'a> {
     }
 
     #[inline]
-    pub fn circle_filled(center: Pos2, radius: f32, fill_color: impl Into<Color32>) -> Self {
+    pub fn circle_filled(
+        center: impl Into<Point2<f32>>,
+        radius: f32,
+        fill_color: impl Into<Color32>,
+    ) -> Self {
         Self::Circle(CircleShape::filled(center, radius, fill_color))
     }
 
     #[inline]
-    pub fn circle_stroke(center: Pos2, radius: f32, stroke: impl Into<Stroke>) -> Self {
+    pub fn circle_stroke(
+        center: impl Into<Point2<f32>>,
+        radius: f32,
+        stroke: impl Into<Stroke>,
+    ) -> Self {
         Self::Circle(CircleShape::stroke(center, radius, stroke))
     }
 
     #[inline]
-    pub fn ellipse_filled(center: Pos2, radius: Vec2, fill_color: impl Into<Color32>) -> Self {
+    pub fn ellipse_filled(
+        center: impl Into<Point2<f32>>,
+        radius: impl Into<Vector2<f32>>,
+        fill_color: impl Into<Color32>,
+    ) -> Self {
         Self::Ellipse(EllipseShape::filled(center, radius, fill_color))
     }
 
     #[inline]
-    pub fn ellipse_stroke(center: Pos2, radius: Vec2, stroke: impl Into<Stroke>) -> Self {
+    pub fn ellipse_stroke(
+        center: impl Into<Point2<f32>>,
+        radius: impl Into<Vector2<f32>>,
+        stroke: impl Into<Stroke>,
+    ) -> Self {
         Self::Ellipse(EllipseShape::stroke(center, radius, stroke))
     }
 
@@ -258,7 +279,7 @@ impl<'a> Shape<'a> {
 
     #[inline]
     pub fn text(
-        pos: Pos2,
+        pos: impl Into<Point2<f32>>,
         anchor: Align2,
         text: impl Into<RString>,
         font_id: FontId,
@@ -271,7 +292,7 @@ impl<'a> Shape<'a> {
 
     #[inline]
     pub fn text_with_layout_job(
-        pos: Pos2,
+        pos: impl Into<Point2<f32>>,
         anchor: Align2,
         layout_job: LayoutJob,
         fallback_color: Color32,
@@ -302,8 +323,8 @@ impl<'a> Shape<'a> {
     }
 
     #[inline(always)]
-    pub fn translate(&mut self, delta: Vec2) {
-        self.transform(TSTransform::from_translation(delta));
+    pub fn translate(&mut self, delta: impl Into<Vector2<f32>>) {
+        self.transform(TSTransform::from_translation(delta.into().into()));
     }
 
     pub fn transform(&mut self, transform: TSTransform) {

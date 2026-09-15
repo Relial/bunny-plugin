@@ -1,6 +1,7 @@
 use emath::{Pos2, Rect, Vec2};
+use mint::Vector2;
 
-use crate::align::Align2;
+use crate::types::align::Align2;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -141,7 +142,7 @@ impl RectAlign {
     }
 
     /// Calculate the child rect based on a size and some optional gap.
-    pub fn align_rect(&self, parent_rect: &Rect, size: Vec2, gap: f32) -> Rect {
+    pub fn align_rect(&self, parent_rect: &Rect, size: impl Into<Vector2<f32>>, gap: f32) -> Rect {
         let (pivot, anchor) = self.pivot_pos(parent_rect, gap);
         pivot.anchor_size(anchor, size)
     }
@@ -224,9 +225,10 @@ impl RectAlign {
         content_rect: Rect,
         parent_rect: Rect,
         gap: f32,
-        expected_size: Vec2,
+        expected_size: impl Into<Vector2<f32>>,
     ) -> Option<Self> {
         let mut first_choice = None;
+        let expected_size = expected_size.into();
 
         for align in values_to_try {
             first_choice = first_choice.or(Some(align)); // Remember the first alternative

@@ -1,6 +1,6 @@
 use emath::Rect;
 
-use crate::image_source::ImageSource;
+use crate::ImageSource;
 
 #[derive(Clone, Debug, PartialEq)]
 #[repr(C)]

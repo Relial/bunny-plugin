@@ -1,6 +1,7 @@
 #![feature(sync_unsafe_cell)]
 
 use std::{path::Path, str::FromStr};
+use abi_stable::std_types::{ROption::{self, RNone, RSome}, RString};
 
 pub use shared::{
     camera::*,
@@ -19,10 +20,8 @@ pub use bunny_3d;
 #[unsafe(no_mangle)]
 pub static BUNNY_API_VERSION: u32 = 3;
 
-use abi_stable::std_types::{
-    ROption::{self, RNone, RSome},
-    RString,
-};
+pub use abi_stable::std_types as abi_stable_std;
+
 #[cfg(feature = "manager")]
 use anyhow::Result;
 use anyhow::anyhow;

@@ -6,7 +6,7 @@ use abi_stable::std_types::{
     RString,
 };
 
-use crate::{elements::Widget, num::Num, style::HandleShape, widget_text::WidgetText};
+use crate::{style::HandleShape, types::widget_text::WidgetText};
 
 #[derive(Clone, Copy)]
 #[repr(C)]

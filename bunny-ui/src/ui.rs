@@ -1,630 +1,95 @@
-use abi_stable::std_types::{RArc, RHashMap, ROption, RVec, Tuple2};
-use ecolor::Color32;
-use emath::{Rect, Vec2, vec2};
-use rapidhash::fast::RandomState;
-use shared::{camera::Camera, texture::SharedTextures};
+use std::ops::{Deref, DerefMut};
+
+use vtable::{VRef, VRefMut};
 
 use crate::{
-    Id,
-    align::Align,
-    containers::{
-        allocate_ui::AllocateUi, collapsing_header::CollapsingHeader, indent::Indent,
-        scope_builder::ScopeBuilder,
-    },
-    elements::{Component, Container, MiscComponent, Widget},
-    image_source::ImageSource,
-    input_state::{Input, InputState},
-    layout::Layout,
-    paint::text::fonts::CustomFonts,
-    painter::Painter,
-    response::{InnerResponse, Response},
-    sense::Sense,
-    style::{Interaction, Spacing, Style, Visuals},
-    ui_builder::UiBuilder,
-    widget_text::{RichText, WidgetText},
-    widgets::{
-        button::Button, checkbox::CheckBox, color_picker::ColorPicker, image::Image,
-        interact::Interact, label::Label, link::Link, radio_button::RadioButton,
-        separator::Separator, spinner::Spinner,
-    },
+    WidgetText,
+    closure::PluginClosure,
+    containers::collapsing_header::CollapsingHeader,
+    response::BunnyResponse,
+    vtable::{style::StyleFfiVTable, ui::UiFfiVTable},
 };
 
 #[repr(C)]
-pub struct BunnyUi<'a> {
-    painter: Painter<'a>,
-    components: RVec<Tuple2<Id, Component<'a>>>,
-    pub layout: Layout,
-    last_frame_responses: RArc<RHashMap<Id, Response, RandomState>>,
-    input: Input,
-    shared_textures: ROption<SharedTextures>,
-    available_rect: Rect,
-    style: RArc<Style>,
-    camera: RArc<Camera>,
-    pub fonts: CustomFonts,
-    next_salt: u64,
-    pixels_per_point: f32,
-    opacity_factor: f32,
-    enabled: bool,
+pub struct BunnyUi<'a>(VRefMut<'a, UiFfiVTable>);
+
+impl<'a> BunnyUi<'a> {
+    #[inline]
+    pub fn new(ui: &'a mut egui::Ui) -> Self {
+        Self(VRefMut::new(ui))
+    }
+
+    #[inline]
+    pub fn style(&self) -> BunnyStyle<'_> {
+        self.0.style().into()
+    }
+
+    #[inline]
+    pub fn style_mut(&mut self) -> BunnyStyleMut<'_> {
+        self.0.style_mut().into()
+    }
 }
 
-#[cfg(feature = "manager")]
 impl<'a> BunnyUi<'a> {
-    pub fn ui(
-        self,
-        ui: &mut egui::Ui,
-        new_responses: &mut RHashMap<Id, Response, RandomState>,
-        pointer_state: RArc<crate::input_state::PointerState>,
+    #[inline]
+    pub fn label(&mut self, text: impl Into<WidgetText>) -> BunnyResponse {
+        self.0.label(text.into()).into()
+    }
+}
+
+impl<'a> BunnyUi<'a> {
+    #[inline]
+    pub(crate) fn collapsing_header_show(
+        &mut self,
+        collapsing_header: CollapsingHeader,
+        mut add_contents: impl FnMut(&mut BunnyUi),
     ) {
-        self.style.to_egui(ui.style_mut());
-        ui.set_opacity(self.opacity_factor);
-        if !self.enabled {
-            ui.disable();
-        }
-        for Tuple2(id, component) in self.components {
-            use crate::elements::UiContainer as _;
-
-            let response = component.ui(ui, new_responses, pointer_state.clone(), id);
-            new_responses.insert(id, response);
-        }
-    }
-
-    #[allow(clippy::too_many_arguments)]
-    pub fn new(
-        initial_id: Id,
-        last_frame_responses: RArc<RHashMap<Id, Response, RandomState>>,
-        input: Input,
-        paint_list: RArc<
-            abi_stable::external_types::RRwLock<crate::paint::paintlist::PaintList<'a>>,
-        >,
-        available_rect: Rect,
-        pixels_per_point: f32,
-        style: RArc<Style>,
-        shared_textures: Option<SharedTextures>,
-        camera: RArc<Camera>,
-        fonts: CustomFonts,
-    ) -> Self {
-        Self {
-            components: RVec::new(),
-            next_salt: initial_id.value(),
-            painter: Painter::new(paint_list, available_rect, pixels_per_point),
-            layout: Layout::default(),
-            last_frame_responses,
-            input,
-            shared_textures: shared_textures.into(),
-            fonts,
-            available_rect,
-            pixels_per_point,
-            style,
-            camera,
-            opacity_factor: 1.0,
-            enabled: true,
-        }
+        let closure = PluginClosure::new(&mut add_contents);
+        self.0.collapsing_header_show(collapsing_header, closure);
     }
 }
 
-impl<'a> BunnyUi<'a> {
-    #[inline]
-    pub fn available_size(&self) -> Vec2 {
-        self.available_rect.size()
-    }
+#[repr(C)]
+pub struct BunnyStyle<'a>(VRef<'a, StyleFfiVTable>);
+
+impl<'a> Deref for BunnyStyle<'a> {
+    type Target = VRef<'a, StyleFfiVTable>;
 
     #[inline]
-    pub fn available_width(&self) -> f32 {
-        self.available_rect.width()
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
+}
+
+impl<'a> From<VRef<'a, StyleFfiVTable>> for BunnyStyle<'a> {
+    #[inline]
+    fn from(value: VRef<'a, StyleFfiVTable>) -> Self {
+        Self(value)
+    }
+}
+
+#[repr(C)]
+pub struct BunnyStyleMut<'a>(VRefMut<'a, StyleFfiVTable>);
+
+impl<'a> Deref for BunnyStyleMut<'a> {
+    type Target = VRefMut<'a, StyleFfiVTable>;
 
     #[inline]
-    pub fn available_height(&self) -> f32 {
-        self.available_rect.height()
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
+}
 
+impl DerefMut for BunnyStyleMut<'_> {
     #[inline]
-    pub fn available_rect(&self) -> Rect {
-        self.available_rect
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
     }
+}
 
-    pub fn new_child(&mut self, layout: Option<Layout>) -> Self {
-        let current = self.next_salt;
-        let child_salt = self.next_id().hashed().value();
-        self.next_salt = current;
-        let mut style = self.style.clone();
-        if style.changed {
-            RArc::make_mut(&mut style).changed = false;
-        }
-        BunnyUi {
-            components: RVec::new(),
-            next_salt: child_salt,
-            painter: self.painter.clone(),
-            layout: layout.unwrap_or(self.layout),
-            last_frame_responses: self.last_frame_responses.clone(),
-            input: self.input.clone(),
-            shared_textures: self.shared_textures.clone(),
-            fonts: self.fonts.clone(),
-            available_rect: self.available_rect,
-            pixels_per_point: self.pixels_per_point,
-            style,
-            camera: self.camera.clone(),
-            opacity_factor: self.opacity_factor,
-            enabled: self.enabled,
-        }
-    }
-
-    pub fn scope<R>(
-        &mut self,
-        add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
-    ) -> InnerResponse<R> {
-        self.scope_builder(UiBuilder::new(), add_contents)
-    }
-
-    pub fn scope_builder<R>(
-        &mut self,
-        ui_builder: UiBuilder,
-        add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
-    ) -> InnerResponse<R> {
-        let mut new = self.new_child(ui_builder.layout.into());
-        let ret = add_contents(&mut new);
-        let builder = ScopeBuilder::new(ui_builder, new);
-        let response = self.add_component_auto_id(Container::Scope(builder));
-        InnerResponse::new(ret, response)
-    }
-
-    pub fn with_layout<R>(
-        &mut self,
-        layout: Layout,
-        add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
-    ) -> InnerResponse<R> {
-        self.scope_builder(UiBuilder::new().layout(layout), add_contents)
-    }
-
-    pub fn allocate_response(&mut self, desired_size: impl Into<Vec2>, sense: Sense) -> Response {
-        let rect = self.allocate_space(desired_size);
-        self.interact(rect, sense)
-    }
-
-    pub fn allocate_space(&mut self, desired_size: impl Into<Vec2>) -> Rect {
-        let response =
-            self.add_component_auto_id(MiscComponent::AllocateSpace(desired_size.into()));
-        response.rect
-    }
-
-    pub fn allocate_ui<R>(
-        &mut self,
-        desired_size: impl Into<Vec2>,
-        add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
-    ) -> InnerResponse<R> {
-        self.allocate_ui_with_layout(desired_size, self.layout, add_contents)
-    }
-
-    pub fn allocate_ui_with_layout<R>(
-        &mut self,
-        desired_size: impl Into<Vec2>,
-        layout: Layout,
-        add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
-    ) -> InnerResponse<R> {
-        let mut new = self.new_child(Some(layout));
-        let ret = add_contents(&mut new);
-        let allocate = AllocateUi::new(desired_size.into(), layout, new);
-        let response = self.add_component_auto_id(Container::AllocateUi(allocate));
-        InnerResponse::new(ret, response)
-    }
-
-    pub fn allocate_ui_at_rect<R>(
-        &mut self,
-        max_rect: Rect,
-        add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
-    ) -> InnerResponse<R> {
-        self.scope_builder(UiBuilder::new().max_rect(max_rect), add_contents)
-    }
-
-    pub fn allocate_painter(
-        &mut self,
-        desired_size: impl Into<Vec2>,
-        sense: Sense,
-    ) -> (Response, Painter<'a>) {
-        let response = self.allocate_response(desired_size, sense);
-        let clip_rect = self.available_rect.intersect(response.rect);
-        let painter = self.painter().with_clip_rect(clip_rect);
-        (response, painter)
-    }
-
-    #[allow(private_bounds)]
+impl<'a> From<VRefMut<'a, StyleFfiVTable>> for BunnyStyleMut<'a> {
     #[inline]
-    pub fn add_sized(
-        &mut self,
-        max_size: impl Into<Vec2>,
-        widget: impl Into<Widget<'a>>,
-    ) -> Response {
-        let layout = Layout::centered_and_justified(self.layout.main_dir);
-        self.allocate_ui_with_layout(max_size, layout, |ui| {
-            ui.add_component_auto_id(widget.into())
-        })
-        .inner
-    }
-
-    #[inline]
-    pub fn next_id(&mut self) -> Id {
-        let id = Id::new(self.next_salt);
-        self.next_salt = self.next_salt.wrapping_add(1);
-        id
-    }
-
-    #[inline]
-    pub(crate) fn add_component_auto_id(
-        &mut self,
-        component: impl Into<Component<'a>>,
-    ) -> Response {
-        let id = self.next_id();
-        self.add_component(id, component);
-        self.last_frame_responses
-            .get(&id)
-            .cloned()
-            .unwrap_or_default()
-    }
-
-    #[inline]
-    pub(crate) fn add_component(&mut self, id: Id, component: impl Into<Component<'a>>) {
-        self.components.push((id, component.into()).into());
-    }
-
-    #[allow(private_bounds)]
-    #[inline]
-    pub fn add(&mut self, widget: impl Into<Widget<'a>>) -> Response {
-        self.add_component_auto_id(widget.into())
-    }
-
-    #[inline]
-    pub fn disable(&mut self) {
-        self.enabled = false;
-    }
-
-    #[inline]
-    pub fn add_enabled_ui<R>(
-        &mut self,
-        enabled: bool,
-        add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
-    ) -> InnerResponse<R> {
-        self.scope(|ui| {
-            if !enabled {
-                ui.disable();
-            }
-            add_contents(ui)
-        })
-    }
-
-    #[inline]
-    pub fn label(&mut self, text: impl Into<WidgetText>) -> Response {
-        self.add(Label::new(text))
-    }
-
-    #[inline]
-    pub fn colored_label(
-        &mut self,
-        color: impl Into<Color32>,
-        text: impl Into<RichText>,
-    ) -> Response {
-        self.add(Label::new(text.into().color(color.into())))
-    }
-
-    #[inline]
-    pub fn heading(&mut self, text: impl Into<RichText>) -> Response {
-        self.add(Label::new(text.into().heading()))
-    }
-
-    #[inline]
-    pub fn monospace(&mut self, text: impl Into<RichText>) -> Response {
-        self.add(Label::new(text.into().monospace()))
-    }
-
-    #[inline]
-    pub fn code(&mut self, text: impl Into<RichText>) -> Response {
-        self.add(Label::new(text.into().monospace()))
-    }
-
-    #[inline]
-    pub fn small(&mut self, text: impl Into<RichText>) -> Response {
-        self.add(Label::new(text.into().small()))
-    }
-
-    #[inline]
-    pub fn strong(&mut self, text: impl Into<RichText>) -> Response {
-        self.add(Label::new(text.into().strong()))
-    }
-
-    #[inline]
-    pub fn weak(&mut self, text: impl Into<RichText>) -> Response {
-        self.add(Label::new(text.into().weak()))
-    }
-
-    #[inline]
-    pub fn checkbox(&mut self, value: &mut bool, text: impl Into<WidgetText>) -> Response {
-        let resp = self.add(CheckBox::new(*value, text));
-        if resp.clicked() {
-            *value = !*value;
-        }
-        resp
-    }
-
-    #[inline]
-    pub fn checkbox_without_text(&mut self, value: &mut bool) -> Response {
-        let resp = self.add(CheckBox::without_text(*value));
-        if resp.clicked() {
-            *value = !*value;
-        }
-        resp
-    }
-
-    #[inline]
-    pub fn horizontal<R>(
-        &mut self,
-        add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
-    ) -> InnerResponse<R> {
-        let initial_size = vec2(self.available_width(), self.spacing().interact_size.y);
-
-        let layout = if self.layout.prefer_right_to_left() {
-            Layout::right_to_left(Align::Center)
-        } else {
-            Layout::left_to_right(Align::Center)
-        }
-        .with_main_wrap(false);
-        self.allocate_ui_with_layout(initial_size, layout, add_contents)
-    }
-
-    #[inline]
-    pub fn horizontal_top<R>(
-        &mut self,
-        add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
-    ) -> InnerResponse<R> {
-        let initial_size = self.available_size();
-
-        let layout = if self.layout.prefer_right_to_left() {
-            Layout::right_to_left(Align::Center)
-        } else {
-            Layout::left_to_right(Align::Center)
-        }
-        .with_cross_align(Align::Min);
-        self.allocate_ui_with_layout(initial_size, layout, add_contents)
-    }
-
-    #[inline]
-    pub fn vertical<R>(
-        &mut self,
-        add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
-    ) -> InnerResponse<R> {
-        self.scope_builder(
-            UiBuilder::new().layout(Layout::top_down(Align::Min)),
-            add_contents,
-        )
-    }
-
-    #[inline]
-    pub fn vertical_centered<R>(
-        &mut self,
-        add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
-    ) -> InnerResponse<R> {
-        self.scope_builder(
-            UiBuilder::new().layout(Layout::top_down(Align::Center)),
-            add_contents,
-        )
-    }
-
-    #[inline]
-    pub fn vertical_centered_justified<R>(
-        &mut self,
-        add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
-    ) -> InnerResponse<R> {
-        self.scope_builder(
-            UiBuilder::new().layout(Layout::top_down(Align::Center).with_cross_justify(true)),
-            add_contents,
-        )
-    }
-
-    #[inline]
-    pub fn collapsing<R>(
-        &mut self,
-        text: impl Into<WidgetText>,
-        add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
-    ) -> InnerResponse<R> {
-        CollapsingHeader::new(text).show(self, add_contents)
-    }
-
-    #[inline]
-    pub fn button(&mut self, text: impl Into<WidgetText>) -> Response {
-        self.add(Button::new(text))
-    }
-
-    #[inline]
-    pub fn small_button(&mut self, text: impl Into<WidgetText>) -> Response {
-        self.add(Button::new(text).small())
-    }
-
-    #[inline]
-    pub fn selectable_label(&mut self, selected: bool, text: impl Into<WidgetText>) -> Response {
-        self.add(Button::selectable(selected, text))
-    }
-
-    #[inline]
-    pub fn selectable_value<Value: PartialEq>(
-        &mut self,
-        current_value: &mut Value,
-        selected_value: Value,
-        text: impl Into<WidgetText>,
-    ) -> Response {
-        let mut response = self.selectable_label(*current_value == selected_value, text);
-        if response.clicked() && *current_value != selected_value {
-            *current_value = selected_value;
-            response.mark_changed();
-        }
-        response
-    }
-
-    #[inline]
-    pub fn separator(&mut self) -> Response {
-        self.add(Separator::default())
-    }
-
-    #[inline]
-    pub fn add_space(&mut self, space: f32) {
-        self.add_component_auto_id(MiscComponent::Space(space));
-    }
-
-    #[inline]
-    pub fn end_row(&mut self) {
-        self.add_component_auto_id(MiscComponent::EndRow);
-    }
-
-    #[inline]
-    pub fn input<R>(&self, reader: impl FnOnce(&InputState) -> R) -> R {
-        self.input.read(reader)
-    }
-
-    #[inline]
-    pub fn input_mut<R>(&self, writer: impl FnOnce(&mut InputState) -> R) -> R {
-        self.input.write(writer)
-    }
-
-    #[inline]
-    pub fn painter(&self) -> &Painter<'a> {
-        &self.painter
-    }
-
-    #[inline]
-    pub fn max_rect(&self) -> Rect {
-        self.available_rect
-    }
-
-    #[inline]
-    pub fn interact(&mut self, rect: Rect, sense: Sense) -> Response {
-        self.add(Interact::new(rect, sense))
-    }
-
-    #[inline]
-    pub fn link(&mut self, text: impl Into<WidgetText>) -> Response {
-        self.add(Link::new(text))
-    }
-
-    #[inline]
-    pub fn radio(&mut self, selected: bool, text: impl Into<WidgetText>) -> Response {
-        self.add(RadioButton::new(selected, text))
-    }
-
-    #[inline]
-    pub fn radio_value<Value: PartialEq>(
-        &mut self,
-        current_value: &mut Value,
-        selected_value: Value,
-        text: impl Into<WidgetText>,
-    ) -> Response {
-        let mut response = self.radio(*current_value == selected_value, text);
-        if response.clicked() && *current_value != selected_value {
-            *current_value = selected_value;
-            response.mark_changed();
-        }
-        response
-    }
-
-    #[inline]
-    pub fn painter_at(&self, rect: Rect) -> Painter<'a> {
-        self.painter().with_clip_rect(rect)
-    }
-
-    #[inline]
-    pub fn spinner(&mut self) -> Response {
-        self.add(Spinner::new())
-    }
-
-    #[inline]
-    pub fn response(&self, id: Id) -> Option<&Response> {
-        self.last_frame_responses.get(&id)
-    }
-
-    #[inline]
-    pub fn style(&self) -> &Style {
-        &self.style
-    }
-
-    #[inline]
-    pub fn style_mut(&mut self) -> &mut Style {
-        let style = RArc::make_mut(&mut self.style);
-        style.changed = true;
-        style
-    }
-
-    #[inline]
-    pub fn spacing(&self) -> &Spacing {
-        self.style.spacing()
-    }
-
-    #[inline]
-    pub fn spacing_mut(&mut self) -> &mut Spacing {
-        self.style_mut().spacing_mut()
-    }
-
-    #[inline]
-    pub fn interaction(&self) -> &Interaction {
-        self.style.interaction()
-    }
-
-    #[inline]
-    pub fn interaction_mut(&mut self) -> &mut Interaction {
-        self.style_mut().interaction_mut()
-    }
-
-    #[inline]
-    pub fn visuals(&self) -> &Visuals {
-        self.style.visuals()
-    }
-
-    #[inline]
-    pub fn visuals_mut(&mut self) -> &mut Visuals {
-        self.style_mut().visuals_mut()
-    }
-
-    #[inline]
-    pub fn set_style(&mut self, style: impl Into<RArc<Style>>) {
-        self.style = style.into()
-    }
-
-    #[inline]
-    pub fn set_opacity(&mut self, opacity: f32) {
-        self.opacity_factor = opacity;
-    }
-
-    #[inline]
-    pub fn indent<R>(
-        &mut self,
-        add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
-    ) -> InnerResponse<R> {
-        let mut new = self.new_child(None);
-        let ret = add_contents(&mut new);
-        let indent = Indent::new(new);
-        let response = self.add_component_auto_id(Container::Indent(indent));
-        InnerResponse::new(ret, response)
-    }
-
-    pub fn color_edit_button(&mut self, color: &'a mut Color32) -> Response {
-        self.add(ColorPicker::new(color))
-    }
-
-    #[inline]
-    pub fn image(&mut self, source: impl Into<ImageSource<'a>>) -> Response {
-        self.add(Image::new(source))
-    }
-
-    /// Get information about the game camera
-    #[inline]
-    pub fn camera(&self) -> &Camera {
-        &self.camera
-    }
-
-    /// Textures loaded by the manager
-    #[inline]
-    pub fn shared_textures(&self) -> Option<SharedTextures> {
-        self.shared_textures.clone().into_option()
-    }
-
-    /// Fonts loaded by the manager
-    #[inline]
-    pub fn custom_fonts(&self) -> CustomFonts {
-        self.fonts.clone()
+    fn from(value: VRefMut<'a, StyleFfiVTable>) -> Self {
+        Self(value)
     }
 }

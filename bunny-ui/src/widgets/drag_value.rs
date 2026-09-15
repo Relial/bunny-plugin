@@ -6,7 +6,7 @@ use abi_stable::std_types::{
     RString,
 };
 
-use crate::{elements::Widget, num::Num, widgets::slider::NumberCustomFormat};
+use crate::widgets::slider::NumberCustomFormat;
 
 #[repr(C)]
 pub struct DragValue<'a> {
@@ -189,12 +189,5 @@ impl egui::Widget for DragValue<'_> {
         }
 
         ui.add(drag_value)
-    }
-}
-
-impl<'a> From<DragValue<'a>> for Widget<'a> {
-    #[inline]
-    fn from(value: DragValue<'a>) -> Self {
-        Self::DragValue(RBox::new(value))
     }
 }

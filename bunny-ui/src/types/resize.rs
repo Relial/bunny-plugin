@@ -1,6 +1,7 @@
 use emath::{Vec2, vec2};
+use mint::Vector2;
 
-use crate::vec2b::Vec2b;
+use crate::types::vec2b::Vec2b;
 
 #[derive(Clone, Copy, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -37,8 +38,8 @@ impl Resize {
     }
 
     #[inline]
-    pub fn default_size(mut self, default_size: impl Into<Vec2>) -> Self {
-        self.default_size = default_size.into();
+    pub fn default_size(mut self, default_size: impl Into<Vector2<f32>>) -> Self {
+        self.default_size = default_size.into().into();
         self
     }
 
@@ -55,8 +56,8 @@ impl Resize {
     }
 
     #[inline]
-    pub fn min_size(mut self, min_size: impl Into<Vec2>) -> Self {
-        self.min_size = min_size.into();
+    pub fn min_size(mut self, min_size: impl Into<Vector2<f32>>) -> Self {
+        self.min_size = min_size.into().into();
         self
     }
 
@@ -73,8 +74,8 @@ impl Resize {
     }
 
     #[inline]
-    pub fn max_size(mut self, max_size: impl Into<Vec2>) -> Self {
-        self.max_size = max_size.into();
+    pub fn max_size(mut self, max_size: impl Into<Vector2<f32>>) -> Self {
+        self.max_size = max_size.into().into();
         self
     }
 
@@ -97,8 +98,8 @@ impl Resize {
     }
 
     #[inline]
-    pub fn fixed_size(mut self, size: impl Into<Vec2>) -> Self {
-        let size = size.into();
+    pub fn fixed_size(mut self, size: impl Into<Vector2<f32>>) -> Self {
+        let size: Vec2 = size.into().into();
         self.default_size = size;
         self.min_size = size;
         self.max_size = size;

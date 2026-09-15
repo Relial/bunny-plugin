@@ -3,7 +3,7 @@ use std::borrow::Cow;
 use abi_stable::std_types::RCowStr;
 use shared::texture::{NamedTexture, SizedTexture};
 
-use crate::load::Bytes;
+use crate::types::load::Bytes;
 
 #[derive(Clone, Debug, PartialEq)]
 #[repr(C)]

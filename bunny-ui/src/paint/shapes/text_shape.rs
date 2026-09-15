@@ -4,9 +4,10 @@ use abi_stable::std_types::{
 };
 use ecolor::Color32;
 use emath::Pos2;
+use mint::Point2;
 
 use crate::{
-    align::Align2,
+    Align2,
     paint::{shapes::shape::Shape, stroke::Stroke, text::text_layout_types::LayoutJob},
 };
 
@@ -25,9 +26,14 @@ pub struct TextShape {
 
 impl TextShape {
     #[inline]
-    pub fn new(pos: Pos2, layout_job: LayoutJob, anchor: Align2, fallback_color: Color32) -> Self {
+    pub fn new(
+        pos: impl Into<Point2<f32>>,
+        layout_job: LayoutJob,
+        anchor: Align2,
+        fallback_color: Color32,
+    ) -> Self {
         Self {
-            pos,
+            pos: pos.into().into(),
             layout_job: RBox::new(layout_job),
             anchor,
             underline: Stroke::NONE,

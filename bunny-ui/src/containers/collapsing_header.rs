@@ -1,9 +1,7 @@
 use abi_stable::std_types::ROption::{self, RNone, RSome};
+use egui::Id;
 
-use crate::{
-    Id, elements::Container, layout::Layout, response::InnerResponse, ui::BunnyUi,
-    widget_text::WidgetText,
-};
+use crate::{WidgetText, closure::PluginClosure, ui::BunnyUi};
 
 #[repr(C)]
 pub struct CollapsingHeader {
@@ -59,65 +57,31 @@ impl CollapsingHeader {
     }
 
     #[inline]
-    pub fn show<'a, R>(
-        self,
-        ui: &mut BunnyUi<'a>,
-        add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
-    ) -> InnerResponse<R> {
-        let mut new = ui.new_child(Some(Layout::default()));
-        let ret = add_contents(&mut new);
-        let response =
-            ui.add_component_auto_id(Container::CollapsingHeader(CollapsingHeaderComponent {
-                collapsing_header: self,
-                contents: new,
-            }));
-        InnerResponse::new(ret, response)
+    pub fn show(self, ui: &mut BunnyUi, add_contents: impl FnMut(&mut BunnyUi)) {
+        ui.collapsing_header_show(self, add_contents);
     }
 }
 
-#[repr(C)]
-pub struct CollapsingHeaderComponent<'a> {
-    contents: BunnyUi<'a>,
-    collapsing_header: CollapsingHeader,
-}
-
-#[cfg(feature = "manager")]
-impl crate::elements::UiContainer for CollapsingHeaderComponent<'_> {
-    fn ui(
-        self,
-        ui: &mut egui::Ui,
-        responses: &mut abi_stable::std_types::RHashMap<
-            crate::Id,
-            crate::response::Response,
-            rapidhash::fast::RandomState,
-        >,
-        pointer_state: abi_stable::std_types::RArc<crate::input_state::PointerState>,
-        id: crate::Id,
-    ) -> crate::response::Response {
-        let mut header = egui::CollapsingHeader::new(self.collapsing_header.text)
-            .id_salt(self.collapsing_header.id)
-            .default_open(self.collapsing_header.default_open)
-            .open(self.collapsing_header.open.into())
-            .show_background(self.collapsing_header.show_background);
-        if let RSome(id) = self.collapsing_header.id {
+impl CollapsingHeader {
+    #[inline]
+    pub(crate) fn show_impl(self, ui: &mut egui::Ui, contents: PluginClosure) {
+        let mut header = egui::CollapsingHeader::new(self.text)
+            .default_open(self.default_open)
+            .open(self.open.into())
+            .show_background(self.show_background);
+        if let RSome(id) = self.id {
             header = header.id_salt(id);
         }
-        let resp = if self.collapsing_header.indented {
+        let resp = if self.indented {
             header.show(ui, |ui| {
-                self.contents.ui(ui, responses, pointer_state.clone())
+                let mut b = BunnyUi::new(ui);
+                contents.call(&mut b);
             })
         } else {
             header.show_unindented(ui, |ui| {
-                self.contents.ui(ui, responses, pointer_state.clone())
+                let mut b = BunnyUi::new(ui);
+                contents.call(&mut b);
             })
         };
-        crate::response::Response::new(id, resp.header_response, pointer_state)
-    }
-}
-
-impl<'a> From<CollapsingHeaderComponent<'a>> for Container<'a> {
-    #[inline]
-    fn from(value: CollapsingHeaderComponent<'a>) -> Self {
-        Self::CollapsingHeader(value)
     }
 }
