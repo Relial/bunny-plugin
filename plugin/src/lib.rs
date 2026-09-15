@@ -7,6 +7,9 @@ pub use shared::{
     texture::{NamedTexture, SizedTexture, TextureId},
 };
 
+#[cfg(any(feature = "ui", feature = "3d"))]
+pub use shared::glam;
+
 #[cfg(feature = "ui")]
 pub use bunny_ui;
 
