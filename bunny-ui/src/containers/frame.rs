@@ -2,7 +2,8 @@ use abi_stable::std_types::RBox;
 use ecolor::Color32;
 
 use crate::{
-    Margin, Shadow, paint::{corner_radius::CornerRadius, stroke::Stroke}, ui::BunnyStyle,
+    Margin, Shadow,
+    paint::{corner_radius::CornerRadius, stroke::Stroke},
 };
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]

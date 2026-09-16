@@ -1,21 +1,22 @@
-use abi_stable::std_types::Tuple2;
-use egui::{Id, Pos2, Rangef, Rect, Sense, Ui, Vec2};
-use vtable::{VBox, VRef, VRefMut, vtable};
+use abi_stable::std_types::{ROption, Tuple2};
+use ecolor::Hsva;
+use egui::{Color32, Id, Pos2, Rangef, Rect, Sense, Ui, Vec2, Widget as _};
+use emath::TSTransform;
+use vtable::{VRef, VRefMut, vtable};
 
 use crate::{
-    Align, LayerId, Layout as BunnyLayout, WidgetText,
+    Align, ImageSource, LayerId, Layout as BunnyLayout, RichText, UiBuilder, WidgetText,
     closure::PluginClosure,
-    containers::collapsing_header::CollapsingHeader,
+    containers::collapsing_header::{BunnyCollapsingResponse, CollapsingHeader},
     paint::text::text_layout_types::TextWrapMode,
     painter::BunnyPainter,
     response::BunnyResponse,
-    style::TextStyle,
-    ui::BunnyUi,
-    vtable::{
-        interaction::InteractionFfiVTable, layout::LayoutFfiVTable, painter::PainterFfiVTable,
-        response::ResponseFfiVTable, spacing::SpacingFfiVTable, style::StyleFfiVTable,
-        visuals::VisualsFfiVTable,
+    style::{
+        BunnyInteraction, BunnyInteractionMut, BunnySpacing, BunnySpacingMut, BunnyStyle,
+        BunnyStyleMut, BunnyVisuals, BunnyVisualsMut, ScrollAnimation, TextStyle,
     },
+    ui::BunnyUi,
+    widgets::{Widget, image::Image, text_edit::bunny_string::BunnyString},
 };
 
 #[vtable]
@@ -26,19 +27,19 @@ pub struct UiFfiVTable {
     is_sizing_pass: fn(VRef<UiFfiVTable>) -> bool,
     id: fn(VRef<UiFfiVTable>) -> Id,
     unique_id: fn(VRef<UiFfiVTable>) -> Id,
-    style: fn(VRef<UiFfiVTable>) -> VRef<StyleFfiVTable>,
-    style_mut: fn(VRefMut<UiFfiVTable>) -> VRefMut<StyleFfiVTable>,
+    style: fn(VRef<UiFfiVTable>) -> BunnyStyle,
+    style_mut: fn(VRefMut<UiFfiVTable>) -> BunnyStyleMut,
     reset_style: fn(VRefMut<UiFfiVTable>),
-    spacing: fn(VRef<UiFfiVTable>) -> VRef<SpacingFfiVTable>,
-    spacing_mut: fn(VRefMut<UiFfiVTable>) -> VRefMut<SpacingFfiVTable>,
-    interaction: fn(VRef<UiFfiVTable>) -> VRef<InteractionFfiVTable>,
-    interaction_mut: fn(VRefMut<UiFfiVTable>) -> VRefMut<InteractionFfiVTable>,
-    visuals: fn(VRef<UiFfiVTable>) -> VRef<VisualsFfiVTable>,
-    visuals_mut: fn(VRefMut<UiFfiVTable>) -> VRefMut<VisualsFfiVTable>,
+    spacing: fn(VRef<UiFfiVTable>) -> BunnySpacing,
+    spacing_mut: fn(VRefMut<UiFfiVTable>) -> BunnySpacingMut,
+    interaction: fn(VRef<UiFfiVTable>) -> BunnyInteraction,
+    interaction_mut: fn(VRefMut<UiFfiVTable>) -> BunnyInteractionMut,
+    visuals: fn(VRef<UiFfiVTable>) -> BunnyVisuals,
+    visuals_mut: fn(VRefMut<UiFfiVTable>) -> BunnyVisualsMut,
     is_tooltip: fn(VRef<UiFfiVTable>) -> bool,
     // stack
     // ctx
-    painter: fn(VRef<UiFfiVTable>) -> VRef<PainterFfiVTable>,
+    painter: fn(VRef<UiFfiVTable>) -> BunnyPainter,
     pixels_per_point: fn(VRef<UiFfiVTable>) -> f32,
     is_enabled: fn(VRef<UiFfiVTable>) -> bool,
     disable: fn(VRefMut<UiFfiVTable>),
@@ -47,10 +48,10 @@ pub struct UiFfiVTable {
     set_opacity: fn(VRefMut<UiFfiVTable>, opacity: f32),
     multiply_opacity: fn(VRefMut<UiFfiVTable>, opacity: f32),
     opacity: fn(VRef<UiFfiVTable>) -> f32,
-    layout: fn(VRef<UiFfiVTable>) -> VRef<LayoutFfiVTable>,
+    layout: fn(VRef<UiFfiVTable>) -> BunnyLayout,
     wrap_mode: fn(VRef<UiFfiVTable>) -> TextWrapMode,
     text_valign: fn(VRef<UiFfiVTable>) -> Align,
-    painter_at: fn(VRef<UiFfiVTable>, rect: Rect) -> VBox<PainterFfiVTable>,
+    painter_at: fn(VRef<UiFfiVTable>, rect: Rect) -> BunnyPainter,
     layer_id: fn(VRef<UiFfiVTable>) -> LayerId,
     text_style_height: fn(VRef<UiFfiVTable>, style: TextStyle) -> f32,
     clip_rect: fn(VRef<UiFfiVTable>) -> Rect,
@@ -84,9 +85,9 @@ pub struct UiFfiVTable {
     available_size_before_wrap: fn(VRef<UiFfiVTable>) -> Vec2,
     available_rect_before_wrap: fn(VRef<UiFfiVTable>) -> Rect,
 
-    // make_persistent_id
+    make_persistent_id: fn(VRef<UiFfiVTable>, hash: u64) -> Id,
     next_auto_id: fn(VRef<UiFfiVTable>) -> Id,
-    // auto_id_with
+    auto_id_with: fn(VRef<UiFfiVTable>, hash: u64) -> Id,
     skip_ahead_auto_ids: fn(VRefMut<UiFfiVTable>, count: usize),
 
     interact: fn(VRef<UiFfiVTable>, rect: Rect, id: Id, sense: Sense) -> BunnyResponse,
@@ -123,11 +124,106 @@ pub struct UiFfiVTable {
         sense: Sense,
     ) -> Tuple2<BunnyResponse, BunnyPainter>,
 
-    label: fn(VRefMut<UiFfiVTable>, text: WidgetText) -> VBox<ResponseFfiVTable>,
-    horizontal: fn(VRefMut<UiFfiVTable>, contents: PluginClosure),
+    scroll_to_rect: fn(VRef<UiFfiVTable>, rect: Rect, align: ROption<Align>),
+    scroll_to_rect_animation:
+        fn(VRef<UiFfiVTable>, rect: Rect, align: ROption<Align>, animation: ScrollAnimation),
+    scroll_to_cursor: fn(VRef<UiFfiVTable>, align: ROption<Align>),
+    scroll_to_cursor_animation:
+        fn(VRef<UiFfiVTable>, align: ROption<Align>, animation: ScrollAnimation),
+    scroll_with_delta: fn(VRef<UiFfiVTable>, delta: Vec2),
+    scroll_with_delta_animation: fn(VRef<UiFfiVTable>, delta: Vec2, animation: ScrollAnimation),
 
-    collapsing_header_show:
-        fn(VRefMut<UiFfiVTable>, collapsing_header: CollapsingHeader, contents: PluginClosure),
+    add: fn(VRefMut<UiFfiVTable>, widget: Widget) -> BunnyResponse,
+    add_sized: fn(VRefMut<UiFfiVTable>, max_size: Vec2, widget: Widget) -> BunnyResponse,
+    place: fn(VRefMut<UiFfiVTable>, max_rect: Rect, widget: Widget) -> BunnyResponse,
+    put: fn(VRefMut<UiFfiVTable>, max_rect: Rect, widget: Widget) -> BunnyResponse,
+    add_enabled: fn(VRefMut<UiFfiVTable>, enabled: bool, widget: Widget) -> BunnyResponse,
+    add_enabled_ui:
+        fn(VRefMut<UiFfiVTable>, enabled: bool, contents: PluginClosure) -> BunnyResponse,
+    add_visible: fn(VRefMut<UiFfiVTable>, visible: bool, widget: Widget) -> BunnyResponse,
+    add_space: fn(VRefMut<UiFfiVTable>, amount: f32),
+    label: fn(VRefMut<UiFfiVTable>, text: WidgetText) -> BunnyResponse,
+    colored_label: fn(VRefMut<UiFfiVTable>, color: Color32, text: RichText) -> BunnyResponse,
+    heading: fn(VRefMut<UiFfiVTable>, text: RichText) -> BunnyResponse,
+    monospace: fn(VRefMut<UiFfiVTable>, text: RichText) -> BunnyResponse,
+    code: fn(VRefMut<UiFfiVTable>, text: RichText) -> BunnyResponse,
+    small: fn(VRefMut<UiFfiVTable>, text: RichText) -> BunnyResponse,
+    strong: fn(VRefMut<UiFfiVTable>, text: RichText) -> BunnyResponse,
+    weak: fn(VRefMut<UiFfiVTable>, text: RichText) -> BunnyResponse,
+    link: fn(VRefMut<UiFfiVTable>, text: WidgetText) -> BunnyResponse,
+    // hyperlink
+    text_edit_singleline: fn(VRefMut<UiFfiVTable>, text: &mut BunnyString) -> BunnyResponse,
+    text_edit_multiline: fn(VRefMut<UiFfiVTable>, text: &mut BunnyString) -> BunnyResponse,
+    code_editor: fn(VRefMut<UiFfiVTable>, text: &mut BunnyString) -> BunnyResponse,
+    button: fn(VRefMut<UiFfiVTable>, text: WidgetText) -> BunnyResponse,
+    small_button: fn(VRefMut<UiFfiVTable>, text: WidgetText) -> BunnyResponse,
+    checkbox: fn(VRefMut<UiFfiVTable>, checked: &mut bool, text: WidgetText) -> BunnyResponse,
+    toggle_value: fn(VRefMut<UiFfiVTable>, selected: &mut bool, text: WidgetText) -> BunnyResponse,
+    radio: fn(VRefMut<UiFfiVTable>, selected: bool, text: WidgetText) -> BunnyResponse,
+    // radio_value
+    selectable_label: fn(VRefMut<UiFfiVTable>, checked: bool, text: WidgetText) -> BunnyResponse,
+    // selectable_value
+    separator: fn(VRefMut<UiFfiVTable>) -> BunnyResponse,
+    spinner: fn(VRefMut<UiFfiVTable>) -> BunnyResponse,
+    drag_angle: fn(VRefMut<UiFfiVTable>, radians: &mut f32) -> BunnyResponse,
+    drag_angle_tau: fn(VRefMut<UiFfiVTable>, radians: &mut f32) -> BunnyResponse,
+    image: fn(VRefMut<UiFfiVTable>, source: ImageSource) -> BunnyResponse,
+
+    color_edit_button_srgba: fn(VRefMut<UiFfiVTable>, srgba: &mut Color32) -> BunnyResponse,
+    color_edit_button_hsva: fn(VRefMut<UiFfiVTable>, hsva: &mut Hsva) -> BunnyResponse,
+    color_edit_button_srgb: fn(VRefMut<UiFfiVTable>, srgb: &mut [u8; 3]) -> BunnyResponse,
+    color_edit_button_rgb: fn(VRefMut<UiFfiVTable>, rgb: &mut [f32; 3]) -> BunnyResponse,
+    color_edit_button_srgba_premultiplied:
+        fn(VRefMut<UiFfiVTable>, srgba: &mut [u8; 4]) -> BunnyResponse,
+    color_edit_button_srgba_unmultiplied:
+        fn(VRefMut<UiFfiVTable>, srgba: &mut [u8; 4]) -> BunnyResponse,
+    color_edit_button_rgba_premultiplied:
+        fn(VRefMut<UiFfiVTable>, rgba_premul: &mut [f32; 4]) -> BunnyResponse,
+    color_edit_button_rgba_unmultiplied:
+        fn(VRefMut<UiFfiVTable>, rgba_unmul: &mut [f32; 4]) -> BunnyResponse,
+
+    group: fn(VRefMut<UiFfiVTable>, contents: PluginClosure) -> BunnyResponse,
+    push_id: fn(VRefMut<UiFfiVTable>, id_salt: u64, contents: PluginClosure) -> BunnyResponse,
+    scope: fn(VRefMut<UiFfiVTable>, contents: PluginClosure) -> BunnyResponse,
+    scope_builder:
+        fn(VRefMut<UiFfiVTable>, ui_builder: UiBuilder, contents: PluginClosure) -> BunnyResponse,
+    // scope_dyn
+    collapsing: fn(
+        VRefMut<UiFfiVTable>,
+        heading: WidgetText,
+        contents: PluginClosure,
+    ) -> BunnyCollapsingResponse,
+    indent: fn(VRefMut<UiFfiVTable>, contents: PluginClosure) -> BunnyResponse,
+    horizontal: fn(VRefMut<UiFfiVTable>, contents: PluginClosure) -> BunnyResponse,
+    horizontal_centered: fn(VRefMut<UiFfiVTable>, contents: PluginClosure) -> BunnyResponse,
+    horizontal_top: fn(VRefMut<UiFfiVTable>, contents: PluginClosure) -> BunnyResponse,
+    horizontal_wrapped: fn(VRefMut<UiFfiVTable>, contents: PluginClosure) -> BunnyResponse,
+    vertical: fn(VRefMut<UiFfiVTable>, contents: PluginClosure) -> BunnyResponse,
+    vertical_centered: fn(VRefMut<UiFfiVTable>, contents: PluginClosure) -> BunnyResponse,
+    vertical_centered_justified: fn(VRefMut<UiFfiVTable>, contents: PluginClosure) -> BunnyResponse,
+    with_layout:
+        fn(VRefMut<UiFfiVTable>, layout: BunnyLayout, contents: PluginClosure) -> BunnyResponse,
+    centered_and_justified: fn(VRefMut<UiFfiVTable>, contents: PluginClosure) -> BunnyResponse,
+    end_row: fn(VRefMut<UiFfiVTable>),
+    set_row_height: fn(VRefMut<UiFfiVTable>, height: f32),
+    // columns
+    // columns_const
+    // dnd_drag_source
+    // dnd_drop_zone
+    with_visual_transform:
+        fn(VRefMut<UiFfiVTable>, transform: TSTransform, contents: PluginClosure) -> BunnyResponse,
+
+    menu_button:
+        fn(VRefMut<UiFfiVTable>, text: WidgetText, contents: PluginClosure) -> BunnyResponse,
+    // menu_image_button
+    // menu_image_text_button
+    debug_paint_cursor: fn(VRef<UiFfiVTable>),
+
+    collapsing_header_show: fn(
+        VRefMut<UiFfiVTable>,
+        collapsing_header: CollapsingHeader,
+        contents: PluginClosure,
+    ) -> BunnyCollapsingResponse,
 }
 
 impl UiFfi for Ui {
@@ -147,13 +243,13 @@ impl UiFfi for Ui {
     }
 
     #[inline]
-    fn style(&self) -> VRef<'_, StyleFfiVTable> {
-        VRef::new(self.style().as_ref())
+    fn style(&self) -> BunnyStyle<'_> {
+        BunnyStyle::new(self.style().as_ref())
     }
 
     #[inline]
-    fn style_mut(&mut self) -> VRefMut<'_, StyleFfiVTable> {
-        VRefMut::new(self.style_mut())
+    fn style_mut(&mut self) -> BunnyStyleMut<'_> {
+        BunnyStyleMut::new(self.style_mut())
     }
 
     #[inline]
@@ -162,33 +258,33 @@ impl UiFfi for Ui {
     }
 
     #[inline]
-    fn spacing(&self) -> VRef<'_, SpacingFfiVTable> {
-        VRef::new(self.spacing())
+    fn spacing(&self) -> BunnySpacing<'_> {
+        BunnySpacing::new(self.spacing())
     }
 
     #[inline]
-    fn spacing_mut(&mut self) -> VRefMut<'_, SpacingFfiVTable> {
-        VRefMut::new(self.spacing_mut())
+    fn spacing_mut(&mut self) -> BunnySpacingMut<'_> {
+        BunnySpacingMut::new(self.spacing_mut())
     }
 
     #[inline]
-    fn interaction(&self) -> VRef<'_, InteractionFfiVTable> {
-        VRef::new(&self.style().interaction)
+    fn interaction(&self) -> BunnyInteraction<'_> {
+        BunnyInteraction::new(&self.style().interaction)
     }
 
     #[inline]
-    fn interaction_mut(&mut self) -> VRefMut<'_, InteractionFfiVTable> {
-        VRefMut::new(&mut self.style_mut().interaction)
+    fn interaction_mut(&mut self) -> BunnyInteractionMut<'_> {
+        BunnyInteractionMut::new(&mut self.style_mut().interaction)
     }
 
     #[inline]
-    fn visuals(&self) -> VRef<'_, VisualsFfiVTable> {
-        VRef::new(self.visuals())
+    fn visuals(&self) -> BunnyVisuals<'_> {
+        BunnyVisuals::new(self.visuals())
     }
 
     #[inline]
-    fn visuals_mut(&mut self) -> VRefMut<'_, VisualsFfiVTable> {
-        VRefMut::new(self.visuals_mut())
+    fn visuals_mut(&mut self) -> BunnyVisualsMut<'_> {
+        BunnyVisualsMut::new(self.visuals_mut())
     }
 
     #[inline]
@@ -197,8 +293,8 @@ impl UiFfi for Ui {
     }
 
     #[inline]
-    fn painter(&self) -> VRef<'_, PainterFfiVTable> {
-        VRef::new(self.painter())
+    fn painter(&self) -> BunnyPainter<'_> {
+        BunnyPainter::new(self.painter())
     }
 
     #[inline]
@@ -242,8 +338,9 @@ impl UiFfi for Ui {
     }
 
     #[inline]
-    fn layout(&self) -> VRef<'_, LayoutFfiVTable> {
-        VRef::new(self.layout())
+    fn layout(&self) -> BunnyLayout {
+        let layout = *self.layout();
+        layout.into()
     }
 
     #[inline]
@@ -257,9 +354,9 @@ impl UiFfi for Ui {
     }
 
     #[inline]
-    fn painter_at(&self, rect: Rect) -> VBox<PainterFfiVTable> {
+    fn painter_at(&self, rect: Rect) -> BunnyPainter<'_> {
         let painter = self.painter_at(rect);
-        VBox::new(painter)
+        BunnyPainter::new(painter)
     }
 
     #[inline]
@@ -418,8 +515,18 @@ impl UiFfi for Ui {
     }
 
     #[inline]
+    fn make_persistent_id(&self, hash: u64) -> Id {
+        self.make_persistent_id(hash)
+    }
+
+    #[inline]
     fn next_auto_id(&self) -> Id {
         self.next_auto_id()
+    }
+
+    #[inline]
+    fn auto_id_with(&self, hash: u64) -> Id {
+        self.auto_id_with(hash)
     }
 
     #[inline]
@@ -430,13 +537,13 @@ impl UiFfi for Ui {
     #[inline]
     fn interact(&self, rect: Rect, id: Id, sense: Sense) -> BunnyResponse {
         let res = self.interact(rect, id, sense);
-        VBox::new(res).into()
+        BunnyResponse::new(res)
     }
 
     #[inline]
     fn response(&self) -> BunnyResponse {
         let res = self.response();
-        VBox::new(res).into()
+        BunnyResponse::new(res)
     }
 
     #[inline]
@@ -467,7 +574,7 @@ impl UiFfi for Ui {
     #[inline]
     fn allocate_response(&mut self, desired_size: Vec2, sense: Sense) -> BunnyResponse {
         let res = self.allocate_response(desired_size, sense);
-        VBox::new(res).into()
+        BunnyResponse::new(res)
     }
 
     #[inline]
@@ -477,7 +584,7 @@ impl UiFfi for Ui {
         sense: Sense,
     ) -> Tuple2<Rect, BunnyResponse> {
         let (rect, res) = self.allocate_exact_size(desired_size, sense);
-        Tuple2(rect, VBox::new(res).into())
+        Tuple2(rect, BunnyResponse::new(res))
     }
 
     #[inline]
@@ -487,7 +594,7 @@ impl UiFfi for Ui {
         sense: Sense,
     ) -> Tuple2<Rect, BunnyResponse> {
         let (rect, res) = self.allocate_at_least(desired_size, sense);
-        Tuple2(rect, VBox::new(res).into())
+        Tuple2(rect, BunnyResponse::new(res))
     }
 
     #[inline]
@@ -499,7 +606,7 @@ impl UiFfi for Ui {
     #[inline]
     fn allocate_rect(&mut self, rect: Rect, sense: Sense) -> BunnyResponse {
         let res = self.allocate_rect(rect, sense);
-        VBox::new(res).into()
+        BunnyResponse::new(res)
     }
 
     #[inline]
@@ -525,7 +632,7 @@ impl UiFfi for Ui {
                 contents.call(&mut b);
             })
             .response;
-        VBox::new(res).into()
+        BunnyResponse::new(res)
     }
 
     #[inline]
@@ -541,7 +648,7 @@ impl UiFfi for Ui {
                 contents.call(&mut b);
             })
             .response;
-        VBox::new(res).into()
+        BunnyResponse::new(res)
     }
 
     #[inline]
@@ -551,21 +658,495 @@ impl UiFfi for Ui {
         sense: Sense,
     ) -> Tuple2<BunnyResponse, BunnyPainter<'_>> {
         let (res, painter) = self.allocate_painter(desired_size, sense);
-        Tuple2(VBox::new(res).into(), VBox::new(painter).into())
+        Tuple2(BunnyResponse::new(res), BunnyPainter::new(painter))
     }
 
     #[inline]
-    fn label(&mut self, text: WidgetText) -> VBox<ResponseFfiVTable> {
+    fn scroll_to_rect(&self, rect: Rect, align: ROption<Align>) {
+        self.scroll_to_rect(rect, align.map(|a| a.into()).into_option());
+    }
+
+    #[inline]
+    fn scroll_to_rect_animation(
+        &self,
+        rect: Rect,
+        align: ROption<Align>,
+        animation: ScrollAnimation,
+    ) {
+        self.scroll_to_rect_animation(
+            rect,
+            align.map(|a| a.into()).into_option(),
+            animation.into(),
+        );
+    }
+
+    #[inline]
+    fn scroll_to_cursor(&self, align: ROption<Align>) {
+        self.scroll_to_cursor(align.map(|a| a.into()).into_option());
+    }
+
+    #[inline]
+    fn scroll_to_cursor_animation(&self, align: ROption<Align>, animation: ScrollAnimation) {
+        self.scroll_to_cursor_animation(align.map(|a| a.into()).into_option(), animation.into());
+    }
+
+    #[inline]
+    fn scroll_with_delta(&self, delta: Vec2) {
+        self.scroll_with_delta(delta);
+    }
+
+    #[inline]
+    fn scroll_with_delta_animation(&self, delta: Vec2, animation: ScrollAnimation) {
+        self.scroll_with_delta_animation(delta, animation.into());
+    }
+
+    #[inline]
+    fn add(&mut self, widget: Widget) -> BunnyResponse {
+        let res = self.add(widget);
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn add_sized(&mut self, max_size: Vec2, widget: Widget) -> BunnyResponse {
+        let res = self.add_sized(max_size, widget);
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn place(&mut self, max_rect: Rect, widget: Widget) -> BunnyResponse {
+        let res = self.place(max_rect, widget);
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn put(&mut self, max_rect: Rect, widget: Widget) -> BunnyResponse {
+        let res = self.put(max_rect, widget);
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn add_enabled(&mut self, enabled: bool, widget: Widget) -> BunnyResponse {
+        let res = self.add_enabled(enabled, widget);
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn add_enabled_ui(&mut self, enabled: bool, contents: PluginClosure) -> BunnyResponse {
+        let res = self
+            .add_enabled_ui(enabled, |ui| {
+                let mut b = BunnyUi::new(ui);
+                contents.call(&mut b);
+            })
+            .response;
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn add_visible(&mut self, visible: bool, widget: Widget) -> BunnyResponse {
+        let res = self.add_visible(visible, widget);
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn add_space(&mut self, amount: f32) {
+        self.add_space(amount);
+    }
+
+    #[inline]
+    fn label(&mut self, text: WidgetText) -> BunnyResponse {
         let res = self.label(text);
-        VBox::new(res)
+        BunnyResponse::new(res)
     }
 
     #[inline]
-    fn horizontal(&mut self, contents: PluginClosure) {
-        self.horizontal(|ui| {
+    fn colored_label(&mut self, color: Color32, text: RichText) -> BunnyResponse {
+        let res = self.colored_label(color, text);
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn heading(&mut self, text: RichText) -> BunnyResponse {
+        let res = self.heading(text);
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn monospace(&mut self, text: RichText) -> BunnyResponse {
+        let res = self.monospace(text);
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn code(&mut self, text: RichText) -> BunnyResponse {
+        let res = self.code(text);
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn small(&mut self, text: RichText) -> BunnyResponse {
+        let res = self.small(text);
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn strong(&mut self, text: RichText) -> BunnyResponse {
+        let res = self.strong(text);
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn weak(&mut self, text: RichText) -> BunnyResponse {
+        let res = self.weak(text);
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn link(&mut self, text: WidgetText) -> BunnyResponse {
+        let res = self.link(text);
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn text_edit_singleline(&mut self, text: &mut BunnyString) -> BunnyResponse {
+        let res = self.text_edit_singleline(text);
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn text_edit_multiline(&mut self, text: &mut BunnyString) -> BunnyResponse {
+        let res = self.text_edit_multiline(text);
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn code_editor(&mut self, text: &mut BunnyString) -> BunnyResponse {
+        let res = self.code_editor(text);
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn button(&mut self, text: WidgetText) -> BunnyResponse {
+        let res = self.button(text);
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn small_button(&mut self, text: WidgetText) -> BunnyResponse {
+        let res = self.small_button(text);
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn checkbox(&mut self, checked: &mut bool, text: WidgetText) -> BunnyResponse {
+        let res = self.checkbox(checked, text);
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn toggle_value(&mut self, selected: &mut bool, text: WidgetText) -> BunnyResponse {
+        let res = self.toggle_value(selected, text);
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn radio(&mut self, selected: bool, text: WidgetText) -> BunnyResponse {
+        let res = self.radio(selected, text);
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn selectable_label(&mut self, checked: bool, text: WidgetText) -> BunnyResponse {
+        let res = self.selectable_label(checked, text);
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn separator(&mut self) -> BunnyResponse {
+        let res = self.separator();
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn spinner(&mut self) -> BunnyResponse {
+        let res = self.spinner();
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn drag_angle(&mut self, radians: &mut f32) -> BunnyResponse {
+        let res = self.drag_angle(radians);
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn drag_angle_tau(&mut self, radians: &mut f32) -> BunnyResponse {
+        let res = self.drag_angle_tau(radians);
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn image(&mut self, source: ImageSource) -> BunnyResponse {
+        let res = Image::new(source).ui(self);
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn color_edit_button_srgba(&mut self, srgba: &mut Color32) -> BunnyResponse {
+        let res = self.color_edit_button_srgba(srgba);
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn color_edit_button_hsva(&mut self, hsva: &mut Hsva) -> BunnyResponse {
+        let res = self.color_edit_button_hsva(hsva);
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn color_edit_button_srgb(&mut self, srgb: &mut [u8; 3]) -> BunnyResponse {
+        let res = self.color_edit_button_srgb(srgb);
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn color_edit_button_rgb(&mut self, rgb: &mut [f32; 3]) -> BunnyResponse {
+        let res = self.color_edit_button_rgb(rgb);
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn color_edit_button_srgba_premultiplied(&mut self, srgba: &mut [u8; 4]) -> BunnyResponse {
+        let res = self.color_edit_button_srgba_premultiplied(srgba);
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn color_edit_button_srgba_unmultiplied(&mut self, srgba: &mut [u8; 4]) -> BunnyResponse {
+        let res = self.color_edit_button_srgba_unmultiplied(srgba);
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn color_edit_button_rgba_premultiplied(
+        &mut self,
+        rgba_premul: &mut [f32; 4],
+    ) -> BunnyResponse {
+        let res = self.color_edit_button_rgba_premultiplied(rgba_premul);
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn color_edit_button_rgba_unmultiplied(&mut self, rgba_unmul: &mut [f32; 4]) -> BunnyResponse {
+        let res = self.color_edit_button_rgba_unmultiplied(rgba_unmul);
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn group(&mut self, contents: PluginClosure) -> BunnyResponse {
+        let res = self
+            .group(|ui| {
+                let mut b = BunnyUi::new(ui);
+                contents.call(&mut b);
+            })
+            .response;
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn push_id(&mut self, hash: u64, contents: PluginClosure) -> BunnyResponse {
+        let res = self
+            .push_id(hash, |ui| {
+                let mut b = BunnyUi::new(ui);
+                contents.call(&mut b);
+            })
+            .response;
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn scope(&mut self, contents: PluginClosure) -> BunnyResponse {
+        let res = self
+            .scope(|ui| {
+                let mut b = BunnyUi::new(ui);
+                contents.call(&mut b);
+            })
+            .response;
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn scope_builder(&mut self, ui_builder: UiBuilder, contents: PluginClosure) -> BunnyResponse {
+        let res = self
+            .scope_builder(ui_builder.into(), |ui| {
+                let mut b = BunnyUi::new(ui);
+                contents.call(&mut b);
+            })
+            .response;
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn collapsing(
+        &mut self,
+        heading: WidgetText,
+        contents: PluginClosure,
+    ) -> BunnyCollapsingResponse {
+        let res = self.collapsing(heading, |ui| {
             let mut b = BunnyUi::new(ui);
             contents.call(&mut b);
         });
+        BunnyCollapsingResponse::new(res)
+    }
+
+    #[inline]
+    fn indent(&mut self, contents: PluginClosure) -> BunnyResponse {
+        let res = self
+            .indent(self.next_auto_id(), |ui| {
+                let mut b = BunnyUi::new(ui);
+                contents.call(&mut b);
+            })
+            .response;
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn horizontal(&mut self, contents: PluginClosure) -> BunnyResponse {
+        let res = self
+            .horizontal(|ui| {
+                let mut b = BunnyUi::new(ui);
+                contents.call(&mut b);
+            })
+            .response;
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn horizontal_centered(&mut self, contents: PluginClosure) -> BunnyResponse {
+        let res = self
+            .horizontal_centered(|ui| {
+                let mut b = BunnyUi::new(ui);
+                contents.call(&mut b);
+            })
+            .response;
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn horizontal_top(&mut self, contents: PluginClosure) -> BunnyResponse {
+        let res = self
+            .horizontal_top(|ui| {
+                let mut b = BunnyUi::new(ui);
+                contents.call(&mut b);
+            })
+            .response;
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn horizontal_wrapped(&mut self, contents: PluginClosure) -> BunnyResponse {
+        let res = self
+            .horizontal_wrapped(|ui| {
+                let mut b = BunnyUi::new(ui);
+                contents.call(&mut b);
+            })
+            .response;
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn vertical(&mut self, contents: PluginClosure) -> BunnyResponse {
+        let res = self
+            .vertical(|ui| {
+                let mut b = BunnyUi::new(ui);
+                contents.call(&mut b);
+            })
+            .response;
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn vertical_centered(&mut self, contents: PluginClosure) -> BunnyResponse {
+        let res = self
+            .vertical_centered(|ui| {
+                let mut b = BunnyUi::new(ui);
+                contents.call(&mut b);
+            })
+            .response;
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn vertical_centered_justified(&mut self, contents: PluginClosure) -> BunnyResponse {
+        let res = self
+            .vertical_centered_justified(|ui| {
+                let mut b = BunnyUi::new(ui);
+                contents.call(&mut b);
+            })
+            .response;
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn with_layout(&mut self, layout: BunnyLayout, contents: PluginClosure) -> BunnyResponse {
+        let res = self
+            .with_layout(layout.into(), |ui| {
+                let mut b = BunnyUi::new(ui);
+                contents.call(&mut b);
+            })
+            .response;
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn centered_and_justified(&mut self, contents: PluginClosure) -> BunnyResponse {
+        let res = self
+            .centered_and_justified(|ui| {
+                let mut b = BunnyUi::new(ui);
+                contents.call(&mut b);
+            })
+            .response;
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn end_row(&mut self) {
+        self.end_row();
+    }
+
+    #[inline]
+    fn set_row_height(&mut self, height: f32) {
+        self.set_row_height(height);
+    }
+
+    #[inline]
+    fn with_visual_transform(
+        &mut self,
+        transform: TSTransform,
+        contents: PluginClosure,
+    ) -> BunnyResponse {
+        let res = self
+            .with_visual_transform(transform, |ui| {
+                let mut b = BunnyUi::new(ui);
+                contents.call(&mut b);
+            })
+            .response;
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn menu_button(&mut self, text: WidgetText, contents: PluginClosure) -> BunnyResponse {
+        let res = self
+            .menu_button(text, |ui| {
+                let mut b = BunnyUi::new(ui);
+                contents.call(&mut b);
+            })
+            .response;
+        BunnyResponse::new(res)
+    }
+
+    #[inline]
+    fn debug_paint_cursor(&self) {
+        self.debug_paint_cursor();
     }
 
     #[inline]
@@ -573,8 +1154,8 @@ impl UiFfi for Ui {
         &mut self,
         collapsing_header: CollapsingHeader,
         contents: PluginClosure,
-    ) {
-        collapsing_header.show_impl(self, contents);
+    ) -> BunnyCollapsingResponse {
+        collapsing_header.show_impl(self, contents)
     }
 }
 

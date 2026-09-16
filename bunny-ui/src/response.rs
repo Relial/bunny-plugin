@@ -8,306 +8,310 @@ use crate::{
 };
 
 #[repr(C)]
-pub struct BunnyResponse(VBox<ResponseFfiVTable>);
+pub struct BunnyResponse {
+    inner: VBox<ResponseFfiVTable>,
+}
+
+impl BunnyResponse {
+    #[inline]
+    pub fn new(response: egui::Response) -> Self {
+        Self {
+            inner: VBox::new(response),
+        }
+    }
+}
 
 impl BunnyResponse {
     #[inline]
     pub fn id(&self) -> Id {
-        self.0.id()
+        self.inner.id()
     }
 
     #[inline]
     pub fn rect(&self) -> Rect {
-        self.0.rect()
+        self.inner.rect()
     }
 
     #[inline]
     pub fn interact_rect(&self) -> Rect {
-        self.0.interact_rect()
+        self.inner.interact_rect()
     }
 
     #[inline]
     pub fn sense(&self) -> Sense {
-        self.0.sense()
+        self.inner.sense()
     }
 
     #[inline]
     pub fn parent_id(&self) -> Id {
-        self.0.parent_id()
+        self.inner.parent_id()
     }
 
     #[inline]
     pub fn clicked(&self) -> bool {
-        self.0.clicked()
+        self.inner.clicked()
     }
 
     #[inline]
     pub fn clicked_by(&self, button: PointerButton) -> bool {
-        self.0.clicked_by(button)
+        self.inner.clicked_by(button)
     }
 
     #[inline]
     pub fn secondary_clicked(&self) -> bool {
-        self.0.secondary_clicked()
+        self.inner.secondary_clicked()
     }
 
     #[inline]
     pub fn middle_clicked(&self) -> bool {
-        self.0.middle_clicked()
+        self.inner.middle_clicked()
     }
 
     #[inline]
     pub fn double_clicked(&self) -> bool {
-        self.0.double_clicked()
+        self.inner.double_clicked()
     }
 
     #[inline]
     pub fn triple_clicked(&self) -> bool {
-        self.0.triple_clicked()
+        self.inner.triple_clicked()
     }
 
     #[inline]
     pub fn double_clicked_by(&self, button: PointerButton) -> bool {
-        self.0.double_clicked_by(button)
+        self.inner.double_clicked_by(button)
     }
 
     #[inline]
     pub fn triple_clicked_by(&self, button: PointerButton) -> bool {
-        self.0.triple_clicked_by(button)
+        self.inner.triple_clicked_by(button)
     }
 
     #[inline]
     pub fn clicked_with_open_in_background(&self) -> bool {
-        self.0.clicked_with_open_in_background()
+        self.inner.clicked_with_open_in_background()
     }
 
     #[inline]
     pub fn clicked_elsewhere(&self) -> bool {
-        self.0.clicked_elsewhere()
+        self.inner.clicked_elsewhere()
     }
 
     #[inline]
     pub fn enabled(&self) -> bool {
-        self.0.enabled()
+        self.inner.enabled()
     }
 
     #[inline]
     pub fn hovered(&self) -> bool {
-        self.0.hovered()
+        self.inner.hovered()
     }
 
     #[inline]
     pub fn contains_pointer(&self) -> bool {
-        self.0.contains_pointer()
+        self.inner.contains_pointer()
     }
 
     #[inline]
     pub fn gained_focus(&self) -> bool {
-        self.0.gained_focus()
+        self.inner.gained_focus()
     }
 
     #[inline]
     pub fn lost_focus(&self) -> bool {
-        self.0.lost_focus()
+        self.inner.lost_focus()
     }
 
     #[inline]
     pub fn request_focus(&self) {
-        self.0.request_focus();
+        self.inner.request_focus();
     }
 
     #[inline]
     pub fn surrender_focus(&self) {
-        self.0.surrender_focus();
+        self.inner.surrender_focus();
     }
 
     #[inline]
     pub fn drag_started(&self) -> bool {
-        self.0.drag_started()
+        self.inner.drag_started()
     }
 
     #[inline]
     pub fn drag_started_by(&self, button: PointerButton) -> bool {
-        self.0.drag_started_by(button)
+        self.inner.drag_started_by(button)
     }
 
     #[inline]
     pub fn dragged(&self) -> bool {
-        self.0.dragged()
+        self.inner.dragged()
     }
 
     #[inline]
     pub fn dragged_by(&self, button: PointerButton) -> bool {
-        self.0.dragged_by(button)
+        self.inner.dragged_by(button)
     }
 
     #[inline]
     pub fn drag_stopped(&self) -> bool {
-        self.0.drag_stopped()
+        self.inner.drag_stopped()
     }
 
     #[inline]
     pub fn drag_stopped_by(&self, button: PointerButton) -> bool {
-        self.0.drag_stopped_by(button)
+        self.inner.drag_stopped_by(button)
     }
 
     #[inline]
     pub fn drag_delta(&self) -> Vec2 {
-        self.0.drag_delta()
+        self.inner.drag_delta()
     }
 
     #[inline]
     pub fn total_drag_delta(&self) -> Option<Vec2> {
-        self.0.total_drag_delta().into_option()
+        self.inner.total_drag_delta().into_option()
     }
 
     #[inline]
     pub fn drag_motion(&self) -> Vec2 {
-        self.0.drag_motion()
+        self.inner.drag_motion()
     }
 
     #[inline]
     pub fn interact_pointer_pos(&self) -> Option<Pos2> {
-        self.0.interact_pointer_pos().into_option()
+        self.inner.interact_pointer_pos().into_option()
     }
 
     #[inline]
     pub fn intrinsic_size(&self) -> Option<Vec2> {
-        self.0.intrinsic_size().into_option()
+        self.inner.intrinsic_size().into_option()
     }
 
     #[inline]
     pub fn set_intrinsic_size(&mut self, size: impl Into<Vector2<f32>>) {
-        self.0.set_intrinsic_size(size.into().into());
+        self.inner.set_intrinsic_size(size.into().into());
     }
 
     #[inline]
     pub fn hover_pos(&self) -> Option<Pos2> {
-        self.0.hover_pos().into_option()
+        self.inner.hover_pos().into_option()
     }
 
     #[inline]
     pub fn is_pointer_button_down_on(&self) -> bool {
-        self.0.is_pointer_button_down_on()
+        self.inner.is_pointer_button_down_on()
     }
 
     #[inline]
     pub fn changed(&self) -> bool {
-        self.0.changed()
+        self.inner.changed()
     }
 
     #[inline]
     pub fn mark_changed(&mut self) {
-        self.0.mark_changed();
+        self.inner.mark_changed();
     }
 
     #[inline]
     pub fn should_close(&self) -> bool {
-        self.0.should_close()
+        self.inner.should_close()
     }
 
     #[inline]
     pub fn set_close(&mut self) {
-        self.0.set_close();
+        self.inner.set_close();
     }
 
     #[inline]
     pub fn on_hover_ui(self, mut add_contents: impl FnMut(&mut BunnyUi)) -> Self {
         let closure = PluginClosure::new(&mut add_contents);
-        self.0.on_hover_ui(closure);
+        self.inner.on_hover_ui(closure);
         self
     }
 
     #[inline]
     pub fn on_disabled_hover_ui(self, mut add_contents: impl FnMut(&mut BunnyUi)) -> Self {
         let closure = PluginClosure::new(&mut add_contents);
-        self.0.on_disabled_hover_ui(closure);
+        self.inner.on_disabled_hover_ui(closure);
         self
     }
 
     #[inline]
     pub fn on_hover_ui_at_pointer(self, mut add_contents: impl FnMut(&mut BunnyUi)) -> Self {
         let closure = PluginClosure::new(&mut add_contents);
-        self.0.on_hover_ui_at_pointer(closure);
+        self.inner.on_hover_ui_at_pointer(closure);
         self
     }
 
     #[inline]
     pub fn show_tooltip_ui(&self, mut add_contents: impl FnMut(&mut BunnyUi)) {
         let closure = PluginClosure::new(&mut add_contents);
-        self.0.show_tooltip_ui(closure);
+        self.inner.show_tooltip_ui(closure);
     }
 
     #[inline]
     pub fn show_tooltip_text(&self, text: impl Into<WidgetText>) {
-        self.0.show_tooltip_text(text.into());
+        self.inner.show_tooltip_text(text.into());
     }
 
     #[inline]
     pub fn is_tooltip_open(&self) -> bool {
-        self.0.is_tooltip_open()
+        self.inner.is_tooltip_open()
     }
 
     #[inline]
     pub fn on_hover_text_at_pointer(self, text: impl Into<WidgetText>) -> Self {
-        self.0.on_hover_text_at_pointer(text.into());
+        self.inner.on_hover_text_at_pointer(text.into());
         self
     }
 
     #[inline]
     pub fn on_hover_text(self, text: impl Into<WidgetText>) -> Self {
-        self.0.on_hover_text(text.into());
+        self.inner.on_hover_text(text.into());
         self
     }
 
     #[inline]
     pub fn highlight(mut self) -> Self {
-        self.0.highlight();
+        self.inner.highlight();
         self
     }
 
     #[inline]
     pub fn on_disabled_hover_text(self, text: impl Into<WidgetText>) -> Self {
-        self.0.on_disabled_hover_text(text.into());
+        self.inner.on_disabled_hover_text(text.into());
         self
     }
 
     #[inline]
     pub fn interact(&self, sense: Sense) -> Self {
-        self.0.interact(sense)
+        self.inner.interact(sense)
     }
 
     #[inline]
     pub fn scroll_to_me(&self, align: Option<Align>) {
-        self.0.scroll_to_me(align.into());
+        self.inner.scroll_to_me(align.into());
     }
 
     #[inline]
     pub fn scroll_to_me_animation(&self, align: Option<Align>, animation: ScrollAnimation) {
-        self.0.scroll_to_me_animation(align.into(), animation);
+        self.inner.scroll_to_me_animation(align.into(), animation);
     }
 
     #[inline]
     pub fn context_menu(&self, mut add_contents: impl FnMut(&mut BunnyUi)) -> Option<Self> {
         let closure = PluginClosure::new(&mut add_contents);
-        self.0.context_menu(closure).into_option()
+        self.inner.context_menu(closure).into_option()
     }
 
     #[inline]
     pub fn context_menu_opened(&self) -> bool {
-        self.0.context_menu_opened()
+        self.inner.context_menu_opened()
     }
 
     #[inline]
     pub fn paint_debug_info(&self) {
-        self.0.paint_debug_info();
-    }
-}
-
-impl From<VBox<ResponseFfiVTable>> for BunnyResponse {
-    #[inline]
-    fn from(value: VBox<ResponseFfiVTable>) -> Self {
-        Self(value)
+        self.inner.paint_debug_info();
     }
 }
 

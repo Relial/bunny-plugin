@@ -182,3 +182,18 @@ impl From<Layout> for egui::Layout {
         }
     }
 }
+
+#[cfg(feature = "manager")]
+impl From<egui::Layout> for Layout {
+    #[inline]
+    fn from(value: egui::Layout) -> Self {
+        Self {
+            main_dir: value.main_dir.into(),
+            main_align: value.main_align.into(),
+            cross_align: value.cross_align.into(),
+            cross_justify: value.cross_justify,
+            main_wrap: value.main_wrap,
+            main_justify: value.main_justify,
+        }
+    }
+}

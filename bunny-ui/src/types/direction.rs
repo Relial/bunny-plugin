@@ -38,3 +38,16 @@ impl From<Direction> for egui::Direction {
         }
     }
 }
+
+#[cfg(feature = "manager")]
+impl From<egui::Direction> for Direction {
+    #[inline]
+    fn from(value: egui::Direction) -> Self {
+        match value {
+            egui::Direction::LeftToRight => Self::LeftToRight,
+            egui::Direction::RightToLeft => Self::RightToLeft,
+            egui::Direction::TopDown => Self::TopDown,
+            egui::Direction::BottomUp => Self::BottomUp,
+        }
+    }
+}

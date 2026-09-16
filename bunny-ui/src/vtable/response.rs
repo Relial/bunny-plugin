@@ -3,7 +3,8 @@ use egui::{Id, Pos2, Rect, Response, Sense, Vec2};
 use vtable::{VBox, VRef, VRefMut, vtable};
 
 use crate::{
-    Align, PointerButton, WidgetText, closure::PluginClosure, response::BunnyResponse, style::ScrollAnimation, ui::BunnyUi,
+    Align, PointerButton, WidgetText, closure::PluginClosure, response::BunnyResponse,
+    style::ScrollAnimation, ui::BunnyUi,
 };
 
 #[vtable]
@@ -361,8 +362,8 @@ impl ResponseFfi for Response {
 
     #[inline]
     fn interact(&self, sense: Sense) -> BunnyResponse {
-        let new = self.interact(sense);
-        VBox::new(new).into()
+        let res = self.interact(sense);
+        BunnyResponse::new(res)
     }
 
     #[inline]
@@ -381,7 +382,7 @@ impl ResponseFfi for Response {
             let mut b = BunnyUi::new(ui);
             contents.call(&mut b);
         });
-        res.map(|i| VBox::new(i.response).into()).into()
+        res.map(|i| BunnyResponse::new(i.response)).into()
     }
 
     #[inline]

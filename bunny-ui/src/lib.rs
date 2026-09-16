@@ -12,3 +12,8 @@ pub mod painter;
 
 pub mod closure;
 pub mod vtable;
+
+pub(crate) mod id;
+
+pub use ecolor::Color32;
+pub use emath::{Pos2, Rangef, Rect, RectTransform, TSTransform, Vec2, pos2, vec2};

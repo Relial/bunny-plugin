@@ -26,7 +26,10 @@ impl<'a> PluginClosure<'a> {
     }
 }
 
-unsafe extern "C" fn closure_trampoline<F: FnMut(&mut BunnyUi)>(ui: &mut BunnyUi, closure: *mut c_void) {
+unsafe extern "C" fn closure_trampoline<F: FnMut(&mut BunnyUi)>(
+    ui: &mut BunnyUi,
+    closure: *mut c_void,
+) {
     let closure = unsafe { &mut *(closure as *mut F) };
     closure(ui)
 }
