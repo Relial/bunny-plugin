@@ -1,29 +1,60 @@
-use crate::widgets::button::Button;
+use crate::widgets::{
+    button::Button, checkbox::CheckBox, color_picker::ColorPicker, drag_value::DragValue,
+    image::Image, label::Label, link::Link, progress_bar::ProgressBar, radio_button::RadioButton,
+    separator::Separator, shortcut_button::ShortcutButton, slider::Slider, spinner::Spinner,
+    text_edit::builder::TextEdit,
+};
 
 pub mod button;
 pub mod checkbox;
-// pub mod drag_value;
+pub mod color_picker;
+pub mod drag_value;
 pub mod image;
 pub mod label;
-pub mod separator;
-// pub mod slider;
-pub mod color_picker;
 pub mod link;
 pub mod progress_bar;
 pub mod radio_button;
+pub mod separator;
 pub mod shortcut_button;
+pub mod slider;
 pub mod spinner;
 pub mod text_edit;
 
 #[repr(C)]
-pub enum Widget {
+pub enum Widget<'a> {
     Button(Button),
+    CheckBox(CheckBox),
+    ColorPicker(ColorPicker<'a>),
+    DragValue(DragValue<'a>),
+    Image(Image<'a>),
+    Label(Label),
+    Link(Link),
+    ProgressBar(ProgressBar),
+    RadioButton(RadioButton),
+    Separator(Separator),
+    ShortcutButton(ShortcutButton<'a>),
+    Slider(Slider<'a>),
+    Spinner(Spinner),
+    TextEdit(TextEdit<'a>),
 }
 
-impl egui::Widget for Widget {
+impl egui::Widget for Widget<'_> {
     fn ui(self, ui: &mut egui::Ui) -> egui::Response {
         match self {
             Widget::Button(button) => button.ui(ui),
+            Widget::CheckBox(check_box) => check_box.ui(ui),
+            Widget::ColorPicker(color_picker) => color_picker.ui(ui),
+            Widget::DragValue(drag_value) => drag_value.ui(ui),
+            Widget::Image(image) => image.ui(ui),
+            Widget::Label(label) => label.ui(ui),
+            Widget::Link(link) => link.ui(ui),
+            Widget::ProgressBar(progress_bar) => progress_bar.ui(ui),
+            Widget::RadioButton(radio_button) => radio_button.ui(ui),
+            Widget::Separator(separator) => separator.ui(ui),
+            Widget::ShortcutButton(shortcut_button) => shortcut_button.ui(ui),
+            Widget::Slider(slider) => slider.ui(ui),
+            Widget::Spinner(spinner) => spinner.ui(ui),
+            Widget::TextEdit(text_edit) => text_edit.ui(ui),
         }
     }
 }

@@ -1,12 +1,14 @@
 use std::ops::RangeInclusive;
 
 use abi_stable::std_types::{
-    RBox,
     ROption::{self, RNone, RSome},
     RString,
 };
 
-use crate::widgets::slider::NumberCustomFormat;
+use crate::{
+    num::Num,
+    widgets::{Widget, slider::NumberCustomFormat},
+};
 
 #[repr(C)]
 pub struct DragValue<'a> {
@@ -189,5 +191,12 @@ impl egui::Widget for DragValue<'_> {
         }
 
         ui.add(drag_value)
+    }
+}
+
+impl<'a> From<DragValue<'a>> for Widget<'a> {
+    #[inline]
+    fn from(value: DragValue<'a>) -> Self {
+        Self::DragValue(value)
     }
 }

@@ -1,7 +1,7 @@
 use abi_stable::std_types::ROption::{self, RNone, RSome};
 use egui::Sense;
 
-use crate::{Align, WidgetText, paint::text::text_layout_types::TextWrapMode};
+use crate::{Align, WidgetText, paint::text::text_layout_types::TextWrapMode, widgets::Widget};
 
 #[repr(C)]
 pub struct Label {
@@ -94,5 +94,12 @@ impl egui::Widget for Label {
         }
 
         label.ui(ui)
+    }
+}
+
+impl From<Label> for Widget<'_> {
+    #[inline]
+    fn from(value: Label) -> Self {
+        Self::Label(value)
     }
 }

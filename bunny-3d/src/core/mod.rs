@@ -5,10 +5,7 @@ use anyhow::Result;
 use bytemuck::{Pod, Zeroable};
 use ecolor::Color32;
 use glam::{Quat, Vec3};
-use shared::{
-    camera::Camera,
-    texture::{SharedTextures, TextureId},
-};
+use shared::{camera::Camera, texture::SharedTextures};
 
 #[cfg(feature = "backend")]
 use crate::texture::TextureAllocation;
@@ -29,6 +26,8 @@ pub(crate) mod texture;
 
 mod transform;
 pub use transform::*;
+
+pub use texture::TextureId3d;
 
 #[derive(Debug, Default)]
 #[repr(C)]
@@ -53,7 +52,7 @@ impl Bunny3d {
     /// Allocate a texture on the GPU. Every call to this allocates, so this should only be called once per texture.
     ///
     /// If you want cached texture loading, use load_texture instead
-    pub fn allocate_texture(&mut self, texture: impl Into<TextureData>) -> TextureId {
+    pub fn allocate_texture(&mut self, texture: impl Into<TextureData>) -> TextureId3d {
         self.textures.allocate(texture)
     }
 
@@ -106,7 +105,7 @@ impl Bunny3d {
         self.textures.add_shared(shared);
     }
 
-    pub(crate) fn free_texture(&mut self, texture: TextureId) {
+    pub(crate) fn free_texture(&mut self, texture: TextureId3d) {
         self.asset_loader.free_texture(texture);
     }
 }
@@ -124,7 +123,7 @@ pub struct DrawOptions {
     pub draw_on_top: bool,
     pub fill: FillMode,
     pub transform: Transform,
-    pub texture: Option<TextureId>,
+    pub texture: Option<TextureId3d>,
     pub override_vertex_color: Option<GpuColor>,
 }
 
@@ -184,8 +183,8 @@ impl DrawOptions {
     }
 
     #[inline]
-    pub fn texture(mut self, texture: TextureId) -> Self {
-        self.texture = Some(texture);
+    pub fn texture(mut self, texture: impl Into<TextureId3d>) -> Self {
+        self.texture = Some(texture.into());
         self.fill = FillMode::Solid;
         self
     }

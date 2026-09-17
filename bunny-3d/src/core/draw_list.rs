@@ -1,16 +1,15 @@
 use abi_stable::std_types::RVec;
 #[cfg(feature = "backend")]
 use anyhow::{Context as _, Result};
-use shared::texture::TextureId;
 #[cfg(feature = "backend")]
 use windows::Win32::Graphics::Direct3D9::{
-    D3DPRIMITIVETYPE, D3DPT_LINELIST, D3DPT_POINTLIST, D3DPT_TRIANGLELIST, D3DRS_FILLMODE, D3DTRANSFORMSTATETYPE, IDirect3DDevice9,
+    D3DPRIMITIVETYPE, D3DPT_LINELIST, D3DPT_POINTLIST, D3DPT_TRIANGLELIST, D3DRS_FILLMODE,
+    D3DTRANSFORMSTATETYPE, IDirect3DDevice9,
 };
 use windows_numerics::Matrix4x4;
 
 use crate::{
-    VERTEX_SIZE,
-    core::{DrawOptions, FillMode, mesh::Mesh},
+    TextureId3d, VERTEX_SIZE, core::{DrawOptions, FillMode, mesh::Mesh},
 };
 
 #[derive(Debug, Default)]
@@ -88,7 +87,7 @@ pub struct MeshDescriptor {
     pub vertices: usize,
     pub indices: usize,
     fill: FillMode,
-    pub texture: TextureId,
+    pub texture: TextureId3d,
     pub primitive_topology: PrimitiveTopology,
 }
 

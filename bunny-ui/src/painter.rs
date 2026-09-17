@@ -1,5 +1,3 @@
-use std::{borrow::Borrow, ops::Deref};
-
 use vtable::{VBox, VRef};
 
 use crate::vtable::painter::PainterFfiVTable;
@@ -34,6 +32,4 @@ impl BunnyPainter {
     }
 }
 
-impl BunnyPainter {
-    
-}
+impl BunnyPainter {}

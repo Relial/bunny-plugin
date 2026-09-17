@@ -69,7 +69,7 @@ impl TextShape {
     }
 }
 
-impl From<TextShape> for Shape<'_> {
+impl From<TextShape> for Shape {
     #[inline(always)]
     fn from(value: TextShape) -> Self {
         Self::Text(value)

@@ -2,21 +2,20 @@ use abi_stable::rvec;
 use anyhow::{Context, Result, anyhow};
 use ecolor::Color32;
 use rapidhash::RapidHashMap;
-use shared::texture::TextureId;
 use windows::Win32::Graphics::Direct3D9::{
     D3DFMT_A8R8G8B8, D3DLOCKED_RECT, D3DPOOL_DEFAULT, D3DUSAGE_DYNAMIC, IDirect3DDevice9,
     IDirect3DTexture9,
 };
 
 use crate::{
-    GpuColor,
+    GpuColor, TextureId3d,
     core::texture::{TextureAllocation, TextureData},
 };
 
 #[derive(Debug)]
 pub struct TextureManager {
-    textures: RapidHashMap<TextureId, Texture>,
-    shared: RapidHashMap<TextureId, IDirect3DTexture9>,
+    textures: RapidHashMap<TextureId3d, Texture>,
+    shared: RapidHashMap<TextureId3d, IDirect3DTexture9>,
 }
 
 impl TextureManager {
@@ -32,7 +31,7 @@ impl TextureManager {
                     pixels: rvec![Color32::WHITE.into()],
                     size: [1, 1],
                 },
-                id: TextureId::Managed3d(0),
+                id: TextureId3d::Managed(0),
             },
         )?;
         Ok(t)
@@ -57,20 +56,20 @@ impl TextureManager {
         Ok(())
     }
 
-    pub fn free(&mut self, texture: TextureId) -> bool {
+    pub fn free(&mut self, texture: TextureId3d) -> bool {
         self.textures.remove(&texture).is_some()
     }
 
-    pub fn get(&self, id: TextureId) -> Result<&IDirect3DTexture9> {
+    pub fn get(&self, id: TextureId3d) -> Result<&IDirect3DTexture9> {
         match id {
-            TextureId::Managed3d(_) => self
+            TextureId3d::Managed(_) => self
                 .textures
                 .get(&id)
                 .ok_or_else(|| anyhow!("Texture {} doesn't exist", id))?
                 .resource
                 .as_ref()
                 .ok_or_else(|| anyhow!("Tried to get texture {} when it was deallocated", id)),
-            TextureId::Shared(_) => self
+            TextureId3d::User(_) => self
                 .shared
                 .get(&id)
                 .ok_or_else(|| anyhow!("Texture {} doesn't exist", id)),
@@ -94,7 +93,7 @@ impl TextureManager {
 
     pub fn add_shared(
         &mut self,
-        textures: impl IntoIterator<Item = (TextureId, IDirect3DTexture9)>,
+        textures: impl IntoIterator<Item = (TextureId3d, IDirect3DTexture9)>,
     ) {
         self.shared.extend(textures);
     }

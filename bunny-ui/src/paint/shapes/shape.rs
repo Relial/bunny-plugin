@@ -1,6 +1,6 @@
 use abi_stable::{
     rvec,
-    std_types::{RBox, ROption::RNone, RString, RVec},
+    std_types::{RBox, RString, RVec},
 };
 use ecolor::Color32;
 use emath::{Pos2, Rangef, Rect, TSTransform, pos2};
@@ -8,8 +8,9 @@ use mint::{Point2, Vector2};
 use tracing::error;
 
 use crate::{
-    Align2, Direction, ImageSource,
+    Align2, Direction,
     paint::{
+        TextureId,
         corner_radius::CornerRadius,
         mesh::{Mesh, Vertex},
         shapes::{
@@ -27,49 +28,49 @@ use crate::{
 
 #[derive(Clone, Debug)]
 #[repr(C)]
-pub enum Shape<'a> {
+pub enum Shape {
     Noop,
-    Vec(RVec<Shape<'a>>),
+    Vec(RVec<Shape>),
     Circle(CircleShape),
     Ellipse(EllipseShape),
     LineSegment { points: [Pos2; 2], stroke: Stroke },
     Path(PathShape),
-    Rect(RectShape<'a>),
+    Rect(RectShape),
     Text(TextShape),
-    Mesh(RBox<Mesh<'a>>),
+    Mesh(RBox<Mesh>),
     QuadraticBezier(QuadraticBezierShape),
     CubicBezier(CubicBezierShape),
 }
 
-impl From<Vec<Self>> for Shape<'_> {
+impl From<Vec<Self>> for Shape {
     #[inline(always)]
     fn from(value: Vec<Self>) -> Self {
         Self::Vec(value.into())
     }
 }
 
-impl From<RVec<Self>> for Shape<'_> {
+impl From<RVec<Self>> for Shape {
     #[inline(always)]
     fn from(value: RVec<Self>) -> Self {
         Self::Vec(value)
     }
 }
 
-impl<'a> From<Mesh<'a>> for Shape<'a> {
+impl From<Mesh> for Shape {
     #[inline(always)]
-    fn from(value: Mesh<'a>) -> Self {
+    fn from(value: Mesh) -> Self {
         Self::Mesh(RBox::new(value))
     }
 }
 
-impl<'a> From<RBox<Mesh<'a>>> for Shape<'a> {
+impl From<RBox<Mesh>> for Shape {
     #[inline(always)]
-    fn from(value: RBox<Mesh<'a>>) -> Self {
+    fn from(value: RBox<Mesh>) -> Self {
         Self::Mesh(value)
     }
 }
 
-impl<'a> Shape<'a> {
+impl Shape {
     #[inline]
     pub fn line_segment(points: [Pos2; 2], stroke: impl Into<Stroke>) -> Self {
         Self::LineSegment {
@@ -273,7 +274,7 @@ impl<'a> Shape<'a> {
                 Vertex::untextured(rect.left_bottom(), left_bottom),
                 Vertex::untextured(rect.right_bottom(), right_bottom),
             ],
-            texture_source: RNone,
+            texture_id: Default::default(),
         })
     }
 
@@ -302,21 +303,21 @@ impl<'a> Shape<'a> {
     }
 
     #[inline]
-    pub fn mesh(mesh: impl Into<RBox<Mesh<'a>>>) -> Self {
+    pub fn mesh(mesh: impl Into<RBox<Mesh>>) -> Self {
         let mesh = mesh.into();
         debug_assert!(mesh.is_valid(), "Invalid mesh: {mesh:#?}");
         Self::Mesh(mesh)
     }
 
     #[inline]
-    pub fn image(texture_source: ImageSource<'a>, rect: Rect, uv: Rect, tint: Color32) -> Self {
-        let mut mesh = Mesh::with_texture(texture_source);
+    pub fn image(texture_id: TextureId, rect: Rect, uv: Rect, tint: Color32) -> Self {
+        let mut mesh = Mesh::with_texture(texture_id);
         mesh.add_rect_with_uv(rect, uv, tint);
         Self::mesh(RBox::new(mesh))
     }
 }
 
-impl<'a> Shape<'a> {
+impl Shape {
     #[inline(always)]
     pub fn scale(&mut self, factor: f32) {
         self.transform(TSTransform::from_scaling(factor));
@@ -454,30 +455,31 @@ fn dashes_from_line(
 }
 
 #[cfg(feature = "manager")]
-impl<'a> Shape<'a> {
-    pub fn to_egui(self, ctx: &egui::Context) -> anyhow::Result<egui::Shape> {
-        match self {
-            Shape::Noop => Ok(egui::Shape::Noop),
-            Shape::Vec(shapes) => Ok(egui::Shape::Vec(
-                shapes
-                    .into_iter()
-                    .filter_map(|shape| shape.to_egui(ctx).ok())
-                    .collect(),
-            )),
-            Shape::Circle(circle_shape) => Ok(egui::Shape::Circle(circle_shape.into())),
-            Shape::Ellipse(ellipse_shape) => Ok(egui::Shape::Ellipse(ellipse_shape.into())),
-            Shape::LineSegment { points, stroke } => Ok(egui::Shape::LineSegment {
+impl From<Shape> for egui::Shape {
+    fn from(value: Shape) -> Self {
+        match value {
+            Shape::Noop => egui::Shape::Noop,
+            Shape::Vec(shapes) => {
+                egui::Shape::Vec(shapes.into_iter().map(egui::Shape::from).collect())
+            }
+            Shape::Circle(circle_shape) => egui::Shape::Circle(circle_shape.into()),
+            Shape::Ellipse(ellipse_shape) => egui::Shape::Ellipse(ellipse_shape.into()),
+            Shape::LineSegment { points, stroke } => egui::Shape::LineSegment {
                 points,
                 stroke: stroke.into(),
-            }),
-            Shape::Path(path_shape) => Ok(egui::Shape::Path(path_shape.into())),
-            Shape::Rect(rect_shape) => Ok(egui::Shape::Rect(rect_shape.to_egui(ctx)?)),
-            Shape::Text(text_shape) => Ok(egui::Shape::Text(text_shape.to_egui(ctx))),
-            Shape::Mesh(mesh) => Ok(egui::Shape::Mesh(std::sync::Arc::new(
-                RBox::into_inner(mesh).to_egui(ctx)?,
-            ))),
-            Shape::QuadraticBezier(bezier) => Ok(egui::Shape::QuadraticBezier(bezier.into())),
-            Shape::CubicBezier(bezier) => Ok(egui::Shape::CubicBezier(bezier.into())),
+            },
+            Shape::Path(path_shape) => egui::Shape::Path(path_shape.into()),
+            Shape::Rect(rect_shape) => egui::Shape::Rect(rect_shape.into()),
+            Shape::Text(text_shape) => todo!(),
+            Shape::Mesh(mesh) => {
+                egui::Shape::Mesh(std::sync::Arc::new(RBox::into_inner(mesh).into()))
+            }
+            Shape::QuadraticBezier(quadratic_bezier_shape) => {
+                egui::Shape::QuadraticBezier(quadratic_bezier_shape.into())
+            }
+            Shape::CubicBezier(cubic_bezier_shape) => {
+                egui::Shape::CubicBezier(cubic_bezier_shape.into())
+            }
         }
     }
 }

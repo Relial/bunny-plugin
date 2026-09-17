@@ -1,9 +1,9 @@
 use std::borrow::Cow;
 
 use abi_stable::std_types::RCowStr;
-use shared::texture::{NamedTexture, SizedTexture};
+use shared::texture::{SharedSizedTexture, SharedTexture};
 
-use crate::types::load::Bytes;
+use crate::{paint::SizedTexture, types::load::Bytes};
 
 #[derive(Clone, Debug, PartialEq)]
 #[repr(C)]
@@ -24,47 +24,19 @@ impl<'a> ImageSource<'a> {
             bytes: bytes.into(),
         }
     }
-
-    #[cfg(feature = "manager")]
-    pub(crate) fn get_texture(
-        self,
-        ctx: &egui::Context,
-    ) -> anyhow::Result<egui::load::TexturePoll> {
-        let source: egui::ImageSource = self.try_into()?;
-        let res = source.load(
-            ctx,
-            egui::TextureOptions::default(),
-            egui::SizeHint::default(),
-        )?;
-        Ok(res)
-    }
 }
 
 #[cfg(feature = "manager")]
-impl<'a> TryFrom<ImageSource<'a>> for egui::ImageSource<'a> {
-    type Error = anyhow::Error;
-
-    fn try_from(value: ImageSource<'a>) -> std::prelude::v1::Result<Self, Self::Error> {
+impl<'a> From<ImageSource<'a>> for egui::ImageSource<'a> {
+    fn from(value: ImageSource<'a>) -> Self {
         match value {
             ImageSource::Uri(uri) => {
                 let uri_cow: Cow<'a, str> = uri.into();
-                Ok(Self::Uri(uri_cow))
+                Self::Uri(uri_cow)
             }
             ImageSource::Texture(texture) => {
-                let id = match texture.id {
-                    shared::texture::TextureId::Managed3d(_) => Err(anyhow::anyhow!(
-                        "Managed 3d textures can't be used with BunnyUi"
-                    )),
-                    shared::texture::TextureId::Shared(id) => Ok(egui::TextureId::User(id)),
-                }?;
-                Ok(egui::load::SizedTexture {
-                    id,
-                    size: egui::Vec2 {
-                        x: texture.size[0] as f32,
-                        y: texture.size[1] as f32,
-                    },
-                }
-                .into())
+                let texture: egui::load::SizedTexture = texture.into();
+                Self::Texture(texture)
             }
             ImageSource::Bytes { uri, bytes } => {
                 let uri_cow: Cow<'static, str> = uri.into();
@@ -76,10 +48,10 @@ impl<'a> TryFrom<ImageSource<'a>> for egui::ImageSource<'a> {
                         egui::load::Bytes::Shared(vec.to_vec().into())
                     }
                 };
-                Ok(Self::Bytes {
+                Self::Bytes {
                     uri: uri_cow,
                     bytes,
-                })
+                }
             }
         }
     }
@@ -174,10 +146,24 @@ impl<T: Into<Bytes>> From<(String, T)> for ImageSource<'static> {
     }
 }
 
-impl From<&NamedTexture> for ImageSource<'_> {
+impl From<&SharedTexture> for ImageSource<'_> {
     #[inline]
-    fn from(value: &NamedTexture) -> Self {
-        Self::Texture(*value.texture())
+    fn from(value: &SharedTexture) -> Self {
+        Self::Texture((*value.texture()).into())
+    }
+}
+
+impl From<&SharedSizedTexture> for ImageSource<'_> {
+    #[inline]
+    fn from(value: &SharedSizedTexture) -> Self {
+        Self::Texture((*value).into())
+    }
+}
+
+impl From<SharedSizedTexture> for ImageSource<'_> {
+    #[inline]
+    fn from(value: SharedSizedTexture) -> Self {
+        Self::Texture(value.into())
     }
 }
 

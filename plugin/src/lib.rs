@@ -5,7 +5,7 @@ use abi_stable::std_types::{ROption::{self, RNone, RSome}, RString};
 
 pub use shared::{
     camera::*,
-    texture::{NamedTexture, SizedTexture, TextureId},
+    texture::{SharedTexture, SharedSizedTexture, SharedTextureId},
 };
 
 #[cfg(any(feature = "ui", feature = "3d"))]

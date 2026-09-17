@@ -1,4 +1,4 @@
-use crate::WidgetText;
+use crate::{WidgetText, widgets::Widget};
 
 #[repr(C)]
 pub struct RadioButton {
@@ -21,5 +21,12 @@ impl egui::Widget for RadioButton {
     #[inline]
     fn ui(self, ui: &mut egui::Ui) -> egui::Response {
         ui.radio(self.checked, self.text)
+    }
+}
+
+impl From<RadioButton> for Widget<'_> {
+    #[inline]
+    fn from(value: RadioButton) -> Self {
+        Self::RadioButton(value)
     }
 }

@@ -40,7 +40,7 @@ impl CircleShape {
     }
 }
 
-impl From<CircleShape> for Shape<'_> {
+impl From<CircleShape> for Shape {
     #[inline]
     fn from(value: CircleShape) -> Self {
         Self::Circle(value)

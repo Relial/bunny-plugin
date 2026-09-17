@@ -6,20 +6,18 @@ use ecolor::Color32;
 use emath::{Pos2, Rect, Rot2};
 use mint::Point2;
 
-use crate::{
-    ImageSource,
-    paint::{
-        brush::Brush,
-        corner_radius::CornerRadius,
-        shapes::shape::Shape,
-        stroke::{Stroke, StrokeKind},
-    },
+use crate::paint::{
+    TextureId,
+    brush::Brush,
+    corner_radius::CornerRadius,
+    shapes::shape::Shape,
+    stroke::{Stroke, StrokeKind},
 };
 
 #[derive(Clone, Debug, PartialEq)]
 #[repr(C)]
-pub struct RectShape<'a> {
-    pub brush: ROption<RBox<Brush<'a>>>,
+pub struct RectShape {
+    pub brush: ROption<RBox<Brush>>,
     pub rect: Rect,
     pub stroke: Stroke,
     pub corner_radius: CornerRadius,
@@ -30,7 +28,7 @@ pub struct RectShape<'a> {
     pub round_to_pixels: ROption<bool>,
 }
 
-impl<'a> RectShape<'a> {
+impl RectShape {
     #[inline]
     pub fn new(
         rect: Rect,
@@ -97,9 +95,9 @@ impl<'a> RectShape<'a> {
     }
 
     #[inline]
-    pub fn with_texture(mut self, fill_texture_source: ImageSource<'a>, uv: Rect) -> Self {
+    pub fn with_texture(mut self, fill_texture_id: TextureId, uv: Rect) -> Self {
         self.brush = RSome(RBox::new(Brush {
-            fill_texture_source,
+            fill_texture_id,
             uv,
         }));
         self
@@ -123,16 +121,16 @@ impl<'a> RectShape<'a> {
     }
 }
 
-impl<'a> From<RectShape<'a>> for Shape<'a> {
+impl From<RectShape> for Shape {
     #[inline]
-    fn from(value: RectShape<'a>) -> Self {
+    fn from(value: RectShape) -> Self {
         Self::Rect(value)
     }
 }
 
 #[cfg(feature = "manager")]
-impl<'a> RectShape<'a> {
-    pub fn to_egui(self, ctx: &egui::Context) -> anyhow::Result<egui::epaint::RectShape> {
+impl From<RectShape> for egui::epaint::RectShape {
+    fn from(value: RectShape) -> Self {
         let RectShape {
             rect,
             corner_radius,
@@ -143,23 +141,20 @@ impl<'a> RectShape<'a> {
             blur_width,
             brush,
             angle,
-        } = self;
-        let brush: Option<std::sync::Arc<egui::epaint::Brush>> = if let RSome(brush) = brush {
-            let egui_brush = RBox::into_inner(brush).to_egui(ctx)?;
-            Some(std::sync::Arc::new(egui_brush))
-        } else {
-            None
-        };
-        Ok(egui::epaint::RectShape {
+        } = value;
+        let brush: Option<std::sync::Arc<egui::epaint::Brush>> = brush
+            .map(|b| std::sync::Arc::new(RBox::into_inner(b).into()))
+            .into();
+        Self {
             rect,
             corner_radius: corner_radius.into(),
             fill,
             stroke: stroke.into(),
             stroke_kind: stroke_kind.into(),
-            round_to_pixels: round_to_pixels.into(),
+            round_to_pixels: round_to_pixels.into_option(),
             blur_width,
             brush,
             angle,
-        })
+        }
     }
 }

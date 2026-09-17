@@ -1,27 +1,25 @@
-use abi_stable::std_types::{
-    ROption::{self, RSome},
-    RVec,
-};
+use abi_stable::std_types::RVec;
 use ecolor::Color32;
 use emath::{Pos2, Rect, Rot2, TSTransform, Vec2};
 use mint::{Point2, Vector2};
 
-use crate::ImageSource;
+use crate::paint::TextureId;
 
 pub const WHITE_UV: Pos2 = Pos2 { x: 0.0, y: 0.0 };
 
 #[derive(Clone, Debug, Default, PartialEq)]
 #[repr(C)]
-pub struct Mesh<'a> {
-    pub texture_source: ROption<ImageSource<'a>>,
+pub struct Mesh {
     pub indices: RVec<u32>,
     pub vertices: RVec<Vertex>,
+    pub texture_id: TextureId,
 }
 
-impl<'a> Mesh<'a> {
-    pub fn with_texture(texture_source: ImageSource<'a>) -> Self {
+impl Mesh {
+    #[inline]
+    pub fn with_texture(texture_id: impl Into<TextureId>) -> Self {
         Self {
-            texture_source: RSome(texture_source),
+            texture_id: texture_id.into(),
             ..Default::default()
         }
     }
@@ -33,6 +31,7 @@ impl<'a> Mesh<'a> {
         self.vertices = Default::default();
     }
 
+    #[inline]
     pub fn is_valid(&self) -> bool {
         if let Ok(n) = u32::try_from(self.vertices.len()) {
             self.indices.iter().all(|&i| i < n)
@@ -46,6 +45,7 @@ impl<'a> Mesh<'a> {
         self.indices.is_empty() && self.vertices.is_empty()
     }
 
+    #[inline]
     pub fn triangles(&self) -> impl Iterator<Item = [u32; 3]> {
         self.indices
             .as_chunks::<3>()
@@ -54,6 +54,7 @@ impl<'a> Mesh<'a> {
             .map(|chunk| [chunk[0], chunk[1], chunk[2]])
     }
 
+    #[inline]
     pub fn calc_bounds(&self) -> Rect {
         let mut bounds = Rect::NOTHING;
         for v in &self.vertices {
@@ -65,7 +66,7 @@ impl<'a> Mesh<'a> {
     #[inline(always)]
     pub fn colored_vertex(&mut self, pos: impl Into<Point2<f32>>, color: Color32) {
         debug_assert!(
-            self.texture_source.is_none(),
+            self.texture_id == TextureId::default(),
             "Mesh has an assigned texture"
         );
         self.vertices.push(Vertex::untextured(pos, color));
@@ -120,7 +121,7 @@ impl<'a> Mesh<'a> {
     #[inline(always)]
     pub fn add_colored_rect(&mut self, rect: Rect, color: Color32) {
         debug_assert!(
-            self.texture_source.is_none(),
+            self.texture_id == TextureId::default(),
             "Mesh has an assigned texture"
         );
         self.add_rect_with_uv(rect, [WHITE_UV, WHITE_UV].into(), color);
@@ -148,24 +149,14 @@ impl<'a> Mesh<'a> {
 }
 
 #[cfg(feature = "manager")]
-impl<'a> Mesh<'a> {
-    pub fn to_egui(self, ctx: &egui::Context) -> anyhow::Result<egui::Mesh> {
-        let texture_id = if let RSome(texture_loader) = self.texture_source {
-            let texture_poll = texture_loader.get_texture(ctx)?;
-            match texture_poll {
-                egui::load::TexturePoll::Pending { size: _ } => {
-                    return Err(anyhow::anyhow!("Texture is loading"));
-                }
-                egui::load::TexturePoll::Ready { texture } => texture.id,
-            }
-        } else {
-            egui::TextureId::Managed(0)
-        };
-        Ok(egui::Mesh {
-            indices: self.indices.into(),
-            vertices: bytemuck::cast_slice(self.vertices.as_slice()).into(),
-            texture_id,
-        })
+impl From<Mesh> for egui::Mesh {
+    #[inline]
+    fn from(value: Mesh) -> Self {
+        Self {
+            indices: value.indices.into(),
+            vertices: bytemuck::cast_slice(value.vertices.as_slice()).into(),
+            texture_id: value.texture_id.into(),
+        }
     }
 }
 

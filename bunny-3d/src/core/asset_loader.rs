@@ -19,12 +19,11 @@ use anyhow::{Result, anyhow};
 #[cfg(feature = "backend")]
 use image::{DynamicImage, ImageReader};
 use rapidhash::fast::RapidHasher;
-use shared::texture::TextureId;
 
-use crate::core::{
+use crate::{TextureId3d, core::{
     mesh::{Mesh, UvOrigin},
     texture::{TextureData, Textures},
-};
+}};
 
 type BuildNoHash = BuildHasherDefault<NoHash>;
 
@@ -50,7 +49,7 @@ impl Hasher for NoHash {
 #[repr(C)]
 pub struct AssetLoader {
     // Workaround for RHashMap::iter_mut() not working
-    hash_texture_pairs: RVec<Tuple2<u64, TextureId>>,
+    hash_texture_pairs: RVec<Tuple2<u64, TextureId3d>>,
     uninitialized_textures: RVec<Tuple2<u64, RVec<u16>>>,
     uninitialized_meshes: RVec<Tuple3<u64, RVec<u16>, UvOrigin>>,
     textures: RArc<RMutex<RHashMap<u64, TexturePollInner, BuildNoHash>>>,
@@ -157,7 +156,7 @@ impl AssetLoader {
         }
     }
 
-    pub(crate) fn free_texture(&mut self, texture: TextureId) {
+    pub(crate) fn free_texture(&mut self, texture: TextureId3d) {
         // This sucks, but we only free textures when a plugin unloads, so this shouldn't cause issues unless a plugin allocates a massive number of textures
         // and even then only when a user disables such a plugin
         if let Some(i) = self
@@ -173,7 +172,7 @@ impl AssetLoader {
 }
 
 pub enum TexturePoll {
-    Ready(TextureId),
+    Ready(TextureId3d),
     Pending,
 }
 
@@ -182,7 +181,7 @@ pub enum TexturePoll {
 #[repr(C)]
 enum TexturePollInner {
     Ready(RResult<TextureData, RString>),
-    Extracted(TextureId),
+    Extracted(TextureId3d),
     Pending,
 }
 

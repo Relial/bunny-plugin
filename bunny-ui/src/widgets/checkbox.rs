@@ -1,4 +1,4 @@
-use crate::WidgetText;
+use crate::{WidgetText, widgets::Widget};
 
 #[repr(C)]
 pub struct CheckBox {
@@ -44,5 +44,12 @@ impl egui::Widget for CheckBox {
         }
         .indeterminate(self.indeterminate);
         ui.add(checkbox)
+    }
+}
+
+impl From<CheckBox> for Widget<'_> {
+    #[inline]
+    fn from(value: CheckBox) -> Self {
+        Self::CheckBox(value)
     }
 }

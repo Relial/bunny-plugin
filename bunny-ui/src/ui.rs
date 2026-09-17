@@ -529,7 +529,7 @@ impl<'a> BunnyUi<'a> {
 
 impl<'a> BunnyUi<'a> {
     #[inline]
-    pub fn add(&mut self, widget: impl Into<Widget>) -> BunnyResponse {
+    pub fn add(&mut self, widget: impl Into<Widget<'a>>) -> BunnyResponse {
         self.inner.add(widget.into())
     }
 
@@ -537,23 +537,23 @@ impl<'a> BunnyUi<'a> {
     pub fn add_sized(
         &mut self,
         max_size: impl Into<Vector2<f32>>,
-        widget: impl Into<Widget>,
+        widget: impl Into<Widget<'a>>,
     ) -> BunnyResponse {
         self.inner.add_sized(max_size.into().into(), widget.into())
     }
 
     #[inline]
-    pub fn place(&mut self, max_rect: Rect, widget: impl Into<Widget>) -> BunnyResponse {
+    pub fn place(&mut self, max_rect: Rect, widget: impl Into<Widget<'a>>) -> BunnyResponse {
         self.inner.place(max_rect, widget.into())
     }
 
     #[inline]
-    pub fn put(&mut self, max_rect: Rect, widget: impl Into<Widget>) -> BunnyResponse {
+    pub fn put(&mut self, max_rect: Rect, widget: impl Into<Widget<'a>>) -> BunnyResponse {
         self.inner.put(max_rect, widget.into())
     }
 
     #[inline]
-    pub fn add_enabled(&mut self, enabled: bool, widget: impl Into<Widget>) -> BunnyResponse {
+    pub fn add_enabled(&mut self, enabled: bool, widget: impl Into<Widget<'a>>) -> BunnyResponse {
         self.inner.add_enabled(enabled, widget.into())
     }
 
@@ -568,7 +568,7 @@ impl<'a> BunnyUi<'a> {
     }
 
     #[inline]
-    pub fn add_visible(&mut self, visible: bool, widget: impl Into<Widget>) -> BunnyResponse {
+    pub fn add_visible(&mut self, visible: bool, widget: impl Into<Widget<'a>>) -> BunnyResponse {
         self.inner.add_visible(visible, widget.into())
     }
 

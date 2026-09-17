@@ -1,12 +1,11 @@
 use std::ops::RangeInclusive;
 
 use abi_stable::std_types::{
-    RBox,
     ROption::{self, RNone, RSome},
     RString,
 };
 
-use crate::{style::HandleShape, types::widget_text::WidgetText};
+use crate::{WidgetText, num::Num, style::HandleShape, widgets::Widget};
 
 #[derive(Clone, Copy)]
 #[repr(C)]
@@ -344,6 +343,6 @@ impl egui::Widget for Slider<'_> {
 impl<'a> From<Slider<'a>> for Widget<'a> {
     #[inline]
     fn from(value: Slider<'a>) -> Self {
-        Self::Slider(RBox::new(value))
+        Self::Slider(value)
     }
 }

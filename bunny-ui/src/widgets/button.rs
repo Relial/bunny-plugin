@@ -109,7 +109,7 @@ impl egui::Widget for Button {
     }
 }
 
-impl From<Button> for Widget {
+impl From<Button> for Widget<'_> {
     #[inline]
     fn from(value: Button) -> Self {
         Self::Button(value)

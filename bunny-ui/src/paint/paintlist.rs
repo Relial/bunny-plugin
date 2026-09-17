@@ -20,15 +20,15 @@ pub struct ShapeIdx(pub usize);
 
 #[derive(Clone, Debug)]
 #[repr(C)]
-pub struct PaintList<'a>(RVec<ClippedShape<'a>>);
+pub struct PaintList(RVec<ClippedShape>);
 
-impl Default for PaintList<'_> {
+impl Default for PaintList {
     fn default() -> Self {
         Self(RVec::new())
     }
 }
 
-impl<'a> PaintList<'a> {
+impl PaintList {
     pub fn new() -> Self {
         Self::default()
     }
@@ -128,7 +128,7 @@ impl<'a> PaintList<'a> {
 
 #[derive(Clone, Debug)]
 #[repr(C)]
-pub struct ClippedShape<'a> {
-    pub shape: Shape<'a>,
+pub struct ClippedShape {
+    pub shape: Shape,
     pub clip_rect: Rect,
 }

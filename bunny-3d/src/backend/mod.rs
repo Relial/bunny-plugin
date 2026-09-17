@@ -1,9 +1,6 @@
 use abi_stable::std_types::RArc;
 use anyhow::{Context, Result, anyhow};
-use shared::{
-    camera::Camera,
-    texture::{SharedTextures, TextureId},
-};
+use shared::{camera::Camera, texture::SharedTextures};
 use tracing::debug;
 use windows::Win32::Graphics::Direct3D9::{
     D3DPT_TRIANGLELIST, D3DTS_PROJECTION, D3DTS_VIEW, IDirect3DDevice9, IDirect3DTexture9,
@@ -11,9 +8,7 @@ use windows::Win32::Graphics::Direct3D9::{
 use windows_numerics::Matrix4x4;
 
 use crate::{
-    VERTEX_SIZE,
-    backend::{mesh::Buffers, state::GpuState, texture_manager::TextureManager},
-    core::{Bunny3d, draw_list::PrimitiveTopology},
+    TextureId3d, VERTEX_SIZE, backend::{mesh::Buffers, state::GpuState, texture_manager::TextureManager}, core::{Bunny3d, draw_list::PrimitiveTopology},
 };
 
 mod mesh;
@@ -52,7 +47,7 @@ impl Bunny3dBackend {
     pub fn allocate_textures(
         &mut self,
         device: &IDirect3DDevice9,
-        allocated: &mut Vec<TextureId>,
+        allocated: &mut Vec<TextureId3d>,
     ) -> Result<()> {
         let allocation_count = self.data.allocations_len();
         if allocation_count == 0 {
@@ -65,7 +60,7 @@ impl Bunny3dBackend {
         Ok(())
     }
 
-    pub fn free_texture(&mut self, texture: TextureId) -> bool {
+    pub fn free_texture(&mut self, texture: TextureId3d) -> bool {
         let freed = self.texture_manager.free(texture);
         if freed {
             debug!("Freed texture {}", texture);
@@ -234,7 +229,7 @@ impl Bunny3dBackend {
 
     pub fn add_shared_texture_allocations(
         &mut self,
-        textures: impl IntoIterator<Item = (TextureId, IDirect3DTexture9)>,
+        textures: impl IntoIterator<Item = (TextureId3d, IDirect3DTexture9)>,
     ) {
         self.texture_manager.add_shared(textures);
     }

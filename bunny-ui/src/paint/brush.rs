@@ -1,33 +1,25 @@
 use emath::Rect;
 
-use crate::ImageSource;
+use crate::paint::TextureId;
 
 #[derive(Clone, Debug, PartialEq)]
 #[repr(C)]
-pub struct Brush<'a> {
-    pub fill_texture_source: ImageSource<'a>,
+pub struct Brush {
+    pub fill_texture_id: TextureId,
     pub uv: Rect,
 }
 
 #[cfg(feature = "manager")]
-impl<'a> Brush<'a> {
-    pub fn to_egui(self, ctx: &egui::Context) -> anyhow::Result<egui::epaint::Brush> {
+impl From<Brush> for egui::epaint::Brush {
+    #[inline]
+    fn from(value: Brush) -> Self {
         let Brush {
-            fill_texture_source,
+            fill_texture_id,
             uv,
-        } = self;
-        let texture_poll = fill_texture_source.get_texture(ctx)?;
-        match texture_poll {
-            egui::load::TexturePoll::Pending { size: _ } => {
-                Err(anyhow::anyhow!("Texture is loading"))
-            }
-            egui::load::TexturePoll::Ready { texture } => {
-                let brush = egui::epaint::Brush {
-                    fill_texture_id: texture.id,
-                    uv,
-                };
-                Ok(brush)
-            }
+        } = value;
+        Self {
+            fill_texture_id: fill_texture_id.into(),
+            uv,
         }
     }
 }

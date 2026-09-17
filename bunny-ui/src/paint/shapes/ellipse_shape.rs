@@ -62,7 +62,7 @@ impl EllipseShape {
     }
 }
 
-impl From<EllipseShape> for Shape<'_> {
+impl From<EllipseShape> for Shape {
     #[inline]
     fn from(value: EllipseShape) -> Self {
         Self::Ellipse(value)

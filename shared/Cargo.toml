@@ -3,9 +3,13 @@ name = "shared"
 version = "0.1.0"
 edition = "2024"
 
+#[features]
+serde = ["dep:serde"]
+
 [dependencies]
 anyhow = "1.0.104"
 abi_stable = "0.11.3"
 rapidhash = "4.5.1"
 glam = { version = "0.33.2", features = ["mint"] }
 mint = "0.5.9"
+serde = { version = "1.0.229", features = ["derive"], optional = true }

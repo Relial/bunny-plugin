@@ -333,6 +333,7 @@ dependencies = [
  "glam",
  "mint",
  "rapidhash",
+ "serde",
 ]
 
 [[package]]

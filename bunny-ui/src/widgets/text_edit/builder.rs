@@ -5,8 +5,10 @@ use emath::Vec2;
 use mint::Vector2;
 
 use crate::{
-    Align, Align2, Margin, WidgetText, containers::frame::Frame, paint::text::fonts::FontSelection,
-    widgets::text_edit::bunny_string::BunnyString,
+    Align, Align2, Margin, WidgetText,
+    containers::frame::Frame,
+    paint::text::fonts::FontSelection,
+    widgets::{Widget, text_edit::bunny_string::BunnyString},
 };
 
 #[repr(C)]
@@ -227,5 +229,12 @@ impl egui::Widget for TextEdit<'_> {
         }
 
         text_edit.show(ui).response.response
+    }
+}
+
+impl<'t> From<TextEdit<'t>> for Widget<'t> {
+    #[inline]
+    fn from(value: TextEdit<'t>) -> Self {
+        Self::TextEdit(value)
     }
 }

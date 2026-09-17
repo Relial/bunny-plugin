@@ -9,6 +9,7 @@ pub mod widgets;
 pub mod style;
 pub mod response;
 pub mod painter;
+pub mod num;
 
 pub mod closure;
 pub mod vtable;

@@ -12,6 +12,7 @@ use crate::{
     ImageSource, SizeHint,
     load::Bytes,
     paint::{corner_radius::CornerRadius, textures::TextureOptions},
+    widgets::Widget,
 };
 
 #[repr(C)]
@@ -31,10 +32,7 @@ impl<'a> Image<'a> {
         let source = source.into();
         let size = if let ImageSource::Texture(tex) = &source {
             ImageSize {
-                fit: ImageFit::Exact(Vec2 {
-                    x: tex.size[0] as f32,
-                    y: tex.size[1] as f32,
-                }),
+                fit: ImageFit::Exact(tex.size),
                 max_size: Vec2::INFINITY,
                 maintain_aspect_ratio: true,
             }
@@ -185,10 +183,6 @@ impl egui::Widget for Image<'_> {
             show_loading_spinner,
             alt_text,
         } = self;
-        let image_source: egui::ImageSource = match image_source.try_into() {
-            Ok(i) => i,
-            Err(e) => return ui.label(format!("Error: {}", e)),
-        };
         let mut image = egui::Image::new(image_source)
             .texture_options(texture_options.into())
             .uv(image_options.uv)
@@ -214,6 +208,13 @@ impl egui::Widget for Image<'_> {
         };
 
         image.ui(ui)
+    }
+}
+
+impl<'a> From<Image<'a>> for Widget<'a> {
+    #[inline]
+    fn from(value: Image<'a>) -> Self {
+        Self::Image(value)
     }
 }
 
@@ -276,7 +277,11 @@ pub enum ImageFit {
 
 impl ImageFit {
     #[inline]
-    pub fn resolve(self, available_size: impl Into<Vector2<f32>>, image_size: impl Into<Vector2<f32>>) -> Vec2 {
+    pub fn resolve(
+        self,
+        available_size: impl Into<Vector2<f32>>,
+        image_size: impl Into<Vector2<f32>>,
+    ) -> Vec2 {
         let available_size: Vec2 = available_size.into().into();
         let image_size: Vec2 = image_size.into().into();
         match self {

@@ -2,9 +2,37 @@ use abi_stable::std_types::{
     ROption::{self, RSome},
     RVec,
 };
-use shared::texture::{SharedTextures, TextureId};
+use shared::texture::{SharedTextureId, SharedTextures};
 
 use crate::GpuColor;
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[repr(C)]
+pub enum TextureId3d {
+    Managed(u64),
+    User(u64),
+}
+
+impl Default for TextureId3d {
+    fn default() -> Self {
+        Self::Managed(0)
+    }
+}
+
+impl From<SharedTextureId> for TextureId3d {
+    fn from(value: SharedTextureId) -> Self {
+        Self::User(value.inner())
+    }
+}
+
+impl std::fmt::Display for TextureId3d {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            TextureId3d::Managed(id) => write!(f, "Managed {id}"),
+            TextureId3d::User(id) => write!(f, "User {id}"),
+        }
+    }
+}
 
 #[derive(Debug)]
 #[repr(C)]
@@ -26,19 +54,19 @@ impl Default for Textures {
 
 impl Textures {
     #[inline]
-    pub fn advance_id(&mut self) -> TextureId {
-        let id = TextureId::Managed3d(self.next_id);
+    pub fn advance_id(&mut self) -> TextureId3d {
+        let id = TextureId3d::Managed(self.next_id);
         self.next_id += 1;
         id
     }
 
     #[inline]
-    pub fn allocate_from_data(&mut self, data: TextureData, id: TextureId) {
+    pub fn allocate_from_data(&mut self, data: TextureData, id: TextureId3d) {
         let allocation = TextureAllocation { data, id };
         self.allocations.push(allocation);
     }
 
-    pub fn allocate(&mut self, texture: impl Into<TextureData>) -> TextureId {
+    pub fn allocate(&mut self, texture: impl Into<TextureData>) -> TextureId3d {
         let id = self.advance_id();
         let data = texture.into();
         self.allocate_from_data(data, id);
@@ -71,7 +99,7 @@ impl Textures {
 #[repr(C)]
 pub struct TextureAllocation {
     pub data: TextureData,
-    pub id: TextureId,
+    pub id: TextureId3d,
 }
 
 #[derive(Debug, Default)]

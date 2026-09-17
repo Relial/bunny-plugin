@@ -3,24 +3,23 @@ use rapidhash::fast::RandomState;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[repr(C)]
-pub enum TextureId {
-    Managed3d(u64),
-    Shared(u64),
-}
+pub struct SharedTextureId(u64);
 
-#[allow(clippy::derivable_impls)]
-impl Default for TextureId {
-    fn default() -> Self {
-        Self::Managed3d(0)
+impl SharedTextureId {
+    #[inline]
+    pub fn new(id: u64) -> Self {
+        Self(id)
+    }
+
+    #[inline]
+    pub fn inner(&self) -> u64 {
+        self.0
     }
 }
 
-impl std::fmt::Display for TextureId {
+impl std::fmt::Display for SharedTextureId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            TextureId::Managed3d(id) => write!(f, "Managed {id}"),
-            TextureId::Shared(id) => write!(f, "Shared {id}"),
-        }
+        write!(f, "Shared {}", self.0)
     }
 }
 
@@ -29,7 +28,7 @@ impl std::fmt::Display for TextureId {
 pub struct SharedTextures(RArc<SharedTexturesImpl>);
 
 impl SharedTextures {
-    pub fn new(textures: impl IntoIterator<Item = (RString, SizedTexture)>) -> Self {
+    pub fn new(textures: impl IntoIterator<Item = (RString, SharedSizedTexture)>) -> Self {
         Self(RArc::new(SharedTexturesImpl::new(textures)))
     }
 
@@ -37,7 +36,7 @@ impl SharedTextures {
     ///
     /// The textures are loaded asynchronously, so you should not assume this returns what you want at startup
     #[inline]
-    pub fn get_texture(&self, name: impl AsRef<str>) -> Option<SizedTexture> {
+    pub fn get_texture(&self, name: impl AsRef<str>) -> Option<SharedSizedTexture> {
         self.0.get_texture(name)
     }
 
@@ -45,7 +44,7 @@ impl SharedTextures {
     ///
     /// The textures are loaded asynchronously, so you should not assume this returns what you want at startup
     #[inline]
-    pub fn textures(&self) -> &[NamedTexture] {
+    pub fn textures(&self) -> &[SharedTexture] {
         self.0.textures()
     }
 }
@@ -53,53 +52,53 @@ impl SharedTextures {
 #[derive(Clone, Debug, Default)]
 #[repr(C)]
 struct SharedTexturesImpl {
-    list: RVec<NamedTexture>,
-    map: RHashMap<RString, SizedTexture, RandomState>,
+    list: RVec<SharedTexture>,
+    map: RHashMap<RString, SharedSizedTexture, RandomState>,
 }
 
 impl SharedTexturesImpl {
-    fn new(textures: impl IntoIterator<Item = (RString, SizedTexture)>) -> Self {
+    fn new(textures: impl IntoIterator<Item = (RString, SharedSizedTexture)>) -> Self {
         let (map, list) = textures
             .into_iter()
-            .map(|(name, tex)| ((name.clone(), tex), NamedTexture::new(name, tex)))
+            .map(|(name, tex)| ((name.clone(), tex), SharedTexture::new(name, tex)))
             .unzip();
 
         Self { list, map }
     }
 
     #[inline]
-    fn get_texture(&self, name: impl AsRef<str>) -> Option<SizedTexture> {
+    fn get_texture(&self, name: impl AsRef<str>) -> Option<SharedSizedTexture> {
         self.map.get(name.as_ref()).copied()
     }
 
     #[inline]
-    fn textures(&self) -> &[NamedTexture] {
+    fn textures(&self) -> &[SharedTexture] {
         self.list.as_slice()
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 #[repr(C)]
-pub struct SizedTexture {
-    pub id: TextureId,
+pub struct SharedSizedTexture {
+    pub id: SharedTextureId,
     pub size: [usize; 2],
 }
 
-impl SizedTexture {
-    pub fn new(id: TextureId, size: [usize; 2]) -> Self {
+impl SharedSizedTexture {
+    pub fn new(id: SharedTextureId, size: [usize; 2]) -> Self {
         Self { id, size }
     }
 }
 
 #[derive(Clone, Debug, PartialEq)]
 #[repr(C)]
-pub struct NamedTexture {
+pub struct SharedTexture {
     file_name: RString,
-    texture: SizedTexture,
+    texture: SharedSizedTexture,
 }
 
-impl NamedTexture {
-    pub fn new(file_name: impl Into<RString>, texture: SizedTexture) -> Self {
+impl SharedTexture {
+    pub fn new(file_name: impl Into<RString>, texture: SharedSizedTexture) -> Self {
         Self {
             file_name: file_name.into(),
             texture,
@@ -112,7 +111,7 @@ impl NamedTexture {
     }
 
     #[inline]
-    pub fn texture(&self) -> &SizedTexture {
+    pub fn texture(&self) -> &SharedSizedTexture {
         &self.texture
     }
 }

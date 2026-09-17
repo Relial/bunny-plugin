@@ -1,6 +1,8 @@
 use abi_stable::std_types::ROption::{self, RSome};
 use ecolor::Color32;
 
+use crate::widgets::Widget;
+
 #[derive(Default)]
 #[repr(C)]
 pub struct Spinner {
@@ -38,5 +40,12 @@ impl egui::Widget for Spinner {
         }
 
         spinner.ui(ui)
+    }
+}
+
+impl From<Spinner> for Widget<'_> {
+    #[inline]
+    fn from(value: Spinner) -> Self {
+        Self::Spinner(value)
     }
 }
