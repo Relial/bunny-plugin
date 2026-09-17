@@ -1,37 +1,39 @@
+use std::{borrow::Borrow, ops::Deref};
+
 use vtable::{VBox, VRef};
 
 use crate::vtable::painter::PainterFfiVTable;
 
 #[repr(transparent)]
-pub struct BunnyPainter<'a> {
-    inner: BunnyPainterImpl<'a>,
+pub struct BunnyPainterRef<'a> {
+    inner: VRef<'a, PainterFfiVTable>,
 }
 
-impl<'a> BunnyPainter<'a> {
+impl<'a> BunnyPainterRef<'a> {
     #[inline]
-    pub fn new(painter: impl Into<BunnyPainter<'a>>) -> Self {
-        painter.into()
-    }
-}
-
-#[repr(C)]
-enum BunnyPainterImpl<'a> {
-    Borrowed(VRef<'a, PainterFfiVTable>),
-    Owned(VBox<PainterFfiVTable>),
-}
-
-impl<'a> From<&'a egui::Painter> for BunnyPainter<'a> {
-    fn from(value: &'a egui::Painter) -> Self {
+    pub fn new(painter: &'a egui::Painter) -> Self {
         Self {
-            inner: BunnyPainterImpl::Borrowed(VRef::new(value)),
+            inner: VRef::new(painter),
         }
     }
 }
 
-impl From<egui::Painter> for BunnyPainter<'_> {
-    fn from(value: egui::Painter) -> Self {
+impl<'a> BunnyPainterRef<'a> {}
+
+#[repr(transparent)]
+pub struct BunnyPainter {
+    inner: VBox<PainterFfiVTable>,
+}
+
+impl BunnyPainter {
+    #[inline]
+    pub fn new(painter: egui::Painter) -> Self {
         Self {
-            inner: BunnyPainterImpl::Owned(VBox::new(value)),
+            inner: VBox::new(painter),
         }
     }
+}
+
+impl BunnyPainter {
+    
 }

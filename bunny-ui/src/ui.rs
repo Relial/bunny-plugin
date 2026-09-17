@@ -13,7 +13,7 @@ use crate::{
     containers::collapsing_header::{BunnyCollapsingResponse, CollapsingHeader},
     id::hash_id_salt,
     paint::text::text_layout_types::TextWrapMode,
-    painter::BunnyPainter,
+    painter::{BunnyPainter, BunnyPainterRef},
     response::BunnyResponse,
     style::{
         BunnyInteraction, BunnyInteractionMut, BunnySpacing, BunnySpacingMut, BunnyStyle,
@@ -104,7 +104,7 @@ impl<'a> BunnyUi<'a> {
     }
 
     #[inline]
-    pub fn painter(&self) -> BunnyPainter<'_> {
+    pub fn painter(&self) -> BunnyPainterRef<'_> {
         self.inner.painter()
     }
 
@@ -164,7 +164,7 @@ impl<'a> BunnyUi<'a> {
     }
 
     #[inline]
-    pub fn painter_at(&self, rect: Rect) -> BunnyPainter<'_> {
+    pub fn painter_at(&self, rect: Rect) -> BunnyPainter {
         self.inner.painter_at(rect)
     }
 
@@ -475,7 +475,7 @@ impl<'a> BunnyUi<'a> {
         &mut self,
         desired_size: impl Into<Vector2<f32>>,
         sense: Sense,
-    ) -> (BunnyResponse, BunnyPainter<'_>) {
+    ) -> (BunnyResponse, BunnyPainter) {
         let Tuple2(response, painter) = self
             .inner
             .allocate_painter(desired_size.into().into(), sense);

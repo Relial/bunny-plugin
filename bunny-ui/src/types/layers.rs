@@ -12,6 +12,20 @@ pub enum Order {
 }
 
 #[cfg(feature = "manager")]
+impl From<Order> for egui::Order {
+    #[inline]
+    fn from(value: Order) -> Self {
+        match value {
+            Order::Background => Self::Background,
+            Order::Middle => Self::Middle,
+            Order::Foreground => Self::Foreground,
+            Order::Tooltip => Self::Tooltip,
+            Order::Debug => Self::Debug,
+        }
+    }
+}
+
+#[cfg(feature = "manager")]
 impl From<egui::Order> for Order {
     #[inline]
     fn from(value: egui::Order) -> Self {
@@ -31,6 +45,17 @@ impl From<egui::Order> for Order {
 pub struct LayerId {
     pub order: Order,
     pub id: Id,
+}
+
+#[cfg(feature = "manager")]
+impl From<LayerId> for egui::LayerId {
+    #[inline]
+    fn from(value: LayerId) -> Self {
+        Self {
+            order: value.order.into(),
+            id: value.id,
+        }
+    }
 }
 
 #[cfg(feature = "manager")]

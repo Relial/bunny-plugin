@@ -9,7 +9,7 @@ use crate::{
     closure::PluginClosure,
     containers::collapsing_header::{BunnyCollapsingResponse, CollapsingHeader},
     paint::text::text_layout_types::TextWrapMode,
-    painter::BunnyPainter,
+    painter::{BunnyPainter, BunnyPainterRef},
     response::BunnyResponse,
     style::{
         BunnyInteraction, BunnyInteractionMut, BunnySpacing, BunnySpacingMut, BunnyStyle,
@@ -39,7 +39,7 @@ pub struct UiFfiVTable {
     is_tooltip: fn(VRef<UiFfiVTable>) -> bool,
     // stack
     // ctx
-    painter: fn(VRef<UiFfiVTable>) -> BunnyPainter,
+    painter: fn(VRef<UiFfiVTable>) -> BunnyPainterRef,
     pixels_per_point: fn(VRef<UiFfiVTable>) -> f32,
     is_enabled: fn(VRef<UiFfiVTable>) -> bool,
     disable: fn(VRefMut<UiFfiVTable>),
@@ -293,8 +293,8 @@ impl UiFfi for Ui {
     }
 
     #[inline]
-    fn painter(&self) -> BunnyPainter<'_> {
-        BunnyPainter::new(self.painter())
+    fn painter(&self) -> BunnyPainterRef<'_> {
+        BunnyPainterRef::new(self.painter())
     }
 
     #[inline]
@@ -354,7 +354,7 @@ impl UiFfi for Ui {
     }
 
     #[inline]
-    fn painter_at(&self, rect: Rect) -> BunnyPainter<'_> {
+    fn painter_at(&self, rect: Rect) -> BunnyPainter {
         let painter = self.painter_at(rect);
         BunnyPainter::new(painter)
     }
@@ -656,7 +656,7 @@ impl UiFfi for Ui {
         &mut self,
         desired_size: Vec2,
         sense: Sense,
-    ) -> Tuple2<BunnyResponse, BunnyPainter<'_>> {
+    ) -> Tuple2<BunnyResponse, BunnyPainter> {
         let (res, painter) = self.allocate_painter(desired_size, sense);
         Tuple2(BunnyResponse::new(res), BunnyPainter::new(painter))
     }
