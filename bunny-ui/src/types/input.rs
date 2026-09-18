@@ -1,3 +1,6 @@
+use abi_stable::std_types::{ROption, RString};
+use egui::{Pos2, Vec2};
+
 use crate::types::key::Key;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -148,6 +151,21 @@ impl From<egui::Modifiers> for Modifiers {
     }
 }
 
+#[cfg(feature = "manager")]
+impl From<Modifiers> for egui::Modifiers {
+    #[inline]
+    fn from(value: Modifiers) -> Self {
+        let Modifiers { alt, ctrl, shift } = value;
+        Self {
+            alt,
+            ctrl,
+            shift,
+            mac_cmd: false,
+            command: false,
+        }
+    }
+}
+
 #[derive(Clone, Copy, PartialEq, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[repr(C)]
@@ -196,6 +214,145 @@ impl From<egui::KeyboardShortcut> for KeyboardShortcut {
         Self {
             modifiers: value.modifiers.into(),
             logical_key: value.logical_key.into(),
+        }
+    }
+}
+
+#[cfg(feature = "manager")]
+impl From<KeyboardShortcut> for egui::KeyboardShortcut {
+    #[inline]
+    fn from(value: KeyboardShortcut) -> Self {
+        let KeyboardShortcut {
+            logical_key,
+            modifiers,
+        } = value;
+        Self {
+            modifiers: modifiers.into(),
+            logical_key: logical_key.into(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+#[repr(C)]
+pub enum Event {
+    Copy,
+    Cut,
+    Paste(RString),
+    Text(RString),
+    Key {
+        key: Key,
+        physical_key: ROption<Key>,
+        pressed: bool,
+        repeat: bool,
+        modifiers: Modifiers,
+    },
+    PointerMoved(Pos2),
+    MouseMoved(Vec2),
+    PointerButton {
+        pos: Pos2,
+        button: PointerButton,
+        pressed: bool,
+        modifiers: Modifiers,
+    },
+    PointerGone,
+    Zoom(f32),
+    Rotate(f32),
+    Ime,
+    Touch,
+    MouseWheel {
+        unit: MouseWheelUnit,
+        delta: Vec2,
+        modifiers: Modifiers,
+    },
+    WindowFocused(bool),
+    AccessKitActionRequest,
+    Screenshot,
+}
+
+#[cfg(feature = "manager")]
+impl From<&egui::Event> for Event {
+    #[inline]
+    fn from(value: &egui::Event) -> Self {
+        match value {
+            egui::Event::Copy => Self::Copy,
+            egui::Event::Cut => Self::Cut,
+            egui::Event::Paste(paste) => Self::Paste(paste.as_str().into()),
+            egui::Event::Text(text) => Self::Text(text.as_str().into()),
+            egui::Event::Key {
+                key,
+                physical_key,
+                pressed,
+                repeat,
+                modifiers,
+            } => Self::Key {
+                key: (*key).into(),
+                physical_key: physical_key.map(|k| k.into()).into(),
+                pressed: *pressed,
+                repeat: *repeat,
+                modifiers: (*modifiers).into(),
+            },
+            egui::Event::PointerMoved(pos2) => Self::PointerMoved(*pos2),
+            egui::Event::MouseMoved(vec2) => Self::MouseMoved(*vec2),
+            egui::Event::PointerButton {
+                pos,
+                button,
+                pressed,
+                modifiers,
+            } => Self::PointerButton {
+                pos: *pos,
+                button: (*button).into(),
+                pressed: *pressed,
+                modifiers: (*modifiers).into(),
+            },
+            egui::Event::PointerGone => Self::PointerGone,
+            egui::Event::Zoom(zoom) => Self::Zoom(*zoom),
+            egui::Event::Rotate(rotate) => Self::Rotate(*rotate),
+            egui::Event::Ime(_) => Self::Ime,
+            egui::Event::Touch {
+                device_id: _,
+                id: _,
+                phase: _,
+                pos: _,
+                force: _,
+            } => Self::Touch,
+            egui::Event::MouseWheel {
+                unit,
+                delta,
+                phase: _,
+                modifiers,
+            } => Self::MouseWheel {
+                unit: (*unit).into(),
+                delta: *delta,
+                modifiers: (*modifiers).into(),
+            },
+            egui::Event::WindowFocused(focused) => Self::WindowFocused(*focused),
+            egui::Event::AccessKitActionRequest(_) => Self::AccessKitActionRequest,
+            egui::Event::Screenshot {
+                viewport_id: _,
+                user_data: _,
+                image: _,
+            } => Self::Screenshot,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(C)]
+pub enum MouseWheelUnit {
+    Point,
+    Line,
+    Page,
+}
+
+#[cfg(feature = "manager")]
+impl From<egui::MouseWheelUnit> for MouseWheelUnit {
+    #[inline]
+    fn from(value: egui::MouseWheelUnit) -> Self {
+        match value {
+            egui::MouseWheelUnit::Point => Self::Point,
+            egui::MouseWheelUnit::Line => Self::Line,
+            egui::MouseWheelUnit::Page => Self::Page,
         }
     }
 }
