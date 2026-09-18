@@ -226,7 +226,7 @@ pub struct UiFfiVTable {
         fn(VRefMut<UiFfiVTable>, text: WidgetText, contents: PluginClosure) -> BunnyResponse,
     // menu_image_button
     // menu_image_text_button
-    debug_paint_cursor: fn(VRef<UiFfiVTable>),
+    // debug_paint_cursor
 
     // run_ui
     // begin_pass
@@ -1188,11 +1188,6 @@ impl UiFfi for Ui {
             })
             .response;
         BunnyResponse::new(res)
-    }
-
-    #[inline]
-    fn debug_paint_cursor(&self) {
-        self.debug_paint_cursor();
     }
 
     #[inline]

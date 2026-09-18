@@ -948,13 +948,6 @@ impl<'a> BunnyUi<'a> {
 
 impl<'a> BunnyUi<'a> {
     #[inline]
-    pub fn debug_paint_cursor(&self) {
-        self.inner.debug_paint_cursor();
-    }
-}
-
-impl<'a> BunnyUi<'a> {
-    #[inline]
     pub fn input(&mut self, mut input: impl FnMut(&mut BunnyInputState)) {
         let closure = InputStateClosure::new(&mut input);
         self.inner.input(closure);
