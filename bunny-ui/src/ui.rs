@@ -1,6 +1,6 @@
 use std::hash::Hash;
 
-use abi_stable::std_types::Tuple2;
+use abi_stable::std_types::{RStr, RString, Tuple2};
 use ecolor::Hsva;
 use egui::{Color32, Id, Pos2, Rangef, Rect, Sense, Vec2};
 use emath::TSTransform;
@@ -8,11 +8,20 @@ use mint::Vector2;
 use vtable::VRefMut;
 
 use crate::{
-    Align, ImageSource, LayerId, Layout, RichText, UiBuilder, WidgetText,
-    closure::PluginClosure,
+    Align, ImageSource, LayerId, Layout, RichText, SizeHint, UiBuilder, WidgetText,
+    closure::{InputStateClosure, PluginClosure},
     containers::collapsing_header::{BunnyCollapsingResponse, CollapsingHeader},
+    galley::BunnyGalley,
     id::hash_id_salt,
-    paint::text::text_layout_types::TextWrapMode,
+    input::BunnyInputState,
+    load::TexturePoll,
+    paint::{
+        text::{
+            fonts::FontId,
+            text_layout_types::{LayoutJob, TextWrapMode},
+        },
+        textures::TextureOptions,
+    },
     painter::{BunnyPainter, BunnyPainterRef},
     response::BunnyResponse,
     style::{
@@ -783,7 +792,7 @@ impl<'a> BunnyUi<'a> {
 
 impl<'a> BunnyUi<'a> {
     #[inline]
-    pub fn group(&mut self, mut add_contents: impl FnMut(&mut BunnyUi)) -> BunnyResponse {
+    pub fn group<R>(&mut self, mut add_contents: impl FnMut(&mut BunnyUi)) -> BunnyResponse {
         let closure = PluginClosure::new(&mut add_contents);
         self.inner.group(closure)
     }
@@ -941,6 +950,99 @@ impl<'a> BunnyUi<'a> {
     #[inline]
     pub fn debug_paint_cursor(&self) {
         self.inner.debug_paint_cursor();
+    }
+}
+
+impl<'a> BunnyUi<'a> {
+    #[inline]
+    pub fn input(&mut self, mut input: impl FnMut(&mut BunnyInputState)) {
+        let closure = InputStateClosure::new(&mut input);
+        self.inner.input(closure);
+    }
+
+    #[inline]
+    pub fn fonts_layout_job(&mut self, job: LayoutJob) -> BunnyGalley {
+        self.inner.fonts_layout_job(job)
+    }
+
+    #[inline]
+    pub fn fonts_layout(
+        &mut self,
+        text: impl Into<RString>,
+        font_id: FontId,
+        color: Color32,
+        wrap_width: f32,
+    ) -> BunnyGalley {
+        self.inner
+            .fonts_layout(text.into(), font_id, color, wrap_width)
+    }
+
+    #[inline]
+    pub fn fonts_layout_no_wrap(
+        &mut self,
+        text: impl Into<RString>,
+        font_id: FontId,
+        color: Color32,
+    ) -> BunnyGalley {
+        self.inner.fonts_layout_no_wrap(text.into(), font_id, color)
+    }
+
+    #[inline]
+    pub fn fonts_layout_delayed_color(
+        &mut self,
+        text: impl Into<RString>,
+        font_id: FontId,
+        wrap_width: f32,
+    ) -> BunnyGalley {
+        self.inner
+            .fonts_layout_delayed_color(text.into(), font_id, wrap_width)
+    }
+
+    #[inline]
+    pub fn read_response(&self, id: Id) -> Option<BunnyResponse> {
+        self.inner.read_response(id).into_option()
+    }
+
+    #[inline]
+    pub fn layer_painter(&self, layer_id: LayerId) -> BunnyPainter {
+        self.inner.layer_painter(layer_id)
+    }
+
+    #[inline]
+    pub fn debug_painter(&self) -> BunnyPainter {
+        self.inner.debug_painter()
+    }
+
+    #[inline]
+    pub fn time(&self) -> f64 {
+        self.inner.time()
+    }
+
+    #[inline]
+    pub fn copy_text(&self, text: impl Into<RString>) {
+        self.inner.copy_text(text.into());
+    }
+
+    #[inline]
+    pub fn cumulative_frame_nr(&self) -> u64 {
+        self.inner.cumulative_frame_nr()
+    }
+
+    #[inline]
+    pub fn cumulative_pass_nr(&self) -> u64 {
+        self.inner.cumulative_pass_nr()
+    }
+
+    #[inline]
+    pub fn try_load_texture<'uri>(
+        &self,
+        uri: impl Into<RStr<'uri>>,
+        texture_options: TextureOptions,
+        size_hint: SizeHint,
+    ) -> Option<TexturePoll> {
+        self.inner
+            .try_load_texture(uri.into(), texture_options, size_hint)
+            .into()
     }
 }
 

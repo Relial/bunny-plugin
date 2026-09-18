@@ -4,12 +4,14 @@ pub mod containers;
 pub mod paint;
 mod types;
 pub use types::*;
+pub mod galley;
+pub mod num;
+pub mod painter;
+pub mod response;
+pub mod style;
 pub mod ui;
 pub mod widgets;
-pub mod style;
-pub mod response;
-pub mod painter;
-pub mod num;
+pub mod input;
 
 pub mod closure;
 pub mod vtable;

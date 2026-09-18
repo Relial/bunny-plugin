@@ -7,6 +7,7 @@ pub mod color;
 pub mod corner_radius;
 pub mod mesh;
 // pub mod paintlist;
+pub mod image;
 pub mod shape_transform;
 pub mod shapes;
 pub mod stroke;
@@ -51,6 +52,16 @@ impl From<TextureId> for egui::TextureId {
     }
 }
 
+#[cfg(feature = "manager")]
+impl From<egui::TextureId> for TextureId {
+    fn from(value: egui::TextureId) -> Self {
+        match value {
+            egui::TextureId::Managed(id) => Self::Managed(id),
+            egui::TextureId::User(id) => Self::User(id),
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[repr(C)]
 pub struct SizedTexture {
@@ -91,6 +102,17 @@ impl From<SharedSizedTexture> for SizedTexture {
 impl From<SizedTexture> for egui::load::SizedTexture {
     fn from(value: SizedTexture) -> Self {
         let SizedTexture { id, size } = value;
+        Self {
+            id: id.into(),
+            size,
+        }
+    }
+}
+
+#[cfg(feature = "manager")]
+impl From<egui::load::SizedTexture> for SizedTexture {
+    fn from(value: egui::load::SizedTexture) -> Self {
+        let egui::load::SizedTexture { id, size } = value;
         Self {
             id: id.into(),
             size,

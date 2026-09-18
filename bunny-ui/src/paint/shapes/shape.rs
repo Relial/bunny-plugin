@@ -9,6 +9,7 @@ use tracing::error;
 
 use crate::{
     Align2, Direction,
+    galley::BunnyGalley,
     paint::{
         TextureId,
         corner_radius::CornerRadius,
@@ -22,11 +23,11 @@ use crate::{
             text_shape::TextShape,
         },
         stroke::{PathStroke, Stroke, StrokeKind},
-        text::{fonts::FontId, text_layout_types::LayoutJob},
+        text::fonts::FontId,
     },
+    ui::BunnyUi,
 };
 
-#[derive(Clone, Debug)]
 #[repr(C)]
 pub enum Shape {
     Noop,
@@ -280,26 +281,36 @@ impl Shape {
 
     #[inline]
     pub fn text(
+        ui: &mut BunnyUi,
         pos: impl Into<Point2<f32>>,
         anchor: Align2,
         text: impl Into<RString>,
         font_id: FontId,
         color: Color32,
     ) -> Self {
-        let layout_job = LayoutJob::simple_singleline(text, font_id, color);
-        let shape = TextShape::new(pos, layout_job, anchor, color);
-        Self::Text(shape)
+        let galley = ui.fonts_layout_no_wrap(text, font_id, color);
+        let rect = anchor.anchor_size(pos, galley.size());
+        Self::galley(rect.min, galley, color)
     }
 
     #[inline]
-    pub fn text_with_layout_job(
+    pub fn galley(
         pos: impl Into<Point2<f32>>,
-        anchor: Align2,
-        layout_job: LayoutJob,
+        galley: BunnyGalley,
         fallback_color: Color32,
     ) -> Self {
-        let shape = TextShape::new(pos, layout_job, anchor, fallback_color);
-        Self::Text(shape)
+        TextShape::new(pos, galley, fallback_color).into()
+    }
+
+    #[inline]
+    pub fn galley_with_override_text_color(
+        pos: impl Into<Point2<f32>>,
+        galley: BunnyGalley,
+        text_color: Color32,
+    ) -> Self {
+        TextShape::new(pos, galley, text_color)
+            .with_override_text_color(text_color)
+            .into()
     }
 
     #[inline]
@@ -470,7 +481,7 @@ impl From<Shape> for egui::Shape {
             },
             Shape::Path(path_shape) => egui::Shape::Path(path_shape.into()),
             Shape::Rect(rect_shape) => egui::Shape::Rect(rect_shape.into()),
-            Shape::Text(text_shape) => todo!(),
+            Shape::Text(text_shape) => egui::Shape::Text(text_shape.into()),
             Shape::Mesh(mesh) => {
                 egui::Shape::Mesh(std::sync::Arc::new(RBox::into_inner(mesh).into()))
             }

@@ -1,6 +1,9 @@
 use std::ops::Deref;
 
-use abi_stable::std_types::RCowSlice;
+use abi_stable::std_types::{RCowSlice, ROption};
+use egui::Vec2;
+
+use crate::paint::SizedTexture;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 #[repr(C)]
@@ -109,6 +112,25 @@ impl AsRef<[u8]> for Bytes {
         match &self.0 {
             abi_stable::std_types::RCow::Borrowed(bytes) => bytes,
             abi_stable::std_types::RCow::Owned(bytes) => bytes,
+        }
+    }
+}
+
+#[derive(Clone, Copy)]
+#[repr(C)]
+pub enum TexturePoll {
+    Pending { size: ROption<Vec2> },
+    Ready { texture: SizedTexture },
+}
+
+#[cfg(feature = "manager")]
+impl From<egui::load::TexturePoll> for TexturePoll {
+    fn from(value: egui::load::TexturePoll) -> Self {
+        match value {
+            egui::load::TexturePoll::Pending { size } => Self::Pending { size: size.into() },
+            egui::load::TexturePoll::Ready { texture } => Self::Ready {
+                texture: texture.into(),
+            },
         }
     }
 }

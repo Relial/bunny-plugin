@@ -1,14 +1,23 @@
-use abi_stable::std_types::{ROption, Tuple2};
+use abi_stable::std_types::{ROption, RStr, RString, Tuple2};
 use ecolor::Hsva;
 use egui::{Color32, Id, Pos2, Rangef, Rect, Sense, Ui, Vec2, Widget as _};
 use emath::TSTransform;
 use vtable::{VRef, VRefMut, vtable};
 
 use crate::{
-    Align, ImageSource, LayerId, Layout as BunnyLayout, RichText, UiBuilder, WidgetText,
-    closure::PluginClosure,
+    Align, ImageSource, LayerId, Layout as BunnyLayout, RichText, SizeHint, UiBuilder, WidgetText,
+    closure::{InputStateClosure, PluginClosure},
     containers::collapsing_header::{BunnyCollapsingResponse, CollapsingHeader},
-    paint::text::text_layout_types::TextWrapMode,
+    galley::BunnyGalley,
+    input::BunnyInputState,
+    load::TexturePoll,
+    paint::{
+        text::{
+            fonts::FontId,
+            text_layout_types::{LayoutJob, TextWrapMode},
+        },
+        textures::TextureOptions,
+    },
     painter::{BunnyPainter, BunnyPainterRef},
     response::BunnyResponse,
     style::{
@@ -219,6 +228,43 @@ pub struct UiFfiVTable {
     // menu_image_text_button
     debug_paint_cursor: fn(VRef<UiFfiVTable>),
 
+    // run_ui
+    // begin_pass
+    input: fn(VRefMut<UiFfiVTable>, InputStateClosure: InputStateClosure),
+    // ...
+    fonts_layout_job: fn(VRefMut<UiFfiVTable>, job: LayoutJob) -> BunnyGalley,
+    fonts_layout: fn(
+        VRefMut<UiFfiVTable>,
+        text: RString,
+        font_id: FontId,
+        color: Color32,
+        wrap_width: f32,
+    ) -> BunnyGalley,
+    fonts_layout_no_wrap:
+        fn(VRefMut<UiFfiVTable>, text: RString, font_id: FontId, color: Color32) -> BunnyGalley,
+    fonts_layout_delayed_color:
+        fn(VRefMut<UiFfiVTable>, text: RString, font_id: FontId, wrap_width: f32) -> BunnyGalley,
+    // ...
+    read_response: fn(VRef<UiFfiVTable>, id: Id) -> ROption<BunnyResponse>,
+    layer_painter: fn(VRef<UiFfiVTable>, layer_id: LayerId) -> BunnyPainter,
+    debug_painter: fn(VRef<UiFfiVTable>) -> BunnyPainter,
+    // debug_text
+    time: fn(VRef<UiFfiVTable>) -> f64,
+    // ...
+    copy_text: fn(VRef<UiFfiVTable>, text: RString),
+    // ...
+    cumulative_frame_nr: fn(VRef<UiFfiVTable>) -> u64,
+    // cumulative_frame_nr_for
+    cumulative_pass_nr: fn(VRef<UiFfiVTable>) -> u64,
+    // cumulative_pass_nr_for
+    // ...
+    try_load_texture: fn(
+        VRef<UiFfiVTable>,
+        uri: RStr,
+        texture_options: TextureOptions,
+        size_hint: SizeHint,
+    ) -> ROption<TexturePoll>,
+    // ...
     collapsing_header_show: fn(
         VRefMut<UiFfiVTable>,
         collapsing_header: CollapsingHeader,
@@ -1147,6 +1193,105 @@ impl UiFfi for Ui {
     #[inline]
     fn debug_paint_cursor(&self) {
         self.debug_paint_cursor();
+    }
+
+    #[inline]
+    fn input(&mut self, closure: InputStateClosure) {
+        self.input_mut(|i| {
+            let mut b = BunnyInputState::new(i);
+            closure.call(&mut b);
+        });
+    }
+
+    #[inline]
+    fn fonts_layout_job(&mut self, job: LayoutJob) -> BunnyGalley {
+        self.fonts_mut(|f| BunnyGalley::new(f.layout_job(job.into())))
+    }
+
+    #[inline]
+    fn fonts_layout(
+        &mut self,
+        text: RString,
+        font_id: FontId,
+        color: Color32,
+        wrap_width: f32,
+    ) -> BunnyGalley {
+        self.fonts_mut(|f| {
+            BunnyGalley::new(f.layout(text.into(), font_id.into(), color, wrap_width))
+        })
+    }
+
+    #[inline]
+    fn fonts_layout_no_wrap(
+        &mut self,
+        text: RString,
+        font_id: FontId,
+        color: Color32,
+    ) -> BunnyGalley {
+        self.fonts_mut(|f| BunnyGalley::new(f.layout_no_wrap(text.into(), font_id.into(), color)))
+    }
+
+    #[inline]
+    fn fonts_layout_delayed_color(
+        &mut self,
+        text: RString,
+        font_id: FontId,
+        wrap_width: f32,
+    ) -> BunnyGalley {
+        self.fonts_mut(|f| {
+            BunnyGalley::new(f.layout_delayed_color(text.into(), font_id.into(), wrap_width))
+        })
+    }
+
+    #[inline]
+    fn read_response(&self, id: Id) -> ROption<BunnyResponse> {
+        self.ctx().read_response(id).map(BunnyResponse::new).into()
+    }
+
+    #[inline]
+    fn layer_painter(&self, layer_id: LayerId) -> BunnyPainter {
+        let painter = self.ctx().layer_painter(layer_id.into());
+        BunnyPainter::new(painter)
+    }
+
+    #[inline]
+    fn debug_painter(&self) -> BunnyPainter {
+        let painter = self.ctx().debug_painter();
+        BunnyPainter::new(painter)
+    }
+
+    #[inline]
+    fn time(&self) -> f64 {
+        self.ctx().time()
+    }
+
+    #[inline]
+    fn copy_text(&self, text: RString) {
+        self.ctx().copy_text(text.into());
+    }
+
+    #[inline]
+    fn cumulative_frame_nr(&self) -> u64 {
+        self.ctx().cumulative_frame_nr()
+    }
+
+    #[inline]
+    fn cumulative_pass_nr(&self) -> u64 {
+        self.ctx().cumulative_pass_nr()
+    }
+
+    #[inline]
+    fn try_load_texture(
+        &self,
+        uri: RStr,
+        texture_options: TextureOptions,
+        size_hint: SizeHint,
+    ) -> ROption<TexturePoll> {
+        self.ctx()
+            .try_load_texture(uri.into(), texture_options.into(), size_hint.into())
+            .ok()
+            .map(|poll| poll.into())
+            .into()
     }
 
     #[inline]

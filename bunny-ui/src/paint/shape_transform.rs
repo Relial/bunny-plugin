@@ -81,8 +81,7 @@ pub fn adjust_colors(
 
         Shape::Text(TextShape {
             pos: _,
-            layout_job,
-            anchor: _,
+            galley: _,
             underline,
             fallback_color,
             override_text_color,
@@ -93,11 +92,6 @@ pub fn adjust_colors(
             adjust_color(fallback_color);
             if let RSome(override_text_color) = override_text_color {
                 adjust_color(override_text_color);
-            }
-
-            for layout_section in &mut layout_job.sections {
-                adjust_color(&mut layout_section.format.background);
-                adjust_color(&mut layout_section.format.color);
             }
         }
         Shape::Mesh(mesh) => {

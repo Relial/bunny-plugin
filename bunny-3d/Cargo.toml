@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [features]
-default = ["bevy", "tobj", "backend", "image"]
+default = []
 bevy = ["dep:bevy_mesh"]
 tobj = ["dep:tobj"]
 backend = ["dep:windows", "tobj", "image"]

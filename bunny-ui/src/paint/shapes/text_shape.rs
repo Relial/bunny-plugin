@@ -1,22 +1,17 @@
-use abi_stable::std_types::{
-    RBox,
-    ROption::{self, RNone, RSome},
-};
+use abi_stable::std_types::ROption::{self, RNone, RSome};
 use ecolor::Color32;
 use emath::Pos2;
 use mint::Point2;
 
 use crate::{
-    Align2,
-    paint::{shapes::shape::Shape, stroke::Stroke, text::text_layout_types::LayoutJob},
+    galley::BunnyGalley,
+    paint::{shapes::shape::Shape, stroke::Stroke},
 };
 
-#[derive(Clone, Debug)]
 #[repr(C)]
 pub struct TextShape {
-    pub layout_job: RBox<LayoutJob>,
+    pub galley: BunnyGalley,
     pub pos: Pos2,
-    pub anchor: Align2,
     pub underline: Stroke,
     pub override_text_color: ROption<Color32>,
     pub fallback_color: Color32,
@@ -26,16 +21,10 @@ pub struct TextShape {
 
 impl TextShape {
     #[inline]
-    pub fn new(
-        pos: impl Into<Point2<f32>>,
-        layout_job: LayoutJob,
-        anchor: Align2,
-        fallback_color: Color32,
-    ) -> Self {
+    pub fn new(pos: impl Into<Point2<f32>>, galley: BunnyGalley, fallback_color: Color32) -> Self {
         Self {
             pos: pos.into().into(),
-            layout_job: RBox::new(layout_job),
-            anchor,
+            galley,
             underline: Stroke::NONE,
             fallback_color,
             override_text_color: RNone,
@@ -77,23 +66,20 @@ impl From<TextShape> for Shape {
 }
 
 #[cfg(feature = "manager")]
-impl TextShape {
-    pub fn to_egui(self, ctx: &egui::Context) -> egui::epaint::TextShape {
+impl From<TextShape> for egui::epaint::TextShape {
+    fn from(value: TextShape) -> Self {
         let TextShape {
+            galley,
             pos,
-            layout_job,
-            anchor,
             underline,
-            fallback_color,
             override_text_color,
+            fallback_color,
             opacity_factor,
             angle,
-        } = self;
-        let galley = ctx.fonts_mut(|f| f.layout_job(RBox::into_inner(layout_job).into()));
-        let rect = anchor.anchor_size(pos, galley.size());
+        } = value;
         egui::epaint::TextShape {
-            pos: rect.min,
-            galley,
+            pos,
+            galley: galley.into_inner(),
             underline: underline.into(),
             fallback_color,
             override_text_color: override_text_color.into(),
