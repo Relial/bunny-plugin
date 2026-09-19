@@ -1,18 +1,18 @@
-use std::{ffi::c_void, marker::PhantomCovariantLifetime};
+use std::{marker::PhantomCovariantLifetime, ptr::NonNull};
 
 use crate::{input::BunnyInputState, ui::BunnyUi};
 
 #[repr(C)]
 pub struct PluginClosure<'a> {
-    closure: *mut c_void,
-    closure_trampoline: unsafe extern "C" fn(&mut BunnyUi, *mut c_void),
+    closure: NonNull<u8>,
+    closure_trampoline: unsafe extern "C" fn(&mut BunnyUi, NonNull<u8>),
     phantom: PhantomCovariantLifetime<'a>,
 }
 
 impl<'a> PluginClosure<'a> {
     #[inline]
     pub fn new<F: FnMut(&mut BunnyUi) + 'a>(closure: &mut F) -> Self {
-        let closure = closure as *mut F as *mut c_void;
+        let closure = NonNull::from_mut(closure).cast::<u8>();
         Self {
             closure,
             closure_trampoline: closure_trampoline::<F>,
@@ -28,23 +28,23 @@ impl<'a> PluginClosure<'a> {
 
 unsafe extern "C" fn closure_trampoline<F: FnMut(&mut BunnyUi)>(
     ui: &mut BunnyUi,
-    closure: *mut c_void,
+    closure: NonNull<u8>,
 ) {
-    let closure = unsafe { &mut *(closure as *mut F) };
+    let closure = unsafe { closure.cast::<F>().as_mut() };
     closure(ui)
 }
 
 #[repr(C)]
 pub struct InputStateClosure<'a> {
-    closure: *mut c_void,
-    closure_trampoline: unsafe extern "C" fn(&mut BunnyInputState, *mut c_void),
+    closure: NonNull<u8>,
+    closure_trampoline: unsafe extern "C" fn(&mut BunnyInputState, NonNull<u8>),
     phantom: PhantomCovariantLifetime<'a>,
 }
 
 impl<'a> InputStateClosure<'a> {
     #[inline]
     pub fn new<F: FnMut(&mut BunnyInputState) + 'a>(closure: &mut F) -> Self {
-        let closure = closure as *mut F as *mut c_void;
+        let closure = NonNull::from_mut(closure).cast::<u8>();
         Self {
             closure,
             closure_trampoline: input_state_trampoline::<F>,
@@ -60,8 +60,8 @@ impl<'a> InputStateClosure<'a> {
 
 unsafe extern "C" fn input_state_trampoline<F: FnMut(&mut BunnyInputState)>(
     input_state: &mut BunnyInputState,
-    closure: *mut c_void,
+    closure: NonNull<u8>,
 ) {
-    let closure = unsafe { &mut *(closure as *mut F) };
+    let closure = unsafe { closure.cast::<F>().as_mut() };
     closure(input_state)
 }
