@@ -1,7 +1,10 @@
 use abi_stable::std_types::ROption::{self, RNone, RSome};
 use egui::Id;
 
-use crate::{WidgetText, closure::PluginClosure, response::BunnyResponse, ui::BunnyUi};
+use crate::{
+    WidgetText, closure::PluginClosure, response::BunnyResponse, ui::BunnyUi,
+    vtable::ui::CollapsingFfiResponse,
+};
 
 #[repr(C)]
 pub struct CollapsingHeader {
@@ -68,7 +71,7 @@ impl CollapsingHeader {
         self,
         ui: &mut egui::Ui,
         contents: PluginClosure,
-    ) -> BunnyCollapsingResponse {
+    ) -> CollapsingFfiResponse {
         let mut header = egui::CollapsingHeader::new(self.text)
             .default_open(self.default_open)
             .open(self.open.into())
@@ -87,29 +90,18 @@ impl CollapsingHeader {
                 contents.call(&mut b);
             })
         };
-        BunnyCollapsingResponse::new(res)
+        CollapsingFfiResponse::new(res)
     }
 }
 
-#[repr(C)]
-pub struct BunnyCollapsingResponse {
+pub struct BunnyCollapsingResponse<R> {
     pub header_response: BunnyResponse,
-    pub body_response: ROption<BunnyResponse>,
+    pub body_response: Option<BunnyResponse>,
+    pub body_returned: Option<R>,
     pub openness: f32,
 }
 
-impl BunnyCollapsingResponse {
-    #[inline]
-    pub fn new<R>(response: egui::CollapsingResponse<R>) -> Self {
-        Self {
-            header_response: BunnyResponse::new(response.header_response),
-            body_response: response.body_response.map(BunnyResponse::new).into(),
-            openness: response.openness,
-        }
-    }
-}
-
-impl BunnyCollapsingResponse {
+impl<R> BunnyCollapsingResponse<R> {
     #[inline]
     pub fn fully_closed(&self) -> bool {
         self.openness <= 0.0

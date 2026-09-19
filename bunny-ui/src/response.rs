@@ -1,9 +1,14 @@
+use std::mem::MaybeUninit;
+
 use egui::{Id, Pos2, Rect, Sense, Vec2};
 use mint::Vector2;
 use vtable::VBox;
 
 use crate::{
-    Align, PointerButton, WidgetText, closure::PluginClosure, style::ScrollAnimation, ui::BunnyUi,
+    Align, PointerButton, WidgetText,
+    closure::{PluginClosure, PluginNoReturnClosure},
+    style::ScrollAnimation,
+    ui::BunnyUi,
     vtable::response::ResponseFfiVTable,
 };
 
@@ -224,28 +229,28 @@ impl BunnyResponse {
 
     #[inline]
     pub fn on_hover_ui(self, mut add_contents: impl FnMut(&mut BunnyUi)) -> Self {
-        let closure = PluginClosure::new(&mut add_contents);
+        let closure = PluginNoReturnClosure::new(&mut add_contents);
         self.inner.on_hover_ui(closure);
         self
     }
 
     #[inline]
     pub fn on_disabled_hover_ui(self, mut add_contents: impl FnMut(&mut BunnyUi)) -> Self {
-        let closure = PluginClosure::new(&mut add_contents);
+        let closure = PluginNoReturnClosure::new(&mut add_contents);
         self.inner.on_disabled_hover_ui(closure);
         self
     }
 
     #[inline]
     pub fn on_hover_ui_at_pointer(self, mut add_contents: impl FnMut(&mut BunnyUi)) -> Self {
-        let closure = PluginClosure::new(&mut add_contents);
+        let closure = PluginNoReturnClosure::new(&mut add_contents);
         self.inner.on_hover_ui_at_pointer(closure);
         self
     }
 
     #[inline]
     pub fn show_tooltip_ui(&self, mut add_contents: impl FnMut(&mut BunnyUi)) {
-        let closure = PluginClosure::new(&mut add_contents);
+        let closure = PluginNoReturnClosure::new(&mut add_contents);
         self.inner.show_tooltip_ui(closure);
     }
 
@@ -299,9 +304,19 @@ impl BunnyResponse {
     }
 
     #[inline]
-    pub fn context_menu(&self, mut add_contents: impl FnMut(&mut BunnyUi)) -> Option<Self> {
-        let closure = PluginClosure::new(&mut add_contents);
-        self.inner.context_menu(closure).into_option()
+    pub fn context_menu<R>(
+        &self,
+        mut add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> Option<BunnyInnerResponse<R>> {
+        let mut ret = MaybeUninit::<R>::uninit();
+        let closure = PluginClosure::new(&mut add_contents, &mut ret);
+        let response = self.inner.context_menu(closure);
+        response
+            .map(|response| {
+                let inner = unsafe { ret.assume_init() };
+                BunnyInnerResponse::new(inner, response)
+            })
+            .into_option()
     }
 
     #[inline]
@@ -315,8 +330,14 @@ impl BunnyResponse {
     }
 }
 
-#[repr(C)]
 pub struct BunnyInnerResponse<R> {
-    pub inner: R,
     pub response: BunnyResponse,
+    pub inner: R,
+}
+
+impl<R> BunnyInnerResponse<R> {
+    #[inline]
+    pub fn new(inner: R, response: BunnyResponse) -> Self {
+        Self { inner, response }
+    }
 }

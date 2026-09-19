@@ -7,7 +7,7 @@ use vtable::{VRef, VRefMut, vtable};
 use crate::{
     Align, ImageSource, LayerId, Layout as BunnyLayout, RichText, SizeHint, UiBuilder, WidgetText,
     closure::{InputStateClosure, PluginClosure},
-    containers::collapsing_header::{BunnyCollapsingResponse, CollapsingHeader},
+    containers::collapsing_header::CollapsingHeader,
     galley::BunnyGalley,
     input::BunnyInputState,
     load::TexturePoll,
@@ -201,7 +201,7 @@ pub struct UiFfiVTable {
         VRefMut<UiFfiVTable>,
         heading: WidgetText,
         contents: PluginClosure,
-    ) -> BunnyCollapsingResponse,
+    ) -> CollapsingFfiResponse,
     indent: fn(VRefMut<UiFfiVTable>, contents: PluginClosure) -> BunnyResponse,
     horizontal: fn(VRefMut<UiFfiVTable>, contents: PluginClosure) -> BunnyResponse,
     horizontal_centered: fn(VRefMut<UiFfiVTable>, contents: PluginClosure) -> BunnyResponse,
@@ -222,8 +222,11 @@ pub struct UiFfiVTable {
     with_visual_transform:
         fn(VRefMut<UiFfiVTable>, transform: TSTransform, contents: PluginClosure) -> BunnyResponse,
 
-    menu_button:
-        fn(VRefMut<UiFfiVTable>, text: WidgetText, contents: PluginClosure) -> BunnyResponse,
+    menu_button: fn(
+        VRefMut<UiFfiVTable>,
+        text: WidgetText,
+        contents: PluginClosure,
+    ) -> Tuple2<BunnyResponse, bool>,
     // menu_image_button
     // menu_image_text_button
     // debug_paint_cursor
@@ -269,7 +272,7 @@ pub struct UiFfiVTable {
         VRefMut<UiFfiVTable>,
         collapsing_header: CollapsingHeader,
         contents: PluginClosure,
-    ) -> BunnyCollapsingResponse,
+    ) -> CollapsingFfiResponse,
 }
 
 impl UiFfi for Ui {
@@ -1036,12 +1039,12 @@ impl UiFfi for Ui {
         &mut self,
         heading: WidgetText,
         contents: PluginClosure,
-    ) -> BunnyCollapsingResponse {
+    ) -> CollapsingFfiResponse {
         let res = self.collapsing(heading, |ui| {
             let mut b = BunnyUi::new(ui);
             contents.call(&mut b);
         });
-        BunnyCollapsingResponse::new(res)
+        CollapsingFfiResponse::new(res)
     }
 
     #[inline]
@@ -1180,14 +1183,19 @@ impl UiFfi for Ui {
     }
 
     #[inline]
-    fn menu_button(&mut self, text: WidgetText, contents: PluginClosure) -> BunnyResponse {
-        let res = self
-            .menu_button(text, |ui| {
-                let mut b = BunnyUi::new(ui);
-                contents.call(&mut b);
-            })
-            .response;
-        BunnyResponse::new(res)
+    fn menu_button(
+        &mut self,
+        text: WidgetText,
+        contents: PluginClosure,
+    ) -> Tuple2<BunnyResponse, bool> {
+        let inner_res = self.menu_button(text, |ui| {
+            let mut b = BunnyUi::new(ui);
+            contents.call(&mut b);
+        });
+        Tuple2(
+            BunnyResponse::new(inner_res.response),
+            inner_res.inner.is_some(),
+        )
     }
 
     #[inline]
@@ -1294,9 +1302,29 @@ impl UiFfi for Ui {
         &mut self,
         collapsing_header: CollapsingHeader,
         contents: PluginClosure,
-    ) -> BunnyCollapsingResponse {
+    ) -> CollapsingFfiResponse {
         collapsing_header.show_impl(self, contents)
     }
 }
 
 UiFfiVTable_static!(static UIFFI_VT for Ui);
+
+#[repr(C)]
+pub struct CollapsingFfiResponse {
+    pub body_response: ROption<BunnyResponse>,
+    pub header_response: BunnyResponse,
+    pub openness: f32,
+    pub body_returned: bool,
+}
+
+impl CollapsingFfiResponse {
+    #[inline]
+    pub fn new<R>(response: egui::CollapsingResponse<R>) -> Self {
+        Self {
+            header_response: BunnyResponse::new(response.header_response),
+            body_response: response.body_response.map(BunnyResponse::new).into(),
+            openness: response.openness,
+            body_returned: response.body_returned.is_some(),
+        }
+    }
+}

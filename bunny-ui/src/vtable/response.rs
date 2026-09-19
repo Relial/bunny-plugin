@@ -3,8 +3,11 @@ use egui::{Id, Pos2, Rect, Response, Sense, Vec2};
 use vtable::{VBox, VRef, VRefMut, vtable};
 
 use crate::{
-    Align, PointerButton, WidgetText, closure::PluginClosure, response::BunnyResponse,
-    style::ScrollAnimation, ui::BunnyUi,
+    Align, PointerButton, WidgetText,
+    closure::{PluginClosure, PluginNoReturnClosure},
+    response::BunnyResponse,
+    style::ScrollAnimation,
+    ui::BunnyUi,
 };
 
 #[vtable]
@@ -55,10 +58,10 @@ pub struct ResponseFfiVTable {
     mark_changed: fn(VRefMut<ResponseFfiVTable>),
     should_close: fn(VRef<ResponseFfiVTable>) -> bool,
     set_close: fn(VRefMut<ResponseFfiVTable>),
-    on_hover_ui: fn(VRef<ResponseFfiVTable>, contents: PluginClosure),
-    on_disabled_hover_ui: fn(VRef<ResponseFfiVTable>, contents: PluginClosure),
-    on_hover_ui_at_pointer: fn(VRef<ResponseFfiVTable>, contents: PluginClosure),
-    show_tooltip_ui: fn(VRef<ResponseFfiVTable>, contents: PluginClosure),
+    on_hover_ui: fn(VRef<ResponseFfiVTable>, contents: PluginNoReturnClosure),
+    on_disabled_hover_ui: fn(VRef<ResponseFfiVTable>, contents: PluginNoReturnClosure),
+    on_hover_ui_at_pointer: fn(VRef<ResponseFfiVTable>, contents: PluginNoReturnClosure),
+    show_tooltip_ui: fn(VRef<ResponseFfiVTable>, contents: PluginNoReturnClosure),
     show_tooltip_text: fn(VRef<ResponseFfiVTable>, text: WidgetText),
     is_tooltip_open: fn(VRef<ResponseFfiVTable>) -> bool,
     on_hover_text_at_pointer: fn(VRef<ResponseFfiVTable>, text: WidgetText),
@@ -283,7 +286,7 @@ impl ResponseFfi for Response {
     }
 
     #[inline]
-    fn on_hover_ui(&self, contents: PluginClosure) {
+    fn on_hover_ui(&self, contents: PluginNoReturnClosure) {
         egui::Tooltip::for_enabled(self).show(|ui| {
             let mut b = BunnyUi::new(ui);
             contents.call(&mut b);
@@ -291,7 +294,7 @@ impl ResponseFfi for Response {
     }
 
     #[inline]
-    fn on_disabled_hover_ui(&self, contents: PluginClosure) {
+    fn on_disabled_hover_ui(&self, contents: PluginNoReturnClosure) {
         egui::Tooltip::for_disabled(self).show(|ui| {
             let mut b = BunnyUi::new(ui);
             contents.call(&mut b);
@@ -299,7 +302,7 @@ impl ResponseFfi for Response {
     }
 
     #[inline]
-    fn on_hover_ui_at_pointer(&self, contents: PluginClosure) {
+    fn on_hover_ui_at_pointer(&self, contents: PluginNoReturnClosure) {
         egui::Tooltip::for_enabled(self)
             .at_pointer()
             .gap(12.0)
@@ -310,7 +313,7 @@ impl ResponseFfi for Response {
     }
 
     #[inline]
-    fn show_tooltip_ui(&self, contents: PluginClosure) {
+    fn show_tooltip_ui(&self, contents: PluginNoReturnClosure) {
         self.show_tooltip_ui(|ui| {
             let mut b = BunnyUi::new(ui);
             contents.call(&mut b);

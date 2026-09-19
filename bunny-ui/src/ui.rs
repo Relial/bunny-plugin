@@ -1,4 +1,4 @@
-use std::hash::Hash;
+use std::{hash::Hash, mem::MaybeUninit};
 
 use abi_stable::std_types::{RStr, RString, Tuple2};
 use ecolor::Hsva;
@@ -23,7 +23,7 @@ use crate::{
         textures::TextureOptions,
     },
     painter::{BunnyPainter, BunnyPainterRef},
-    response::BunnyResponse,
+    response::{BunnyInnerResponse, BunnyResponse},
     style::{
         BunnyInteraction, BunnyInteractionMut, BunnySpacing, BunnySpacingMut, BunnyStyle,
         BunnyStyleMut, BunnyVisuals, BunnyVisualsMut, ScrollAnimation, TextStyle,
@@ -458,25 +458,32 @@ impl<'a> BunnyUi<'a> {
     }
 
     #[inline]
-    pub fn allocate_ui(
+    pub fn allocate_ui<R>(
         &mut self,
         desired_size: impl Into<Vector2<f32>>,
-        mut add_contents: impl FnMut(&mut BunnyUi),
-    ) -> BunnyResponse {
-        let closure = PluginClosure::new(&mut add_contents);
-        self.inner.allocate_ui(desired_size.into().into(), closure)
+        mut add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> BunnyInnerResponse<R> {
+        let mut ret = MaybeUninit::<R>::uninit();
+        let closure = PluginClosure::new(&mut add_contents, &mut ret);
+        let response = self.inner.allocate_ui(desired_size.into().into(), closure);
+        let inner = unsafe { ret.assume_init() };
+        BunnyInnerResponse::new(inner, response)
     }
 
     #[inline]
-    pub fn allocate_ui_with_layout(
+    pub fn allocate_ui_with_layout<R>(
         &mut self,
         desired_size: impl Into<Vector2<f32>>,
         layout: Layout,
-        mut add_contents: impl FnMut(&mut BunnyUi),
-    ) -> BunnyResponse {
-        let closure = PluginClosure::new(&mut add_contents);
-        self.inner
-            .allocate_ui_with_layout(desired_size.into().into(), layout, closure)
+        mut add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> BunnyInnerResponse<R> {
+        let mut ret = MaybeUninit::<R>::uninit();
+        let closure = PluginClosure::new(&mut add_contents, &mut ret);
+        let response =
+            self.inner
+                .allocate_ui_with_layout(desired_size.into().into(), layout, closure);
+        let inner = unsafe { ret.assume_init() };
+        BunnyInnerResponse::new(inner, response)
     }
 
     #[inline]
@@ -571,13 +578,16 @@ impl<'a> BunnyUi<'a> {
     }
 
     #[inline]
-    pub fn add_enabled_ui(
+    pub fn add_enabled_ui<R>(
         &mut self,
         enabled: bool,
-        mut add_contents: impl FnMut(&mut BunnyUi),
-    ) -> BunnyResponse {
-        let closure = PluginClosure::new(&mut add_contents);
-        self.inner.add_enabled_ui(enabled, closure)
+        mut add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> BunnyInnerResponse<R> {
+        let mut ret = MaybeUninit::<R>::uninit();
+        let closure = PluginClosure::new(&mut add_contents, &mut ret);
+        let response = self.inner.add_enabled_ui(enabled, closure);
+        let inner = unsafe { ret.assume_init() };
+        BunnyInnerResponse::new(inner, response)
     }
 
     #[inline]
@@ -800,125 +810,195 @@ impl<'a> BunnyUi<'a> {
 
 impl<'a> BunnyUi<'a> {
     #[inline]
-    pub fn group<R>(&mut self, mut add_contents: impl FnMut(&mut BunnyUi)) -> BunnyResponse {
-        let closure = PluginClosure::new(&mut add_contents);
-        self.inner.group(closure)
+    pub fn group<R>(
+        &mut self,
+        mut add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> BunnyInnerResponse<R> {
+        let mut ret = MaybeUninit::<R>::uninit();
+        let closure = PluginClosure::new(&mut add_contents, &mut ret);
+        let response = self.inner.group(closure);
+        let inner = unsafe { ret.assume_init() };
+        BunnyInnerResponse::new(inner, response)
     }
 
     #[inline]
-    pub fn push_id(
+    pub fn push_id<R>(
         &mut self,
         id_salt: impl Hash,
-        mut add_contents: impl FnMut(&mut BunnyUi),
-    ) -> BunnyResponse {
-        let closure = PluginClosure::new(&mut add_contents);
+        mut add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> BunnyInnerResponse<R> {
+        let mut ret = MaybeUninit::<R>::uninit();
+        let closure = PluginClosure::new(&mut add_contents, &mut ret);
         let hash = hash_id_salt(id_salt);
-        self.inner.push_id(hash, closure)
+        let response = self.inner.push_id(hash, closure);
+        let inner = unsafe { ret.assume_init() };
+        BunnyInnerResponse::new(inner, response)
     }
 
     #[inline]
-    pub fn scope(&mut self, mut add_contents: impl FnMut(&mut BunnyUi)) -> BunnyResponse {
-        let closure = PluginClosure::new(&mut add_contents);
-        self.inner.scope(closure)
+    pub fn scope<R>(
+        &mut self,
+        mut add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> BunnyInnerResponse<R> {
+        let mut ret = MaybeUninit::<R>::uninit();
+        let closure = PluginClosure::new(&mut add_contents, &mut ret);
+        let response = self.inner.scope(closure);
+        let inner = unsafe { ret.assume_init() };
+        BunnyInnerResponse::new(inner, response)
     }
 
     #[inline]
-    pub fn scope_builder(
+    pub fn scope_builder<R>(
         &mut self,
         ui_builder: UiBuilder,
-        mut add_contents: impl FnMut(&mut BunnyUi),
-    ) -> BunnyResponse {
-        let closure = PluginClosure::new(&mut add_contents);
-        self.inner.scope_builder(ui_builder, closure)
+        mut add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> BunnyInnerResponse<R> {
+        let mut ret = MaybeUninit::<R>::uninit();
+        let closure = PluginClosure::new(&mut add_contents, &mut ret);
+        let response = self.inner.scope_builder(ui_builder, closure);
+        let inner = unsafe { ret.assume_init() };
+        BunnyInnerResponse::new(inner, response)
     }
 
     #[inline]
-    pub fn collapsing(
+    pub fn collapsing<R>(
         &mut self,
         heading: impl Into<WidgetText>,
-        mut add_contents: impl FnMut(&mut BunnyUi),
-    ) -> BunnyCollapsingResponse {
-        let closure = PluginClosure::new(&mut add_contents);
-        self.inner.collapsing(heading.into(), closure)
+        mut add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> BunnyCollapsingResponse<R> {
+        let mut ret = MaybeUninit::<R>::uninit();
+        let closure = PluginClosure::new(&mut add_contents, &mut ret);
+        let collapsing_ffi = self.inner.collapsing(heading.into(), closure);
+        let body_returned = collapsing_ffi
+            .body_returned
+            .then(|| unsafe { ret.assume_init() });
+        BunnyCollapsingResponse {
+            header_response: collapsing_ffi.header_response,
+            body_response: collapsing_ffi.body_response.into(),
+            body_returned,
+            openness: collapsing_ffi.openness,
+        }
     }
 
     #[inline]
-    pub fn indent(&mut self, mut add_contents: impl FnMut(&mut BunnyUi)) -> BunnyResponse {
-        let closure = PluginClosure::new(&mut add_contents);
-        self.inner.indent(closure)
-    }
-
-    #[inline]
-    pub fn horizontal(&mut self, mut add_contents: impl FnMut(&mut BunnyUi)) -> BunnyResponse {
-        let closure = PluginClosure::new(&mut add_contents);
-        self.inner.horizontal(closure)
-    }
-
-    #[inline]
-    pub fn horizontal_centered(
+    pub fn indent<R>(
         &mut self,
-        mut add_contents: impl FnMut(&mut BunnyUi),
-    ) -> BunnyResponse {
-        let closure = PluginClosure::new(&mut add_contents);
-        self.inner.horizontal_centered(closure)
+        mut add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> BunnyInnerResponse<R> {
+        let mut ret = MaybeUninit::<R>::uninit();
+        let closure = PluginClosure::new(&mut add_contents, &mut ret);
+        let response = self.inner.indent(closure);
+        let inner = unsafe { ret.assume_init() };
+        BunnyInnerResponse::new(inner, response)
     }
 
     #[inline]
-    pub fn horizontal_top(&mut self, mut add_contents: impl FnMut(&mut BunnyUi)) -> BunnyResponse {
-        let closure = PluginClosure::new(&mut add_contents);
-        self.inner.horizontal_top(closure)
-    }
-
-    #[inline]
-    pub fn horizontal_wrapped(
+    pub fn horizontal<R>(
         &mut self,
-        mut add_contents: impl FnMut(&mut BunnyUi),
-    ) -> BunnyResponse {
-        let closure = PluginClosure::new(&mut add_contents);
-        self.inner.horizontal_wrapped(closure)
+        mut add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> BunnyInnerResponse<R> {
+        let mut ret = MaybeUninit::<R>::uninit();
+        let closure = PluginClosure::new(&mut add_contents, &mut ret);
+        let response = self.inner.horizontal(closure);
+        let inner = unsafe { ret.assume_init() };
+        BunnyInnerResponse::new(inner, response)
     }
 
     #[inline]
-    pub fn vertical(&mut self, mut add_contents: impl FnMut(&mut BunnyUi)) -> BunnyResponse {
-        let closure = PluginClosure::new(&mut add_contents);
-        self.inner.vertical(closure)
-    }
-
-    #[inline]
-    pub fn vertical_centered(
+    pub fn horizontal_centered<R>(
         &mut self,
-        mut add_contents: impl FnMut(&mut BunnyUi),
-    ) -> BunnyResponse {
-        let closure = PluginClosure::new(&mut add_contents);
-        self.inner.vertical_centered(closure)
+        mut add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> BunnyInnerResponse<R> {
+        let mut ret = MaybeUninit::<R>::uninit();
+        let closure = PluginClosure::new(&mut add_contents, &mut ret);
+        let response = self.inner.horizontal_centered(closure);
+        let inner = unsafe { ret.assume_init() };
+        BunnyInnerResponse::new(inner, response)
     }
 
     #[inline]
-    pub fn vertical_centered_justified(
+    pub fn horizontal_top<R>(
         &mut self,
-        mut add_contents: impl FnMut(&mut BunnyUi),
-    ) -> BunnyResponse {
-        let closure = PluginClosure::new(&mut add_contents);
-        self.inner.vertical_centered_justified(closure)
+        mut add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> BunnyInnerResponse<R> {
+        let mut ret = MaybeUninit::<R>::uninit();
+        let closure = PluginClosure::new(&mut add_contents, &mut ret);
+        let response = self.inner.horizontal_top(closure);
+        let inner = unsafe { ret.assume_init() };
+        BunnyInnerResponse::new(inner, response)
     }
 
     #[inline]
-    pub fn with_layout(
+    pub fn horizontal_wrapped<R>(
+        &mut self,
+        mut add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> BunnyInnerResponse<R> {
+        let mut ret = MaybeUninit::<R>::uninit();
+        let closure = PluginClosure::new(&mut add_contents, &mut ret);
+        let response = self.inner.horizontal_wrapped(closure);
+        let inner = unsafe { ret.assume_init() };
+        BunnyInnerResponse::new(inner, response)
+    }
+
+    #[inline]
+    pub fn vertical<R>(
+        &mut self,
+        mut add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> BunnyInnerResponse<R> {
+        let mut ret = MaybeUninit::<R>::uninit();
+        let closure = PluginClosure::new(&mut add_contents, &mut ret);
+        let response = self.inner.vertical(closure);
+        let inner = unsafe { ret.assume_init() };
+        BunnyInnerResponse::new(inner, response)
+    }
+
+    #[inline]
+    pub fn vertical_centered<R>(
+        &mut self,
+        mut add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> BunnyInnerResponse<R> {
+        let mut ret = MaybeUninit::<R>::uninit();
+        let closure = PluginClosure::new(&mut add_contents, &mut ret);
+        let response = self.inner.vertical_centered(closure);
+        let inner = unsafe { ret.assume_init() };
+        BunnyInnerResponse::new(inner, response)
+    }
+
+    #[inline]
+    pub fn vertical_centered_justified<R>(
+        &mut self,
+        mut add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> BunnyInnerResponse<R> {
+        let mut ret = MaybeUninit::<R>::uninit();
+        let closure = PluginClosure::new(&mut add_contents, &mut ret);
+        let response = self.inner.vertical_centered_justified(closure);
+        let inner = unsafe { ret.assume_init() };
+        BunnyInnerResponse::new(inner, response)
+    }
+
+    #[inline]
+    pub fn with_layout<R>(
         &mut self,
         layout: Layout,
-        mut add_contents: impl FnMut(&mut BunnyUi),
-    ) -> BunnyResponse {
-        let closure = PluginClosure::new(&mut add_contents);
-        self.inner.with_layout(layout, closure)
+        mut add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> BunnyInnerResponse<R> {
+        let mut ret = MaybeUninit::<R>::uninit();
+        let closure = PluginClosure::new(&mut add_contents, &mut ret);
+        let response = self.inner.with_layout(layout, closure);
+        let inner = unsafe { ret.assume_init() };
+        BunnyInnerResponse::new(inner, response)
     }
 
     #[inline]
-    pub fn centered_and_justified(
+    pub fn centered_and_justified<R>(
         &mut self,
-        mut add_contents: impl FnMut(&mut BunnyUi),
-    ) -> BunnyResponse {
-        let closure = PluginClosure::new(&mut add_contents);
-        self.inner.centered_and_justified(closure)
+        mut add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> BunnyInnerResponse<R> {
+        let mut ret = MaybeUninit::<R>::uninit();
+        let closure = PluginClosure::new(&mut add_contents, &mut ret);
+        let response = self.inner.centered_and_justified(closure);
+        let inner = unsafe { ret.assume_init() };
+        BunnyInnerResponse::new(inner, response)
     }
 
     #[inline]
@@ -932,33 +1012,41 @@ impl<'a> BunnyUi<'a> {
     }
 
     #[inline]
-    pub fn with_visual_transform(
+    pub fn with_visual_transform<R>(
         &mut self,
         transform: TSTransform,
-        mut add_contents: impl FnMut(&mut BunnyUi),
-    ) -> BunnyResponse {
-        let closure = PluginClosure::new(&mut add_contents);
-        self.inner.with_visual_transform(transform, closure)
+        mut add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> BunnyInnerResponse<R> {
+        let mut ret = MaybeUninit::<R>::uninit();
+        let closure = PluginClosure::new(&mut add_contents, &mut ret);
+        let response = self.inner.with_visual_transform(transform, closure);
+        let inner = unsafe { ret.assume_init() };
+        BunnyInnerResponse::new(inner, response)
     }
 }
 
 impl<'a> BunnyUi<'a> {
     #[inline]
-    pub fn menu_button(
+    pub fn menu_button<R>(
         &mut self,
         text: impl Into<WidgetText>,
-        mut add_contents: impl FnMut(&mut BunnyUi),
-    ) -> BunnyResponse {
-        let closure = PluginClosure::new(&mut add_contents);
-        self.inner.menu_button(text.into(), closure)
+        mut add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> BunnyInnerResponse<Option<R>> {
+        let mut ret = MaybeUninit::<R>::uninit();
+        let closure = PluginClosure::new(&mut add_contents, &mut ret);
+        let Tuple2(response, inner_returned) = self.inner.menu_button(text.into(), closure);
+        let inner = inner_returned.then(|| unsafe { ret.assume_init() });
+        BunnyInnerResponse::new(inner, response)
     }
 }
 
 impl<'a> BunnyUi<'a> {
     #[inline]
-    pub fn input(&mut self, mut input: impl FnMut(&mut BunnyInputState)) {
-        let closure = InputStateClosure::new(&mut input);
+    pub fn input<R>(&mut self, mut input: impl FnMut(&mut BunnyInputState) -> R) -> R {
+        let mut ret = MaybeUninit::<R>::uninit();
+        let closure = InputStateClosure::new(&mut input, &mut ret);
         self.inner.input(closure);
+        unsafe { ret.assume_init() }
     }
 
     #[inline]
@@ -1049,13 +1137,24 @@ impl<'a> BunnyUi<'a> {
 
 impl<'a> BunnyUi<'a> {
     #[inline]
-    pub(crate) fn collapsing_header_show(
+    pub(crate) fn collapsing_header_show<R>(
         &mut self,
         collapsing_header: CollapsingHeader,
-        mut add_contents: impl FnMut(&mut BunnyUi),
-    ) {
-        let closure = PluginClosure::new(&mut add_contents);
-        self.inner
+        mut add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> BunnyCollapsingResponse<R> {
+        let mut ret = MaybeUninit::<R>::uninit();
+        let closure = PluginClosure::new(&mut add_contents, &mut ret);
+        let collapsing_ffi = self
+            .inner
             .collapsing_header_show(collapsing_header, closure);
+        let body_returned = collapsing_ffi
+            .body_returned
+            .then(|| unsafe { ret.assume_init() });
+        BunnyCollapsingResponse {
+            header_response: collapsing_ffi.header_response,
+            body_response: collapsing_ffi.body_response.into(),
+            body_returned,
+            openness: collapsing_ffi.openness,
+        }
     }
 }
