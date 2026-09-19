@@ -1,50 +1,226 @@
+use abi_stable::std_types::ROption;
 use egui::Style;
 use vtable::{VRef, VRefMut, vtable};
 
-use crate::vtable::{
-    interaction::InteractionFfiVTable, spacing::SpacingFfiVTable, visuals::VisualsFfiVTable,
+use crate::{
+    Align,
+    paint::text::{fonts::FontId, text_layout_types::TextWrapMode},
+    style::{
+        BunnyInteraction, BunnyInteractionMut, BunnySpacing, BunnySpacingMut, BunnyVisuals,
+        BunnyVisualsMut, Interaction, ScrollAnimation, Spacing, TextStyle, Visuals,
+    },
 };
 
 #[vtable]
 #[repr(C)]
 pub struct StyleFfiVTable {
-    spacing: fn(VRef<StyleFfiVTable>) -> VRef<SpacingFfiVTable>,
-    spacing_mut: fn(VRefMut<StyleFfiVTable>) -> VRefMut<SpacingFfiVTable>,
-    interaction: fn(VRef<StyleFfiVTable>) -> VRef<InteractionFfiVTable>,
-    interaction_mut: fn(VRefMut<StyleFfiVTable>) -> VRefMut<InteractionFfiVTable>,
-    visuals: fn(VRef<StyleFfiVTable>) -> VRef<VisualsFfiVTable>,
-    visuals_mut: fn(VRefMut<StyleFfiVTable>) -> VRefMut<VisualsFfiVTable>,
+    override_text_style: fn(VRef<StyleFfiVTable>) -> ROption<TextStyle>,
+    set_override_text_style: fn(VRefMut<StyleFfiVTable>, text_style: TextStyle),
+    override_font_id: fn(VRef<StyleFfiVTable>) -> ROption<FontId>,
+    set_override_font_id: fn(VRefMut<StyleFfiVTable>, font_id: FontId),
+    override_text_valign: fn(VRef<StyleFfiVTable>) -> ROption<Align>,
+    set_override_text_valign: fn(VRefMut<StyleFfiVTable>, text_valign: Align),
+    drag_value_text_style: fn(VRef<StyleFfiVTable>) -> TextStyle,
+    set_drag_value_text_style: fn(VRefMut<StyleFfiVTable>, text_style: TextStyle),
+    // number_formatter
+    // wrap
+    // set_wrap
+    wrap_mode: fn(VRef<StyleFfiVTable>) -> ROption<TextWrapMode>,
+    set_wrap_mode: fn(VRefMut<StyleFfiVTable>, wrap_mode: TextWrapMode),
+    spacing: fn(VRef<StyleFfiVTable>) -> BunnySpacing,
+    spacing_mut: fn(VRefMut<StyleFfiVTable>) -> BunnySpacingMut,
+    spacing_clone: fn(VRef<StyleFfiVTable>) -> Spacing,
+    set_spacing: fn(VRefMut<StyleFfiVTable>, spacing: &Spacing),
+    interaction: fn(VRef<StyleFfiVTable>) -> BunnyInteraction,
+    interaction_mut: fn(VRefMut<StyleFfiVTable>) -> BunnyInteractionMut,
+    interaction_clone: fn(VRef<StyleFfiVTable>) -> Interaction,
+    set_interaction: fn(VRefMut<StyleFfiVTable>, interaction: &Interaction),
+    visuals: fn(VRef<StyleFfiVTable>) -> BunnyVisuals,
+    visuals_mut: fn(VRefMut<StyleFfiVTable>) -> BunnyVisualsMut,
+    visuals_clone: fn(VRef<StyleFfiVTable>) -> Visuals,
+    set_visuals: fn(VRefMut<StyleFfiVTable>, visuals: &Visuals),
+    animation_time: fn(VRef<StyleFfiVTable>) -> f32,
+    set_animation_time: fn(VRefMut<StyleFfiVTable>, animation_time: f32),
+    // debug
+    explanation_tooltips: fn(VRef<StyleFfiVTable>) -> bool,
+    set_explanation_tooltips: fn(VRefMut<StyleFfiVTable>, explanation_tooltips: bool),
+    // url_in_tooltip
+    always_scroll_the_only_direction: fn(VRef<StyleFfiVTable>) -> bool,
+    set_always_scroll_the_only_direction:
+        fn(VRefMut<StyleFfiVTable>, always_scroll_the_only_direction: bool),
+    scroll_animation: fn(VRef<StyleFfiVTable>) -> ScrollAnimation,
+    set_scroll_animation: fn(VRefMut<StyleFfiVTable>, scroll_animation: ScrollAnimation),
+    compact_menu_style: fn(VRef<StyleFfiVTable>) -> bool,
+    set_compact_menu_style: fn(VRefMut<StyleFfiVTable>, compact_menu_style: bool),
 }
 
 impl StyleFfi for Style {
     #[inline]
-    fn spacing(&self) -> VRef<'_, SpacingFfiVTable> {
-        VRef::new(&self.spacing)
+    fn override_text_style(&self) -> ROption<TextStyle> {
+        self.override_text_style
+            .as_ref()
+            .map(|t| t.clone().into())
+            .into()
     }
 
     #[inline]
-    fn spacing_mut(&mut self) -> VRefMut<'_, SpacingFfiVTable> {
-        VRefMut::new(&mut self.spacing)
+    fn set_override_text_style(&mut self, text_style: TextStyle) {
+        self.override_text_style = Some(text_style.into())
     }
 
     #[inline]
-    fn interaction(&self) -> VRef<'_, InteractionFfiVTable> {
-        VRef::new(&self.interaction)
+    fn override_font_id(&self) -> ROption<FontId> {
+        self.override_font_id
+            .as_ref()
+            .map(|f| f.clone().into())
+            .into()
     }
 
     #[inline]
-    fn interaction_mut(&mut self) -> VRefMut<'_, InteractionFfiVTable> {
-        VRefMut::new(&mut self.interaction)
+    fn set_override_font_id(&mut self, font_id: FontId) {
+        self.override_font_id = Some(font_id.into())
     }
 
     #[inline]
-    fn visuals(&self) -> VRef<'_, VisualsFfiVTable> {
-        VRef::new(&self.visuals)
+    fn override_text_valign(&self) -> ROption<Align> {
+        self.override_text_valign
+            .as_ref()
+            .map(|a| (*a).into())
+            .into()
     }
 
     #[inline]
-    fn visuals_mut(&mut self) -> VRefMut<'_, VisualsFfiVTable> {
-        VRefMut::new(&mut self.visuals)
+    fn set_override_text_valign(&mut self, align: Align) {
+        self.override_text_valign = Some(align.into())
+    }
+
+    #[inline]
+    fn drag_value_text_style(&self) -> TextStyle {
+        self.drag_value_text_style.clone().into()
+    }
+
+    #[inline]
+    fn set_drag_value_text_style(&mut self, text_style: TextStyle) {
+        self.drag_value_text_style = text_style.into()
+    }
+
+    #[inline]
+    fn wrap_mode(&self) -> ROption<TextWrapMode> {
+        self.wrap_mode.as_ref().map(|w| (*w).into()).into()
+    }
+
+    #[inline]
+    fn set_wrap_mode(&mut self, wrap_mode: TextWrapMode) {
+        self.wrap_mode = Some(wrap_mode.into())
+    }
+
+    #[inline]
+    fn spacing<'a>(&'a self) -> BunnySpacing<'a> {
+        BunnySpacing::new(&self.spacing)
+    }
+
+    #[inline]
+    fn spacing_mut(&mut self) -> BunnySpacingMut<'_> {
+        BunnySpacingMut::new(&mut self.spacing)
+    }
+
+    #[inline]
+    fn spacing_clone(&self) -> Spacing {
+        self.spacing.clone().into()
+    }
+
+    #[inline]
+    fn set_spacing(&mut self, spacing: &Spacing) {
+        self.spacing = spacing.into()
+    }
+
+    #[inline]
+    fn interaction(&self) -> BunnyInteraction<'_> {
+        BunnyInteraction::new(&self.interaction)
+    }
+
+    #[inline]
+    fn interaction_mut(&mut self) -> BunnyInteractionMut<'_> {
+        BunnyInteractionMut::new(&mut self.interaction)
+    }
+
+    #[inline]
+    fn interaction_clone(&self) -> Interaction {
+        self.interaction.clone().into()
+    }
+
+    #[inline]
+    fn set_interaction(&mut self, interaction: &Interaction) {
+        self.interaction = interaction.into()
+    }
+
+    #[inline]
+    fn visuals(&self) -> BunnyVisuals<'_> {
+        BunnyVisuals::new(&self.visuals)
+    }
+
+    #[inline]
+    fn visuals_mut(&mut self) -> BunnyVisualsMut<'_> {
+        BunnyVisualsMut::new(&mut self.visuals)
+    }
+
+    #[inline]
+    fn visuals_clone(&self) -> Visuals {
+        self.visuals.clone().into()
+    }
+
+    #[inline]
+    fn set_visuals(&mut self, visuals: &Visuals) {
+        self.visuals = visuals.into()
+    }
+
+    #[inline]
+    fn animation_time(&self) -> f32 {
+        self.animation_time
+    }
+
+    #[inline]
+    fn set_animation_time(&mut self, animation_time: f32) {
+        self.animation_time = animation_time
+    }
+
+    #[inline]
+    fn explanation_tooltips(&self) -> bool {
+        self.explanation_tooltips
+    }
+
+    #[inline]
+    fn set_explanation_tooltips(&mut self, explanation_tooltips: bool) {
+        self.explanation_tooltips = explanation_tooltips
+    }
+
+    #[inline]
+    fn always_scroll_the_only_direction(&self) -> bool {
+        self.always_scroll_the_only_direction
+    }
+
+    #[inline]
+    fn set_always_scroll_the_only_direction(&mut self, always_scroll_the_only_direction: bool) {
+        self.always_scroll_the_only_direction = always_scroll_the_only_direction
+    }
+
+    #[inline]
+    fn scroll_animation(&self) -> ScrollAnimation {
+        self.scroll_animation.into()
+    }
+
+    #[inline]
+    fn set_scroll_animation(&mut self, scroll_animation: ScrollAnimation) {
+        self.scroll_animation = scroll_animation.into()
+    }
+
+    #[inline]
+    fn compact_menu_style(&self) -> bool {
+        self.compact_menu_style
+    }
+    #[inline]
+    fn set_compact_menu_style(&mut self, compact_menu_style: bool) {
+        self.compact_menu_style = compact_menu_style
     }
 }
 
