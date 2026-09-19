@@ -1,15 +1,17 @@
-use std::ops::{Deref, DerefMut};
-
 use vtable::{VRef, VRefMut};
 
 use crate::vtable::style::StyleFfiVTable;
 
+pub trait BunnyStyle {
+    fn as_ref(&self) -> VRef<'_, StyleFfiVTable>;
+}
+
 #[repr(transparent)]
-pub struct BunnyStyle<'a> {
+pub struct BunnyStyleRef<'a> {
     inner: VRef<'a, StyleFfiVTable>,
 }
 
-impl<'a> BunnyStyle<'a> {
+impl<'a> BunnyStyleRef<'a> {
     #[inline]
     pub fn new(style: &'a egui::Style) -> Self {
         Self {
@@ -18,12 +20,9 @@ impl<'a> BunnyStyle<'a> {
     }
 }
 
-impl<'a> Deref for BunnyStyle<'a> {
-    type Target = VRef<'a, StyleFfiVTable>;
-
-    #[inline]
-    fn deref(&self) -> &Self::Target {
-        &self.inner
+impl BunnyStyle for BunnyStyleRef<'_> {
+    fn as_ref(&self) -> VRef<'_, StyleFfiVTable> {
+        self.inner
     }
 }
 
@@ -41,18 +40,8 @@ impl<'a> BunnyStyleMut<'a> {
     }
 }
 
-impl<'a> Deref for BunnyStyleMut<'a> {
-    type Target = VRefMut<'a, StyleFfiVTable>;
-
-    #[inline]
-    fn deref(&self) -> &Self::Target {
-        &self.inner
-    }
-}
-
-impl DerefMut for BunnyStyleMut<'_> {
-    #[inline]
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.inner
+impl BunnyStyle for BunnyStyleMut<'_> {
+    fn as_ref(&self) -> VRef<'_, StyleFfiVTable> {
+        self.inner.borrow()
     }
 }

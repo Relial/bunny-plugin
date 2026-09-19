@@ -6,7 +6,7 @@ use rapidhash::fast::RandomState;
 
 use crate::style::TextStyle;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 #[repr(C)]
 pub struct FontId {
     pub family: FontFamily,
@@ -57,7 +57,18 @@ impl From<FontId> for egui::FontId {
     }
 }
 
-#[derive(Clone, Debug, Default)]
+#[cfg(feature = "manager")]
+impl From<egui::FontId> for FontId {
+    fn from(value: egui::FontId) -> Self {
+        let egui::FontId { size, family } = value;
+        Self {
+            family: family.into(),
+            size,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
 #[repr(C)]
 pub enum FontFamily {
     #[default]
@@ -78,6 +89,17 @@ impl From<FontFamily> for egui::FontFamily {
                 let name = Arc::from_raw(custom_font.arc_ptr);
                 Self::Name(name)
             },
+        }
+    }
+}
+
+#[cfg(feature = "manager")]
+impl From<egui::FontFamily> for FontFamily {
+    fn from(value: egui::FontFamily) -> Self {
+        match value {
+            egui::FontFamily::Proportional => Self::Proportional,
+            egui::FontFamily::Monospace => Self::Monospace,
+            egui::FontFamily::Name(_) => Self::Proportional, // Let's just not deal with it!
         }
     }
 }
@@ -134,7 +156,7 @@ impl CustomFontsImpl {
 }
 
 /// A font loaded by the manager
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 #[repr(C)]
 pub struct CustomFont {
     arc_ptr: *const str,

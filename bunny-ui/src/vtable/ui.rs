@@ -21,8 +21,8 @@ use crate::{
     painter::{BunnyPainter, BunnyPainterRef},
     response::BunnyResponse,
     style::{
-        BunnyInteraction, BunnyInteractionMut, BunnySpacing, BunnySpacingMut, BunnyStyle,
-        BunnyStyleMut, BunnyVisuals, BunnyVisualsMut, ScrollAnimation, TextStyle,
+        BunnyInteraction, BunnyInteractionMut, BunnySpacing, BunnySpacingMut, BunnyStyleMut,
+        BunnyStyleRef, BunnyVisuals, BunnyVisualsMut, ScrollAnimation, Style, TextStyle,
     },
     ui::BunnyUi,
     widgets::{Widget, image::Image, text_edit::bunny_string::BunnyString},
@@ -36,8 +36,10 @@ pub struct UiFfiVTable {
     is_sizing_pass: fn(VRef<UiFfiVTable>) -> bool,
     id: fn(VRef<UiFfiVTable>) -> Id,
     unique_id: fn(VRef<UiFfiVTable>) -> Id,
-    style: fn(VRef<UiFfiVTable>) -> BunnyStyle,
+    style: fn(VRef<UiFfiVTable>) -> BunnyStyleRef,
     style_mut: fn(VRefMut<UiFfiVTable>) -> BunnyStyleMut,
+    style_clone: fn(VRef<UiFfiVTable>) -> Style,
+    set_style: fn(VRefMut<UiFfiVTable>, style: &Style),
     reset_style: fn(VRefMut<UiFfiVTable>),
     spacing: fn(VRef<UiFfiVTable>) -> BunnySpacing,
     spacing_mut: fn(VRefMut<UiFfiVTable>) -> BunnySpacingMut,
@@ -292,13 +294,24 @@ impl UiFfi for Ui {
     }
 
     #[inline]
-    fn style(&self) -> BunnyStyle<'_> {
-        BunnyStyle::new(self.style().as_ref())
+    fn style(&self) -> BunnyStyleRef<'_> {
+        BunnyStyleRef::new(self.style().as_ref())
     }
 
     #[inline]
     fn style_mut(&mut self) -> BunnyStyleMut<'_> {
         BunnyStyleMut::new(self.style_mut())
+    }
+
+    #[inline]
+    fn style_clone(&self) -> Style {
+        self.style().as_ref().clone().into()
+    }
+
+    #[inline]
+    fn set_style(&mut self, style: &Style) {
+        let style: egui::Style = style.into();
+        self.set_style(style);
     }
 
     #[inline]

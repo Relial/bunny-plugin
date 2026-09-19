@@ -25,8 +25,8 @@ use crate::{
     painter::{BunnyPainter, BunnyPainterRef},
     response::{BunnyInnerResponse, BunnyResponse},
     style::{
-        BunnyInteraction, BunnyInteractionMut, BunnySpacing, BunnySpacingMut, BunnyStyle,
-        BunnyStyleMut, BunnyVisuals, BunnyVisualsMut, ScrollAnimation, TextStyle,
+        BunnyInteraction, BunnyInteractionMut, BunnySpacing, BunnySpacingMut, BunnyStyleMut,
+        BunnyStyleRef, BunnyVisuals, BunnyVisualsMut, ScrollAnimation, Style, TextStyle,
     },
     vtable::ui::UiFfiVTable,
     widgets::{Widget, text_edit::bunny_string::BunnyString},
@@ -62,14 +62,29 @@ impl<'a> BunnyUi<'a> {
         self.inner.unique_id()
     }
 
+    /// Immutable style reference for this BunnyUi and its children.
     #[inline]
-    pub fn style(&self) -> BunnyStyle<'_> {
+    pub fn style(&self) -> BunnyStyleRef<'_> {
         self.inner.style()
     }
 
+    /// Mutable style reference for this BunnyUi and its children.
     #[inline]
     pub fn style_mut(&mut self) -> BunnyStyleMut<'_> {
         self.inner.style_mut()
+    }
+
+    /// Get a full clone of this BunnyUi's style.
+    /// This can be useful if you're going to change many style fields and set them at once with set_style()
+    #[inline]
+    pub fn style_clone(&self) -> Style {
+        self.inner.style_clone()
+    }
+
+    /// Set the style of this BunnyUi and its children.
+    #[inline]
+    pub fn set_style(&mut self, style: &Style) {
+        self.inner.set_style(style);
     }
 
     #[inline]

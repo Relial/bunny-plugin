@@ -2,6 +2,7 @@ pub mod fonts;
 pub mod text_layout_types;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[repr(C)]
 pub struct TextOptions {
     pub max_texture_side: usize,
@@ -10,6 +11,7 @@ pub struct TextOptions {
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[repr(C)]
 pub enum AlphaFromCoverage {
     Linear,
