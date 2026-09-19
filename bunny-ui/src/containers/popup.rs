@@ -177,9 +177,9 @@ pub struct Popup<'a> {
 }
 
 impl<'a> Popup<'a> {
-    pub fn new(id: Id, anchor: impl Into<PopupAnchor>) -> Self {
+    pub fn new(id: impl Into<Id>, anchor: impl Into<PopupAnchor>) -> Self {
         Self {
-            id,
+            id: id.into(),
             anchor: anchor.into(),
             rect_align: RectAlign::BOTTOM_START,
             open_kind: OpenKind::Open,
@@ -321,8 +321,8 @@ impl<'a> Popup<'a> {
     }
 
     #[inline]
-    pub fn id(mut self, id: Id) -> Self {
-        self.id = id;
+    pub fn id(mut self, id: impl Into<Id>) -> Self {
+        self.id = id.into();
         self
     }
 

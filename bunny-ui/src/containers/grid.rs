@@ -16,9 +16,9 @@ pub struct Grid {
 
 impl Grid {
     #[inline]
-    pub fn new(id: Id) -> Self {
+    pub fn new(id: impl Into<Id>) -> Self {
         Self {
-            id,
+            id: id.into(),
             num_columns: RNone,
             min_col_width: RNone,
             min_row_height: RNone,

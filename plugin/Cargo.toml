@@ -9,7 +9,7 @@ ui = ["dep:bunny-ui"]
 3d = ["dep:bunny-3d"]
 bevy = ["bunny-3d?/bevy"]
 tobj = ["bunny-3d?/tobj"]
-serde = ["bunny-ui?/serde", "bunny-3d?/serde", "bitflags/serde"]
+serde = ["dep:serde", "bunny-ui?/serde", "bunny-3d?/serde", "bitflags/serde"]
 image = ["bunny-3d?/image"]
 manager = []
 
@@ -22,3 +22,4 @@ shared = { path = "../shared" }
 ilhook = { version = "2.3.0", features = ["x86"], default-features = false }
 tracing-subscriber = "0.3.23"
 bitflags = "2.13.1"
+serde = { version = "1.0.229", features = ["derive"], optional = true }

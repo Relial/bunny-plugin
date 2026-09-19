@@ -12,12 +12,12 @@ pub struct ShortcutButton<'a> {
 }
 
 impl<'a> ShortcutButton<'a> {
-    pub fn new(shortcut: &'a mut KeyboardShortcut, id: Id) -> Self {
+    pub fn new(shortcut: &'a mut KeyboardShortcut, id: impl Into<Id>) -> Self {
         Self {
             bind: shortcut,
             keybind_not_set: false,
             corner_radius: RNone,
-            id,
+            id: id.into(),
         }
     }
 

@@ -827,6 +827,7 @@ dependencies = [
  "bunny-3d",
  "bunny-ui",
  "ilhook",
+ "serde",
  "shared",
  "tracing-subscriber",
 ]

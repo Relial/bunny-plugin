@@ -22,7 +22,7 @@ pub struct Tooltip<'a> {
 }
 
 impl<'a> Tooltip<'a> {
-    pub fn always_open(parent: Id, anchor: impl Into<PopupAnchor>) -> Self {
+    pub fn always_open(parent: impl Into<Id>, anchor: impl Into<PopupAnchor>) -> Self {
         Self {
             popup: Popup::new(parent, anchor)
                 .kind(PopupKind::Tooltip)

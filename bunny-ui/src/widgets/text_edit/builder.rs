@@ -71,8 +71,8 @@ impl<'t> TextEdit<'t> {
     }
 
     #[inline]
-    pub fn id(mut self, id: Id) -> Self {
-        self.id = RSome(id);
+    pub fn id(mut self, id: impl Into<Id>) -> Self {
+        self.id = RSome(id.into());
         self
     }
 

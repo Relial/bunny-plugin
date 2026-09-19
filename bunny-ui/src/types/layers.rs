@@ -43,8 +43,18 @@ impl From<egui::Order> for Order {
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 #[repr(C)]
 pub struct LayerId {
-    pub order: Order,
     pub id: Id,
+    pub order: Order,
+}
+
+impl LayerId {
+    #[inline]
+    pub fn new(order: Order, id: impl Into<Id>) -> Self {
+        Self {
+            order,
+            id: id.into(),
+        }
+    }
 }
 
 #[cfg(feature = "manager")]

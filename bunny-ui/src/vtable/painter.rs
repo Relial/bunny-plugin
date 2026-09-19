@@ -1,7 +1,19 @@
-use egui::{Painter, Rect};
+use abi_stable::std_types::{RString, RVec};
+use egui::{Color32, Painter, Pos2, Rangef, Rect, Vec2, layers::ShapeIdx};
 use vtable::{VRef, VRefMut, vtable};
 
-use crate::{LayerId, painter::BunnyPainter};
+use crate::{
+    Align2, LayerId,
+    galley::BunnyGalley,
+    paint::{
+        TextureId,
+        corner_radius::CornerRadius,
+        shapes::shape::Shape,
+        stroke::{PathStroke, Stroke, StrokeKind},
+        text::{fonts::FontId, text_layout_types::LayoutJob},
+    },
+    painter::BunnyPainter,
+};
 
 #[vtable]
 #[repr(C)]
@@ -24,6 +36,87 @@ pub struct PainterFfiVTable {
     shrink_clip_rect: fn(VRefMut<PainterFfiVTable>, new_clip_rect: Rect),
     set_clip_rect: fn(VRefMut<PainterFfiVTable>, clip_rect: Rect),
     round_to_pixel_center: fn(VRef<PainterFfiVTable>, point: f32) -> f32,
+
+    add: fn(VRef<PainterFfiVTable>, shape: Shape) -> ShapeIdx,
+    extend: fn(VRef<PainterFfiVTable>, shapes: RVec<Shape>),
+    set: fn(VRef<PainterFfiVTable>, idx: ShapeIdx, shape: Shape),
+    // for_each_shape
+    debug_rect: fn(VRef<PainterFfiVTable>, rect: Rect, color: Color32, text: RString),
+    error: fn(VRef<PainterFfiVTable>, pos: Pos2, text: RString) -> Rect,
+    debug_text: fn(
+        VRef<PainterFfiVTable>,
+        pos: Pos2,
+        anchor: Align2,
+        color: Color32,
+        text: RString,
+    ) -> Rect,
+
+    line_segment: fn(VRef<PainterFfiVTable>, points: [Pos2; 2], stroke: Stroke) -> ShapeIdx,
+    line: fn(VRef<PainterFfiVTable>, points: RVec<Pos2>, stroke: PathStroke) -> ShapeIdx,
+    hline: fn(VRef<PainterFfiVTable>, x: Rangef, y: f32, stroke: Stroke) -> ShapeIdx,
+    vline: fn(VRef<PainterFfiVTable>, x: f32, y: Rangef, stroke: Stroke) -> ShapeIdx,
+    circle: fn(
+        VRef<PainterFfiVTable>,
+        center: Pos2,
+        radius: f32,
+        fill_color: Color32,
+        stroke: Stroke,
+    ) -> ShapeIdx,
+    circle_filled:
+        fn(VRef<PainterFfiVTable>, center: Pos2, radius: f32, fill_color: Color32) -> ShapeIdx,
+    circle_stroke:
+        fn(VRef<PainterFfiVTable>, center: Pos2, radius: f32, stroke: Stroke) -> ShapeIdx,
+    rect: fn(
+        VRef<PainterFfiVTable>,
+        rect: Rect,
+        corner_radius: CornerRadius,
+        fill_color: Color32,
+        stroke: Stroke,
+        stroke_kind: StrokeKind,
+    ) -> ShapeIdx,
+    rect_filled: fn(
+        VRef<PainterFfiVTable>,
+        rect: Rect,
+        corner_radius: CornerRadius,
+        fill_color: Color32,
+    ) -> ShapeIdx,
+    rect_stroke: fn(
+        VRef<PainterFfiVTable>,
+        rect: Rect,
+        corner_radius: CornerRadius,
+        stroke: Stroke,
+        stroke_kind: StrokeKind,
+    ) -> ShapeIdx,
+    arrow: fn(VRef<PainterFfiVTable>, origin: Pos2, vec: Vec2, stroke: Stroke),
+    image: fn(
+        VRef<PainterFfiVTable>,
+        texture_id: TextureId,
+        rect: Rect,
+        uv: Rect,
+        tint: Color32,
+    ) -> ShapeIdx,
+
+    text: fn(
+        VRef<PainterFfiVTable>,
+        pos: Pos2,
+        anchor: Align2,
+        text: RString,
+        font_id: FontId,
+        text_color: Color32,
+    ) -> Rect,
+    layout: fn(
+        VRef<PainterFfiVTable>,
+        text: RString,
+        font_id: FontId,
+        color: Color32,
+        wrap_width: f32,
+    ) -> BunnyGalley,
+    layout_no_wrap:
+        fn(VRef<PainterFfiVTable>, text: RString, font_id: FontId, color: Color32) -> BunnyGalley,
+    layout_job: fn(VRef<PainterFfiVTable>, layout_job: LayoutJob) -> BunnyGalley,
+    galley: fn(VRef<PainterFfiVTable>, pos: Pos2, galley: BunnyGalley, fallback_color: Color32),
+    galley_with_override_text_color:
+        fn(VRef<PainterFfiVTable>, pos: Pos2, galley: BunnyGalley, text_color: Color32),
 
     drop: fn(VRefMut<PainterFfiVTable>),
 }
@@ -93,6 +186,157 @@ impl PainterFfi for Painter {
     #[inline]
     fn round_to_pixel_center(&self, point: f32) -> f32 {
         self.round_to_pixel_center(point)
+    }
+
+    #[inline]
+    fn add(&self, shape: Shape) -> ShapeIdx {
+        self.add(shape)
+    }
+
+    #[inline]
+    fn extend(&self, shapes: RVec<Shape>) {
+        self.extend(shapes.into_iter().map(|s| s.into()));
+    }
+
+    #[inline]
+    fn set(&self, idx: ShapeIdx, shape: Shape) {
+        self.set(idx, shape);
+    }
+
+    #[inline]
+    fn debug_rect(&self, rect: Rect, color: Color32, text: RString) {
+        self.debug_rect(rect, color, text);
+    }
+
+    #[inline]
+    fn error(&self, pos: Pos2, text: RString) -> Rect {
+        self.error(pos, text)
+    }
+
+    #[inline]
+    fn debug_text(&self, pos: Pos2, anchor: Align2, color: Color32, text: RString) -> Rect {
+        self.debug_text(pos, anchor.into(), color, text)
+    }
+
+    #[inline]
+    fn line_segment(&self, points: [Pos2; 2], stroke: Stroke) -> ShapeIdx {
+        self.line_segment(points, stroke)
+    }
+
+    #[inline]
+    fn line(&self, points: RVec<Pos2>, stroke: PathStroke) -> ShapeIdx {
+        self.line(points.into(), stroke)
+    }
+
+    #[inline]
+    fn hline(&self, x: Rangef, y: f32, stroke: Stroke) -> ShapeIdx {
+        self.hline(x, y, stroke)
+    }
+
+    #[inline]
+    fn vline(&self, x: f32, y: Rangef, stroke: Stroke) -> ShapeIdx {
+        self.vline(x, y, stroke)
+    }
+
+    #[inline]
+    fn circle(&self, center: Pos2, radius: f32, fill_color: Color32, stroke: Stroke) -> ShapeIdx {
+        self.circle(center, radius, fill_color, stroke)
+    }
+
+    #[inline]
+    fn circle_filled(&self, center: Pos2, radius: f32, fill_color: Color32) -> ShapeIdx {
+        self.circle_filled(center, radius, fill_color)
+    }
+
+    #[inline]
+    fn circle_stroke(&self, center: Pos2, radius: f32, stroke: Stroke) -> ShapeIdx {
+        self.circle_stroke(center, radius, stroke)
+    }
+
+    #[inline]
+    fn rect(
+        &self,
+        rect: Rect,
+        corner_radius: CornerRadius,
+        fill_color: Color32,
+        stroke: Stroke,
+        stroke_kind: StrokeKind,
+    ) -> ShapeIdx {
+        self.rect(rect, corner_radius, fill_color, stroke, stroke_kind.into())
+    }
+
+    #[inline]
+    fn rect_filled(
+        &self,
+        rect: Rect,
+        corner_radius: CornerRadius,
+        fill_color: Color32,
+    ) -> ShapeIdx {
+        self.rect_filled(rect, corner_radius, fill_color)
+    }
+
+    #[inline]
+    fn rect_stroke(
+        &self,
+        rect: Rect,
+        corner_radius: CornerRadius,
+        stroke: Stroke,
+        stroke_kind: StrokeKind,
+    ) -> ShapeIdx {
+        self.rect_stroke(rect, corner_radius, stroke, stroke_kind.into())
+    }
+
+    #[inline]
+    fn arrow(&self, origin: Pos2, vec: Vec2, stroke: Stroke) {
+        self.arrow(origin, vec, stroke);
+    }
+
+    #[inline]
+    fn image(&self, texture_id: TextureId, rect: Rect, uv: Rect, tint: Color32) -> ShapeIdx {
+        self.image(texture_id.into(), rect, uv, tint)
+    }
+
+    #[inline]
+    fn text(
+        &self,
+        pos: Pos2,
+        anchor: Align2,
+        text: RString,
+        font_id: FontId,
+        text_color: Color32,
+    ) -> Rect {
+        self.text(pos, anchor.into(), text, font_id.into(), text_color)
+    }
+
+    #[inline]
+    fn layout(
+        &self,
+        text: RString,
+        font_id: FontId,
+        color: Color32,
+        wrap_width: f32,
+    ) -> BunnyGalley {
+        BunnyGalley::new(self.layout(text.into_string(), font_id.into(), color, wrap_width))
+    }
+
+    #[inline]
+    fn layout_no_wrap(&self, text: RString, font_id: FontId, color: Color32) -> BunnyGalley {
+        BunnyGalley::new(self.layout_no_wrap(text.into_string(), font_id.into(), color))
+    }
+
+    #[inline]
+    fn layout_job(&self, layout_job: LayoutJob) -> BunnyGalley {
+        BunnyGalley::new(self.layout_job(layout_job.into()))
+    }
+
+    #[inline]
+    fn galley(&self, pos: Pos2, galley: BunnyGalley, fallback_color: Color32) {
+        self.galley(pos, galley.into_inner(), fallback_color);
+    }
+
+    #[inline]
+    fn galley_with_override_text_color(&self, pos: Pos2, galley: BunnyGalley, text_color: Color32) {
+        self.galley_with_override_text_color(pos, galley.into_inner(), text_color);
     }
 }
 

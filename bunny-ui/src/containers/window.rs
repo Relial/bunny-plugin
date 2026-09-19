@@ -58,9 +58,9 @@ pub struct Window {
 }
 
 impl Window {
-    pub fn new(id: Id) -> Self {
+    pub fn new(id: impl Into<Id>) -> Self {
         Self {
-            id,
+            id: id.into(),
             open: RNone,
             title: RNone,
             title_bar: false,
