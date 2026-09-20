@@ -21,7 +21,7 @@ use crate::{
     painter::{BunnyPainter, BunnyPainterRef},
     response::BunnyResponse,
     style::{
-        BunnyInteraction, BunnyInteractionMut, BunnySpacing, BunnySpacingMut, BunnyStyleMut,
+        BunnyInteraction, BunnyInteractionMut, BunnySpacingMut, BunnySpacingRef, BunnyStyleMut,
         BunnyStyleRef, BunnyVisuals, BunnyVisualsMut, ScrollAnimation, Style, TextStyle,
     },
     ui::BunnyUi,
@@ -41,7 +41,7 @@ pub struct UiFfiVTable {
     style_clone: fn(VRef<UiFfiVTable>) -> Style,
     set_style: fn(VRefMut<UiFfiVTable>, style: &Style),
     reset_style: fn(VRefMut<UiFfiVTable>),
-    spacing: fn(VRef<UiFfiVTable>) -> BunnySpacing,
+    spacing: fn(VRef<UiFfiVTable>) -> BunnySpacingRef,
     spacing_mut: fn(VRefMut<UiFfiVTable>) -> BunnySpacingMut,
     interaction: fn(VRef<UiFfiVTable>) -> BunnyInteraction,
     interaction_mut: fn(VRefMut<UiFfiVTable>) -> BunnyInteractionMut,
@@ -320,8 +320,8 @@ impl UiFfi for Ui {
     }
 
     #[inline]
-    fn spacing(&self) -> BunnySpacing<'_> {
-        BunnySpacing::new(self.spacing())
+    fn spacing(&self) -> BunnySpacingRef<'_> {
+        BunnySpacingRef::new(self.spacing())
     }
 
     #[inline]

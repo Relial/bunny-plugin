@@ -1,6 +1,6 @@
 use vtable::{VRef, VRefMut};
 
-use crate::vtable::visuals::VisualsFfiVTable;
+use crate::vtable::style::visuals::VisualsFfiVTable;
 
 #[repr(transparent)]
 pub struct BunnyVisuals<'a> {

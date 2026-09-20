@@ -4,10 +4,10 @@ use crate::{
     Align,
     paint::text::{fonts::FontId, text_layout_types::TextWrapMode},
     style::{
-        BunnyInteraction, BunnyInteractionMut, BunnySpacing, BunnySpacingMut, BunnyVisuals,
+        BunnyInteraction, BunnyInteractionMut, BunnySpacingMut, BunnySpacingRef, BunnyVisuals,
         BunnyVisualsMut, Interaction, ScrollAnimation, Spacing, TextStyle, Visuals,
     },
-    vtable::style::StyleFfiVTable,
+    vtable::style::base::StyleFfiVTable,
 };
 
 pub trait BunnyStyle {
@@ -76,9 +76,11 @@ impl<'a> BunnyStyleRef<'a> {
             inner: VRef::new(style),
         }
     }
+}
 
+impl BunnyStyleRef<'_> {
     #[inline]
-    pub fn spacing(&self) -> BunnySpacing<'_> {
+    pub fn spacing(&self) -> BunnySpacingRef<'_> {
         self.inner.spacing()
     }
 
@@ -126,9 +128,64 @@ impl<'a> BunnyStyleMut<'a> {
             inner: VRefMut::new(style),
         }
     }
+}
+
+impl BunnyStyleMut<'_> {
+    #[inline]
+    pub fn set_override_text_style(&mut self, text_style: TextStyle) {
+        self.inner.set_override_text_style(text_style);
+    }
 
     #[inline]
-    pub fn spacing(&self) -> BunnySpacing<'_> {
+    pub fn set_override_font_id(&mut self, font_id: FontId) {
+        self.inner.set_override_font_id(font_id);
+    }
+
+    #[inline]
+    pub fn set_override_text_valign(&mut self, align: Align) {
+        self.inner.set_override_text_valign(align);
+    }
+
+    #[inline]
+    pub fn set_drag_value_text_style(&mut self, text_style: TextStyle) {
+        self.inner.set_drag_value_text_style(text_style);
+    }
+
+    #[inline]
+    pub fn set_wrap_mode(&mut self, wrap_mode: TextWrapMode) {
+        self.inner.set_wrap_mode(wrap_mode);
+    }
+
+    #[inline]
+    pub fn set_animation_time(&mut self, animation_time: f32) {
+        self.inner.set_animation_time(animation_time);
+    }
+
+    #[inline]
+    pub fn set_explanation_tooltips(&mut self, explanation_tooltips: bool) {
+        self.inner.set_explanation_tooltips(explanation_tooltips);
+    }
+
+    #[inline]
+    pub fn set_always_scroll_the_only_direction(&mut self, always_scroll_the_only_direction: bool) {
+        self.inner
+            .set_always_scroll_the_only_direction(always_scroll_the_only_direction);
+    }
+
+    #[inline]
+    pub fn set_scroll_animation(&mut self, scroll_animation: ScrollAnimation) {
+        self.inner.set_scroll_animation(scroll_animation);
+    }
+
+    #[inline]
+    pub fn set_compact_menu_style(&mut self, compact_menu_style: bool) {
+        self.inner.set_compact_menu_style(compact_menu_style);
+    }
+}
+
+impl BunnyStyleMut<'_> {
+    #[inline]
+    pub fn spacing(&self) -> BunnySpacingRef<'_> {
         self.inner.spacing()
     }
 

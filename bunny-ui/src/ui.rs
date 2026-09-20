@@ -25,7 +25,7 @@ use crate::{
     painter::{BunnyPainter, BunnyPainterRef},
     response::{BunnyInnerResponse, BunnyResponse},
     style::{
-        BunnyInteraction, BunnyInteractionMut, BunnySpacing, BunnySpacingMut, BunnyStyleMut,
+        BunnyInteraction, BunnyInteractionMut, BunnySpacingRef, BunnySpacingMut, BunnyStyleMut,
         BunnyStyleRef, BunnyVisuals, BunnyVisualsMut, ScrollAnimation, Style, TextStyle,
     },
     vtable::ui::UiFfiVTable,
@@ -93,7 +93,7 @@ impl<'a> BunnyUi<'a> {
     }
 
     #[inline]
-    pub fn spacing(&self) -> BunnySpacing<'_> {
+    pub fn spacing(&self) -> BunnySpacingRef<'_> {
         self.inner.spacing()
     }
 

@@ -1,6 +1,6 @@
 use vtable::{VRef, VRefMut};
 
-use crate::vtable::interaction::InteractionFfiVTable;
+use crate::vtable::style::interaction::InteractionFfiVTable;
 
 #[repr(transparent)]
 pub struct BunnyInteraction<'a> {

@@ -12,7 +12,7 @@ use crate::{
     vtable::response::ResponseFfiVTable,
 };
 
-#[repr(C)]
+#[repr(transparent)]
 pub struct BunnyResponse {
     inner: VBox<ResponseFfiVTable>,
 }
