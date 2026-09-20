@@ -6,8 +6,9 @@ use crate::{
     Align,
     paint::text::{fonts::FontId, text_layout_types::TextWrapMode},
     style::{
-        BunnyInteractionMut, BunnyInteractionRef, BunnySpacingMut, BunnySpacingRef, BunnyVisuals,
-        BunnyVisualsMut, Interaction, ScrollAnimation, Spacing, TextStyle, Visuals,
+        BunnyInteractionMut, BunnyInteractionRef, BunnySpacingMut, BunnySpacingRef,
+        BunnyVisualsMut, BunnyVisualsRef, Interaction, ScrollAnimation, Spacing, TextStyle,
+        Visuals,
     },
 };
 
@@ -29,11 +30,11 @@ pub struct StyleFfiVTable {
     scroll_animation: fn(VRef<StyleFfiVTable>) -> ScrollAnimation,
     compact_menu_style: fn(VRef<StyleFfiVTable>) -> bool,
 
-    set_override_text_style: fn(VRefMut<StyleFfiVTable>, text_style: TextStyle),
-    set_override_font_id: fn(VRefMut<StyleFfiVTable>, font_id: FontId),
-    set_override_text_valign: fn(VRefMut<StyleFfiVTable>, text_valign: Align),
+    set_override_text_style: fn(VRefMut<StyleFfiVTable>, text_style: ROption<TextStyle>),
+    set_override_font_id: fn(VRefMut<StyleFfiVTable>, font_id: ROption<FontId>),
+    set_override_text_valign: fn(VRefMut<StyleFfiVTable>, text_valign: ROption<Align>),
     set_drag_value_text_style: fn(VRefMut<StyleFfiVTable>, text_style: TextStyle),
-    set_wrap_mode: fn(VRefMut<StyleFfiVTable>, wrap_mode: TextWrapMode),
+    set_wrap_mode: fn(VRefMut<StyleFfiVTable>, wrap_mode: ROption<TextWrapMode>),
     set_animation_time: fn(VRefMut<StyleFfiVTable>, animation_time: f32),
     set_explanation_tooltips: fn(VRefMut<StyleFfiVTable>, explanation_tooltips: bool),
     set_always_scroll_the_only_direction:
@@ -49,7 +50,7 @@ pub struct StyleFfiVTable {
     interaction_mut: fn(VRefMut<StyleFfiVTable>) -> BunnyInteractionMut,
     interaction_clone: fn(VRef<StyleFfiVTable>) -> Interaction,
     set_interaction: fn(VRefMut<StyleFfiVTable>, interaction: &Interaction),
-    visuals: fn(VRef<StyleFfiVTable>) -> BunnyVisuals,
+    visuals: fn(VRef<StyleFfiVTable>) -> BunnyVisualsRef,
     visuals_mut: fn(VRefMut<StyleFfiVTable>) -> BunnyVisualsMut,
     visuals_clone: fn(VRef<StyleFfiVTable>) -> Visuals,
     set_visuals: fn(VRefMut<StyleFfiVTable>, visuals: &Visuals),
@@ -116,18 +117,18 @@ impl StyleFfi for Style {
     }
 
     #[inline]
-    fn set_override_text_style(&mut self, text_style: TextStyle) {
-        self.override_text_style = Some(text_style.into())
+    fn set_override_text_style(&mut self, text_style: ROption<TextStyle>) {
+        self.override_text_style = text_style.map(|t| t.into()).into_option()
     }
 
     #[inline]
-    fn set_override_font_id(&mut self, font_id: FontId) {
-        self.override_font_id = Some(font_id.into())
+    fn set_override_font_id(&mut self, font_id: ROption<FontId>) {
+        self.override_font_id = font_id.map(|f| f.into()).into_option()
     }
 
     #[inline]
-    fn set_override_text_valign(&mut self, align: Align) {
-        self.override_text_valign = Some(align.into())
+    fn set_override_text_valign(&mut self, align: ROption<Align>) {
+        self.override_text_valign = align.map(|a| a.into()).into_option()
     }
 
     #[inline]
@@ -136,8 +137,8 @@ impl StyleFfi for Style {
     }
 
     #[inline]
-    fn set_wrap_mode(&mut self, wrap_mode: TextWrapMode) {
-        self.wrap_mode = Some(wrap_mode.into())
+    fn set_wrap_mode(&mut self, wrap_mode: ROption<TextWrapMode>) {
+        self.wrap_mode = wrap_mode.map(|w| w.into()).into_option()
     }
 
     #[inline]
@@ -206,8 +207,8 @@ impl StyleFfi for Style {
     }
 
     #[inline]
-    fn visuals(&self) -> BunnyVisuals<'_> {
-        BunnyVisuals::new(&self.visuals)
+    fn visuals(&self) -> BunnyVisualsRef<'_> {
+        BunnyVisualsRef::new(&self.visuals)
     }
 
     #[inline]

@@ -26,7 +26,7 @@ use crate::{
     response::{BunnyInnerResponse, BunnyResponse},
     style::{
         BunnyInteractionRef, BunnyInteractionMut, BunnySpacingRef, BunnySpacingMut, BunnyStyleMut,
-        BunnyStyleRef, BunnyVisuals, BunnyVisualsMut, ScrollAnimation, Style, TextStyle,
+        BunnyStyleRef, BunnyVisualsRef, BunnyVisualsMut, ScrollAnimation, Style, TextStyle,
     },
     vtable::ui::UiFfiVTable,
     widgets::{Widget, text_edit::bunny_string::BunnyString},
@@ -113,7 +113,7 @@ impl<'a> BunnyUi<'a> {
     }
 
     #[inline]
-    pub fn visuals(&self) -> BunnyVisuals<'_> {
+    pub fn visuals(&self) -> BunnyVisualsRef<'_> {
         self.inner.visuals()
     }
 

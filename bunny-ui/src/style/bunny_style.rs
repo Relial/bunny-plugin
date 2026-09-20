@@ -4,8 +4,9 @@ use crate::{
     Align,
     paint::text::{fonts::FontId, text_layout_types::TextWrapMode},
     style::{
-        BunnyInteractionRef, BunnyInteractionMut, BunnySpacingMut, BunnySpacingRef, BunnyVisuals,
-        BunnyVisualsMut, Interaction, ScrollAnimation, Spacing, TextStyle, Visuals,
+        BunnyInteractionMut, BunnyInteractionRef, BunnySpacingMut, BunnySpacingRef,
+        BunnyVisualsMut, BunnyVisualsRef, Interaction, ScrollAnimation, Spacing, TextStyle,
+        Visuals,
     },
     vtable::style::base::StyleFfiVTable,
 };
@@ -100,7 +101,7 @@ impl BunnyStyleRef<'_> {
     }
 
     #[inline]
-    pub fn visuals(&self) -> BunnyVisuals<'_> {
+    pub fn visuals(&self) -> BunnyVisualsRef<'_> {
         self.inner.visuals()
     }
 
@@ -132,18 +133,18 @@ impl<'a> BunnyStyleMut<'a> {
 
 impl BunnyStyleMut<'_> {
     #[inline]
-    pub fn set_override_text_style(&mut self, text_style: TextStyle) {
-        self.inner.set_override_text_style(text_style);
+    pub fn set_override_text_style(&mut self, text_style: Option<TextStyle>) {
+        self.inner.set_override_text_style(text_style.into());
     }
 
     #[inline]
-    pub fn set_override_font_id(&mut self, font_id: FontId) {
-        self.inner.set_override_font_id(font_id);
+    pub fn set_override_font_id(&mut self, font_id: Option<FontId>) {
+        self.inner.set_override_font_id(font_id.into());
     }
 
     #[inline]
-    pub fn set_override_text_valign(&mut self, align: Align) {
-        self.inner.set_override_text_valign(align);
+    pub fn set_override_text_valign(&mut self, align: Option<Align>) {
+        self.inner.set_override_text_valign(align.into());
     }
 
     #[inline]
@@ -152,8 +153,8 @@ impl BunnyStyleMut<'_> {
     }
 
     #[inline]
-    pub fn set_wrap_mode(&mut self, wrap_mode: TextWrapMode) {
-        self.inner.set_wrap_mode(wrap_mode);
+    pub fn set_wrap_mode(&mut self, wrap_mode: Option<TextWrapMode>) {
+        self.inner.set_wrap_mode(wrap_mode.into());
     }
 
     #[inline]
@@ -225,7 +226,7 @@ impl BunnyStyleMut<'_> {
     }
 
     #[inline]
-    pub fn visuals(&self) -> BunnyVisuals<'_> {
+    pub fn visuals(&self) -> BunnyVisualsRef<'_> {
         self.inner.visuals()
     }
 

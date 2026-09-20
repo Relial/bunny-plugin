@@ -21,8 +21,8 @@ use crate::{
     painter::{BunnyPainter, BunnyPainterRef},
     response::BunnyResponse,
     style::{
-        BunnyInteractionRef, BunnyInteractionMut, BunnySpacingMut, BunnySpacingRef, BunnyStyleMut,
-        BunnyStyleRef, BunnyVisuals, BunnyVisualsMut, ScrollAnimation, Style, TextStyle,
+        BunnyInteractionMut, BunnyInteractionRef, BunnySpacingMut, BunnySpacingRef, BunnyStyleMut,
+        BunnyStyleRef, BunnyVisualsMut, BunnyVisualsRef, ScrollAnimation, Style, TextStyle,
     },
     ui::BunnyUi,
     widgets::{Widget, image::Image, text_edit::bunny_string::BunnyString},
@@ -45,7 +45,7 @@ pub struct UiFfiVTable {
     spacing_mut: fn(VRefMut<UiFfiVTable>) -> BunnySpacingMut,
     interaction: fn(VRef<UiFfiVTable>) -> BunnyInteractionRef,
     interaction_mut: fn(VRefMut<UiFfiVTable>) -> BunnyInteractionMut,
-    visuals: fn(VRef<UiFfiVTable>) -> BunnyVisuals,
+    visuals: fn(VRef<UiFfiVTable>) -> BunnyVisualsRef,
     visuals_mut: fn(VRefMut<UiFfiVTable>) -> BunnyVisualsMut,
     is_tooltip: fn(VRef<UiFfiVTable>) -> bool,
     // stack
@@ -340,8 +340,8 @@ impl UiFfi for Ui {
     }
 
     #[inline]
-    fn visuals(&self) -> BunnyVisuals<'_> {
-        BunnyVisuals::new(self.visuals())
+    fn visuals(&self) -> BunnyVisualsRef<'_> {
+        BunnyVisualsRef::new(self.visuals())
     }
 
     #[inline]
