@@ -6,7 +6,7 @@ use crate::{
     Align,
     paint::text::{fonts::FontId, text_layout_types::TextWrapMode},
     style::{
-        BunnyInteraction, BunnyInteractionMut, BunnySpacingRef, BunnySpacingMut, BunnyVisuals,
+        BunnyInteractionMut, BunnyInteractionRef, BunnySpacingMut, BunnySpacingRef, BunnyVisuals,
         BunnyVisualsMut, Interaction, ScrollAnimation, Spacing, TextStyle, Visuals,
     },
 };
@@ -45,7 +45,7 @@ pub struct StyleFfiVTable {
     spacing_mut: fn(VRefMut<StyleFfiVTable>) -> BunnySpacingMut,
     spacing_clone: fn(VRef<StyleFfiVTable>) -> Spacing,
     set_spacing: fn(VRefMut<StyleFfiVTable>, spacing: &Spacing),
-    interaction: fn(VRef<StyleFfiVTable>) -> BunnyInteraction,
+    interaction: fn(VRef<StyleFfiVTable>) -> BunnyInteractionRef,
     interaction_mut: fn(VRefMut<StyleFfiVTable>) -> BunnyInteractionMut,
     interaction_clone: fn(VRef<StyleFfiVTable>) -> Interaction,
     set_interaction: fn(VRefMut<StyleFfiVTable>, interaction: &Interaction),
@@ -186,8 +186,8 @@ impl StyleFfi for Style {
     }
 
     #[inline]
-    fn interaction(&self) -> BunnyInteraction<'_> {
-        BunnyInteraction::new(&self.interaction)
+    fn interaction(&self) -> BunnyInteractionRef<'_> {
+        BunnyInteractionRef::new(&self.interaction)
     }
 
     #[inline]

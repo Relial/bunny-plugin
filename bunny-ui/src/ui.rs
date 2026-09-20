@@ -25,7 +25,7 @@ use crate::{
     painter::{BunnyPainter, BunnyPainterRef},
     response::{BunnyInnerResponse, BunnyResponse},
     style::{
-        BunnyInteraction, BunnyInteractionMut, BunnySpacingRef, BunnySpacingMut, BunnyStyleMut,
+        BunnyInteractionRef, BunnyInteractionMut, BunnySpacingRef, BunnySpacingMut, BunnyStyleMut,
         BunnyStyleRef, BunnyVisuals, BunnyVisualsMut, ScrollAnimation, Style, TextStyle,
     },
     vtable::ui::UiFfiVTable,
@@ -103,7 +103,7 @@ impl<'a> BunnyUi<'a> {
     }
 
     #[inline]
-    pub fn interaction(&self) -> BunnyInteraction<'_> {
+    pub fn interaction(&self) -> BunnyInteractionRef<'_> {
         self.inner.interaction()
     }
 

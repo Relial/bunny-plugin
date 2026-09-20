@@ -4,7 +4,7 @@ use crate::{
     Align,
     paint::text::{fonts::FontId, text_layout_types::TextWrapMode},
     style::{
-        BunnyInteraction, BunnyInteractionMut, BunnySpacingMut, BunnySpacingRef, BunnyVisuals,
+        BunnyInteractionRef, BunnyInteractionMut, BunnySpacingMut, BunnySpacingRef, BunnyVisuals,
         BunnyVisualsMut, Interaction, ScrollAnimation, Spacing, TextStyle, Visuals,
     },
     vtable::style::base::StyleFfiVTable,
@@ -90,7 +90,7 @@ impl BunnyStyleRef<'_> {
     }
 
     #[inline]
-    pub fn interaction(&self) -> BunnyInteraction<'_> {
+    pub fn interaction(&self) -> BunnyInteractionRef<'_> {
         self.inner.interaction()
     }
 
@@ -205,7 +205,7 @@ impl BunnyStyleMut<'_> {
     }
 
     #[inline]
-    pub fn interaction(&self) -> BunnyInteraction<'_> {
+    pub fn interaction(&self) -> BunnyInteractionRef<'_> {
         self.inner.interaction()
     }
 
