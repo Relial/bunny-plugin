@@ -325,6 +325,57 @@ pub struct ScrollStyle {
     pub foreground_color: bool,
 }
 
+impl ScrollStyle {
+    pub fn solid() -> Self {
+        Self {
+            floating: false,
+            content_margin: Margin::ZERO,
+            bar_width: 6.0,
+            handle_min_length: 12.0,
+            bar_inner_margin: 4.0,
+            bar_outer_margin: 0.0,
+            floating_width: 2.0,
+            floating_allocated_width: 0.0,
+            foreground_color: false,
+            dormant_background_opacity: 0.0,
+            active_background_opacity: 0.4,
+            interact_background_opacity: 0.7,
+            dormant_handle_opacity: 0.0,
+            active_handle_opacity: 0.6,
+            interact_handle_opacity: 1.0,
+            fade: Default::default(),
+        }
+    }
+
+    pub fn thin() -> Self {
+        Self {
+            floating: true,
+            bar_width: 10.0,
+            floating_allocated_width: 6.0,
+            foreground_color: false,
+            dormant_background_opacity: 1.0,
+            dormant_handle_opacity: 1.0,
+            active_background_opacity: 1.0,
+            active_handle_opacity: 1.0,
+            interact_background_opacity: 0.6,
+            interact_handle_opacity: 0.6,
+            ..Self::solid()
+        }
+    }
+
+    pub fn floating() -> Self {
+        Self {
+            floating: true,
+            bar_width: 10.0,
+            foreground_color: true,
+            floating_allocated_width: 0.0,
+            dormant_background_opacity: 0.0,
+            dormant_handle_opacity: 0.0,
+            ..Self::solid()
+        }
+    }
+}
+
 #[cfg(feature = "manager")]
 impl From<ScrollStyle> for egui::style::ScrollStyle {
     fn from(value: ScrollStyle) -> Self {
