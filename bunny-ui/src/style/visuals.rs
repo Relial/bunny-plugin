@@ -248,19 +248,19 @@ impl BunnyVisualsMut<'_> {
     }
 
     #[inline]
-    pub fn set_override_text_color(&mut self, override_text_color: Option<Color32>) {
+    pub fn set_override_text_color(&mut self, color: Option<Color32>) {
         self.inner
-            .set_override_text_color(override_text_color.into());
+            .set_override_text_color(color.into());
     }
 
     #[inline]
-    pub fn set_weak_text_alpha(&mut self, weak_text_alpha: f32) {
-        self.inner.set_weak_text_alpha(weak_text_alpha);
+    pub fn set_weak_text_alpha(&mut self, alpha: f32) {
+        self.inner.set_weak_text_alpha(alpha);
     }
 
     #[inline]
-    pub fn set_weak_text_color(&mut self, weak_text_color: Option<Color32>) {
-        self.inner.set_weak_text_color(weak_text_color.into());
+    pub fn set_weak_text_color(&mut self, color: Option<Color32>) {
+        self.inner.set_weak_text_color(color.into());
     }
 
     #[inline]
@@ -304,18 +304,18 @@ impl BunnyVisualsMut<'_> {
     }
 
     #[inline]
-    pub fn set_extreme_bg_color(&mut self, extreme_bg_color: Color32) {
-        self.inner.set_extreme_bg_color(extreme_bg_color);
+    pub fn set_extreme_bg_color(&mut self, color: Color32) {
+        self.inner.set_extreme_bg_color(color);
     }
 
     #[inline]
-    pub fn set_text_edit_bg_color(&mut self, text_edit_bg_color: Option<Color32>) {
-        self.inner.set_text_edit_bg_color(text_edit_bg_color.into());
+    pub fn set_text_edit_bg_color(&mut self, color: Option<Color32>) {
+        self.inner.set_text_edit_bg_color(color.into());
     }
 
     #[inline]
-    pub fn set_code_bg_color(&mut self, code_bg_color: Color32) {
-        self.inner.set_code_bg_color(code_bg_color);
+    pub fn set_code_bg_color(&mut self, color: Color32) {
+        self.inner.set_code_bg_color(color);
     }
 
     #[inline]

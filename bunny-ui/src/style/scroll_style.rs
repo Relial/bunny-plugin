@@ -127,13 +127,13 @@ impl BunnyScrollStyleMut<'_> {
     }
 
     #[inline]
-    pub fn set_content_margin(&mut self, content_margin: impl Into<Margin>) {
-        self.inner.set_content_margin(content_margin.into());
+    pub fn set_content_margin(&mut self, margin: impl Into<Margin>) {
+        self.inner.set_content_margin(margin.into());
     }
 
     #[inline]
-    pub fn set_bar_width(&mut self, bar_width: f32) {
-        self.inner.set_bar_width(bar_width);
+    pub fn set_bar_width(&mut self, width: f32) {
+        self.inner.set_bar_width(width);
     }
 
     #[inline]
@@ -142,64 +142,58 @@ impl BunnyScrollStyleMut<'_> {
     }
 
     #[inline]
-    pub fn set_bar_inner_margin(&mut self, bar_inner_margin: f32) {
-        self.inner.set_bar_inner_margin(bar_inner_margin);
+    pub fn set_bar_inner_margin(&mut self, margin: f32) {
+        self.inner.set_bar_inner_margin(margin);
     }
 
     #[inline]
-    pub fn set_bar_outer_margin(&mut self, bar_outer_margin: f32) {
-        self.inner.set_bar_outer_margin(bar_outer_margin);
+    pub fn set_bar_outer_margin(&mut self, margin: f32) {
+        self.inner.set_bar_outer_margin(margin);
     }
 
     #[inline]
-    pub fn set_floating_width(&mut self, floating_width: f32) {
-        self.inner.set_floating_width(floating_width);
+    pub fn set_floating_width(&mut self, width: f32) {
+        self.inner.set_floating_width(width);
     }
 
     #[inline]
-    pub fn set_floating_allocated_width(&mut self, floating_allocated_width: f32) {
-        self.inner
-            .set_floating_allocated_width(floating_allocated_width);
+    pub fn set_floating_allocated_width(&mut self, width: f32) {
+        self.inner.set_floating_allocated_width(width);
     }
 
     #[inline]
-    pub fn set_foreground_color(&mut self, foreground_color: bool) {
-        self.inner.set_foreground_color(foreground_color);
+    pub fn set_foreground_color(&mut self, color: bool) {
+        self.inner.set_foreground_color(color);
     }
 
     #[inline]
-    pub fn set_dormant_background_opacity(&mut self, dormant_background_opacity: f32) {
-        self.inner
-            .set_dormant_background_opacity(dormant_background_opacity);
+    pub fn set_dormant_background_opacity(&mut self, opacity: f32) {
+        self.inner.set_dormant_background_opacity(opacity);
     }
 
     #[inline]
-    pub fn set_active_background_opacity(&mut self, active_background_opacity: f32) {
-        self.inner
-            .set_active_background_opacity(active_background_opacity);
+    pub fn set_active_background_opacity(&mut self, opacity: f32) {
+        self.inner.set_active_background_opacity(opacity);
     }
 
     #[inline]
-    pub fn set_interact_background_opacity(&mut self, interact_background_opacity: f32) {
-        self.inner
-            .set_interact_background_opacity(interact_background_opacity);
+    pub fn set_interact_background_opacity(&mut self, opacity: f32) {
+        self.inner.set_interact_background_opacity(opacity);
     }
 
     #[inline]
-    pub fn set_dormant_handle_opacity(&mut self, dormant_handle_opacity: f32) {
-        self.inner
-            .set_dormant_handle_opacity(dormant_handle_opacity);
+    pub fn set_dormant_handle_opacity(&mut self, opacity: f32) {
+        self.inner.set_dormant_handle_opacity(opacity);
     }
 
     #[inline]
-    pub fn set_active_handle_opacity(&mut self, active_handle_opacity: f32) {
-        self.inner.set_active_handle_opacity(active_handle_opacity);
+    pub fn set_active_handle_opacity(&mut self, opacity: f32) {
+        self.inner.set_active_handle_opacity(opacity);
     }
 
     #[inline]
-    pub fn set_interact_handle_opacity(&mut self, interact_handle_opacity: f32) {
-        self.inner
-            .set_interact_handle_opacity(interact_handle_opacity);
+    pub fn set_interact_handle_opacity(&mut self, opacity: f32) {
+        self.inner.set_interact_handle_opacity(opacity);
     }
 
     #[inline]

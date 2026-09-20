@@ -29,25 +29,25 @@ pub struct SpacingFfiVTable {
     combo_height: fn(VRef<SpacingFfiVTable>) -> f32,
 
     set_item_spacing: fn(VRefMut<SpacingFfiVTable>, item_spacing: Vec2),
-    set_window_margin: fn(VRefMut<SpacingFfiVTable>, window_margin: Margin),
+    set_window_margin: fn(VRefMut<SpacingFfiVTable>, margin: Margin),
     set_button_padding: fn(VRefMut<SpacingFfiVTable>, button_padding: Vec2),
-    set_menu_margin: fn(VRefMut<SpacingFfiVTable>, menu_margin: Margin),
+    set_menu_margin: fn(VRefMut<SpacingFfiVTable>, margin: Margin),
     set_indent: fn(VRefMut<SpacingFfiVTable>, indent: f32),
     set_interact_size: fn(VRefMut<SpacingFfiVTable>, interact_size: Vec2),
-    set_slider_width: fn(VRefMut<SpacingFfiVTable>, slider_width: f32),
-    set_slider_rail_height: fn(VRefMut<SpacingFfiVTable>, slider_rail_height: f32),
-    set_combo_width: fn(VRefMut<SpacingFfiVTable>, combo_width: f32),
-    set_text_edit_width: fn(VRefMut<SpacingFfiVTable>, text_edit_width: f32),
-    set_icon_width: fn(VRefMut<SpacingFfiVTable>, icon_width: f32),
-    set_icon_width_inner: fn(VRefMut<SpacingFfiVTable>, icon_width_inner: f32),
+    set_slider_width: fn(VRefMut<SpacingFfiVTable>, width: f32),
+    set_slider_rail_height: fn(VRefMut<SpacingFfiVTable>, height: f32),
+    set_combo_width: fn(VRefMut<SpacingFfiVTable>, width: f32),
+    set_text_edit_width: fn(VRefMut<SpacingFfiVTable>, width: f32),
+    set_icon_width: fn(VRefMut<SpacingFfiVTable>, width: f32),
+    set_icon_width_inner: fn(VRefMut<SpacingFfiVTable>, width_inner: f32),
     set_icon_spacing: fn(VRefMut<SpacingFfiVTable>, icon_spacing: f32),
     set_default_area_size: fn(VRefMut<SpacingFfiVTable>, default_area_size: Vec2),
-    set_tooltip_width: fn(VRefMut<SpacingFfiVTable>, tooltip_width: f32),
-    set_menu_width: fn(VRefMut<SpacingFfiVTable>, menu_width: f32),
+    set_tooltip_width: fn(VRefMut<SpacingFfiVTable>, width: f32),
+    set_menu_width: fn(VRefMut<SpacingFfiVTable>, width: f32),
     set_menu_spacing: fn(VRefMut<SpacingFfiVTable>, menu_spacing: f32),
     set_indent_ends_with_horizontal_line:
         fn(VRefMut<SpacingFfiVTable>, indent_ends_with_horizontal_line: bool),
-    set_combo_height: fn(VRefMut<SpacingFfiVTable>, combo_height: f32),
+    set_combo_height: fn(VRefMut<SpacingFfiVTable>, height: f32),
 
     scroll_style: fn(VRef<SpacingFfiVTable>) -> BunnyScrollStyleRef,
     scroll_style_mut: fn(VRefMut<SpacingFfiVTable>) -> BunnyScrollStyleMut,
@@ -152,8 +152,8 @@ impl SpacingFfi for Spacing {
     }
 
     #[inline]
-    fn set_window_margin(&mut self, window_margin: Margin) {
-        self.window_margin = window_margin.into()
+    fn set_window_margin(&mut self, margin: Margin) {
+        self.window_margin = margin.into()
     }
 
     #[inline]
@@ -162,8 +162,8 @@ impl SpacingFfi for Spacing {
     }
 
     #[inline]
-    fn set_menu_margin(&mut self, menu_margin: Margin) {
-        self.menu_margin = menu_margin.into()
+    fn set_menu_margin(&mut self, margin: Margin) {
+        self.menu_margin = margin.into()
     }
 
     #[inline]
@@ -177,33 +177,33 @@ impl SpacingFfi for Spacing {
     }
 
     #[inline]
-    fn set_slider_width(&mut self, slider_width: f32) {
-        self.slider_width = slider_width
+    fn set_slider_width(&mut self, width: f32) {
+        self.slider_width = width
     }
 
     #[inline]
-    fn set_slider_rail_height(&mut self, slider_rail_height: f32) {
-        self.slider_rail_height = slider_rail_height
+    fn set_slider_rail_height(&mut self, height: f32) {
+        self.slider_rail_height = height
     }
 
     #[inline]
-    fn set_combo_width(&mut self, combo_width: f32) {
-        self.combo_width = combo_width
+    fn set_combo_width(&mut self, width: f32) {
+        self.combo_width = width
     }
 
     #[inline]
-    fn set_text_edit_width(&mut self, text_edit_width: f32) {
-        self.text_edit_width = text_edit_width
+    fn set_text_edit_width(&mut self, width: f32) {
+        self.text_edit_width = width
     }
 
     #[inline]
-    fn set_icon_width(&mut self, icon_width: f32) {
-        self.icon_width = icon_width
+    fn set_icon_width(&mut self, width: f32) {
+        self.icon_width = width
     }
 
     #[inline]
-    fn set_icon_width_inner(&mut self, icon_width_inner: f32) {
-        self.icon_width_inner = icon_width_inner
+    fn set_icon_width_inner(&mut self, width_inner: f32) {
+        self.icon_width_inner = width_inner
     }
 
     #[inline]
@@ -217,13 +217,13 @@ impl SpacingFfi for Spacing {
     }
 
     #[inline]
-    fn set_tooltip_width(&mut self, tooltip_width: f32) {
-        self.tooltip_width = tooltip_width
+    fn set_tooltip_width(&mut self, width: f32) {
+        self.tooltip_width = width
     }
 
     #[inline]
-    fn set_menu_width(&mut self, menu_width: f32) {
-        self.menu_width = menu_width
+    fn set_menu_width(&mut self, width: f32) {
+        self.menu_width = width
     }
 
     #[inline]
@@ -237,8 +237,8 @@ impl SpacingFfi for Spacing {
     }
 
     #[inline]
-    fn set_combo_height(&mut self, combo_height: f32) {
-        self.combo_height = combo_height
+    fn set_combo_height(&mut self, height: f32) {
+        self.combo_height = height
     }
 
     #[inline]

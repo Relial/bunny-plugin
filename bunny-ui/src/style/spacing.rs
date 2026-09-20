@@ -156,8 +156,8 @@ impl BunnySpacingMut<'_> {
     }
 
     #[inline]
-    pub fn set_window_margin(&mut self, window_margin: impl Into<Margin>) {
-        self.inner.set_window_margin(window_margin.into());
+    pub fn set_window_margin(&mut self, margin: impl Into<Margin>) {
+        self.inner.set_window_margin(margin.into());
     }
 
     #[inline]
@@ -166,8 +166,8 @@ impl BunnySpacingMut<'_> {
     }
 
     #[inline]
-    pub fn set_menu_margin(&mut self, menu_margin: impl Into<Margin>) {
-        self.inner.set_menu_margin(menu_margin.into());
+    pub fn set_menu_margin(&mut self, margin: impl Into<Margin>) {
+        self.inner.set_menu_margin(margin.into());
     }
 
     #[inline]
@@ -181,33 +181,33 @@ impl BunnySpacingMut<'_> {
     }
 
     #[inline]
-    pub fn set_slider_width(&mut self, slider_width: f32) {
-        self.inner.set_slider_width(slider_width);
+    pub fn set_slider_width(&mut self, width: f32) {
+        self.inner.set_slider_width(width);
     }
 
     #[inline]
-    pub fn set_slider_rail_height(&mut self, slider_rail_height: f32) {
-        self.inner.set_slider_rail_height(slider_rail_height);
+    pub fn set_slider_rail_height(&mut self, height: f32) {
+        self.inner.set_slider_rail_height(height);
     }
 
     #[inline]
-    pub fn set_combo_width(&mut self, combo_width: f32) {
-        self.inner.set_combo_width(combo_width);
+    pub fn set_combo_width(&mut self, width: f32) {
+        self.inner.set_combo_width(width);
     }
 
     #[inline]
-    pub fn set_text_edit_width(&mut self, text_edit_width: f32) {
-        self.inner.set_text_edit_width(text_edit_width);
+    pub fn set_text_edit_width(&mut self, width: f32) {
+        self.inner.set_text_edit_width(width);
     }
 
     #[inline]
-    pub fn set_icon_width(&mut self, icon_width: f32) {
-        self.inner.set_icon_width(icon_width);
+    pub fn set_icon_width(&mut self, width: f32) {
+        self.inner.set_icon_width(width);
     }
 
     #[inline]
-    pub fn set_icon_width_inner(&mut self, icon_width_inner: f32) {
-        self.inner.set_icon_width_inner(icon_width_inner);
+    pub fn set_icon_width_inner(&mut self, width_inner: f32) {
+        self.inner.set_icon_width_inner(width_inner);
     }
 
     #[inline]
@@ -222,13 +222,13 @@ impl BunnySpacingMut<'_> {
     }
 
     #[inline]
-    pub fn set_tooltip_width(&mut self, tooltip_width: f32) {
-        self.inner.set_tooltip_width(tooltip_width);
+    pub fn set_tooltip_width(&mut self, width: f32) {
+        self.inner.set_tooltip_width(width);
     }
 
     #[inline]
-    pub fn set_menu_width(&mut self, menu_width: f32) {
-        self.inner.set_menu_width(menu_width);
+    pub fn set_menu_width(&mut self, width: f32) {
+        self.inner.set_menu_width(width);
     }
 
     #[inline]
@@ -243,8 +243,8 @@ impl BunnySpacingMut<'_> {
     }
 
     #[inline]
-    pub fn set_combo_height(&mut self, combo_height: f32) {
-        self.inner.set_combo_height(combo_height);
+    pub fn set_combo_height(&mut self, height: f32) {
+        self.inner.set_combo_height(height);
     }
 }
 
