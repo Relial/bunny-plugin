@@ -169,8 +169,12 @@ impl ScrollAreaRowsClosurePointer {
 #[repr(C)]
 pub struct ScrollAreaRowsClosure<'a> {
     closure: ScrollAreaRowsClosurePointer,
-    closure_trampoline:
-        unsafe extern "C" fn(&mut BunnyUi, &[usize; 2], ScrollAreaRowsClosurePointer, OutputPointer),
+    closure_trampoline: unsafe extern "C" fn(
+        &mut BunnyUi,
+        &[usize; 2],
+        ScrollAreaRowsClosurePointer,
+        OutputPointer,
+    ),
     output: OutputPointer,
     phantom: PhantomCovariantLifetime<'a>,
 }
@@ -208,5 +212,60 @@ unsafe extern "C" fn scroll_area_rows_closure_trampoline<
 ) {
     let closure = unsafe { closure.0.cast::<F>().as_mut() };
     let ret = closure(ui, range[0]..range[1]);
+    unsafe { output.0.cast::<R>().write(ret) };
+}
+
+#[repr(C)]
+struct PanelAnimatedBetweenClosurePointer(NonNull<u8>);
+
+impl PanelAnimatedBetweenClosurePointer {
+    #[inline]
+    fn new<R, F: FnMut(&mut BunnyUi, f32) -> R>(closure: &mut F) -> Self {
+        Self(NonNull::from_mut(closure).cast::<u8>())
+    }
+}
+
+#[repr(C)]
+pub struct PanelAnimatedBetweenClosure<'a> {
+    closure: PanelAnimatedBetweenClosurePointer,
+    closure_trampoline:
+        unsafe extern "C" fn(&mut BunnyUi, f32, PanelAnimatedBetweenClosurePointer, OutputPointer),
+    output: OutputPointer,
+    phantom: PhantomCovariantLifetime<'a>,
+}
+
+impl<'a> PanelAnimatedBetweenClosure<'a> {
+    #[inline]
+    pub fn new<R, F: FnMut(&mut BunnyUi, f32) -> R + 'a>(
+        closure: &mut F,
+        output: &mut MaybeUninit<R>,
+    ) -> Self {
+        let closure = PanelAnimatedBetweenClosurePointer::new(closure);
+        let output = OutputPointer::new(output);
+        Self {
+            closure,
+            closure_trampoline: panel_animated_between_closure_trampoline::<R, F>,
+            output,
+            phantom: PhantomCovariantLifetime::new(),
+        }
+    }
+
+    #[inline]
+    pub fn call(self, ui: &mut BunnyUi, how_expanded: f32) {
+        unsafe { (self.closure_trampoline)(ui, how_expanded, self.closure, self.output) }
+    }
+}
+
+unsafe extern "C" fn panel_animated_between_closure_trampoline<
+    R,
+    F: FnMut(&mut BunnyUi, f32) -> R,
+>(
+    ui: &mut BunnyUi,
+    how_expanded: f32,
+    closure: PanelAnimatedBetweenClosurePointer,
+    output: OutputPointer,
+) {
+    let closure = unsafe { closure.0.cast::<F>().as_mut() };
+    let ret = closure(ui, how_expanded);
     unsafe { output.0.cast::<R>().write(ret) };
 }

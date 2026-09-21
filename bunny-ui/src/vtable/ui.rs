@@ -6,8 +6,13 @@ use vtable::{VRef, VRefMut, vtable};
 
 use crate::{
     Align, ImageSource, LayerId, Layout as BunnyLayout, RichText, SizeHint, UiBuilder, WidgetText,
-    closure::{InputStateClosure, PluginClosure, ScrollAreaRowsClosure},
-    containers::{Area, CollapsingHeader, ComboBox, Frame, Grid, Popup, ScrollArea, Window},
+    closure::{
+        InputStateClosure, PanelAnimatedBetweenClosure, PluginClosure, ScrollAreaRowsClosure,
+    },
+    containers::{
+        Area, CentralPanel, CollapsingHeader, ComboBox, Frame, Grid, Panel, Popup, ScrollArea,
+        Window,
+    },
     galley::BunnyGalley,
     input::BunnyInputState,
     load::TexturePoll,
@@ -283,6 +288,25 @@ pub struct UiFfiVTable {
     ) -> Tuple2<BunnyResponse, bool>,
     frame_show: fn(VRefMut<UiFfiVTable>, frame: Frame, contents: PluginClosure) -> BunnyResponse,
     grid_show: fn(VRefMut<UiFfiVTable>, grid: Grid, contents: PluginClosure) -> BunnyResponse,
+    central_panel_show: fn(
+        VRefMut<UiFfiVTable>,
+        central_panel: CentralPanel,
+        contents: PluginClosure,
+    ) -> BunnyResponse,
+    panel_show: fn(VRefMut<UiFfiVTable>, panel: Panel, contents: PluginClosure) -> BunnyResponse,
+    panel_show_animated: fn(
+        VRefMut<UiFfiVTable>,
+        panel: Panel,
+        is_expanded: bool,
+        contents: PluginClosure,
+    ) -> ROption<BunnyResponse>,
+    panel_show_animated_between: fn(
+        VRefMut<UiFfiVTable>,
+        is_expanded: bool,
+        collapsed_panel: Panel,
+        expanded_panel: Panel,
+        contents: PanelAnimatedBetweenClosure,
+    ) -> BunnyResponse,
     popup_show:
         fn(VRefMut<UiFfiVTable>, popup: Popup, contents: PluginClosure) -> ROption<BunnyResponse>,
     scroll_area_show: fn(
@@ -1368,6 +1392,47 @@ impl UiFfi for Ui {
     #[inline]
     fn grid_show(&mut self, grid: Grid, contents: PluginClosure) -> BunnyResponse {
         grid.show_impl(self, contents)
+    }
+
+    #[inline]
+    fn central_panel_show(
+        &mut self,
+        central_panel: CentralPanel,
+        contents: PluginClosure,
+    ) -> BunnyResponse {
+        central_panel.show_impl(self, contents)
+    }
+
+    #[inline]
+    fn panel_show(&mut self, panel: Panel, contents: PluginClosure) -> BunnyResponse {
+        panel.show_impl(self, contents)
+    }
+
+    #[inline]
+    fn panel_show_animated(
+        &mut self,
+        panel: Panel,
+        is_expanded: bool,
+        contents: PluginClosure,
+    ) -> ROption<BunnyResponse> {
+        panel.show_animated_impl(self, is_expanded, contents)
+    }
+
+    #[inline]
+    fn panel_show_animated_between(
+        &mut self,
+        is_expanded: bool,
+        collapsed_panel: Panel,
+        expanded_panel: Panel,
+        contents: PanelAnimatedBetweenClosure,
+    ) -> BunnyResponse {
+        Panel::show_animated_between_impl(
+            self,
+            is_expanded,
+            collapsed_panel,
+            expanded_panel,
+            contents,
+        )
     }
 
     #[inline]

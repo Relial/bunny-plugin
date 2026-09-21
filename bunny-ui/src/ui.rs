@@ -9,10 +9,12 @@ use vtable::VRefMut;
 
 use crate::{
     Align, ImageSource, LayerId, Layout, RichText, SizeHint, UiBuilder, WidgetText,
-    closure::{InputStateClosure, PluginClosure, ScrollAreaRowsClosure},
+    closure::{
+        InputStateClosure, PanelAnimatedBetweenClosure, PluginClosure, ScrollAreaRowsClosure,
+    },
     containers::{
-        Area, BunnyCollapsingResponse, BunnyScrollAreaOutput, CollapsingHeader, ComboBox, Frame,
-        Grid, Popup, ScrollArea, Window,
+        Area, BunnyCollapsingResponse, BunnyScrollAreaOutput, CentralPanel, CollapsingHeader,
+        ComboBox, Frame, Grid, Panel, Popup, ScrollArea, Window,
     },
     galley::BunnyGalley,
     id::hash_id_salt,
@@ -1198,6 +1200,66 @@ impl<'a> BunnyUi<'a> {
         let mut ret = MaybeUninit::<R>::uninit();
         let closure = PluginClosure::new(&mut add_contents, &mut ret);
         let response = self.inner.grid_show(grid, closure);
+        let inner = unsafe { ret.assume_init() };
+        BunnyInnerResponse::new(inner, response)
+    }
+
+    pub(crate) fn central_panel_show<R>(
+        &mut self,
+        central_panel: CentralPanel,
+        mut add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> BunnyInnerResponse<R> {
+        let mut ret = MaybeUninit::<R>::uninit();
+        let closure = PluginClosure::new(&mut add_contents, &mut ret);
+        let response = self.inner.central_panel_show(central_panel, closure);
+        let inner = unsafe { ret.assume_init() };
+        BunnyInnerResponse::new(inner, response)
+    }
+
+    pub(crate) fn panel_show<R>(
+        &mut self,
+        panel: Panel,
+        mut add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> BunnyInnerResponse<R> {
+        let mut ret = MaybeUninit::<R>::uninit();
+        let closure = PluginClosure::new(&mut add_contents, &mut ret);
+        let response = self.inner.panel_show(panel, closure);
+        let inner = unsafe { ret.assume_init() };
+        BunnyInnerResponse::new(inner, response)
+    }
+
+    pub(crate) fn panel_show_animated<R>(
+        &mut self,
+        panel: Panel,
+        is_expanded: bool,
+        mut add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> Option<BunnyInnerResponse<R>> {
+        let mut ret = MaybeUninit::<R>::uninit();
+        let closure = PluginClosure::new(&mut add_contents, &mut ret);
+        let response = self.inner.panel_show_animated(panel, is_expanded, closure);
+        response
+            .map(|response| {
+                let inner = unsafe { ret.assume_init() };
+                BunnyInnerResponse::new(inner, response)
+            })
+            .into_option()
+    }
+
+    pub(crate) fn panel_show_animated_between<R>(
+        &mut self,
+        is_expanded: bool,
+        collapsed_panel: Panel,
+        expanded_panel: Panel,
+        mut add_contents: impl FnMut(&mut BunnyUi, f32) -> R,
+    ) -> BunnyInnerResponse<R> {
+        let mut ret = MaybeUninit::<R>::uninit();
+        let closure = PanelAnimatedBetweenClosure::new(&mut add_contents, &mut ret);
+        let response = self.inner.panel_show_animated_between(
+            is_expanded,
+            collapsed_panel,
+            expanded_panel,
+            closure,
+        );
         let inner = unsafe { ret.assume_init() };
         BunnyInnerResponse::new(inner, response)
     }
