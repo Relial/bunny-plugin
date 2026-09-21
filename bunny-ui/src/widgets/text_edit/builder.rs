@@ -6,7 +6,7 @@ use mint::Vector2;
 
 use crate::{
     Align, Align2, Margin, WidgetText,
-    containers::frame::Frame,
+    containers::Frame,
     paint::text::fonts::FontSelection,
     widgets::{Widget, text_edit::bunny_string::BunnyString},
 };

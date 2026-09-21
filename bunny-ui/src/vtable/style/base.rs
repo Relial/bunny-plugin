@@ -1,9 +1,10 @@
 use abi_stable::std_types::ROption;
-use egui::Style;
+use egui::{Style, containers::menu::menu_style};
 use vtable::{VRef, VRefMut, vtable};
 
 use crate::{
     Align,
+    containers::FrameStyle,
     paint::text::{fonts::FontId, text_layout_types::TextWrapMode},
     style::{
         BunnyInteractionMut, BunnyInteractionRef, BunnySpacingMut, BunnySpacingRef,
@@ -54,6 +55,10 @@ pub struct StyleFfiVTable {
     visuals_mut: fn(VRefMut<StyleFfiVTable>) -> BunnyVisualsMut,
     visuals_clone: fn(VRef<StyleFfiVTable>) -> Visuals,
     set_visuals: fn(VRefMut<StyleFfiVTable>, visuals: &Visuals),
+
+    frame_style: fn(VRef<StyleFfiVTable>) -> FrameStyle,
+
+    menu_style: fn(VRefMut<StyleFfiVTable>),
 }
 
 impl StyleFfi for Style {
@@ -224,6 +229,17 @@ impl StyleFfi for Style {
     #[inline]
     fn set_visuals(&mut self, visuals: &Visuals) {
         self.visuals = visuals.into()
+    }
+
+    #[allow(private_interfaces)]
+    #[inline]
+    fn frame_style(&self) -> FrameStyle {
+        FrameStyle::from_style(self)
+    }
+
+    #[inline]
+    fn menu_style(&mut self) {
+        menu_style(self);
     }
 }
 

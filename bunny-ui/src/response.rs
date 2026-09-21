@@ -5,7 +5,7 @@ use mint::Vector2;
 use vtable::VBox;
 
 use crate::{
-    Align, PointerButton, WidgetText,
+    Align, LayerId, PointerButton, WidgetText,
     closure::{PluginClosure, PluginNoReturnClosure},
     style::ScrollAnimation,
     ui::BunnyUi,
@@ -27,6 +27,11 @@ impl BunnyResponse {
 }
 
 impl BunnyResponse {
+    #[inline]
+    pub fn layer_id(&self) -> LayerId {
+        self.inner.layer_id()
+    }
+
     #[inline]
     pub fn id(&self) -> Id {
         self.inner.id()

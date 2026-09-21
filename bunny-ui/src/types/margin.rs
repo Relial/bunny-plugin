@@ -1,3 +1,4 @@
+use egui::{Rect, epaint::MarginF32, vec2};
 use emath::Vec2;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -37,6 +38,46 @@ impl Margin {
             bottom: y,
         }
     }
+
+    #[inline]
+    pub const fn leftf(self) -> f32 {
+        self.left as f32
+    }
+
+    #[inline]
+    pub const fn rightf(self) -> f32 {
+        self.right as f32
+    }
+
+    #[inline]
+    pub const fn topf(self) -> f32 {
+        self.top as f32
+    }
+
+    #[inline]
+    pub const fn bottomf(self) -> f32 {
+        self.bottom as f32
+    }
+
+    #[inline]
+    pub fn sum(self) -> Vec2 {
+        vec2(self.leftf() + self.rightf(), self.topf() + self.bottomf())
+    }
+
+    #[inline]
+    pub const fn left_top(self) -> Vec2 {
+        vec2(self.leftf(), self.topf())
+    }
+
+    #[inline]
+    pub const fn right_bottom(self) -> Vec2 {
+        vec2(self.rightf(), self.bottomf())
+    }
+
+    #[inline]
+    pub const fn is_same(self) -> bool {
+        self.left == self.right && self.left == self.top && self.left == self.bottom
+    }
 }
 
 impl From<i8> for Margin {
@@ -57,6 +98,62 @@ impl From<Vec2> for Margin {
     #[inline]
     fn from(value: Vec2) -> Self {
         Self::symmetric(value.x.round() as _, value.y.round() as _)
+    }
+}
+
+impl From<Margin> for MarginF32 {
+    #[inline]
+    fn from(value: Margin) -> Self {
+        let Margin {
+            left,
+            right,
+            top,
+            bottom,
+        } = value;
+        Self {
+            left: left as f32,
+            right: right as f32,
+            top: top as f32,
+            bottom: bottom as f32,
+        }
+    }
+}
+
+impl std::ops::Add<Margin> for Rect {
+    type Output = Self;
+
+    #[inline]
+    fn add(self, margin: Margin) -> Self::Output {
+        Self::from_min_max(
+            self.min - margin.left_top(),
+            self.max + margin.right_bottom(),
+        )
+    }
+}
+
+impl std::ops::AddAssign<Margin> for Rect {
+    #[inline]
+    fn add_assign(&mut self, margin: Margin) {
+        *self = *self + margin
+    }
+}
+
+impl std::ops::Sub<Margin> for Rect {
+    type Output = Self;
+
+    #[inline]
+    fn sub(self, margin: Margin) -> Self::Output {
+        Self::from_min_max(
+            self.min + margin.left_top(),
+            self.max - margin.right_bottom(),
+        )
+    }
+}
+
+impl std::ops::SubAssign<Margin> for Rect {
+    #[inline]
+    fn sub_assign(&mut self, margin: Margin) {
+        *self = *self - margin
     }
 }
 

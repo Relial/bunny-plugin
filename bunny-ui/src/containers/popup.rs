@@ -1,41 +1,23 @@
-use abi_stable::std_types::{
-    RBox,
-    ROption::{self, RNone, RSome},
-};
+use abi_stable::std_types::ROption::{self, RNone, RSome};
+use egui::{Id, Sense};
 use emath::{Pos2, Rect};
 
 use crate::{
-    Id,
-    align::Align,
-    containers::frame::Frame,
-    elements::Container,
-    layout::Layout,
-    paint::paintlist::Order,
-    rect_align::RectAlign,
-    response::{InnerResponse, Response},
-    sense::Sense,
-    ui_old::BunnyUi,
+    Align, LayerId, Layout, Order, RectAlign, UiStackInfo,
+    closure::PluginClosure,
+    containers::Frame,
+    response::{BunnyInnerResponse, BunnyResponse},
+    ui::BunnyUi,
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[repr(C)]
 pub enum PopupAnchor {
     ParentRect(Rect),
     Pointer,
     PointerFixed,
     Position(Pos2),
-}
-
-#[cfg(feature = "manager")]
-impl PopupAnchor {
-    pub fn rect(self, popup_id: egui::Id, ctx: &egui::Context) -> Option<Rect> {
-        match self {
-            PopupAnchor::ParentRect(rect) => Some(rect),
-            PopupAnchor::Pointer => ctx.pointer_hover_pos().map(Rect::from_pos),
-            PopupAnchor::PointerFixed => Popup::position_of_id(ctx, popup_id).map(Rect::from_pos),
-            PopupAnchor::Position(pos2) => Some(Rect::from_pos(pos2)),
-        }
-    }
 }
 
 impl From<Rect> for PopupAnchor {
@@ -50,9 +32,9 @@ impl From<Pos2> for PopupAnchor {
     }
 }
 
-impl From<&Response> for PopupAnchor {
-    fn from(value: &Response) -> Self {
-        let rect = value.interact_rect;
+impl From<&BunnyResponse> for PopupAnchor {
+    fn from(value: &BunnyResponse) -> Self {
+        let rect = value.interact_rect();
         Self::ParentRect(rect)
     }
 }
@@ -70,6 +52,7 @@ impl From<PopupAnchor> for egui::PopupAnchor {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[repr(C)]
 pub enum PopupCloseBehavior {
     #[default]
@@ -143,32 +126,17 @@ impl From<PopupKind> for egui::PopupKind {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, Debug)]
-#[repr(C)]
-struct PopupClick {
-    popup_interact_rect: Rect,
-    click_pos: Pos2,
-}
-
-impl Default for PopupClick {
-    fn default() -> Self {
-        Self {
-            popup_interact_rect: Rect::ZERO,
-            click_pos: Pos2::ZERO,
-        }
-    }
-}
-
 #[repr(C)]
 pub struct Popup<'a> {
+    info: ROption<UiStackInfo>,
     frame: ROption<Frame>,
-    click: ROption<PopupClick>,
     open_kind: OpenKind<'a>,
     anchor: PopupAnchor,
     rect_align: RectAlign,
+    layer_id: LayerId,
     layout: Layout,
     id: Id,
-    pub(crate) width: ROption<f32>,
+    width: ROption<f32>,
     close_behavior: PopupCloseBehavior,
     kind: PopupKind,
     gap: f32,
@@ -177,14 +145,15 @@ pub struct Popup<'a> {
 }
 
 impl<'a> Popup<'a> {
-    pub fn new(id: impl Into<Id>, anchor: impl Into<PopupAnchor>) -> Self {
+    pub fn new(id: impl Into<Id>, anchor: impl Into<PopupAnchor>, layer_id: LayerId) -> Self {
         Self {
+            info: RNone,
             id: id.into(),
             anchor: anchor.into(),
+            layer_id,
             rect_align: RectAlign::BOTTOM_START,
             open_kind: OpenKind::Open,
             close_behavior: PopupCloseBehavior::default(),
-            click: RNone,
             kind: PopupKind::Popup,
             gap: 0.0,
             width: RNone,
@@ -195,16 +164,20 @@ impl<'a> Popup<'a> {
         }
     }
 
-    pub fn from_response(response: &Response) -> Self {
-        Self::new(Self::default_response_id(response), response)
+    pub fn from_response(response: &BunnyResponse) -> Self {
+        Self::new(
+            Self::default_response_id(response),
+            response,
+            response.layer_id(),
+        )
     }
 
-    pub fn from_toggle_button_response(button_response: &Response) -> Self {
+    pub fn from_toggle_button_response(button_response: &BunnyResponse) -> Self {
         Self::from_response(button_response)
             .open_memory(button_response.clicked().then_some(SetOpenCommand::Toggle))
     }
 
-    pub fn menu(button_response: &Response) -> Self {
+    pub fn menu(button_response: &BunnyResponse) -> Self {
         Self::from_toggle_button_response(button_response)
             .kind(PopupKind::Menu)
             .layout(Layout::top_down_justified(Align::Min))
@@ -212,7 +185,7 @@ impl<'a> Popup<'a> {
             .gap(0.0)
     }
 
-    pub fn context_menu(response: &Response) -> Self {
+    pub fn context_menu(response: &BunnyResponse) -> Self {
         Self::menu(response)
             .open_memory(if response.secondary_clicked() {
                 RSome(SetOpenCommand::Bool(true))
@@ -227,6 +200,12 @@ impl<'a> Popup<'a> {
     #[inline]
     pub fn kind(mut self, kind: PopupKind) -> Self {
         self.kind = kind;
+        self
+    }
+
+    #[inline]
+    pub fn info(mut self, info: UiStackInfo) -> Self {
+        self.info = RSome(info);
         self
     }
 
@@ -247,9 +226,9 @@ impl<'a> Popup<'a> {
     }
 
     #[inline]
-    pub fn open_memory(mut self, set_state: impl Into<ROption<SetOpenCommand>>) -> Self {
+    pub fn open_memory(mut self, set_state: impl Into<Option<SetOpenCommand>>) -> Self {
         self.open_kind = OpenKind::Memory {
-            set: set_state.into(),
+            set: set_state.into().into(),
         };
         self
     }
@@ -337,161 +316,84 @@ impl<'a> Popup<'a> {
         self.anchor
     }
 
-    #[cfg(feature = "manager")]
-    pub fn get_anchor_rect(&self, ctx: &egui::Context) -> Option<Rect> {
-        self.anchor.rect(self.id.into(), ctx)
-    }
-
     #[inline]
     pub fn get_id(&self) -> Id {
         self.id
     }
 
-    #[cfg(feature = "manager")]
-    pub fn is_open(&self, ctx: &egui::Context) -> bool {
-        #[allow(deprecated)]
-        match &self.open_kind {
-            OpenKind::Open => true,
-            OpenKind::Closed => false,
-            OpenKind::Bool(open) => **open,
-            OpenKind::Memory { .. } => ctx.memory(|mem| mem.is_popup_open(self.id.into())),
-        }
-    }
-
+    #[inline]
     pub fn show<R>(
-        mut self,
-        ui: &mut BunnyUi<'a>,
-        content: impl FnOnce(&mut BunnyUi<'a>) -> R,
-    ) -> InnerResponse<R> {
-        let mut new = ui.new_child(Some(Layout::default()));
-        let ret = content(&mut new);
-        let response = ui.response(self.id);
-        match self.close_behavior {
-            PopupCloseBehavior::CloseOnClick => {
-                if ui.input(|i| i.pointer.any_click()) {
-                    self.click = RSome(PopupClick::default());
-                }
-            }
-            PopupCloseBehavior::CloseOnClickOutside => {
-                if let Some(resp) = response
-                    && let Some(interact_pos) = ui.input(|i| {
-                        if i.pointer.any_click() {
-                            i.pointer.interact_pos()
-                        } else {
-                            None
-                        }
-                    })
-                {
-                    self.click = RSome(PopupClick {
-                        popup_interact_rect: resp.interact_rect,
-                        click_pos: interact_pos,
-                    })
-                }
-            }
-            PopupCloseBehavior::IgnoreClicks => {}
-        };
-        let inner = InnerResponse::new(ret, response.cloned().unwrap_or_default());
-        ui.add_component(
-            self.id,
-            Container::Popup(RBox::new(PopupComponent {
-                contents: new,
-                popup: self,
-            })),
-        );
-        inner
-    }
-
-    #[cfg(feature = "manager")]
-    pub(crate) fn egui(self, ui: &mut egui::Ui, id: Id) -> egui::Popup<'a> {
-        let id: egui::Id = id.into();
-        let mut popup = egui::Popup::new(id, ui.ctx().clone(), self.anchor, ui.layer_id())
-            .align(self.rect_align.into())
-            .kind(self.kind.into())
-            .gap(self.gap)
-            .sense(self.sense.into())
-            .layout(self.layout.into())
-            .close_behavior(egui::PopupCloseBehavior::IgnoreClicks); // Must be handled manually because our interactions are 1 frame behind egui's
-
-        let was_open_last_frame = ui.read_response(id).is_some();
-        let close_click = was_open_last_frame && self.click.is_some();
-        let pointer_elsewhere = if let RSome(click) = self.click {
-            !click.popup_interact_rect.contains(click.click_pos)
-        } else {
-            false
-        };
-        let closed_by_click = match self.close_behavior {
-            PopupCloseBehavior::CloseOnClick => close_click,
-            PopupCloseBehavior::CloseOnClickOutside => close_click && pointer_elsewhere,
-            PopupCloseBehavior::IgnoreClicks => false,
-        };
-
-        popup = if closed_by_click {
-            popup.open(false)
-        } else {
-            match self.open_kind {
-                OpenKind::Open => popup.open(true),
-                OpenKind::Closed => popup.open(false),
-                OpenKind::Bool(open) => popup.open_bool(open),
-                OpenKind::Memory { set } => popup.open_memory(set.map(|s| s.into())),
-            }
-        };
-
-        if let RSome(width) = self.width {
-            popup = popup.width(width);
-        }
-        if let RSome(frame) = self.frame {
-            popup = popup.frame(frame.into());
-        }
-
-        popup
+        self,
+        ui: &mut BunnyUi,
+        add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> Option<BunnyInnerResponse<R>> {
+        ui.popup_show(self, add_contents)
     }
 }
 
-#[allow(deprecated)]
 impl Popup<'_> {
-    pub fn default_response_id(response: &Response) -> Id {
-        response.id.with("popup")
-    }
-
-    #[cfg(feature = "manager")]
-    pub fn is_id_open(ctx: &egui::Context, popup_id: egui::Id) -> bool {
-        ctx.memory(|mem| mem.is_popup_open(popup_id))
-    }
-
-    #[cfg(feature = "manager")]
-    pub fn position_of_id(ctx: &egui::Context, popup_id: egui::Id) -> Option<Pos2> {
-        ctx.memory(|mem| mem.popup_position(popup_id))
-    }
-}
-
-#[repr(C)]
-pub struct PopupComponent<'a> {
-    contents: BunnyUi<'a>,
-    popup: Popup<'a>,
-}
-
-#[cfg(feature = "manager")]
-impl crate::elements::UiContainer for PopupComponent<'_> {
-    fn ui(
+    pub(crate) fn show_impl(
         self,
         ui: &mut egui::Ui,
-        responses: &mut abi_stable::std_types::RHashMap<
-            crate::Id,
-            crate::response::Response,
-            rapidhash::fast::RandomState,
-        >,
-        pointer_state: abi_stable::std_types::RArc<crate::input_state::PointerState>,
-        id: crate::Id,
-    ) -> crate::response::Response {
-        let popup = self.popup.egui(ui, id);
-
-        let inner = popup.show(|ui| {
-            self.contents.ui(ui, responses, pointer_state.clone());
-        });
-        if let Some(inner) = inner {
-            Response::new(id, inner.response, pointer_state)
-        } else {
-            Response::empty(id, pointer_state)
+        contents: PluginClosure,
+    ) -> ROption<BunnyResponse> {
+        let Popup {
+            info,
+            frame,
+            open_kind,
+            anchor,
+            rect_align,
+            layer_id,
+            layout,
+            id,
+            width,
+            close_behavior,
+            kind,
+            gap,
+            sense,
+            menu_style,
+        } = self;
+        let mut popup = egui::Popup::new(id, ui.ctx().clone(), anchor, layer_id.into())
+            .align(rect_align.into())
+            .kind(kind.into())
+            .gap(gap)
+            .sense(sense)
+            .layout(layout.into())
+            .close_behavior(close_behavior.into());
+        if menu_style {
+            popup = popup.style(egui::containers::menu::menu_style);
         }
+
+        if let RSome(width) = width {
+            popup = popup.width(width);
+        }
+        if let RSome(frame) = frame {
+            popup = popup.frame(frame.into());
+        }
+        if let RSome(info) = info {
+            popup = popup.info(info.into());
+        }
+
+        popup = match open_kind {
+            OpenKind::Open => popup.open(true),
+            OpenKind::Closed => popup.open(false),
+            OpenKind::Bool(open) => popup.open_bool(open),
+            OpenKind::Memory { set } => popup.open_memory(set.map(|s| s.into())),
+        };
+
+        let inner_response = popup.show(|ui| {
+            let mut b = BunnyUi::new(ui);
+            contents.call(&mut b);
+        });
+
+        inner_response
+            .map(|i| BunnyResponse::new(i.response))
+            .into()
+    }
+}
+
+impl Popup<'_> {
+    pub fn default_response_id(response: &BunnyResponse) -> Id {
+        response.id().with("popup")
     }
 }

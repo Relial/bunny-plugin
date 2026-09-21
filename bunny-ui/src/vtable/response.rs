@@ -3,7 +3,7 @@ use egui::{Id, Pos2, Rect, Response, Sense, Vec2};
 use vtable::{VBox, VRef, VRefMut, vtable};
 
 use crate::{
-    Align, PointerButton, WidgetText,
+    Align, LayerId, PointerButton, WidgetText,
     closure::{PluginClosure, PluginNoReturnClosure},
     response::BunnyResponse,
     style::ScrollAnimation,
@@ -13,7 +13,7 @@ use crate::{
 #[vtable]
 #[repr(C)]
 pub struct ResponseFfiVTable {
-    // layer_id
+    layer_id: fn(VRef<ResponseFfiVTable>) -> LayerId,
     id: fn(VRef<ResponseFfiVTable>) -> Id,
     rect: fn(VRef<ResponseFfiVTable>) -> Rect,
     interact_rect: fn(VRef<ResponseFfiVTable>) -> Rect,
@@ -85,6 +85,11 @@ pub struct ResponseFfiVTable {
 }
 
 impl ResponseFfi for Response {
+    #[inline]
+    fn layer_id(&self) -> LayerId {
+        self.layer_id.into()
+    }
+
     #[inline]
     fn id(&self) -> Id {
         self.id

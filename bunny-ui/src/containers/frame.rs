@@ -1,8 +1,13 @@
 use ecolor::Color32;
+use egui::{Rect, epaint::MarginF32};
 
 use crate::{
     Margin, Shadow,
+    closure::PluginClosure,
     paint::{corner_radius::CornerRadius, stroke::Stroke},
+    response::{BunnyInnerResponse, BunnyResponse},
+    style::{BunnyStyleRef, BunnyVisuals},
+    ui::BunnyUi,
 };
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
@@ -31,66 +36,68 @@ impl Frame {
         Self::NONE
     }
 
-    // pub fn group(style: &BunnyStyle) -> Self {
-    //     let visuals = style.visuals();
-    //     Self::new()
-    //         .inner_margin(6)
-    //         .corner_radius(visuals.widgets.noninteractive.corner_radius)
-    //         .stroke(visuals.widgets.noninteractive.bg_stroke)
-    // }
+    pub fn group(style: &BunnyStyleRef) -> Self {
+        let frame_style = style.frame_style();
+        Self::new()
+            .inner_margin(6)
+            .corner_radius(frame_style.noninteractive_corner_radius)
+            .stroke(frame_style.noninteractive_bg_stroke)
+    }
 
-    // pub fn side_top_panel(style: &BunnyStyle) -> Self {
-    //     Self::new()
-    //         .inner_margin(Margin::symmetric(8, 2))
-    //         .fill(style.visuals().panel_fill)
-    // }
+    pub fn side_top_panel(style: &BunnyStyleRef) -> Self {
+        Self::new()
+            .inner_margin(Margin::symmetric(8, 2))
+            .fill(style.visuals().panel_fill())
+    }
 
-    // pub fn central_panel(style: &BunnyStyle) -> Self {
-    //     Self::new().inner_margin(8).fill(style.visuals().panel_fill)
-    // }
+    pub fn central_panel(style: &BunnyStyleRef) -> Self {
+        Self::new()
+            .inner_margin(8)
+            .fill(style.visuals().panel_fill())
+    }
 
-    // pub fn window(style: &BunnyStyle) -> Self {
-    //     let visuals = style.visuals();
-    //     Self::new()
-    //         .inner_margin(style.spacing().window_margin)
-    //         .corner_radius(visuals.window_corner_radius)
-    //         .shadow(visuals.window_shadow)
-    //         .fill(visuals.window_fill)
-    //         .stroke(visuals.window_stroke)
-    // }
+    pub fn window(style: &BunnyStyleRef) -> Self {
+        let frame_style = style.frame_style();
+        Self::new()
+            .inner_margin(frame_style.window_margin)
+            .corner_radius(frame_style.window_corner_radius)
+            .shadow(frame_style.window_shadow)
+            .fill(frame_style.window_fill)
+            .stroke(frame_style.window_stroke)
+    }
 
-    // pub fn menu(style: &BunnyStyle) -> Self {
-    //     let visuals = style.visuals();
-    //     Self::new()
-    //         .inner_margin(style.spacing().menu_margin)
-    //         .corner_radius(visuals.menu_corner_radius)
-    //         .shadow(visuals.popup_shadow)
-    //         .fill(visuals.window_fill)
-    //         .stroke(visuals.window_stroke)
-    // }
+    pub fn menu(style: &BunnyStyleRef) -> Self {
+        let frame_style = style.frame_style();
+        Self::new()
+            .inner_margin(frame_style.menu_margin)
+            .corner_radius(frame_style.menu_corner_radius)
+            .shadow(frame_style.popup_shadow)
+            .fill(frame_style.window_fill)
+            .stroke(frame_style.window_stroke)
+    }
 
-    // pub fn popup(style: &BunnyStyle) -> Self {
-    //     let visuals = style.visuals();
-    //     Self::new()
-    //         .inner_margin(style.spacing().menu_margin)
-    //         .corner_radius(visuals.menu_corner_radius)
-    //         .shadow(visuals.popup_shadow)
-    //         .fill(visuals.window_fill)
-    //         .stroke(visuals.window_stroke)
-    // }
+    pub fn popup(style: &BunnyStyleRef) -> Self {
+        let frame_style = style.frame_style();
+        Self::new()
+            .inner_margin(frame_style.menu_margin)
+            .corner_radius(frame_style.menu_corner_radius)
+            .shadow(frame_style.popup_shadow)
+            .fill(frame_style.window_fill)
+            .stroke(frame_style.window_stroke)
+    }
 
-    // pub fn canvas(style: &BunnyStyle) -> Self {
-    //     let visuals = style.visuals();
-    //     Self::new()
-    //         .inner_margin(2)
-    //         .corner_radius(visuals.widgets.noninteractive.corner_radius)
-    //         .fill(visuals.extreme_bg_color)
-    //         .stroke(visuals.window_stroke)
-    // }
+    pub fn canvas(style: &BunnyStyleRef) -> Self {
+        let frame_style = style.frame_style();
+        Self::new()
+            .inner_margin(2)
+            .corner_radius(frame_style.noninteractive_corner_radius)
+            .fill(frame_style.extreme_bg_color)
+            .stroke(frame_style.window_stroke)
+    }
 
-    // pub fn dark_canvas(style: &BunnyStyle) -> Self {
-    //     Self::canvas(style).fill(Color32::from_black_alpha(250))
-    // }
+    pub fn dark_canvas(style: &BunnyStyleRef) -> Self {
+        Self::canvas(style).fill(Color32::from_black_alpha(250))
+    }
 }
 
 impl Frame {
@@ -138,19 +145,38 @@ impl Frame {
         self
     }
 
-    // pub fn show<'a, R>(
-    //     self,
-    //     ui: &mut BunnyUi<'a>,
-    //     add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
-    // ) -> InnerResponse<R> {
-    //     let mut new = ui.new_child(Some(Layout::default()));
-    //     let ret = add_contents(&mut new);
-    //     let response = ui.add_component_auto_id(Container::Frame(RBox::new(FrameComponent {
-    //         contents: new,
-    //         frame: self,
-    //     })));
-    //     InnerResponse::new(ret, response)
-    // }
+    #[inline]
+    pub fn show<R>(
+        self,
+        ui: &mut BunnyUi,
+        add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> BunnyInnerResponse<R> {
+        ui.frame_show(self, add_contents)
+    }
+}
+
+impl Frame {
+    #[inline]
+    pub fn total_margin(&self) -> MarginF32 {
+        MarginF32::from(self.inner_margin)
+            + MarginF32::from(self.stroke.width)
+            + MarginF32::from(self.outer_margin)
+    }
+
+    #[inline]
+    pub fn fill_rect(&self, content_rect: Rect) -> Rect {
+        content_rect + self.inner_margin
+    }
+
+    #[inline]
+    pub fn widget_rect(&self, content_rect: Rect) -> Rect {
+        content_rect + self.inner_margin + MarginF32::from(self.stroke.width)
+    }
+
+    #[inline]
+    pub fn outer_rect(&self, content_rect: Rect) -> Rect {
+        content_rect + self.inner_margin + MarginF32::from(self.stroke.width) + self.outer_margin
+    }
 }
 
 #[cfg(feature = "manager")]
@@ -168,31 +194,52 @@ impl From<Frame> for egui::Frame {
     }
 }
 
-// #[repr(C)]
-// pub struct FrameComponent<'a> {
-//     contents: BunnyUi<'a>,
-//     frame: Frame,
-// }
+#[repr(C)]
+pub(crate) struct FrameStyle {
+    pub noninteractive_bg_stroke: Stroke,
+    pub window_shadow: Shadow,
+    pub window_stroke: Stroke,
+    pub popup_shadow: Shadow,
+    pub noninteractive_corner_radius: CornerRadius,
+    pub window_margin: Margin,
+    pub window_corner_radius: CornerRadius,
+    pub window_fill: Color32,
+    pub menu_margin: Margin,
+    pub menu_corner_radius: CornerRadius,
+    pub extreme_bg_color: Color32,
+}
 
-// #[cfg(feature = "manager")]
-// impl crate::elements::UiContainer for FrameComponent<'_> {
-//     fn ui(
-//         self,
-//         ui: &mut egui::Ui,
-//         responses: &mut abi_stable::std_types::RHashMap<
-//             crate::Id,
-//             crate::response::Response,
-//             rapidhash::fast::RandomState,
-//         >,
-//         pointer_state: abi_stable::std_types::RArc<crate::input_state::PointerState>,
-//         id: crate::Id,
-//     ) -> crate::response::Response {
-//         let frame: egui::Frame = self.frame.into();
-//         let resp = frame
-//             .show(ui, |ui| {
-//                 self.contents.ui(ui, responses, pointer_state.clone());
-//             })
-//             .response;
-//         crate::response::Response::new(id, resp, pointer_state)
-//     }
-// }
+#[cfg(feature = "manager")]
+impl FrameStyle {
+    pub fn from_style(style: &egui::Style) -> Self {
+        let spacing = &style.spacing;
+        let visuals = &style.visuals;
+        Self {
+            noninteractive_corner_radius: visuals.widgets.noninteractive.corner_radius.into(),
+            noninteractive_bg_stroke: visuals.widgets.noninteractive.bg_stroke.into(),
+            window_margin: spacing.window_margin.into(),
+            window_corner_radius: visuals.window_corner_radius.into(),
+            window_shadow: visuals.window_shadow.into(),
+            window_fill: visuals.window_fill,
+            window_stroke: visuals.window_stroke.into(),
+            menu_margin: spacing.menu_margin.into(),
+            menu_corner_radius: visuals.menu_corner_radius.into(),
+            popup_shadow: visuals.popup_shadow.into(),
+            extreme_bg_color: visuals.extreme_bg_color,
+        }
+    }
+}
+
+impl Frame {
+    #[inline]
+    pub(crate) fn show_impl(self, ui: &mut egui::Ui, contents: PluginClosure) -> BunnyResponse {
+        let frame: egui::Frame = self.into();
+        let response = frame
+            .show(ui, |ui| {
+                let mut b = BunnyUi::new(ui);
+                contents.call(&mut b);
+            })
+            .response;
+        BunnyResponse::new(response)
+    }
+}

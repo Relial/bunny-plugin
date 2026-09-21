@@ -6,8 +6,8 @@ use vtable::{VRef, VRefMut, vtable};
 
 use crate::{
     Align, ImageSource, LayerId, Layout as BunnyLayout, RichText, SizeHint, UiBuilder, WidgetText,
-    closure::{InputStateClosure, PluginClosure},
-    containers::collapsing_header::CollapsingHeader,
+    closure::{InputStateClosure, PluginClosure, ScrollAreaRowsClosure},
+    containers::{Area, CollapsingHeader, ComboBox, Frame, Grid, Popup, ScrollArea},
     galley::BunnyGalley,
     input::BunnyInputState,
     load::TexturePoll,
@@ -270,6 +270,28 @@ pub struct UiFfiVTable {
         size_hint: SizeHint,
     ) -> ROption<TexturePoll>,
     // ...
+    area_show: fn(VRefMut<UiFfiVTable>, area: Area, contents: PluginClosure) -> BunnyResponse,
+    combo_box_show: fn(
+        VRefMut<UiFfiVTable>,
+        combo_box: ComboBox,
+        contents: PluginClosure,
+    ) -> Tuple2<BunnyResponse, bool>,
+    frame_show: fn(VRefMut<UiFfiVTable>, frame: Frame, contents: PluginClosure) -> BunnyResponse,
+    grid_show: fn(VRefMut<UiFfiVTable>, grid: Grid, contents: PluginClosure) -> BunnyResponse,
+    popup_show:
+        fn(VRefMut<UiFfiVTable>, popup: Popup, contents: PluginClosure) -> ROption<BunnyResponse>,
+    scroll_area_show: fn(
+        VRefMut<UiFfiVTable>,
+        scroll_area: ScrollArea,
+        contents: PluginClosure,
+    ) -> ScrollAreaFfiOutput,
+    scroll_area_show_rows: fn(
+        VRefMut<UiFfiVTable>,
+        scroll_area: ScrollArea,
+        row_height_sans_spacing: f32,
+        total_rows: usize,
+        contents: ScrollAreaRowsClosure,
+    ) -> ScrollAreaFfiOutput,
     collapsing_header_show: fn(
         VRefMut<UiFfiVTable>,
         collapsing_header: CollapsingHeader,
@@ -1311,6 +1333,55 @@ impl UiFfi for Ui {
     }
 
     #[inline]
+    fn area_show(&mut self, area: Area, contents: PluginClosure) -> BunnyResponse {
+        area.show_impl(self, contents)
+    }
+
+    #[inline]
+    fn combo_box_show(
+        &mut self,
+        combo_box: ComboBox,
+        contents: PluginClosure,
+    ) -> Tuple2<BunnyResponse, bool> {
+        combo_box.show_impl(self, contents)
+    }
+
+    #[inline]
+    fn frame_show(&mut self, frame: Frame, contents: PluginClosure) -> BunnyResponse {
+        frame.show_impl(self, contents)
+    }
+
+    #[inline]
+    fn grid_show(&mut self, grid: Grid, contents: PluginClosure) -> BunnyResponse {
+        grid.show_impl(self, contents)
+    }
+
+    #[inline]
+    fn popup_show(&mut self, popup: Popup, contents: PluginClosure) -> ROption<BunnyResponse> {
+        popup.show_impl(self, contents)
+    }
+
+    #[inline]
+    fn scroll_area_show(
+        &mut self,
+        scroll_area: ScrollArea,
+        contents: PluginClosure,
+    ) -> ScrollAreaFfiOutput {
+        scroll_area.show_impl(self, contents)
+    }
+
+    #[inline]
+    fn scroll_area_show_rows(
+        &mut self,
+        scroll_area: ScrollArea,
+        row_height_sans_spacing: f32,
+        total_rows: usize,
+        contents: ScrollAreaRowsClosure,
+    ) -> ScrollAreaFfiOutput {
+        scroll_area.show_rows_impl(self, row_height_sans_spacing, total_rows, contents)
+    }
+
+    #[inline]
     fn collapsing_header_show(
         &mut self,
         collapsing_header: CollapsingHeader,
@@ -1338,6 +1409,35 @@ impl CollapsingFfiResponse {
             body_response: response.body_response.map(BunnyResponse::new).into(),
             openness: response.openness,
             body_returned: response.body_returned.is_some(),
+        }
+    }
+}
+
+#[repr(C)]
+pub struct ScrollAreaFfiOutput {
+    pub inner_rect: Rect,
+    pub id: Id,
+    pub offset: Vec2,
+    pub velocity: Vec2,
+    pub content_size: Vec2,
+}
+
+impl ScrollAreaFfiOutput {
+    #[inline]
+    pub fn new<R>(output: egui::scroll_area::ScrollAreaOutput<R>) -> Self {
+        let egui::scroll_area::ScrollAreaOutput {
+            inner: _,
+            id,
+            state,
+            content_size,
+            inner_rect,
+        } = output;
+        Self {
+            inner_rect,
+            id,
+            offset: state.offset,
+            velocity: state.velocity(),
+            content_size,
         }
     }
 }

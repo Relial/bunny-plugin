@@ -60,13 +60,12 @@ impl CollapsingHeader {
     }
 
     #[inline]
-    pub fn show(self, ui: &mut BunnyUi, add_contents: impl FnMut(&mut BunnyUi)) {
-        ui.collapsing_header_show(self, add_contents);
+    pub fn show<R>(self, ui: &mut BunnyUi, add_contents: impl FnMut(&mut BunnyUi) -> R) -> BunnyCollapsingResponse<R> {
+        ui.collapsing_header_show(self, add_contents)
     }
 }
 
 impl CollapsingHeader {
-    #[inline]
     pub(crate) fn show_impl(
         self,
         ui: &mut egui::Ui,

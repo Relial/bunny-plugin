@@ -1,7 +1,13 @@
 use abi_stable::std_types::ROption::{self, RNone, RSome};
+use egui::Id;
 use emath::Vec2;
+use mint::Vector2;
 
-use crate::{Id, elements::Container, layout::Layout, response::InnerResponse, ui_old::BunnyUi};
+use crate::{
+    closure::PluginClosure,
+    response::{BunnyInnerResponse, BunnyResponse},
+    ui::BunnyUi,
+};
 
 #[repr(C)]
 pub struct Grid {
@@ -11,6 +17,7 @@ pub struct Grid {
     min_col_width: ROption<f32>,
     min_row_height: ROption<f32>,
     max_col_width: f32,
+    start_row: usize,
     striped: bool,
 }
 
@@ -24,6 +31,7 @@ impl Grid {
             min_row_height: RNone,
             max_col_width: f32::INFINITY,
             spacing: RNone,
+            start_row: 0,
             striped: false,
         }
     }
@@ -59,73 +67,63 @@ impl Grid {
     }
 
     #[inline]
-    pub fn spacing(mut self, spacing: impl Into<Vec2>) -> Self {
-        self.spacing = RSome(spacing.into());
+    pub fn spacing(mut self, spacing: impl Into<Vector2<f32>>) -> Self {
+        self.spacing = RSome(spacing.into().into());
         self
     }
 
-    pub fn show<'a, R>(
+    #[inline]
+    pub fn start_row(mut self, start_row: usize) -> Self {
+        self.start_row = start_row;
+        self
+    }
+
+    #[inline]
+    pub fn show<R>(
         self,
-        ui: &mut BunnyUi<'a>,
-        add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
-    ) -> InnerResponse<R> {
-        let mut new = ui.new_child(Some(Layout::default()));
-        let ret = add_contents(&mut new);
-        let response = ui.add_component_auto_id(Container::Grid(GridComponent {
-            contents: new,
-            grid: self,
-        }));
-        InnerResponse::new(ret, response)
+        ui: &mut BunnyUi,
+        add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> BunnyInnerResponse<R> {
+        ui.grid_show(self, add_contents)
     }
 }
 
-#[repr(C)]
-pub struct GridComponent<'a> {
-    contents: BunnyUi<'a>,
-    grid: Grid,
-}
-
-#[cfg(feature = "manager")]
-impl crate::elements::UiContainer for GridComponent<'_> {
-    fn ui(
-        self,
-        ui: &mut egui::Ui,
-        responses: &mut abi_stable::std_types::RHashMap<
-            crate::Id,
-            crate::response::Response,
-            rapidhash::fast::RandomState,
-        >,
-        pointer_state: abi_stable::std_types::RArc<crate::input_state::PointerState>,
-        id: crate::Id,
-    ) -> crate::response::Response {
-        let mut grid = egui::Grid::new(self.grid.id)
-            .max_col_width(self.grid.max_col_width)
-            .striped(self.grid.striped);
-        if let RSome(num_columns) = self.grid.num_columns {
+impl Grid {
+    pub(crate) fn show_impl(self, ui: &mut egui::Ui, contents: PluginClosure) -> BunnyResponse {
+        let Grid {
+            num_columns,
+            spacing,
+            id,
+            min_col_width,
+            min_row_height,
+            max_col_width,
+            start_row,
+            striped,
+        } = self;
+        let mut grid = egui::Grid::new(id)
+            .max_col_width(max_col_width)
+            .striped(striped)
+            .start_row(start_row);
+        if let RSome(num_columns) = num_columns {
             grid = grid.num_columns(num_columns);
         }
-        if let RSome(min_col_width) = self.grid.min_col_width {
+        if let RSome(min_col_width) = min_col_width {
             grid = grid.min_col_width(min_col_width);
         }
-        if let RSome(min_row_height) = self.grid.min_row_height {
+        if let RSome(min_row_height) = min_row_height {
             grid = grid.min_row_height(min_row_height);
         }
-        if let RSome(spacing) = self.grid.spacing {
+        if let RSome(spacing) = spacing {
             grid = grid.spacing(spacing);
         }
 
-        let egui_resp = grid
+        let response = grid
             .show(ui, |ui| {
-                self.contents.ui(ui, responses, pointer_state.clone());
+                let mut b = BunnyUi::new(ui);
+                contents.call(&mut b);
             })
             .response;
-        crate::response::Response::new(id, egui_resp, pointer_state)
-    }
-}
 
-impl<'a> From<GridComponent<'a>> for Container<'a> {
-    #[inline]
-    fn from(value: GridComponent<'a>) -> Self {
-        Self::Grid(value)
+        BunnyResponse::new(response)
     }
 }

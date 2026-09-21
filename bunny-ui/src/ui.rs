@@ -9,8 +9,11 @@ use vtable::VRefMut;
 
 use crate::{
     Align, ImageSource, LayerId, Layout, RichText, SizeHint, UiBuilder, WidgetText,
-    closure::{InputStateClosure, PluginClosure},
-    containers::collapsing_header::{BunnyCollapsingResponse, CollapsingHeader},
+    closure::{InputStateClosure, PluginClosure, ScrollAreaRowsClosure},
+    containers::{
+        Area, BunnyCollapsingResponse, BunnyScrollAreaOutput, CollapsingHeader, ComboBox, Frame,
+        Grid, Popup, ScrollArea,
+    },
     galley::BunnyGalley,
     id::hash_id_salt,
     input::BunnyInputState,
@@ -25,8 +28,8 @@ use crate::{
     painter::{BunnyPainter, BunnyPainterRef},
     response::{BunnyInnerResponse, BunnyResponse},
     style::{
-        BunnyInteractionRef, BunnyInteractionMut, BunnySpacingRef, BunnySpacingMut, BunnyStyleMut,
-        BunnyStyleRef, BunnyVisualsRef, BunnyVisualsMut, ScrollAnimation, Style, TextStyle,
+        BunnyInteractionMut, BunnyInteractionRef, BunnySpacingMut, BunnySpacingRef, BunnyStyleMut,
+        BunnyStyleRef, BunnyVisualsMut, BunnyVisualsRef, ScrollAnimation, Style, TextStyle,
     },
     vtable::ui::UiFfiVTable,
     widgets::{Widget, text_edit::bunny_string::BunnyString},
@@ -472,7 +475,6 @@ impl<'a> BunnyUi<'a> {
         self.inner.next_widget_position()
     }
 
-    #[inline]
     pub fn allocate_ui<R>(
         &mut self,
         desired_size: impl Into<Vector2<f32>>,
@@ -485,7 +487,6 @@ impl<'a> BunnyUi<'a> {
         BunnyInnerResponse::new(inner, response)
     }
 
-    #[inline]
     pub fn allocate_ui_with_layout<R>(
         &mut self,
         desired_size: impl Into<Vector2<f32>>,
@@ -592,7 +593,6 @@ impl<'a> BunnyUi<'a> {
         self.inner.add_enabled(enabled, widget.into())
     }
 
-    #[inline]
     pub fn add_enabled_ui<R>(
         &mut self,
         enabled: bool,
@@ -824,7 +824,6 @@ impl<'a> BunnyUi<'a> {
 }
 
 impl<'a> BunnyUi<'a> {
-    #[inline]
     pub fn group<R>(
         &mut self,
         mut add_contents: impl FnMut(&mut BunnyUi) -> R,
@@ -836,7 +835,6 @@ impl<'a> BunnyUi<'a> {
         BunnyInnerResponse::new(inner, response)
     }
 
-    #[inline]
     pub fn push_id<R>(
         &mut self,
         id_salt: impl Hash,
@@ -850,7 +848,6 @@ impl<'a> BunnyUi<'a> {
         BunnyInnerResponse::new(inner, response)
     }
 
-    #[inline]
     pub fn scope<R>(
         &mut self,
         mut add_contents: impl FnMut(&mut BunnyUi) -> R,
@@ -862,7 +859,6 @@ impl<'a> BunnyUi<'a> {
         BunnyInnerResponse::new(inner, response)
     }
 
-    #[inline]
     pub fn scope_builder<R>(
         &mut self,
         ui_builder: UiBuilder,
@@ -875,7 +871,6 @@ impl<'a> BunnyUi<'a> {
         BunnyInnerResponse::new(inner, response)
     }
 
-    #[inline]
     pub fn collapsing<R>(
         &mut self,
         heading: impl Into<WidgetText>,
@@ -895,7 +890,6 @@ impl<'a> BunnyUi<'a> {
         }
     }
 
-    #[inline]
     pub fn indent<R>(
         &mut self,
         mut add_contents: impl FnMut(&mut BunnyUi) -> R,
@@ -907,7 +901,6 @@ impl<'a> BunnyUi<'a> {
         BunnyInnerResponse::new(inner, response)
     }
 
-    #[inline]
     pub fn horizontal<R>(
         &mut self,
         mut add_contents: impl FnMut(&mut BunnyUi) -> R,
@@ -919,7 +912,6 @@ impl<'a> BunnyUi<'a> {
         BunnyInnerResponse::new(inner, response)
     }
 
-    #[inline]
     pub fn horizontal_centered<R>(
         &mut self,
         mut add_contents: impl FnMut(&mut BunnyUi) -> R,
@@ -931,7 +923,6 @@ impl<'a> BunnyUi<'a> {
         BunnyInnerResponse::new(inner, response)
     }
 
-    #[inline]
     pub fn horizontal_top<R>(
         &mut self,
         mut add_contents: impl FnMut(&mut BunnyUi) -> R,
@@ -943,7 +934,6 @@ impl<'a> BunnyUi<'a> {
         BunnyInnerResponse::new(inner, response)
     }
 
-    #[inline]
     pub fn horizontal_wrapped<R>(
         &mut self,
         mut add_contents: impl FnMut(&mut BunnyUi) -> R,
@@ -955,7 +945,6 @@ impl<'a> BunnyUi<'a> {
         BunnyInnerResponse::new(inner, response)
     }
 
-    #[inline]
     pub fn vertical<R>(
         &mut self,
         mut add_contents: impl FnMut(&mut BunnyUi) -> R,
@@ -967,7 +956,6 @@ impl<'a> BunnyUi<'a> {
         BunnyInnerResponse::new(inner, response)
     }
 
-    #[inline]
     pub fn vertical_centered<R>(
         &mut self,
         mut add_contents: impl FnMut(&mut BunnyUi) -> R,
@@ -979,7 +967,6 @@ impl<'a> BunnyUi<'a> {
         BunnyInnerResponse::new(inner, response)
     }
 
-    #[inline]
     pub fn vertical_centered_justified<R>(
         &mut self,
         mut add_contents: impl FnMut(&mut BunnyUi) -> R,
@@ -991,7 +978,6 @@ impl<'a> BunnyUi<'a> {
         BunnyInnerResponse::new(inner, response)
     }
 
-    #[inline]
     pub fn with_layout<R>(
         &mut self,
         layout: Layout,
@@ -1004,7 +990,6 @@ impl<'a> BunnyUi<'a> {
         BunnyInnerResponse::new(inner, response)
     }
 
-    #[inline]
     pub fn centered_and_justified<R>(
         &mut self,
         mut add_contents: impl FnMut(&mut BunnyUi) -> R,
@@ -1026,7 +1011,6 @@ impl<'a> BunnyUi<'a> {
         self.inner.set_row_height(height);
     }
 
-    #[inline]
     pub fn with_visual_transform<R>(
         &mut self,
         transform: TSTransform,
@@ -1041,7 +1025,6 @@ impl<'a> BunnyUi<'a> {
 }
 
 impl<'a> BunnyUi<'a> {
-    #[inline]
     pub fn menu_button<R>(
         &mut self,
         text: impl Into<WidgetText>,
@@ -1056,7 +1039,6 @@ impl<'a> BunnyUi<'a> {
 }
 
 impl<'a> BunnyUi<'a> {
-    #[inline]
     pub fn input<R>(&mut self, mut input: impl FnMut(&mut BunnyInputState) -> R) -> R {
         let mut ret = MaybeUninit::<R>::uninit();
         let closure = InputStateClosure::new(&mut input, &mut ret);
@@ -1151,7 +1133,115 @@ impl<'a> BunnyUi<'a> {
 }
 
 impl<'a> BunnyUi<'a> {
-    #[inline]
+    pub(crate) fn area_show<R>(
+        &mut self,
+        area: Area,
+        mut add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> BunnyInnerResponse<R> {
+        let mut ret = MaybeUninit::<R>::uninit();
+        let closure = PluginClosure::new(&mut add_contents, &mut ret);
+        let response = self.inner.area_show(area, closure);
+        let inner = unsafe { ret.assume_init() };
+        BunnyInnerResponse::new(inner, response)
+    }
+
+    pub(crate) fn combo_box_show<R>(
+        &mut self,
+        combo_box: ComboBox,
+        mut add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> BunnyInnerResponse<Option<R>> {
+        let mut ret = MaybeUninit::<R>::uninit();
+        let closure = PluginClosure::new(&mut add_contents, &mut ret);
+        let Tuple2(response, inner_returned) = self.inner.combo_box_show(combo_box, closure);
+        let inner = inner_returned.then(|| unsafe { ret.assume_init() });
+        BunnyInnerResponse::new(inner, response)
+    }
+
+    pub(crate) fn frame_show<R>(
+        &mut self,
+        frame: Frame,
+        mut add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> BunnyInnerResponse<R> {
+        let mut ret = MaybeUninit::<R>::uninit();
+        let closure = PluginClosure::new(&mut add_contents, &mut ret);
+        let response = self.inner.frame_show(frame, closure);
+        let inner = unsafe { ret.assume_init() };
+        BunnyInnerResponse::new(inner, response)
+    }
+
+    pub(crate) fn grid_show<R>(
+        &mut self,
+        grid: Grid,
+        mut add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> BunnyInnerResponse<R> {
+        let mut ret = MaybeUninit::<R>::uninit();
+        let closure = PluginClosure::new(&mut add_contents, &mut ret);
+        let response = self.inner.grid_show(grid, closure);
+        let inner = unsafe { ret.assume_init() };
+        BunnyInnerResponse::new(inner, response)
+    }
+
+    pub(crate) fn popup_show<R>(
+        &mut self,
+        popup: Popup,
+        mut add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> Option<BunnyInnerResponse<R>> {
+        let mut ret = MaybeUninit::<R>::uninit();
+        let closure = PluginClosure::new(&mut add_contents, &mut ret);
+        let response = self.inner.popup_show(popup, closure);
+        response
+            .map(|response| {
+                let inner = unsafe { ret.assume_init() };
+                BunnyInnerResponse::new(inner, response)
+            })
+            .into_option()
+    }
+
+    pub(crate) fn scroll_area_show<R>(
+        &mut self,
+        scroll_area: ScrollArea,
+        mut add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> BunnyScrollAreaOutput<R> {
+        let mut ret = MaybeUninit::<R>::uninit();
+        let closure = PluginClosure::new(&mut add_contents, &mut ret);
+        let output = self.inner.scroll_area_show(scroll_area, closure);
+        let inner = unsafe { ret.assume_init() };
+        BunnyScrollAreaOutput {
+            inner,
+            id: output.id,
+            offset: output.offset,
+            velocity: output.velocity,
+            content_size: output.content_size,
+            inner_rect: output.inner_rect,
+        }
+    }
+
+    pub(crate) fn scroll_area_show_rows<R>(
+        &mut self,
+        scroll_area: ScrollArea,
+        row_height_sans_spacing: f32,
+        total_rows: usize,
+        mut add_contents: impl FnMut(&mut BunnyUi, std::ops::Range<usize>) -> R,
+    ) -> BunnyScrollAreaOutput<R> {
+        let mut ret = MaybeUninit::<R>::uninit();
+        let closure = ScrollAreaRowsClosure::new(&mut add_contents, &mut ret);
+        let output = self.inner.scroll_area_show_rows(
+            scroll_area,
+            row_height_sans_spacing,
+            total_rows,
+            closure,
+        );
+        let inner = unsafe { ret.assume_init() };
+        BunnyScrollAreaOutput {
+            inner,
+            id: output.id,
+            offset: output.offset,
+            velocity: output.velocity,
+            content_size: output.content_size,
+            inner_rect: output.inner_rect,
+        }
+    }
+
     pub(crate) fn collapsing_header_show<R>(
         &mut self,
         collapsing_header: CollapsingHeader,

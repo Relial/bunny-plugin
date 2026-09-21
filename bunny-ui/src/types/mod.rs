@@ -14,6 +14,7 @@ mod shadow;
 mod ui_builder;
 mod vec2b;
 mod widget_text;
+mod ui_stack;
 
 pub use align::*;
 pub use area::*;
@@ -30,5 +31,6 @@ pub use shadow::*;
 pub use ui_builder::*;
 pub use vec2b::*;
 pub use widget_text::*;
+pub use ui_stack::*;
 
 pub use load::SizeHint;

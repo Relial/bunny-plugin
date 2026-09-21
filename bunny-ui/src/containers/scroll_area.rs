@@ -1,9 +1,20 @@
-use abi_stable::std_types::ROption::{self, RNone};
-use emath::Vec2;
+use std::hash::Hash;
 
-use crate::{margin::Margin, vec2b::Vec2b};
+use abi_stable::std_types::ROption::{self, RNone, RSome};
+use egui::{Id, Rect};
+use emath::Vec2;
+use mint::Vector2;
+
+use crate::{
+    Margin, Vec2b,
+    closure::{PluginClosure, ScrollAreaRowsClosure},
+    id::hash_id_salt,
+    ui::BunnyUi,
+    vtable::ui::ScrollAreaFfiOutput,
+};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[repr(C)]
 pub enum ScrollBarVisibility {
     AlwaysHidden,
@@ -30,6 +41,8 @@ impl From<ScrollBarVisibility> for egui::scroll_area::ScrollBarVisibility {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[repr(C)]
 pub struct ScrollSource {
     pub scroll_bar: bool,
@@ -71,15 +84,39 @@ impl ScrollSource {
     };
 }
 
+#[cfg(feature = "manager")]
+impl From<ScrollSource> for egui::scroll_area::ScrollSource {
+    #[inline]
+    fn from(value: ScrollSource) -> Self {
+        let ScrollSource {
+            scroll_bar,
+            drag,
+            mouse_wheel,
+        } = value;
+        Self {
+            scroll_bar,
+            drag,
+            mouse_wheel,
+        }
+    }
+}
+
 #[repr(C)]
 pub struct ScrollArea {
-    pub(crate) max_size: Vec2,
-    pub(crate) min_scrolled_size: Vec2,
-    pub(crate) content_margin: ROption<Margin>,
-    pub(crate) scroll_bar_visibility: ScrollBarVisibility,
-    pub(crate) scroll_source: ScrollSource,
-    pub(crate) direction_enabled: Vec2b,
-    pub(crate) auto_shrink: Vec2b,
+    scroll_bar_rect: ROption<Rect>,
+    id_salt: ROption<u64>,
+    offset_x: ROption<f32>,
+    offset_y: ROption<f32>,
+    max_size: Vec2,
+    wheel_scroll_multiplier: Vec2,
+    min_scrolled_size: Vec2,
+    content_margin: ROption<Margin>,
+    scroll_bar_visibility: ScrollBarVisibility,
+    scroll_source: ScrollSource,
+    direction_enabled: Vec2b,
+    stick_to_end: Vec2b,
+    auto_shrink: Vec2b,
+    animated: bool,
 }
 
 impl ScrollArea {
@@ -112,6 +149,13 @@ impl ScrollArea {
             scroll_bar_visibility: Default::default(),
             scroll_source: ScrollSource::default(),
             content_margin: RNone,
+            scroll_bar_rect: RNone,
+            id_salt: RNone,
+            offset_x: RNone,
+            offset_y: RNone,
+            wheel_scroll_multiplier: Vec2::splat(1.0),
+            stick_to_end: Vec2b::FALSE,
+            animated: true,
         }
     }
 
@@ -146,6 +190,38 @@ impl ScrollArea {
     }
 
     #[inline]
+    pub fn scroll_bar_rect(mut self, scroll_bar_rect: Rect) -> Self {
+        self.scroll_bar_rect = RSome(scroll_bar_rect);
+        self
+    }
+
+    #[inline]
+    pub fn id_salt(mut self, id_salt: impl Hash) -> Self {
+        self.id_salt = RSome(hash_id_salt(id_salt));
+        self
+    }
+
+    #[inline]
+    pub fn scroll_offset(mut self, offset: impl Into<Vector2<f32>>) -> Self {
+        let offset = offset.into();
+        self.offset_x = RSome(offset.x);
+        self.offset_y = RSome(offset.y);
+        self
+    }
+
+    #[inline]
+    pub fn vertical_scroll_offset(mut self, offset: f32) -> Self {
+        self.offset_y = RSome(offset);
+        self
+    }
+
+    #[inline]
+    pub fn horizontal_scroll_offset(mut self, offset: f32) -> Self {
+        self.offset_x = RSome(offset);
+        self
+    }
+
+    #[inline]
     pub fn hscroll(mut self, hscroll: bool) -> Self {
         self.direction_enabled[0] = hscroll;
         self
@@ -170,8 +246,151 @@ impl ScrollArea {
     }
 
     #[inline]
+    pub fn wheel_scroll_multiplier(mut self, multiplier: impl Into<Vector2<f32>>) -> Self {
+        self.wheel_scroll_multiplier = multiplier.into().into();
+        self
+    }
+
+    #[inline]
     pub fn auto_shrink(mut self, auto_shrink: impl Into<Vec2b>) -> Self {
         self.auto_shrink = auto_shrink.into();
         self
     }
+
+    #[inline]
+    pub fn animated(mut self, animated: bool) -> Self {
+        self.animated = animated;
+        self
+    }
+
+    #[inline]
+    pub fn content_margin(mut self, margin: impl Into<Margin>) -> Self {
+        self.content_margin = RSome(margin.into());
+        self
+    }
+
+    #[inline]
+    pub fn stick_to_right(mut self, stick: bool) -> Self {
+        self.stick_to_end.x = stick;
+        self
+    }
+
+    #[inline]
+    pub fn stick_to_bottom(mut self, stick: bool) -> Self {
+        self.stick_to_end.y = stick;
+        self
+    }
+
+    #[inline]
+    pub fn show<R>(
+        self,
+        ui: &mut BunnyUi,
+        add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> BunnyScrollAreaOutput<R> {
+        ui.scroll_area_show(self, add_contents)
+    }
+
+    #[inline]
+    pub fn show_rows<R>(
+        self,
+        ui: &mut BunnyUi,
+        row_height_sans_spacing: f32,
+        total_rows: usize,
+        add_contents: impl FnMut(&mut BunnyUi, std::ops::Range<usize>) -> R,
+    ) -> BunnyScrollAreaOutput<R> {
+        ui.scroll_area_show_rows(self, row_height_sans_spacing, total_rows, add_contents)
+    }
+}
+
+#[cfg(feature = "manager")]
+impl From<ScrollArea> for egui::ScrollArea {
+    fn from(value: ScrollArea) -> Self {
+        let ScrollArea {
+            scroll_bar_rect,
+            id_salt: id,
+            offset_x,
+            offset_y,
+            max_size,
+            wheel_scroll_multiplier,
+            min_scrolled_size,
+            content_margin,
+            scroll_bar_visibility,
+            scroll_source,
+            direction_enabled,
+            stick_to_end,
+            auto_shrink,
+            animated,
+        } = value;
+        let mut scroll_area = egui::ScrollArea::new(direction_enabled)
+            .max_width(max_size.x)
+            .max_height(max_size.y)
+            .wheel_scroll_multiplier(wheel_scroll_multiplier)
+            .min_scrolled_width(min_scrolled_size.x)
+            .min_scrolled_height(min_scrolled_size.y)
+            .scroll_bar_visibility(scroll_bar_visibility.into())
+            .scroll_source(scroll_source.into())
+            .stick_to_bottom(stick_to_end.x)
+            .stick_to_right(stick_to_end.y)
+            .auto_shrink(auto_shrink)
+            .animated(animated);
+        if let RSome(scroll_bar_rect) = scroll_bar_rect {
+            scroll_area = scroll_area.scroll_bar_rect(scroll_bar_rect);
+        }
+        if let RSome(id) = id {
+            scroll_area = scroll_area.id_salt(id);
+        }
+        if let RSome(offset) = offset_x {
+            scroll_area = scroll_area.horizontal_scroll_offset(offset);
+        }
+        if let RSome(offset) = offset_y {
+            scroll_area = scroll_area.vertical_scroll_offset(offset);
+        }
+        if let RSome(margin) = content_margin {
+            scroll_area = scroll_area.content_margin(margin);
+        }
+
+        scroll_area
+    }
+}
+
+impl ScrollArea {
+    #[inline]
+    pub(crate) fn show_impl(
+        self,
+        ui: &mut egui::Ui,
+        contents: PluginClosure,
+    ) -> ScrollAreaFfiOutput {
+        let scroll_area: egui::ScrollArea = self.into();
+        let output = scroll_area.show(ui, |ui| {
+            let mut b = BunnyUi::new(ui);
+            contents.call(&mut b);
+        });
+        ScrollAreaFfiOutput::new(output)
+    }
+
+    #[inline]
+    pub(crate) fn show_rows_impl(
+        self,
+        ui: &mut egui::Ui,
+        row_height_sans_spacing: f32,
+        total_rows: usize,
+        contents: ScrollAreaRowsClosure,
+    ) -> ScrollAreaFfiOutput {
+        let scroll_area: egui::ScrollArea = self.into();
+        let output =
+            scroll_area.show_rows(ui, row_height_sans_spacing, total_rows, |ui, row_range| {
+                let mut b = BunnyUi::new(ui);
+                contents.call(&mut b, &[row_range.start, row_range.end]);
+            });
+        ScrollAreaFfiOutput::new(output)
+    }
+}
+
+pub struct BunnyScrollAreaOutput<R> {
+    pub inner: R,
+    pub id: Id,
+    pub offset: Vec2,
+    pub velocity: Vec2,
+    pub content_size: Vec2,
+    pub inner_rect: Rect,
 }

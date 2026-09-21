@@ -155,3 +155,58 @@ unsafe extern "C" fn input_state_trampoline<R, F: FnMut(&mut BunnyInputState) ->
     let ret = closure(input_state);
     unsafe { output.0.cast::<R>().write(ret) };
 }
+
+#[repr(C)]
+struct ScrollAreaRowsClosurePointer(NonNull<u8>);
+
+impl ScrollAreaRowsClosurePointer {
+    #[inline]
+    fn new<R, F: FnMut(&mut BunnyUi, std::ops::Range<usize>) -> R>(closure: &mut F) -> Self {
+        Self(NonNull::from_mut(closure).cast::<u8>())
+    }
+}
+
+#[repr(C)]
+pub struct ScrollAreaRowsClosure<'a> {
+    closure: ScrollAreaRowsClosurePointer,
+    closure_trampoline:
+        unsafe extern "C" fn(&mut BunnyUi, &[usize; 2], ScrollAreaRowsClosurePointer, OutputPointer),
+    output: OutputPointer,
+    phantom: PhantomCovariantLifetime<'a>,
+}
+
+impl<'a> ScrollAreaRowsClosure<'a> {
+    #[inline]
+    pub fn new<R, F: FnMut(&mut BunnyUi, std::ops::Range<usize>) -> R + 'a>(
+        closure: &mut F,
+        output: &mut MaybeUninit<R>,
+    ) -> Self {
+        let closure = ScrollAreaRowsClosurePointer::new(closure);
+        let output = OutputPointer::new(output);
+        Self {
+            closure,
+            closure_trampoline: scroll_area_rows_closure_trampoline::<R, F>,
+            output,
+            phantom: PhantomCovariantLifetime::new(),
+        }
+    }
+
+    #[inline]
+    pub fn call(self, ui: &mut BunnyUi, range: &[usize; 2]) {
+        unsafe { (self.closure_trampoline)(ui, range, self.closure, self.output) }
+    }
+}
+
+unsafe extern "C" fn scroll_area_rows_closure_trampoline<
+    R,
+    F: FnMut(&mut BunnyUi, std::ops::Range<usize>) -> R,
+>(
+    ui: &mut BunnyUi,
+    range: &[usize; 2],
+    closure: ScrollAreaRowsClosurePointer,
+    output: OutputPointer,
+) {
+    let closure = unsafe { closure.0.cast::<F>().as_mut() };
+    let ret = closure(ui, range[0]..range[1]);
+    unsafe { output.0.cast::<R>().write(ret) };
+}

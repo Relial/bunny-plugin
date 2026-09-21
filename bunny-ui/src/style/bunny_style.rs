@@ -2,6 +2,7 @@ use vtable::{VRef, VRefMut};
 
 use crate::{
     Align,
+    containers::FrameStyle,
     paint::text::{fonts::FontId, text_layout_types::TextWrapMode},
     style::{
         BunnyInteractionMut, BunnyInteractionRef, BunnySpacingMut, BunnySpacingRef,
@@ -111,6 +112,12 @@ impl BunnyStyleRef<'_> {
     }
 }
 
+impl BunnyStyleRef<'_> {
+    pub(crate) fn frame_style(&self) -> FrameStyle {
+        self.inner.frame_style()
+    }
+}
+
 impl BunnyStyle for BunnyStyleRef<'_> {
     fn as_ref(&self) -> VRef<'_, StyleFfiVTable> {
         self.inner
@@ -181,6 +188,11 @@ impl BunnyStyleMut<'_> {
     #[inline]
     pub fn set_compact_menu_style(&mut self, compact_menu_style: bool) {
         self.inner.set_compact_menu_style(compact_menu_style);
+    }
+
+    #[inline]
+    pub fn menu_style(&mut self) {
+        self.inner.menu_style();
     }
 }
 

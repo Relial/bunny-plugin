@@ -1,9 +1,16 @@
-use abi_stable::std_types::ROption::{self, RNone, RSome};
+use abi_stable::std_types::{
+    ROption::{self, RNone, RSome},
+    Tuple2,
+};
+use egui::Id;
 
 use crate::{
-    Id, containers::popup::PopupCloseBehavior, elements::Container, layout::Layout,
-    paint::text::text_layout_types::TextWrapMode, response::InnerResponse, ui_old::BunnyUi,
-    widget_text::WidgetText,
+    WidgetText,
+    closure::PluginClosure,
+    containers::PopupCloseBehavior,
+    paint::text::text_layout_types::TextWrapMode,
+    response::{BunnyInnerResponse, BunnyResponse},
+    ui::BunnyUi,
 };
 
 #[repr(C)]
@@ -18,6 +25,7 @@ pub struct ComboBox {
 }
 
 impl ComboBox {
+    #[inline]
     pub fn new(id: impl Into<Id>, label: impl Into<WidgetText>) -> Self {
         Self {
             id: id.into(),
@@ -30,6 +38,7 @@ impl ComboBox {
         }
     }
 
+    #[inline]
     pub fn from_id(id: impl Into<Id>) -> Self {
         Self {
             id: id.into(),
@@ -84,71 +93,56 @@ impl ComboBox {
         self
     }
 
-    pub fn show_ui<'a, R>(
+    #[inline]
+    pub fn show<R>(
         self,
-        ui: &mut BunnyUi<'a>,
-        menu_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
-    ) -> InnerResponse<R> {
-        let mut new = ui.new_child(Some(Layout::default()));
-        let ret = menu_contents(&mut new);
-        let response = ui.add_component_auto_id(Container::ComboBox(ComboBoxComponent {
-            contents: new,
-            combo_box: self,
-        }));
-        InnerResponse::new(ret, response)
+        ui: &mut BunnyUi,
+        add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> BunnyInnerResponse<Option<R>> {
+        ui.combo_box_show(self, add_contents)
     }
 }
 
-#[repr(C)]
-pub struct ComboBoxComponent<'a> {
-    contents: BunnyUi<'a>,
-    combo_box: ComboBox,
-}
-
-#[cfg(feature = "manager")]
-impl crate::elements::UiContainer for ComboBoxComponent<'_> {
-    fn ui(
+impl ComboBox {
+    pub(crate) fn show_impl(
         self,
         ui: &mut egui::Ui,
-        responses: &mut abi_stable::std_types::RHashMap<
-            crate::Id,
-            crate::response::Response,
-            rapidhash::fast::RandomState,
-        >,
-        pointer_state: abi_stable::std_types::RArc<crate::input_state::PointerState>,
-        id: crate::Id,
-    ) -> crate::response::Response {
-        let mut combo_box = if let RSome(label) = self.combo_box.label {
-            egui::ComboBox::new(self.combo_box.id, label)
+        contents: PluginClosure,
+    ) -> Tuple2<BunnyResponse, bool> {
+        let ComboBox {
+            label,
+            selected_text,
+            id,
+            width,
+            height,
+            wrap_mode,
+            close_behavior,
+        } = self;
+        let mut combo_box = if let RSome(label) = label {
+            egui::ComboBox::new(id, label).selected_text(selected_text)
         } else {
-            egui::ComboBox::from_id_salt(self.combo_box.id)
-                .selected_text(self.combo_box.selected_text)
+            egui::ComboBox::from_id_salt(id).selected_text(selected_text)
         };
-        if let RSome(width) = self.combo_box.width {
+        if let RSome(width) = width {
             combo_box = combo_box.width(width);
         }
-        if let RSome(height) = self.combo_box.height {
+        if let RSome(height) = height {
             combo_box = combo_box.height(height);
         }
-        if let RSome(wrap_mode) = self.combo_box.wrap_mode {
+        if let RSome(wrap_mode) = wrap_mode {
             combo_box = combo_box.wrap_mode(wrap_mode.into());
         }
-        if let RSome(close_behavior) = self.combo_box.close_behavior {
+        if let RSome(close_behavior) = close_behavior {
             combo_box = combo_box.close_behavior(close_behavior.into());
         }
 
-        let resp = combo_box
-            .show_ui(ui, |ui| {
-                self.contents.ui(ui, responses, pointer_state.clone());
-            })
-            .response;
-        crate::response::Response::new(id, resp, pointer_state)
-    }
-}
-
-impl<'a> From<ComboBoxComponent<'a>> for Container<'a> {
-    #[inline]
-    fn from(value: ComboBoxComponent<'a>) -> Self {
-        Self::ComboBox(value)
+        let inner_response = combo_box.show_ui(ui, |ui| {
+            let mut b = BunnyUi::new(ui);
+            contents.call(&mut b);
+        });
+        Tuple2(
+            BunnyResponse::new(inner_response.response),
+            inner_response.inner.is_some(),
+        )
     }
 }

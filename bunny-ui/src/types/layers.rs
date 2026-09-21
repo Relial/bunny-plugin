@@ -55,6 +55,22 @@ impl LayerId {
             id: id.into(),
         }
     }
+
+    #[inline]
+    pub fn debug() -> Self {
+        Self {
+            id: Id::new("debug"),
+            order: Order::Debug,
+        }
+    }
+
+    #[inline]
+    pub fn background() -> Self {
+        Self {
+            id: Id::new("background"),
+            order: Order::Background,
+        }
+    }
 }
 
 #[cfg(feature = "manager")]
