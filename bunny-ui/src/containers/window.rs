@@ -1,76 +1,63 @@
+#[cfg(feature = "manager")]
+use abi_stable::std_types::Tuple2;
 use abi_stable::std_types::{
-    RBox,
     ROption::{self, RNone, RSome},
     RString,
 };
-use ecolor::Color32;
-use emath::{Pos2, Rect, Vec2};
+use egui::Id;
+use emath::Rect;
+use mint::{Point2, Vector2};
 
 use crate::{
-    Id,
-    align::Align2,
-    area::Area,
-    containers::{
-        frame::Frame,
-        scroll_area::{ScrollArea, ScrollBarVisibility, ScrollSource},
-    },
-    elements::Container,
-    layout::Layout,
-    paint::{corner_radius::CornerRadius, stroke::Stroke},
-    resize::Resize,
-    response::InnerResponse,
-    ui_old::BunnyUi,
-    vec2b::Vec2b,
+    Align2, Order, Resize, UiKind, Vec2b,
+    containers::{Area, Frame, ScrollArea, ScrollBarVisibility, ScrollSource},
+    response::BunnyInnerResponse,
+    ui::BunnyUi,
 };
-
-#[derive(Clone, Debug, Default)]
-#[repr(C)]
-pub struct TitleBar {
-    title: ROption<RString>,
-    close_button: bool,
-}
-
-impl TitleBar {
-    #[inline]
-    pub fn title(mut self, title: impl Into<RString>) -> Self {
-        self.title = RSome(title.into());
-        self
-    }
-
-    #[inline]
-    pub fn close_button(mut self, close_button: bool) -> Self {
-        self.close_button = close_button;
-        self
-    }
-}
+#[cfg(feature = "manager")]
+use crate::{closure::PluginClosure, response::BunnyResponse};
 
 #[repr(C)]
-pub struct Window {
+pub struct TitleBar<'open> {
+    title: RString,
+    open: ROption<&'open mut bool>,
+}
+
+impl<'open> TitleBar<'open> {
+    #[inline]
+    pub fn new(title: impl Into<RString>) -> Self {
+        Self {
+            title: title.into(),
+            open: RNone,
+        }
+    }
+
+    /// Add a close button. The window is invisible when open is false and visible when open is true.
+    #[inline]
+    pub fn open(mut self, open: &'open mut bool) -> Self {
+        self.open = RSome(open);
+        self
+    }
+}
+
+#[repr(C)]
+pub struct Window<'open> {
     area: Area,
-    title: ROption<RString>,
+    title_bar: ROption<TitleBar<'open>>,
     frame: ROption<Frame>,
     scroll: ScrollArea,
     resize: Resize,
-    open: ROption<*mut bool>,
-    id: Id,
     default_open: bool,
-    title_bar: bool,
 }
 
-impl Window {
+impl<'open> Window<'open> {
     pub fn new(id: impl Into<Id>) -> Self {
+        let id = id.into();
+        let area = Area::new(id).kind(UiKind::Window);
         Self {
-            id: id.into(),
-            open: RNone,
-            title: RNone,
-            title_bar: false,
-            area: Area::default(),
-            frame: RSome(
-                Frame::new()
-                    .corner_radius(CornerRadius::ZERO)
-                    .stroke(Stroke::new(1.0_f32, Color32::from_gray(60)))
-                    .fill(Color32::from_gray(27)),
-            ),
+            title_bar: RNone,
+            area,
+            frame: RNone,
             resize: Resize::default()
                 .min_size([96.0, 32.0])
                 .default_size([340.0, 420.0]),
@@ -80,20 +67,14 @@ impl Window {
     }
 
     #[inline]
-    pub fn open(mut self, open: &mut bool) -> Self {
-        self.open = RSome(open);
+    pub fn id(mut self, id: impl Into<Id>) -> Self {
+        self.area = self.area.id(id);
         self
     }
 
     #[inline]
-    pub fn title(mut self, title: impl Into<RString>) -> Self {
-        self.title = RSome(title.into());
-        self
-    }
-
-    #[inline]
-    pub fn title_bar(mut self, title_bar: bool) -> Self {
-        self.title_bar = title_bar;
+    pub fn title_bar(mut self, title_bar: TitleBar<'open>) -> Self {
+        self.title_bar = RSome(title_bar);
         self
     }
 
@@ -112,6 +93,18 @@ impl Window {
     #[inline]
     pub fn movable(mut self, movable: bool) -> Self {
         self.area = self.area.movable(movable);
+        self
+    }
+
+    #[inline]
+    pub fn order(mut self, order: Order) -> Self {
+        self.area = self.area.order(order);
+        self
+    }
+
+    #[inline]
+    pub fn fade_in(mut self, fade_in: bool) -> Self {
+        self.area = self.area.fade_in(fade_in);
         self
     }
 
@@ -140,7 +133,7 @@ impl Window {
     }
 
     #[inline]
-    pub fn min_size(mut self, min_size: impl Into<Vec2>) -> Self {
+    pub fn min_size(mut self, min_size: impl Into<Vector2<f32>>) -> Self {
         self.resize = self.resize.min_size(min_size);
         self
     }
@@ -158,25 +151,25 @@ impl Window {
     }
 
     #[inline]
-    pub fn max_size(mut self, max_size: impl Into<Vec2>) -> Self {
+    pub fn max_size(mut self, max_size: impl Into<Vector2<f32>>) -> Self {
         self.resize = self.resize.max_size(max_size);
         self
     }
 
     #[inline]
-    pub fn current_pos(mut self, current_pos: impl Into<Pos2>) -> Self {
+    pub fn current_pos(mut self, current_pos: impl Into<Point2<f32>>) -> Self {
         self.area = self.area.current_pos(current_pos);
         self
     }
 
     #[inline]
-    pub fn default_pos(mut self, default_pos: impl Into<Pos2>) -> Self {
+    pub fn default_pos(mut self, default_pos: impl Into<Point2<f32>>) -> Self {
         self.area = self.area.default_pos(default_pos);
         self
     }
 
     #[inline]
-    pub fn fixed_pos(mut self, pos: impl Into<Pos2>) -> Self {
+    pub fn fixed_pos(mut self, pos: impl Into<Point2<f32>>) -> Self {
         self.area = self.area.fixed_pos(pos);
         self
     }
@@ -200,7 +193,7 @@ impl Window {
     }
 
     #[inline]
-    pub fn anchor(mut self, align: Align2, offset: impl Into<Vec2>) -> Self {
+    pub fn anchor(mut self, align: Align2, offset: impl Into<Vector2<f32>>) -> Self {
         self.area = self.area.anchor(align, offset);
         self
     }
@@ -212,8 +205,7 @@ impl Window {
     }
 
     #[inline]
-    pub fn default_size(mut self, default_size: impl Into<Vec2>) -> Self {
-        let default_size = default_size.into();
+    pub fn default_size(mut self, default_size: impl Into<Vector2<f32>> + Copy) -> Self {
         self.resize = self.resize.default_size(default_size);
         self.area = self.area.default_size(default_size);
         self
@@ -234,7 +226,7 @@ impl Window {
     }
 
     #[inline]
-    pub fn fixed_size(mut self, size: impl Into<Vec2>) -> Self {
+    pub fn fixed_size(mut self, size: impl Into<Vector2<f32>>) -> Self {
         self.resize = self.resize.fixed_size(size);
         self
     }
@@ -296,44 +288,43 @@ impl Window {
     }
 
     #[inline]
-    pub fn show<'a, R>(
+    pub fn show<R>(
         self,
-        ui: &mut BunnyUi<'a>,
-        add_contents: impl FnOnce(&mut BunnyUi<'a>) -> R,
-    ) -> InnerResponse<R> {
-        let mut new = ui.new_child(Some(Layout::default()));
-        let ret = add_contents(&mut new);
-        let response = ui.add_component_auto_id(Container::Window(RBox::new(WindowComponent {
-            contents: new,
-            window: self,
-        })));
-        InnerResponse::new(ret, response)
+        ui: &mut BunnyUi,
+        add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> Option<BunnyInnerResponse<Option<R>>> {
+        ui.window_show(self, add_contents)
     }
 }
 
-#[repr(C)]
-pub struct WindowComponent<'a> {
-    window: Window,
-    contents: BunnyUi<'a>,
-}
-
 #[cfg(feature = "manager")]
-impl WindowComponent<'_> {
-    fn ui_title_bar(&mut self, ui: &mut egui::Ui) {
+impl TitleBar<'_> {
+    fn show_impl(
+        self,
+        ui: &mut egui::Ui,
+        window_id: Id,
+        window_stroke: egui::Stroke,
+        window_margin: egui::Margin,
+    ) {
+        // egui windows normally use global style, but since plugins can't
+        // manipulate global style we should leave it to the user to set their
+        // desired style before a window show call
+        let visuals = ui.visuals();
         let title_bar_height = 24.0;
-        let rect = {
+        let mut rect = {
             let mut rect = ui.max_rect();
+            rect += window_margin;
             rect.max.y = rect.min.y + title_bar_height;
             rect
         };
         let painter = ui.painter();
-        if let RSome(open) = self.window.open {
-            let id: egui::Id = self.window.id.with("close button").into();
+        if let RSome(open) = self.open {
+            let close_button_id = window_id.with("close button");
             let widget_state = ui
-                .read_response(id)
+                .read_response(close_button_id)
                 .map(|r| r.widget_state())
                 .unwrap_or_default();
-            let close_color = ui.visuals().widgets.state(widget_state).fg_stroke.color;
+            let close_color = visuals.widgets.state(widget_state).fg_stroke.color;
             let close_rect = painter.text(
                 rect.right_center() - egui::vec2(4.0, 0.0),
                 egui::Align2::RIGHT_CENTER,
@@ -341,87 +332,97 @@ impl WindowComponent<'_> {
                 egui::FontId::proportional(14.0),
                 close_color,
             );
-            if ui.interact(close_rect, id, egui::Sense::click()).clicked() {
-                unsafe { *open = false };
+            if ui
+                .interact(close_rect, close_button_id, egui::Sense::click())
+                .clicked()
+            {
+                *open = false;
             }
         }
 
-        if let RSome(title) = &self.window.title {
-            painter.text(
-                rect.center(),
-                egui::Align2::CENTER_CENTER,
-                title,
-                egui::FontId::proportional(16.0),
-                ui.visuals().text_color(),
-            );
-        }
-
-        painter.line_segment(
-            [rect.left_bottom(), rect.right_bottom()],
-            ui.visuals().widgets.noninteractive.bg_stroke,
+        painter.text(
+            rect.center(),
+            egui::Align2::CENTER_CENTER,
+            &self.title,
+            egui::FontId::proportional(16.0),
+            visuals.text_color(),
         );
+        painter.line_segment([rect.left_bottom(), rect.right_bottom()], window_stroke);
 
-        ui.allocate_rect(rect, egui::Sense::empty());
+        rect.min += window_margin.left_top();
+        rect.max.x -= window_margin.rightf();
+        ui.advance_cursor_after_rect(rect);
     }
 }
 
 #[cfg(feature = "manager")]
-impl crate::elements::UiContainer for WindowComponent<'_> {
-    fn ui(
-        mut self,
+impl Window<'_> {
+    pub(crate) fn show_impl(
+        self,
         ui: &mut egui::Ui,
-        responses: &mut abi_stable::std_types::RHashMap<
-            crate::Id,
-            crate::response::Response,
-            rapidhash::fast::RandomState,
-        >,
-        pointer_state: abi_stable::std_types::RArc<crate::input_state::PointerState>,
-        id: crate::Id,
-    ) -> crate::response::Response {
+        contents: PluginClosure,
+    ) -> ROption<Tuple2<BunnyResponse, bool>> {
+        let Window {
+            area,
+            title_bar,
+            frame,
+            scroll,
+            resize,
+            default_open,
+        } = self;
+        if title_bar
+            .as_ref()
+            .and_then(|t| t.open.as_deref())
+            .into_option()
+            .is_some_and(|o| !*o)
+        {
+            return RNone;
+        }
         let mut window = egui::Window::new("")
-            .id(self.window.id.into())
+            .id(area.id)
             .title_bar(false)
-            .enabled(self.window.area.enabled)
-            .interactable(self.window.area.interactable)
-            .movable(self.window.area.movable)
-            .constrain(self.window.area.constrain)
-            .pivot(self.window.area.pivot.into())
-            .default_size(self.window.area.default_size)
-            .default_open(self.window.default_open)
-            .scroll(self.window.scroll.direction_enabled)
-            .scroll_bar_visibility(self.window.scroll.scroll_bar_visibility.into())
-            .drag_to_scroll(self.window.scroll.scroll_source.drag);
-        if let RSome(frame) = self.window.frame {
+            .enabled(area.enabled)
+            .interactable(area.interactable)
+            .movable(area.movable)
+            .constrain(area.constrain)
+            .pivot(area.pivot.into())
+            .default_size(area.default_size)
+            .default_open(default_open)
+            .scroll(scroll.direction_enabled)
+            .scroll_bar_visibility(scroll.scroll_bar_visibility.into())
+            .drag_to_scroll(scroll.scroll_source.drag);
+        if let RSome(frame) = frame {
             window = window.frame(frame.into());
         }
-        if let RSome(constrain_rect) = self.window.area.constrain_rect {
+        if let RSome(constrain_rect) = area.constrain_rect {
             window = window.constrain_to(constrain_rect);
         }
-        if let RSome(default_pos) = self.window.area.default_pos {
+        if let RSome(default_pos) = area.default_pos {
             window = window.default_pos(default_pos);
         }
-        if let RSome(anchor) = self.window.area.anchor {
-            window = window.anchor(anchor.0.into(), anchor.1);
+        if let RSome(Tuple2(align, offset)) = area.anchor {
+            window = window.anchor(align.into(), offset);
         }
-        if let RSome(new_pos) = self.window.area.new_pos {
+        if let RSome(new_pos) = area.new_pos {
             window = window.current_pos(new_pos);
         }
         window = window.resize(|r| {
-            r.min_size(self.window.resize.min_size)
-                .max_size(self.window.resize.max_size)
-                .resizable(self.window.resize.resizable)
+            r.min_size(resize.min_size)
+                .max_size(resize.max_size)
+                .resizable(resize.resizable)
         });
         let inner = window.show(ui, |ui| {
-            if self.window.title_bar {
-                self.ui_title_bar(ui);
+            if let RSome(title_bar) = title_bar {
+                let (stroke, margin) = frame
+                    .map(|f| (f.stroke.into(), f.inner_margin.into()))
+                    .unwrap_or((ui.visuals().window_stroke, ui.spacing().window_margin));
+                title_bar.show_impl(ui, area.id, stroke, margin);
             }
-            ui.take_available_space();
-            self.contents.ui(ui, responses, pointer_state.clone());
+            let mut b = BunnyUi::new(ui);
+            contents.call(&mut b);
         });
-        if let Some(inner) = inner {
-            crate::response::Response::new(id, inner.response, pointer_state)
-        } else {
-            crate::response::Response::empty(id, pointer_state)
-        }
+        inner
+            .map(|inner| Tuple2(BunnyResponse::new(inner.response), inner.inner.is_some()))
+            .into()
     }
 }

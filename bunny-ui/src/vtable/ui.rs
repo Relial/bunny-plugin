@@ -7,7 +7,7 @@ use vtable::{VRef, VRefMut, vtable};
 use crate::{
     Align, ImageSource, LayerId, Layout as BunnyLayout, RichText, SizeHint, UiBuilder, WidgetText,
     closure::{InputStateClosure, PluginClosure, ScrollAreaRowsClosure},
-    containers::{Area, CollapsingHeader, ComboBox, Frame, Grid, Popup, ScrollArea},
+    containers::{Area, CollapsingHeader, ComboBox, Frame, Grid, Popup, ScrollArea, Window},
     galley::BunnyGalley,
     input::BunnyInputState,
     load::TexturePoll,
@@ -271,6 +271,11 @@ pub struct UiFfiVTable {
     ) -> ROption<TexturePoll>,
     // ...
     area_show: fn(VRefMut<UiFfiVTable>, area: Area, contents: PluginClosure) -> BunnyResponse,
+    collapsing_header_show: fn(
+        VRefMut<UiFfiVTable>,
+        collapsing_header: CollapsingHeader,
+        contents: PluginClosure,
+    ) -> CollapsingFfiResponse,
     combo_box_show: fn(
         VRefMut<UiFfiVTable>,
         combo_box: ComboBox,
@@ -292,11 +297,11 @@ pub struct UiFfiVTable {
         total_rows: usize,
         contents: ScrollAreaRowsClosure,
     ) -> ScrollAreaFfiOutput,
-    collapsing_header_show: fn(
+    window_show: fn(
         VRefMut<UiFfiVTable>,
-        collapsing_header: CollapsingHeader,
+        window: Window,
         contents: PluginClosure,
-    ) -> CollapsingFfiResponse,
+    ) -> ROption<Tuple2<BunnyResponse, bool>>,
 }
 
 impl UiFfi for Ui {
@@ -1338,6 +1343,15 @@ impl UiFfi for Ui {
     }
 
     #[inline]
+    fn collapsing_header_show(
+        &mut self,
+        collapsing_header: CollapsingHeader,
+        contents: PluginClosure,
+    ) -> CollapsingFfiResponse {
+        collapsing_header.show_impl(self, contents)
+    }
+
+    #[inline]
     fn combo_box_show(
         &mut self,
         combo_box: ComboBox,
@@ -1382,12 +1396,12 @@ impl UiFfi for Ui {
     }
 
     #[inline]
-    fn collapsing_header_show(
+    fn window_show(
         &mut self,
-        collapsing_header: CollapsingHeader,
+        window: Window,
         contents: PluginClosure,
-    ) -> CollapsingFfiResponse {
-        collapsing_header.show_impl(self, contents)
+    ) -> ROption<Tuple2<BunnyResponse, bool>> {
+        window.show_impl(self, contents)
     }
 }
 

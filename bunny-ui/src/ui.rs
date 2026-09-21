@@ -12,7 +12,7 @@ use crate::{
     closure::{InputStateClosure, PluginClosure, ScrollAreaRowsClosure},
     containers::{
         Area, BunnyCollapsingResponse, BunnyScrollAreaOutput, CollapsingHeader, ComboBox, Frame,
-        Grid, Popup, ScrollArea,
+        Grid, Popup, ScrollArea, Window,
     },
     galley::BunnyGalley,
     id::hash_id_salt,
@@ -1145,6 +1145,27 @@ impl<'a> BunnyUi<'a> {
         BunnyInnerResponse::new(inner, response)
     }
 
+    pub(crate) fn collapsing_header_show<R>(
+        &mut self,
+        collapsing_header: CollapsingHeader,
+        mut add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> BunnyCollapsingResponse<R> {
+        let mut ret = MaybeUninit::<R>::uninit();
+        let closure = PluginClosure::new(&mut add_contents, &mut ret);
+        let collapsing_ffi = self
+            .inner
+            .collapsing_header_show(collapsing_header, closure);
+        let body_returned = collapsing_ffi
+            .body_returned
+            .then(|| unsafe { ret.assume_init() });
+        BunnyCollapsingResponse {
+            header_response: collapsing_ffi.header_response,
+            body_response: collapsing_ffi.body_response.into(),
+            body_returned,
+            openness: collapsing_ffi.openness,
+        }
+    }
+
     pub(crate) fn combo_box_show<R>(
         &mut self,
         combo_box: ComboBox,
@@ -1242,24 +1263,19 @@ impl<'a> BunnyUi<'a> {
         }
     }
 
-    pub(crate) fn collapsing_header_show<R>(
+    pub(crate) fn window_show<R>(
         &mut self,
-        collapsing_header: CollapsingHeader,
+        window: Window,
         mut add_contents: impl FnMut(&mut BunnyUi) -> R,
-    ) -> BunnyCollapsingResponse<R> {
+    ) -> Option<BunnyInnerResponse<Option<R>>> {
         let mut ret = MaybeUninit::<R>::uninit();
         let closure = PluginClosure::new(&mut add_contents, &mut ret);
-        let collapsing_ffi = self
-            .inner
-            .collapsing_header_show(collapsing_header, closure);
-        let body_returned = collapsing_ffi
-            .body_returned
-            .then(|| unsafe { ret.assume_init() });
-        BunnyCollapsingResponse {
-            header_response: collapsing_ffi.header_response,
-            body_response: collapsing_ffi.body_response.into(),
-            body_returned,
-            openness: collapsing_ffi.openness,
-        }
+        let inner_response = self.inner.window_show(window, closure);
+        inner_response
+            .map(|Tuple2(response, inner_returned)| {
+                let inner = inner_returned.then(|| unsafe { ret.assume_init() });
+                BunnyInnerResponse::new(inner, response)
+            })
+            .into_option()
     }
 }

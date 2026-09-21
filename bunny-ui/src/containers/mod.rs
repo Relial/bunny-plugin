@@ -5,8 +5,7 @@ mod frame;
 mod grid;
 mod popup;
 mod scroll_area;
-// mod tooltip;
-// mod window;
+mod window;
 
 pub use area::*;
 pub use collapsing_header::*;
@@ -15,5 +14,4 @@ pub use frame::*;
 pub use grid::*;
 pub use popup::*;
 pub use scroll_area::*;
-// pub use tooltip::*;
-// pub use window::*;
+pub use window::*;

@@ -136,9 +136,9 @@ impl From<egui::Style> for Style {
         #[cfg(not(debug_assertions))]
         let egui::Style {
             override_text_style,
-            override_font_id,
+            override_font_id: _,
             override_text_valign,
-            text_styles,
+            text_styles: _,
             drag_value_text_style,
             number_formatter: _,
             wrap: _,

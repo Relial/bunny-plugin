@@ -16,20 +16,20 @@ use crate::{
 #[repr(C)]
 pub struct Area {
     info: UiStackInfo,
-    constraint_rect: ROption<Rect>,
-    anchor: ROption<Tuple2<Align2, Vec2>>,
+    pub(crate) constrain_rect: ROption<Rect>,
+    pub(crate) anchor: ROption<Tuple2<Align2, Vec2>>,
     layout: Layout,
-    default_pos: ROption<Pos2>,
-    new_pos: ROption<Pos2>,
-    id: Id,
-    default_size: Vec2,
-    pivot: Align2,
+    pub(crate) default_pos: ROption<Pos2>,
+    pub(crate) new_pos: ROption<Pos2>,
+    pub(crate) id: Id,
+    pub(crate) default_size: Vec2,
+    pub(crate) pivot: Align2,
     order: Order,
     sense: ROption<Sense>,
-    movable: bool,
-    interactable: bool,
-    enabled: bool,
-    constrain: bool,
+    pub(crate) movable: bool,
+    pub(crate) interactable: bool,
+    pub(crate) enabled: bool,
+    pub(crate) constrain: bool,
     fade_in: bool,
     sizing_pass: bool,
 }
@@ -45,7 +45,7 @@ impl Area {
             interactable: true,
             enabled: true,
             constrain: true,
-            constraint_rect: RNone,
+            constrain_rect: RNone,
             order: Order::Middle,
             default_pos: RNone,
             new_pos: RNone,
@@ -163,7 +163,7 @@ impl Area {
     #[inline]
     pub fn constrain_to(mut self, constrain_rect: Rect) -> Self {
         self.constrain = true;
-        self.constraint_rect = RSome(constrain_rect);
+        self.constrain_rect = RSome(constrain_rect);
         self
     }
 
@@ -223,7 +223,7 @@ impl Area {
             interactable,
             enabled,
             constrain,
-            constraint_rect,
+            constrain_rect: constraint_rect,
             order,
             default_pos,
             new_pos,
