@@ -1,4 +1,4 @@
-use abi_stable::std_types::{RString, RVec};
+use abi_stable::std_types::RVec;
 use egui::{Color32, Rangef, Rect, layers::ShapeIdx};
 use mint::{Point2, Vector2};
 use vtable::{VBox, VRef};
@@ -70,13 +70,14 @@ pub trait BunnyPaint {
     }
 
     #[inline]
-    fn debug_rect(&self, rect: Rect, color: impl Into<Color32>, text: impl Into<RString>) {
-        self.as_ref().debug_rect(rect, color.into(), text.into());
+    fn debug_rect(&self, rect: Rect, color: impl Into<Color32>, text: impl AsRef<str>) {
+        self.as_ref()
+            .debug_rect(rect, color.into(), text.as_ref().into());
     }
 
     #[inline]
-    fn error(&self, pos: impl Into<Point2<f32>>, text: impl Into<RString>) -> Rect {
-        self.as_ref().error(pos.into().into(), text.into())
+    fn error(&self, pos: impl Into<Point2<f32>>, text: impl AsRef<str>) -> Rect {
+        self.as_ref().error(pos.into().into(), text.as_ref().into())
     }
 
     #[inline]
@@ -85,10 +86,14 @@ pub trait BunnyPaint {
         pos: impl Into<Point2<f32>>,
         anchor: Align2,
         color: impl Into<Color32>,
-        text: impl Into<RString>,
+        text: impl AsRef<str>,
     ) -> Rect {
-        self.as_ref()
-            .debug_text(pos.into().into(), anchor, color.into(), text.into())
+        self.as_ref().debug_text(
+            pos.into().into(),
+            anchor,
+            color.into(),
+            text.as_ref().into(),
+        )
     }
 
     #[inline]
@@ -230,14 +235,14 @@ pub trait BunnyPaint {
         &self,
         pos: impl Into<Point2<f32>>,
         anchor: Align2,
-        text: impl Into<RString>,
+        text: impl AsRef<str>,
         font_id: FontId,
         text_color: impl Into<Color32>,
     ) -> Rect {
         self.as_ref().text(
             pos.into().into(),
             anchor,
-            text.into(),
+            text.as_ref().into(),
             font_id,
             text_color.into(),
         )
@@ -246,24 +251,24 @@ pub trait BunnyPaint {
     #[inline]
     fn layout(
         &self,
-        text: impl Into<RString>,
+        text: impl AsRef<str>,
         font_id: FontId,
         color: impl Into<Color32>,
         wrap_width: f32,
     ) -> BunnyGalley {
         self.as_ref()
-            .layout(text.into(), font_id, color.into(), wrap_width)
+            .layout(text.as_ref().into(), font_id, color.into(), wrap_width)
     }
 
     #[inline]
     fn layout_no_wrap(
         &self,
-        text: impl Into<RString>,
+        text: impl AsRef<str>,
         font_id: FontId,
         color: impl Into<Color32>,
     ) -> BunnyGalley {
         self.as_ref()
-            .layout_no_wrap(text.into(), font_id, color.into())
+            .layout_no_wrap(text.as_ref().into(), font_id, color.into())
     }
 
     #[inline]

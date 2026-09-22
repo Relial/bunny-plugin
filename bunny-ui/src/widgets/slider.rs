@@ -1,8 +1,8 @@
 use std::ops::RangeInclusive;
 
 use abi_stable::std_types::{
+    RCowStr,
     ROption::{self, RNone, RSome},
-    RString,
 };
 
 use crate::{WidgetText, num::Num, style::HandleShape, widgets::Widget};
@@ -74,9 +74,9 @@ pub enum NumberCustomFormat {
 
 #[repr(C)]
 pub struct Slider<'a> {
-    text: ROption<WidgetText>,
-    prefix: ROption<RString>,
-    suffix: ROption<RString>,
+    text: ROption<WidgetText<'a>>,
+    prefix: ROption<RCowStr<'a>>,
+    suffix: ROption<RCowStr<'a>>,
     custom_format: ROption<NumberCustomFormat>,
     spec: SliderSpec,
     range: [f64; 2],
@@ -132,19 +132,19 @@ impl<'a> Slider<'a> {
     }
 
     #[inline]
-    pub fn prefix(mut self, prefix: impl Into<RString>) -> Self {
+    pub fn prefix(mut self, prefix: impl Into<RCowStr<'a>>) -> Self {
         self.prefix = RSome(prefix.into());
         self
     }
 
     #[inline]
-    pub fn suffix(mut self, suffix: impl Into<RString>) -> Self {
+    pub fn suffix(mut self, suffix: impl Into<RCowStr<'a>>) -> Self {
         self.suffix = RSome(suffix.into());
         self
     }
 
     #[inline]
-    pub fn text(mut self, text: impl Into<WidgetText>) -> Self {
+    pub fn text(mut self, text: impl Into<WidgetText<'a>>) -> Self {
         self.text = RSome(text.into());
         self
     }

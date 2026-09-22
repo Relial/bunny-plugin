@@ -1,8 +1,8 @@
 use std::ops::RangeInclusive;
 
 use abi_stable::std_types::{
+    RCowStr,
     ROption::{self, RNone, RSome},
-    RString,
 };
 
 use crate::{
@@ -12,8 +12,8 @@ use crate::{
 
 #[repr(C)]
 pub struct DragValue<'a> {
-    prefix: ROption<RString>,
-    suffix: ROption<RString>,
+    prefix: ROption<RCowStr<'a>>,
+    suffix: ROption<RCowStr<'a>>,
     custom_format: ROption<NumberCustomFormat>,
     value: Num<'a>,
     range: [f64; 2],
@@ -77,13 +77,13 @@ impl<'a> DragValue<'a> {
     }
 
     #[inline]
-    pub fn prefix(mut self, prefix: impl Into<RString>) -> Self {
+    pub fn prefix(mut self, prefix: impl Into<RCowStr<'a>>) -> Self {
         self.prefix = RSome(prefix.into());
         self
     }
 
     #[inline]
-    pub fn suffix(mut self, suffix: impl Into<RString>) -> Self {
+    pub fn suffix(mut self, suffix: impl Into<RCowStr<'a>>) -> Self {
         self.suffix = RSome(suffix.into());
         self
     }

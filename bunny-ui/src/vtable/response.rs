@@ -1,4 +1,4 @@
-use abi_stable::std_types::{ROption, RStr, RString};
+use abi_stable::std_types::{ROption, RStr};
 use egui::{Color32, Id, Pos2, Rect, Response, Sense, Vec2};
 use vtable::{VBox, VRef, VRefMut, vtable};
 
@@ -96,15 +96,15 @@ pub struct ResponseFfiVTable {
     fonts_layout_job: fn(VRef<ResponseFfiVTable>, job: LayoutJob) -> BunnyGalley,
     fonts_layout: fn(
         VRef<ResponseFfiVTable>,
-        text: RString,
+        text: RStr,
         font_id: FontId,
         color: Color32,
         wrap_width: f32,
     ) -> BunnyGalley,
     fonts_layout_no_wrap:
-        fn(VRef<ResponseFfiVTable>, text: RString, font_id: FontId, color: Color32) -> BunnyGalley,
+        fn(VRef<ResponseFfiVTable>, text: RStr, font_id: FontId, color: Color32) -> BunnyGalley,
     fonts_layout_delayed_color:
-        fn(VRef<ResponseFfiVTable>, text: RString, font_id: FontId, wrap_width: f32) -> BunnyGalley,
+        fn(VRef<ResponseFfiVTable>, text: RStr, font_id: FontId, wrap_width: f32) -> BunnyGalley,
     // ...
     read_response: fn(VRef<ResponseFfiVTable>, id: Id) -> ROption<BunnyResponse>,
     layer_painter: fn(VRef<ResponseFfiVTable>, layer_id: LayerId) -> BunnyPainter,
@@ -112,7 +112,7 @@ pub struct ResponseFfiVTable {
     // debug_text
     time: fn(VRef<ResponseFfiVTable>) -> f64,
     // ...
-    copy_text: fn(VRef<ResponseFfiVTable>, text: RString),
+    copy_text: fn(VRef<ResponseFfiVTable>, text: RStr),
     // ...
     cumulative_frame_nr: fn(VRef<ResponseFfiVTable>) -> u64,
     // cumulative_frame_nr_for
@@ -465,7 +465,7 @@ impl ResponseFfi for Response {
     #[inline]
     fn fonts_layout(
         &self,
-        text: RString,
+        text: RStr<'_>,
         font_id: FontId,
         color: Color32,
         wrap_width: f32,
@@ -476,7 +476,7 @@ impl ResponseFfi for Response {
     }
 
     #[inline]
-    fn fonts_layout_no_wrap(&self, text: RString, font_id: FontId, color: Color32) -> BunnyGalley {
+    fn fonts_layout_no_wrap(&self, text: RStr<'_>, font_id: FontId, color: Color32) -> BunnyGalley {
         self.ctx
             .fonts_mut(|f| BunnyGalley::new(f.layout_no_wrap(text.into(), font_id.into(), color)))
     }
@@ -484,7 +484,7 @@ impl ResponseFfi for Response {
     #[inline]
     fn fonts_layout_delayed_color(
         &self,
-        text: RString,
+        text: RStr<'_>,
         font_id: FontId,
         wrap_width: f32,
     ) -> BunnyGalley {
@@ -516,7 +516,7 @@ impl ResponseFfi for Response {
     }
 
     #[inline]
-    fn copy_text(&self, text: RString) {
+    fn copy_text(&self, text: RStr<'_>) {
         self.ctx.copy_text(text.into());
     }
 

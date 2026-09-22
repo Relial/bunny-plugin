@@ -1,8 +1,9 @@
 use abi_stable::{
     rvec,
     std_types::{
+        RCowStr,
         ROption::{self, RNone, RSome},
-        RString, RVec,
+        RStr, RVec,
     },
 };
 use ecolor::Color32;
@@ -14,8 +15,8 @@ use crate::{
 
 #[derive(Clone, Debug)]
 #[repr(C)]
-pub struct LayoutJob {
-    pub text: RString,
+pub struct LayoutJob<'a> {
+    pub text: RCowStr<'a>,
     pub sections: RVec<LayoutSection>,
     pub wrap: TextWrapping,
     pub first_row_min_height: f32,
@@ -25,11 +26,11 @@ pub struct LayoutJob {
     pub round_output_to_gui: bool,
 }
 
-impl Default for LayoutJob {
+impl Default for LayoutJob<'_> {
     #[inline]
     fn default() -> Self {
         Self {
-            text: Default::default(),
+            text: RCowStr::Borrowed(RStr::empty()),
             sections: Default::default(),
             wrap: Default::default(),
             first_row_min_height: 0.0,
@@ -41,10 +42,10 @@ impl Default for LayoutJob {
     }
 }
 
-impl LayoutJob {
+impl<'a> LayoutJob<'a> {
     #[inline]
     pub fn simple(
-        text: impl Into<RString>,
+        text: impl Into<RCowStr<'a>>,
         font_id: FontId,
         color: Color32,
         wrap_width: f32,
@@ -67,7 +68,7 @@ impl LayoutJob {
     }
 
     #[inline]
-    pub fn simple_format(text: impl Into<RString>, format: TextFormat) -> Self {
+    pub fn simple_format(text: impl Into<RCowStr<'a>>, format: TextFormat) -> Self {
         let text = text.into();
         Self {
             sections: rvec![LayoutSection {
@@ -82,7 +83,11 @@ impl LayoutJob {
     }
 
     #[inline]
-    pub fn simple_singleline(text: impl Into<RString>, font_id: FontId, color: Color32) -> Self {
+    pub fn simple_singleline(
+        text: impl Into<RCowStr<'a>>,
+        font_id: FontId,
+        color: Color32,
+    ) -> Self {
         let text = text.into();
         Self {
             sections: rvec![LayoutSection {
@@ -98,7 +103,7 @@ impl LayoutJob {
     }
 
     #[inline]
-    pub fn single_section(text: impl Into<RString>, format: TextFormat) -> Self {
+    pub fn single_section(text: impl Into<RCowStr<'a>>, format: TextFormat) -> Self {
         let text = text.into();
         Self {
             sections: rvec![LayoutSection {
@@ -118,17 +123,6 @@ impl LayoutJob {
         self.sections.is_empty()
     }
 
-    pub fn append(&mut self, text: &str, leading_space: f32, format: TextFormat) {
-        let start = self.text.len();
-        self.text.push_str(text);
-        let byte_range = [start, self.text.len()];
-        self.sections.push(LayoutSection {
-            leading_space,
-            byte_range,
-            format,
-        });
-    }
-
     pub fn effective_wrap_width(&self) -> f32 {
         if self.round_output_to_gui {
             self.wrap.max_width + 0.5
@@ -139,7 +133,7 @@ impl LayoutJob {
 }
 
 #[cfg(feature = "manager")]
-impl From<LayoutJob> for egui::epaint::text::LayoutJob {
+impl From<LayoutJob<'_>> for egui::epaint::text::LayoutJob {
     fn from(value: LayoutJob) -> Self {
         let LayoutJob {
             text,
@@ -152,7 +146,7 @@ impl From<LayoutJob> for egui::epaint::text::LayoutJob {
             round_output_to_gui,
         } = value;
         Self {
-            text: text.into(),
+            text: text.to_string(),
             sections: sections.into_iter().map(LayoutSection::into).collect(),
             wrap: wrap.into(),
             first_row_min_height,

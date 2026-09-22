@@ -1,7 +1,7 @@
 use abi_stable::std_types::{
     RCowStr,
     ROption::{self, RNone, RSome},
-    RString, Tuple2,
+    Tuple2,
 };
 use ecolor::Color32;
 use egui::Sense;
@@ -20,7 +20,7 @@ use crate::{
 pub struct Image<'a> {
     image_source: ImageSource<'a>,
     image_options: ImageOptions,
-    alt_text: ROption<RString>,
+    alt_text: ROption<RCowStr<'a>>,
     size: ImageSize,
     texture_options: TextureOptions,
     show_loading_spinner: ROption<bool>,
@@ -158,7 +158,7 @@ impl<'a> Image<'a> {
     }
 
     #[inline]
-    pub fn alt_text(mut self, label: impl Into<RString>) -> Self {
+    pub fn alt_text(mut self, label: impl Into<RCowStr<'a>>) -> Self {
         self.alt_text = RSome(label.into());
         self
     }
@@ -196,7 +196,7 @@ impl egui::Widget for Image<'_> {
             image = image.rotate(angle, origin);
         }
         if let RSome(alt_text) = alt_text {
-            image = image.alt_text(alt_text);
+            image = image.alt_text(alt_text.to_string());
         }
         if let RSome(spinner) = show_loading_spinner {
             image = image.show_loading_spinner(spinner);

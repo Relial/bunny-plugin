@@ -1,28 +1,28 @@
 use crate::{WidgetText, widgets::Widget};
 
 #[repr(C)]
-pub struct Link {
-    text: WidgetText,
+pub struct Link<'a> {
+    text: WidgetText<'a>,
 }
 
-impl Link {
+impl<'a> Link<'a> {
     #[inline]
-    pub fn new(text: impl Into<WidgetText>) -> Self {
+    pub fn new(text: impl Into<WidgetText<'a>>) -> Self {
         Self { text: text.into() }
     }
 }
 
 #[cfg(feature = "manager")]
-impl egui::Widget for Link {
+impl egui::Widget for Link<'_> {
     #[inline]
     fn ui(self, ui: &mut egui::Ui) -> egui::Response {
         ui.link(self.text)
     }
 }
 
-impl From<Link> for Widget<'_> {
+impl<'a> From<Link<'a>> for Widget<'a> {
     #[inline]
-    fn from(value: Link) -> Self {
+    fn from(value: Link<'a>) -> Self {
         Self::Link(value)
     }
 }

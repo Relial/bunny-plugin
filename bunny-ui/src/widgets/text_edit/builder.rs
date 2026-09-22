@@ -14,9 +14,9 @@ use crate::{
 #[repr(C)]
 pub struct TextEdit<'t> {
     font_selection: FontSelection,
-    prefix: WidgetText,
-    suffix: WidgetText,
-    hint_text: WidgetText,
+    prefix: WidgetText<'t>,
+    suffix: WidgetText<'t>,
+    hint_text: WidgetText<'t>,
     frame: ROption<Frame>,
     id: ROption<Id>,
     text: &'t mut BunnyString,
@@ -77,19 +77,19 @@ impl<'t> TextEdit<'t> {
     }
 
     #[inline]
-    pub fn hint_text(mut self, hint_text: impl Into<WidgetText>) -> Self {
+    pub fn hint_text(mut self, hint_text: impl Into<WidgetText<'t>>) -> Self {
         self.hint_text = hint_text.into();
         self
     }
 
     #[inline]
-    pub fn prefix(mut self, prefix: impl Into<WidgetText>) -> Self {
+    pub fn prefix(mut self, prefix: impl Into<WidgetText<'t>>) -> Self {
         self.prefix = prefix.into();
         self
     }
 
     #[inline]
-    pub fn suffix(mut self, suffix: impl Into<WidgetText>) -> Self {
+    pub fn suffix(mut self, suffix: impl Into<WidgetText<'t>>) -> Self {
         self.suffix = suffix.into();
         self
     }

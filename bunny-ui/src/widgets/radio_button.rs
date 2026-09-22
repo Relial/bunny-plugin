@@ -1,14 +1,14 @@
 use crate::{WidgetText, widgets::Widget};
 
 #[repr(C)]
-pub struct RadioButton {
-    text: WidgetText,
+pub struct RadioButton<'a> {
+    text: WidgetText<'a>,
     checked: bool,
 }
 
-impl RadioButton {
+impl<'a> RadioButton<'a> {
     #[inline]
-    pub fn new(checked: bool, text: impl Into<WidgetText>) -> Self {
+    pub fn new(checked: bool, text: impl Into<WidgetText<'a>>) -> Self {
         Self {
             checked,
             text: text.into(),
@@ -17,16 +17,16 @@ impl RadioButton {
 }
 
 #[cfg(feature = "manager")]
-impl egui::Widget for RadioButton {
+impl egui::Widget for RadioButton<'_> {
     #[inline]
     fn ui(self, ui: &mut egui::Ui) -> egui::Response {
         ui.radio(self.checked, self.text)
     }
 }
 
-impl From<RadioButton> for Widget<'_> {
+impl<'a> From<RadioButton<'a>> for Widget<'a> {
     #[inline]
-    fn from(value: RadioButton) -> Self {
+    fn from(value: RadioButton<'a>) -> Self {
         Self::RadioButton(value)
     }
 }

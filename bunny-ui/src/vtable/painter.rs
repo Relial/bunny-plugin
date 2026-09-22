@@ -1,4 +1,4 @@
-use abi_stable::std_types::{RString, RVec};
+use abi_stable::std_types::{RStr, RVec};
 use egui::{Color32, Painter, Pos2, Rangef, Rect, Vec2, layers::ShapeIdx};
 use vtable::{VRef, VRefMut, vtable};
 
@@ -41,15 +41,10 @@ pub struct PainterFfiVTable {
     extend: fn(VRef<PainterFfiVTable>, shapes: RVec<Shape>),
     set: fn(VRef<PainterFfiVTable>, idx: ShapeIdx, shape: Shape),
     // for_each_shape
-    debug_rect: fn(VRef<PainterFfiVTable>, rect: Rect, color: Color32, text: RString),
-    error: fn(VRef<PainterFfiVTable>, pos: Pos2, text: RString) -> Rect,
-    debug_text: fn(
-        VRef<PainterFfiVTable>,
-        pos: Pos2,
-        anchor: Align2,
-        color: Color32,
-        text: RString,
-    ) -> Rect,
+    debug_rect: fn(VRef<PainterFfiVTable>, rect: Rect, color: Color32, text: RStr),
+    error: fn(VRef<PainterFfiVTable>, pos: Pos2, text: RStr) -> Rect,
+    debug_text:
+        fn(VRef<PainterFfiVTable>, pos: Pos2, anchor: Align2, color: Color32, text: RStr) -> Rect,
 
     line_segment: fn(VRef<PainterFfiVTable>, points: [Pos2; 2], stroke: Stroke) -> ShapeIdx,
     line: fn(VRef<PainterFfiVTable>, points: RVec<Pos2>, stroke: PathStroke) -> ShapeIdx,
@@ -100,19 +95,19 @@ pub struct PainterFfiVTable {
         VRef<PainterFfiVTable>,
         pos: Pos2,
         anchor: Align2,
-        text: RString,
+        text: RStr,
         font_id: FontId,
         text_color: Color32,
     ) -> Rect,
     layout: fn(
         VRef<PainterFfiVTable>,
-        text: RString,
+        text: RStr,
         font_id: FontId,
         color: Color32,
         wrap_width: f32,
     ) -> BunnyGalley,
     layout_no_wrap:
-        fn(VRef<PainterFfiVTable>, text: RString, font_id: FontId, color: Color32) -> BunnyGalley,
+        fn(VRef<PainterFfiVTable>, text: RStr, font_id: FontId, color: Color32) -> BunnyGalley,
     layout_job: fn(VRef<PainterFfiVTable>, layout_job: LayoutJob) -> BunnyGalley,
     galley: fn(VRef<PainterFfiVTable>, pos: Pos2, galley: BunnyGalley, fallback_color: Color32),
     galley_with_override_text_color:
@@ -204,17 +199,17 @@ impl PainterFfi for Painter {
     }
 
     #[inline]
-    fn debug_rect(&self, rect: Rect, color: Color32, text: RString) {
+    fn debug_rect(&self, rect: Rect, color: Color32, text: RStr<'_>) {
         self.debug_rect(rect, color, text);
     }
 
     #[inline]
-    fn error(&self, pos: Pos2, text: RString) -> Rect {
+    fn error(&self, pos: Pos2, text: RStr<'_>) -> Rect {
         self.error(pos, text)
     }
 
     #[inline]
-    fn debug_text(&self, pos: Pos2, anchor: Align2, color: Color32, text: RString) -> Rect {
+    fn debug_text(&self, pos: Pos2, anchor: Align2, color: Color32, text: RStr<'_>) -> Rect {
         self.debug_text(pos, anchor.into(), color, text)
     }
 
@@ -301,7 +296,7 @@ impl PainterFfi for Painter {
         &self,
         pos: Pos2,
         anchor: Align2,
-        text: RString,
+        text: RStr<'_>,
         font_id: FontId,
         text_color: Color32,
     ) -> Rect {
@@ -311,17 +306,17 @@ impl PainterFfi for Painter {
     #[inline]
     fn layout(
         &self,
-        text: RString,
+        text: RStr<'_>,
         font_id: FontId,
         color: Color32,
         wrap_width: f32,
     ) -> BunnyGalley {
-        BunnyGalley::new(self.layout(text.into_string(), font_id.into(), color, wrap_width))
+        BunnyGalley::new(self.layout(text.into(), font_id.into(), color, wrap_width))
     }
 
     #[inline]
-    fn layout_no_wrap(&self, text: RString, font_id: FontId, color: Color32) -> BunnyGalley {
-        BunnyGalley::new(self.layout_no_wrap(text.into_string(), font_id.into(), color))
+    fn layout_no_wrap(&self, text: RStr<'_>, font_id: FontId, color: Color32) -> BunnyGalley {
+        BunnyGalley::new(self.layout_no_wrap(text.into(), font_id.into(), color))
     }
 
     #[inline]

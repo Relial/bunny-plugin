@@ -14,9 +14,9 @@ use crate::{
 };
 
 #[repr(C)]
-pub struct ComboBox {
-    label: ROption<WidgetText>,
-    selected_text: WidgetText,
+pub struct ComboBox<'a> {
+    label: ROption<WidgetText<'a>>,
+    selected_text: WidgetText<'a>,
     id: Id,
     width: ROption<f32>,
     height: ROption<f32>,
@@ -24,9 +24,9 @@ pub struct ComboBox {
     close_behavior: ROption<PopupCloseBehavior>,
 }
 
-impl ComboBox {
+impl<'a> ComboBox<'a> {
     #[inline]
-    pub fn new(id: impl Into<Id>, label: impl Into<WidgetText>) -> Self {
+    pub fn new(id: impl Into<Id>, label: impl Into<WidgetText<'a>>) -> Self {
         Self {
             id: id.into(),
             label: RSome(label.into()),
@@ -64,7 +64,7 @@ impl ComboBox {
     }
 
     #[inline]
-    pub fn selected_text(mut self, selected_text: impl Into<WidgetText>) -> Self {
+    pub fn selected_text(mut self, selected_text: impl Into<WidgetText<'a>>) -> Self {
         self.selected_text = selected_text.into();
         self
     }
@@ -103,7 +103,7 @@ impl ComboBox {
     }
 }
 
-impl ComboBox {
+impl ComboBox<'_> {
     pub(crate) fn show_impl(
         self,
         ui: &mut egui::Ui,

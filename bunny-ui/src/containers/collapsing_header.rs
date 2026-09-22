@@ -7,8 +7,8 @@ use crate::{
 };
 
 #[repr(C)]
-pub struct CollapsingHeader {
-    text: WidgetText,
+pub struct CollapsingHeader<'a> {
+    text: WidgetText<'a>,
     id: ROption<Id>,
     open: ROption<bool>,
     show_background: bool,
@@ -16,8 +16,8 @@ pub struct CollapsingHeader {
     default_open: bool,
 }
 
-impl CollapsingHeader {
-    pub fn new(text: impl Into<WidgetText>) -> Self {
+impl<'a> CollapsingHeader<'a> {
+    pub fn new(text: impl Into<WidgetText<'a>>) -> Self {
         let text = text.into();
         Self {
             text,
@@ -65,7 +65,7 @@ impl CollapsingHeader {
     }
 }
 
-impl CollapsingHeader {
+impl CollapsingHeader<'_> {
     pub(crate) fn show_impl(
         self,
         ui: &mut egui::Ui,

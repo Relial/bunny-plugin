@@ -1,6 +1,6 @@
 use std::mem::MaybeUninit;
 
-use abi_stable::std_types::{RStr, RString};
+use abi_stable::std_types::RStr;
 use egui::{Color32, Id, Pos2, Rect, Sense, Vec2};
 use mint::Vector2;
 use vtable::VBox;
@@ -35,7 +35,7 @@ impl BunnyResponse {
     }
 }
 
-impl BunnyResponse {
+impl<'a> BunnyResponse {
     #[inline]
     pub fn layer_id(&self) -> LayerId {
         self.inner.layer_id()
@@ -269,7 +269,7 @@ impl BunnyResponse {
     }
 
     #[inline]
-    pub fn show_tooltip_text(&self, text: impl Into<WidgetText>) {
+    pub fn show_tooltip_text(&self, text: impl Into<WidgetText<'a>>) {
         self.inner.show_tooltip_text(text.into());
     }
 
@@ -279,13 +279,13 @@ impl BunnyResponse {
     }
 
     #[inline]
-    pub fn on_hover_text_at_pointer(self, text: impl Into<WidgetText>) -> Self {
+    pub fn on_hover_text_at_pointer(self, text: impl Into<WidgetText<'a>>) -> Self {
         self.inner.on_hover_text_at_pointer(text.into());
         self
     }
 
     #[inline]
-    pub fn on_hover_text(self, text: impl Into<WidgetText>) -> Self {
+    pub fn on_hover_text(self, text: impl Into<WidgetText<'a>>) -> Self {
         self.inner.on_hover_text(text.into());
         self
     }
@@ -297,7 +297,7 @@ impl BunnyResponse {
     }
 
     #[inline]
-    pub fn on_disabled_hover_text(self, text: impl Into<WidgetText>) -> Self {
+    pub fn on_disabled_hover_text(self, text: impl Into<WidgetText<'a>>) -> Self {
         self.inner.on_disabled_hover_text(text.into());
         self
     }
@@ -361,34 +361,35 @@ impl BunnyResponse {
     #[inline]
     pub fn fonts_layout(
         &self,
-        text: impl Into<RString>,
+        text: impl AsRef<str>,
         font_id: FontId,
         color: Color32,
         wrap_width: f32,
     ) -> BunnyGalley {
         self.inner
-            .fonts_layout(text.into(), font_id, color, wrap_width)
+            .fonts_layout(text.as_ref().into(), font_id, color, wrap_width)
     }
 
     #[inline]
     pub fn fonts_layout_no_wrap(
         &self,
-        text: impl Into<RString>,
+        text: impl AsRef<str>,
         font_id: FontId,
         color: Color32,
     ) -> BunnyGalley {
-        self.inner.fonts_layout_no_wrap(text.into(), font_id, color)
+        self.inner
+            .fonts_layout_no_wrap(text.as_ref().into(), font_id, color)
     }
 
     #[inline]
     pub fn fonts_layout_delayed_color(
         &self,
-        text: impl Into<RString>,
+        text: impl AsRef<str>,
         font_id: FontId,
         wrap_width: f32,
     ) -> BunnyGalley {
         self.inner
-            .fonts_layout_delayed_color(text.into(), font_id, wrap_width)
+            .fonts_layout_delayed_color(text.as_ref().into(), font_id, wrap_width)
     }
 
     #[inline]
@@ -412,8 +413,8 @@ impl BunnyResponse {
     }
 
     #[inline]
-    pub fn copy_text(&self, text: impl Into<RString>) {
-        self.inner.copy_text(text.into());
+    pub fn copy_text(&self, text: impl AsRef<str>) {
+        self.inner.copy_text(text.as_ref().into());
     }
 
     #[inline]

@@ -1,6 +1,6 @@
 use std::{hash::Hash, mem::MaybeUninit};
 
-use abi_stable::std_types::{RStr, RString, Tuple2};
+use abi_stable::std_types::{RStr, Tuple2};
 use ecolor::Hsva;
 use egui::{Color32, Id, Pos2, Rangef, Rect, Sense, Vec2};
 use emath::TSTransform;
@@ -622,47 +622,51 @@ impl<'a> BunnyUi<'a> {
     }
 
     #[inline]
-    pub fn label(&mut self, text: impl Into<WidgetText>) -> BunnyResponse {
+    pub fn label<'t>(&mut self, text: impl Into<WidgetText<'t>>) -> BunnyResponse {
         self.inner.label(text.into())
     }
 
     #[inline]
-    pub fn colored_label(&mut self, color: Color32, text: impl Into<RichText>) -> BunnyResponse {
+    pub fn colored_label<'t>(
+        &mut self,
+        color: Color32,
+        text: impl Into<RichText<'t>>,
+    ) -> BunnyResponse {
         self.inner.colored_label(color, text.into())
     }
 
     #[inline]
-    pub fn heading(&mut self, text: impl Into<RichText>) -> BunnyResponse {
+    pub fn heading<'t>(&mut self, text: impl Into<RichText<'t>>) -> BunnyResponse {
         self.inner.heading(text.into())
     }
 
     #[inline]
-    pub fn monospace(&mut self, text: impl Into<RichText>) -> BunnyResponse {
+    pub fn monospace<'t>(&mut self, text: impl Into<RichText<'t>>) -> BunnyResponse {
         self.inner.monospace(text.into())
     }
 
     #[inline]
-    pub fn code(&mut self, text: impl Into<RichText>) -> BunnyResponse {
+    pub fn code<'t>(&mut self, text: impl Into<RichText<'t>>) -> BunnyResponse {
         self.inner.code(text.into())
     }
 
     #[inline]
-    pub fn small(&mut self, text: impl Into<RichText>) -> BunnyResponse {
+    pub fn small<'t>(&mut self, text: impl Into<RichText<'t>>) -> BunnyResponse {
         self.inner.small(text.into())
     }
 
     #[inline]
-    pub fn strong(&mut self, text: impl Into<RichText>) -> BunnyResponse {
+    pub fn strong<'t>(&mut self, text: impl Into<RichText<'t>>) -> BunnyResponse {
         self.inner.strong(text.into())
     }
 
     #[inline]
-    pub fn weak(&mut self, text: impl Into<RichText>) -> BunnyResponse {
+    pub fn weak<'t>(&mut self, text: impl Into<RichText<'t>>) -> BunnyResponse {
         self.inner.weak(text.into())
     }
 
     #[inline]
-    pub fn link(&mut self, text: impl Into<WidgetText>) -> BunnyResponse {
+    pub fn link<'t>(&mut self, text: impl Into<WidgetText<'t>>) -> BunnyResponse {
         self.inner.link(text.into())
     }
 
@@ -682,40 +686,44 @@ impl<'a> BunnyUi<'a> {
     }
 
     #[inline]
-    pub fn button(&mut self, text: impl Into<WidgetText>) -> BunnyResponse {
+    pub fn button<'t>(&mut self, text: impl Into<WidgetText<'t>>) -> BunnyResponse {
         self.inner.button(text.into())
     }
 
     #[inline]
-    pub fn small_button(&mut self, text: impl Into<WidgetText>) -> BunnyResponse {
+    pub fn small_button<'t>(&mut self, text: impl Into<WidgetText<'t>>) -> BunnyResponse {
         self.inner.small_button(text.into())
     }
 
     #[inline]
-    pub fn checkbox(&mut self, checked: &mut bool, text: impl Into<WidgetText>) -> BunnyResponse {
+    pub fn checkbox<'t>(
+        &mut self,
+        checked: &mut bool,
+        text: impl Into<WidgetText<'t>>,
+    ) -> BunnyResponse {
         self.inner.checkbox(checked, text.into())
     }
 
     #[inline]
-    pub fn toggle_value(
+    pub fn toggle_value<'t>(
         &mut self,
         selected: &mut bool,
-        text: impl Into<WidgetText>,
+        text: impl Into<WidgetText<'t>>,
     ) -> BunnyResponse {
         self.inner.toggle_value(selected, text.into())
     }
 
     #[inline]
-    pub fn radio(&mut self, selected: bool, text: impl Into<WidgetText>) -> BunnyResponse {
+    pub fn radio<'t>(&mut self, selected: bool, text: impl Into<WidgetText<'t>>) -> BunnyResponse {
         self.inner.radio(selected, text.into())
     }
 
     #[inline]
-    pub fn radio_value<Value: PartialEq>(
+    pub fn radio_value<'t, Value: PartialEq>(
         &mut self,
         current_value: &mut Value,
         alternative: Value,
-        text: impl Into<WidgetText>,
+        text: impl Into<WidgetText<'t>>,
     ) -> BunnyResponse {
         let mut response = self.inner.radio(*current_value == alternative, text.into());
         if response.clicked() && *current_value != alternative {
@@ -726,20 +734,20 @@ impl<'a> BunnyUi<'a> {
     }
 
     #[inline]
-    pub fn selectable_label(
+    pub fn selectable_label<'t>(
         &mut self,
         checked: bool,
-        text: impl Into<WidgetText>,
+        text: impl Into<WidgetText<'t>>,
     ) -> BunnyResponse {
         self.inner.selectable_label(checked, text.into())
     }
 
     #[inline]
-    pub fn selectable_value<Value: PartialEq>(
+    pub fn selectable_value<'t, Value: PartialEq>(
         &mut self,
         current_value: &mut Value,
         selected_value: Value,
-        text: impl Into<WidgetText>,
+        text: impl Into<WidgetText<'t>>,
     ) -> BunnyResponse {
         let mut response = self
             .inner
@@ -873,9 +881,9 @@ impl<'a> BunnyUi<'a> {
         BunnyInnerResponse::new(inner, response)
     }
 
-    pub fn collapsing<R>(
+    pub fn collapsing<'t, R>(
         &mut self,
-        heading: impl Into<WidgetText>,
+        heading: impl Into<WidgetText<'t>>,
         mut add_contents: impl FnMut(&mut BunnyUi) -> R,
     ) -> BunnyCollapsingResponse<R> {
         let mut ret = MaybeUninit::<R>::uninit();
@@ -1027,9 +1035,9 @@ impl<'a> BunnyUi<'a> {
 }
 
 impl<'a> BunnyUi<'a> {
-    pub fn menu_button<R>(
+    pub fn menu_button<'t, R>(
         &mut self,
-        text: impl Into<WidgetText>,
+        text: impl Into<WidgetText<'t>>,
         mut add_contents: impl FnMut(&mut BunnyUi) -> R,
     ) -> BunnyInnerResponse<Option<R>> {
         let mut ret = MaybeUninit::<R>::uninit();
@@ -1056,34 +1064,35 @@ impl<'a> BunnyUi<'a> {
     #[inline]
     pub fn fonts_layout(
         &self,
-        text: impl Into<RString>,
+        text: impl AsRef<str>,
         font_id: FontId,
         color: Color32,
         wrap_width: f32,
     ) -> BunnyGalley {
         self.inner
-            .fonts_layout(text.into(), font_id, color, wrap_width)
+            .fonts_layout(text.as_ref().into(), font_id, color, wrap_width)
     }
 
     #[inline]
     pub fn fonts_layout_no_wrap(
         &self,
-        text: impl Into<RString>,
+        text: impl AsRef<str>,
         font_id: FontId,
         color: Color32,
     ) -> BunnyGalley {
-        self.inner.fonts_layout_no_wrap(text.into(), font_id, color)
+        self.inner
+            .fonts_layout_no_wrap(text.as_ref().into(), font_id, color)
     }
 
     #[inline]
     pub fn fonts_layout_delayed_color(
         &self,
-        text: impl Into<RString>,
+        text: impl AsRef<str>,
         font_id: FontId,
         wrap_width: f32,
     ) -> BunnyGalley {
         self.inner
-            .fonts_layout_delayed_color(text.into(), font_id, wrap_width)
+            .fonts_layout_delayed_color(text.as_ref().into(), font_id, wrap_width)
     }
 
     #[inline]
@@ -1107,8 +1116,8 @@ impl<'a> BunnyUi<'a> {
     }
 
     #[inline]
-    pub fn copy_text(&self, text: impl Into<RString>) {
-        self.inner.copy_text(text.into());
+    pub fn copy_text(&self, text: impl AsRef<str>) {
+        self.inner.copy_text(text.as_ref().into());
     }
 
     #[inline]

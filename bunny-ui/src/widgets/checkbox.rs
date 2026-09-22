@@ -1,15 +1,15 @@
 use crate::{WidgetText, widgets::Widget};
 
 #[repr(C)]
-pub struct CheckBox {
-    text: Option<WidgetText>,
+pub struct CheckBox<'a> {
+    text: Option<WidgetText<'a>>,
     checked: bool,
     indeterminate: bool,
 }
 
-impl CheckBox {
+impl<'a> CheckBox<'a> {
     #[inline]
-    pub fn new(checked: bool, text: impl Into<WidgetText>) -> Self {
+    pub fn new(checked: bool, text: impl Into<WidgetText<'a>>) -> Self {
         Self {
             text: Some(text.into()),
             checked,
@@ -34,7 +34,7 @@ impl CheckBox {
 }
 
 #[cfg(feature = "manager")]
-impl egui::Widget for CheckBox {
+impl egui::Widget for CheckBox<'_> {
     fn ui(self, ui: &mut egui::Ui) -> egui::Response {
         let mut temp = self.checked;
         let checkbox = if let Some(text) = self.text {
@@ -47,9 +47,9 @@ impl egui::Widget for CheckBox {
     }
 }
 
-impl From<CheckBox> for Widget<'_> {
+impl<'a> From<CheckBox<'a>> for Widget<'a> {
     #[inline]
-    fn from(value: CheckBox) -> Self {
+    fn from(value: CheckBox<'a>) -> Self {
         Self::CheckBox(value)
     }
 }

@@ -1,9 +1,9 @@
 use std::borrow::Cow;
 
 use abi_stable::std_types::{
-    RBox,
+    RBox, RCowStr,
     ROption::{self, RSome},
-    RString,
+    RStr,
 };
 use ecolor::Color32;
 
@@ -14,67 +14,67 @@ use crate::{
 
 #[derive(Clone)]
 #[repr(C)]
-pub enum WidgetText {
-    Text(RString),
-    RichText(RBox<RichText>),
+pub enum WidgetText<'a> {
+    Text(RCowStr<'a>),
+    RichText(RBox<RichText<'a>>),
 }
 
-impl WidgetText {
+impl<'a> WidgetText<'a> {
     #[inline]
     pub fn text(&self) -> &str {
         match self {
-            WidgetText::Text(rstring) => rstring,
+            WidgetText::Text(rcow) => rcow,
             WidgetText::RichText(rich_text) => rich_text.text(),
         }
     }
 }
 
-impl Default for WidgetText {
+impl Default for WidgetText<'_> {
     fn default() -> Self {
-        Self::Text(RString::new())
+        Self::Text(RCowStr::Borrowed(RStr::empty()))
     }
 }
 
-impl From<&str> for WidgetText {
+impl<'a> From<&'a str> for WidgetText<'a> {
     #[inline]
-    fn from(value: &str) -> Self {
+    fn from(value: &'a str) -> Self {
         Self::Text(value.into())
     }
 }
 
-impl From<&String> for WidgetText {
+impl<'a> From<&'a String> for WidgetText<'a> {
     #[inline]
-    fn from(value: &String) -> Self {
-        Self::Text(value.clone().into())
+    fn from(value: &'a String) -> Self {
+        Self::Text(value.into())
     }
 }
 
-impl From<String> for WidgetText {
+impl From<String> for WidgetText<'_> {
     #[inline]
     fn from(value: String) -> Self {
-        Self::Text(value.clone().into())
-    }
-}
-
-impl From<Cow<'_, str>> for WidgetText {
-    #[inline]
-    fn from(value: Cow<'_, str>) -> Self {
         Self::Text(value.into())
     }
 }
 
-impl From<RichText> for WidgetText {
+impl<'a> From<Cow<'a, str>> for WidgetText<'a> {
     #[inline]
-    fn from(value: RichText) -> Self {
+    fn from(value: Cow<'a, str>) -> Self {
+        Self::Text(value.into())
+    }
+}
+
+impl<'a> From<RichText<'a>> for WidgetText<'a> {
+    #[inline]
+    fn from(value: RichText<'a>) -> Self {
         Self::RichText(RBox::new(value))
     }
 }
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug)]
 #[repr(C)]
-pub struct RichText {
+pub struct RichText<'a> {
     family: ROption<FontFamily>,
-    text: RString,
+    text: RCowStr<'a>,
     size: ROption<f32>,
     line_height: ROption<f32>,
     text_style: ROption<TextStyle>,
@@ -90,8 +90,30 @@ pub struct RichText {
     raised: bool,
 }
 
-impl RichText {
-    pub fn new(text: impl Into<RString>) -> Self {
+impl Default for RichText<'_> {
+    fn default() -> Self {
+        Self {
+            family: Default::default(),
+            text: RCowStr::Borrowed(RStr::empty()),
+            size: Default::default(),
+            line_height: Default::default(),
+            text_style: Default::default(),
+            text_color: Default::default(),
+            background_color: Default::default(),
+            extra_letter_spacing: Default::default(),
+            code: Default::default(),
+            strong: Default::default(),
+            weak: Default::default(),
+            strikethrough: Default::default(),
+            underline: Default::default(),
+            italics: Default::default(),
+            raised: Default::default(),
+        }
+    }
+}
+
+impl<'a> RichText<'a> {
+    pub fn new(text: impl Into<RCowStr<'a>>) -> Self {
         Self {
             text: text.into(),
             ..Default::default()
@@ -221,43 +243,43 @@ impl RichText {
     }
 }
 
-impl From<&str> for RichText {
+impl<'a> From<&'a str> for RichText<'a> {
     #[inline]
-    fn from(value: &str) -> Self {
+    fn from(value: &'a str) -> Self {
         Self::new(value)
     }
 }
 
-impl From<&String> for RichText {
+impl<'a> From<&'a String> for RichText<'a> {
     #[inline]
-    fn from(value: &String) -> Self {
+    fn from(value: &'a String) -> Self {
+        Self::new(value)
+    }
+}
+
+impl<'a> From<&'a mut String> for RichText<'a> {
+    #[inline]
+    fn from(value: &'a mut String) -> Self {
         Self::new(value.as_str())
     }
 }
 
-impl From<&mut String> for RichText {
-    #[inline]
-    fn from(value: &mut String) -> Self {
-        Self::new(value.as_str())
-    }
-}
-
-impl From<String> for RichText {
+impl From<String> for RichText<'_> {
     #[inline]
     fn from(value: String) -> Self {
         Self::new(value)
     }
 }
 
-impl From<Cow<'_, str>> for RichText {
+impl<'a> From<Cow<'a, str>> for RichText<'a> {
     #[inline]
-    fn from(value: Cow<'_, str>) -> Self {
+    fn from(value: Cow<'a, str>) -> Self {
         Self::new(value)
     }
 }
 
 #[cfg(feature = "manager")]
-impl From<RichText> for egui::RichText {
+impl From<RichText<'_>> for egui::RichText {
     fn from(value: RichText) -> Self {
         let RichText {
             family,
@@ -276,7 +298,7 @@ impl From<RichText> for egui::RichText {
             italics,
             raised,
         } = value;
-        let mut rt = Self::new(text)
+        let mut rt = Self::new(text.to_string())
             .extra_letter_spacing(extra_letter_spacing)
             .line_height(line_height.into_option())
             .background_color(background_color);
@@ -318,10 +340,10 @@ impl From<RichText> for egui::RichText {
 }
 
 #[cfg(feature = "manager")]
-impl From<WidgetText> for egui::WidgetText {
+impl From<WidgetText<'_>> for egui::WidgetText {
     fn from(value: WidgetText) -> Self {
         match value {
-            WidgetText::Text(rstring) => Self::Text(rstring.into()),
+            WidgetText::Text(rcow) => Self::Text(rcow.to_string()),
             WidgetText::RichText(rich_text) => {
                 let rt = RBox::into_inner(rich_text);
                 Self::RichText(std::sync::Arc::new(rt.into()))

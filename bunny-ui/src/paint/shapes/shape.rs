@@ -1,6 +1,6 @@
 use abi_stable::{
     rvec,
-    std_types::{RBox, RString, RVec},
+    std_types::{RBox, RVec},
 };
 use ecolor::Color32;
 use emath::{Pos2, Rangef, Rect, TSTransform, pos2};
@@ -284,7 +284,7 @@ impl Shape {
         ui: &mut BunnyUi,
         pos: impl Into<Point2<f32>>,
         anchor: Align2,
-        text: impl Into<RString>,
+        text: impl AsRef<str>,
         font_id: FontId,
         color: Color32,
     ) -> Self {

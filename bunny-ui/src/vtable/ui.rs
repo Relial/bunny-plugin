@@ -1,4 +1,4 @@
-use abi_stable::std_types::{ROption, RStr, RString, Tuple2};
+use abi_stable::std_types::{ROption, RStr, Tuple2};
 use ecolor::Hsva;
 use egui::{Color32, Id, Pos2, Rangef, Rect, Sense, Ui, Vec2, Widget as _};
 use emath::TSTransform;
@@ -245,15 +245,15 @@ pub struct UiFfiVTable {
     fonts_layout_job: fn(VRef<UiFfiVTable>, job: LayoutJob) -> BunnyGalley,
     fonts_layout: fn(
         VRef<UiFfiVTable>,
-        text: RString,
+        text: RStr,
         font_id: FontId,
         color: Color32,
         wrap_width: f32,
     ) -> BunnyGalley,
     fonts_layout_no_wrap:
-        fn(VRef<UiFfiVTable>, text: RString, font_id: FontId, color: Color32) -> BunnyGalley,
+        fn(VRef<UiFfiVTable>, text: RStr, font_id: FontId, color: Color32) -> BunnyGalley,
     fonts_layout_delayed_color:
-        fn(VRef<UiFfiVTable>, text: RString, font_id: FontId, wrap_width: f32) -> BunnyGalley,
+        fn(VRef<UiFfiVTable>, text: RStr, font_id: FontId, wrap_width: f32) -> BunnyGalley,
     // ...
     read_response: fn(VRef<UiFfiVTable>, id: Id) -> ROption<BunnyResponse>,
     layer_painter: fn(VRef<UiFfiVTable>, layer_id: LayerId) -> BunnyPainter,
@@ -261,7 +261,7 @@ pub struct UiFfiVTable {
     // debug_text
     time: fn(VRef<UiFfiVTable>) -> f64,
     // ...
-    copy_text: fn(VRef<UiFfiVTable>, text: RString),
+    copy_text: fn(VRef<UiFfiVTable>, text: RStr),
     // ...
     cumulative_frame_nr: fn(VRef<UiFfiVTable>) -> u64,
     // cumulative_frame_nr_for
@@ -1286,7 +1286,7 @@ impl UiFfi for Ui {
     #[inline]
     fn fonts_layout(
         &self,
-        text: RString,
+        text: RStr<'_>,
         font_id: FontId,
         color: Color32,
         wrap_width: f32,
@@ -1297,7 +1297,7 @@ impl UiFfi for Ui {
     }
 
     #[inline]
-    fn fonts_layout_no_wrap(&self, text: RString, font_id: FontId, color: Color32) -> BunnyGalley {
+    fn fonts_layout_no_wrap(&self, text: RStr<'_>, font_id: FontId, color: Color32) -> BunnyGalley {
         self.ctx()
             .fonts_mut(|f| BunnyGalley::new(f.layout_no_wrap(text.into(), font_id.into(), color)))
     }
@@ -1305,7 +1305,7 @@ impl UiFfi for Ui {
     #[inline]
     fn fonts_layout_delayed_color(
         &self,
-        text: RString,
+        text: RStr<'_>,
         font_id: FontId,
         wrap_width: f32,
     ) -> BunnyGalley {
@@ -1337,7 +1337,7 @@ impl UiFfi for Ui {
     }
 
     #[inline]
-    fn copy_text(&self, text: RString) {
+    fn copy_text(&self, text: RStr<'_>) {
         self.ctx().copy_text(text.into());
     }
 

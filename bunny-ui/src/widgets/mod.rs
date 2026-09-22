@@ -22,15 +22,15 @@ pub mod text_edit;
 
 #[repr(C)]
 pub enum Widget<'a> {
-    Button(Button),
-    CheckBox(CheckBox),
+    Button(Button<'a>),
+    CheckBox(CheckBox<'a>),
     ColorPicker(ColorPicker<'a>),
     DragValue(DragValue<'a>),
     Image(Image<'a>),
-    Label(Label),
-    Link(Link),
-    ProgressBar(ProgressBar),
-    RadioButton(RadioButton),
+    Label(Label<'a>),
+    Link(Link<'a>),
+    ProgressBar(ProgressBar<'a>),
+    RadioButton(RadioButton<'a>),
     Separator(Separator),
     ShortcutButton(ShortcutButton<'a>),
     Slider(Slider<'a>),

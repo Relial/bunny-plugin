@@ -4,14 +4,14 @@ use ecolor::Color32;
 use crate::{WidgetText, paint::corner_radius::CornerRadius, widgets::Widget};
 
 #[repr(C)]
-pub enum ProgressBarText {
-    Custom(WidgetText),
+pub enum ProgressBarText<'a> {
+    Custom(WidgetText<'a>),
     Percentage,
 }
 
 #[repr(C)]
-pub struct ProgressBar {
-    text: ROption<ProgressBarText>,
+pub struct ProgressBar<'a> {
+    text: ROption<ProgressBarText<'a>>,
     desired_width: ROption<f32>,
     desired_height: ROption<f32>,
     fill: ROption<Color32>,
@@ -20,7 +20,7 @@ pub struct ProgressBar {
     animate: bool,
 }
 
-impl ProgressBar {
+impl<'a> ProgressBar<'a> {
     #[inline]
     pub fn new(progress: f32) -> Self {
         Self {
@@ -53,7 +53,7 @@ impl ProgressBar {
     }
 
     #[inline]
-    pub fn text(mut self, text: impl Into<WidgetText>) -> Self {
+    pub fn text(mut self, text: impl Into<WidgetText<'a>>) -> Self {
         self.text = RSome(ProgressBarText::Custom(text.into()));
         self
     }
@@ -78,7 +78,7 @@ impl ProgressBar {
 }
 
 #[cfg(feature = "manager")]
-impl egui::Widget for ProgressBar {
+impl egui::Widget for ProgressBar<'_> {
     fn ui(self, ui: &mut egui::Ui) -> egui::Response {
         let mut bar = egui::ProgressBar::new(self.progress).animate(self.animate);
         if let RSome(width) = self.desired_width {
@@ -104,9 +104,9 @@ impl egui::Widget for ProgressBar {
     }
 }
 
-impl From<ProgressBar> for Widget<'_> {
+impl<'a> From<ProgressBar<'a>> for Widget<'a> {
     #[inline]
-    fn from(value: ProgressBar) -> Self {
+    fn from(value: ProgressBar<'a>) -> Self {
         Self::ProgressBar(value)
     }
 }

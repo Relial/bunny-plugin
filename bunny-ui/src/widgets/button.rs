@@ -8,8 +8,8 @@ use crate::{
 };
 
 #[repr(C)]
-pub struct Button {
-    text: WidgetText,
+pub struct Button<'a> {
+    text: WidgetText<'a>,
     stroke: ROption<Stroke>,
     fill: ROption<Color32>,
     corner_radius: ROption<CornerRadius>,
@@ -19,9 +19,9 @@ pub struct Button {
     small: bool,
 }
 
-impl Button {
+impl<'a> Button<'a> {
     #[inline]
-    pub fn new(text: impl Into<WidgetText>) -> Self {
+    pub fn new(text: impl Into<WidgetText<'a>>) -> Self {
         Self {
             text: text.into(),
             fill: RNone,
@@ -35,7 +35,7 @@ impl Button {
     }
 
     #[inline]
-    pub fn selectable(selected: bool, text: impl Into<WidgetText>) -> Self {
+    pub fn selectable(selected: bool, text: impl Into<WidgetText<'a>>) -> Self {
         Self::new(text)
             .selected(selected)
             .frame_when_inactive(selected)
@@ -87,7 +87,7 @@ impl Button {
 }
 
 #[cfg(feature = "manager")]
-impl egui::Widget for Button {
+impl egui::Widget for Button<'_> {
     fn ui(self, ui: &mut egui::Ui) -> egui::Response {
         let mut button = egui::Button::new(self.text).selected(self.selected);
         if let RSome(fill) = self.fill {
@@ -109,9 +109,9 @@ impl egui::Widget for Button {
     }
 }
 
-impl From<Button> for Widget<'_> {
+impl<'a> From<Button<'a>> for Widget<'a> {
     #[inline]
-    fn from(value: Button) -> Self {
+    fn from(value: Button<'a>) -> Self {
         Self::Button(value)
     }
 }

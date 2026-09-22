@@ -1,8 +1,8 @@
 #[cfg(feature = "manager")]
 use abi_stable::std_types::Tuple2;
 use abi_stable::std_types::{
+    RCowStr,
     ROption::{self, RNone, RSome},
-    RString,
 };
 use egui::Id;
 use emath::Rect;
@@ -18,14 +18,14 @@ use crate::{
 use crate::{closure::PluginClosure, response::BunnyResponse};
 
 #[repr(C)]
-pub struct TitleBar<'open> {
-    title: RString,
-    open: ROption<&'open mut bool>,
+pub struct TitleBar<'a> {
+    title: RCowStr<'a>,
+    open: ROption<&'a mut bool>,
 }
 
-impl<'open> TitleBar<'open> {
+impl<'a> TitleBar<'a> {
     #[inline]
-    pub fn new(title: impl Into<RString>) -> Self {
+    pub fn new(title: impl Into<RCowStr<'a>>) -> Self {
         Self {
             title: title.into(),
             open: RNone,
@@ -34,23 +34,23 @@ impl<'open> TitleBar<'open> {
 
     /// Add a close button. The window is invisible when open is false and visible when open is true.
     #[inline]
-    pub fn open(mut self, open: &'open mut bool) -> Self {
+    pub fn open(mut self, open: &'a mut bool) -> Self {
         self.open = RSome(open);
         self
     }
 }
 
 #[repr(C)]
-pub struct Window<'open> {
+pub struct Window<'a> {
     area: Area,
     scroll: ScrollArea,
-    title_bar: ROption<TitleBar<'open>>,
+    title_bar: ROption<TitleBar<'a>>,
     frame: ROption<Frame>,
     resize: Resize,
     default_open: bool,
 }
 
-impl<'open> Window<'open> {
+impl<'a> Window<'a> {
     pub fn new(id: impl Into<Id>) -> Self {
         let id = id.into();
         let area = Area::new(id).kind(UiKind::Window);
@@ -73,7 +73,7 @@ impl<'open> Window<'open> {
     }
 
     #[inline]
-    pub fn title_bar(mut self, title_bar: TitleBar<'open>) -> Self {
+    pub fn title_bar(mut self, title_bar: TitleBar<'a>) -> Self {
         self.title_bar = RSome(title_bar);
         self
     }

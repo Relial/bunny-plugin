@@ -4,8 +4,8 @@ use egui::Sense;
 use crate::{Align, WidgetText, paint::text::text_layout_types::TextWrapMode, widgets::Widget};
 
 #[repr(C)]
-pub struct Label {
-    text: WidgetText,
+pub struct Label<'a> {
+    text: WidgetText<'a>,
     wrap_mode: ROption<TextWrapMode>,
     halign: ROption<Align>,
     sense: ROption<Sense>,
@@ -13,9 +13,9 @@ pub struct Label {
     show_tooltip_when_elided: bool,
 }
 
-impl Label {
+impl<'a> Label<'a> {
     #[inline]
-    pub fn new(text: impl Into<WidgetText>) -> Self {
+    pub fn new(text: impl Into<WidgetText<'a>>) -> Self {
         Self {
             text: text.into(),
             wrap_mode: RNone,
@@ -76,7 +76,7 @@ impl Label {
 }
 
 #[cfg(feature = "manager")]
-impl egui::Widget for Label {
+impl egui::Widget for Label<'_> {
     fn ui(self, ui: &mut egui::Ui) -> egui::Response {
         let mut label =
             egui::Label::new(self.text).show_tooltip_when_elided(self.show_tooltip_when_elided);
@@ -97,9 +97,9 @@ impl egui::Widget for Label {
     }
 }
 
-impl From<Label> for Widget<'_> {
+impl<'a> From<Label<'a>> for Widget<'a> {
     #[inline]
-    fn from(value: Label) -> Self {
+    fn from(value: Label<'a>) -> Self {
         Self::Label(value)
     }
 }
