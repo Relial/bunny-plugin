@@ -13,8 +13,8 @@ use crate::{
         InputStateClosure, PanelAnimatedBetweenClosure, PluginClosure, ScrollAreaRowsClosure,
     },
     containers::{
-        Area, BunnyCollapsingResponse, BunnyScrollAreaOutput, CentralPanel, CollapsingHeader,
-        ComboBox, Frame, Grid, Panel, Popup, ScrollArea, Window,
+        Area, BunnyCollapsingResponse, BunnyModalResponse, BunnyScrollAreaOutput, CentralPanel,
+        CollapsingHeader, ComboBox, Frame, Grid, Modal, Panel, Popup, ScrollArea, Sides, Window,
     },
     galley::BunnyGalley,
     id::hash_id_salt,
@@ -1041,7 +1041,7 @@ impl<'a> BunnyUi<'a> {
 }
 
 impl<'a> BunnyUi<'a> {
-    pub fn input<R>(&mut self, mut input: impl FnMut(&mut BunnyInputState) -> R) -> R {
+    pub fn input<R>(&self, mut input: impl FnMut(&mut BunnyInputState) -> R) -> R {
         let mut ret = MaybeUninit::<R>::uninit();
         let closure = InputStateClosure::new(&mut input, &mut ret);
         self.inner.input(closure);
@@ -1049,13 +1049,13 @@ impl<'a> BunnyUi<'a> {
     }
 
     #[inline]
-    pub fn fonts_layout_job(&mut self, job: LayoutJob) -> BunnyGalley {
+    pub fn fonts_layout_job(&self, job: LayoutJob) -> BunnyGalley {
         self.inner.fonts_layout_job(job)
     }
 
     #[inline]
     pub fn fonts_layout(
-        &mut self,
+        &self,
         text: impl Into<RString>,
         font_id: FontId,
         color: Color32,
@@ -1067,7 +1067,7 @@ impl<'a> BunnyUi<'a> {
 
     #[inline]
     pub fn fonts_layout_no_wrap(
-        &mut self,
+        &self,
         text: impl Into<RString>,
         font_id: FontId,
         color: Color32,
@@ -1077,7 +1077,7 @@ impl<'a> BunnyUi<'a> {
 
     #[inline]
     pub fn fonts_layout_delayed_color(
-        &mut self,
+        &self,
         text: impl Into<RString>,
         font_id: FontId,
         wrap_width: f32,
@@ -1204,6 +1204,24 @@ impl<'a> BunnyUi<'a> {
         BunnyInnerResponse::new(inner, response)
     }
 
+    pub(crate) fn modal_show<R>(
+        &self,
+        modal: Modal,
+        mut add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> BunnyModalResponse<R> {
+        let mut ret = MaybeUninit::<R>::uninit();
+        let closure = PluginClosure::new(&mut add_contents, &mut ret);
+        let response = self.inner.modal_show(modal, closure);
+        let inner = unsafe { ret.assume_init() };
+        BunnyModalResponse {
+            response: response.response,
+            backdrop_response: response.backdrop_response,
+            inner,
+            is_top_modal: response.is_top_modal,
+            any_popup_open: response.any_popup_open,
+        }
+    }
+
     pub(crate) fn central_panel_show<R>(
         &mut self,
         central_panel: CentralPanel,
@@ -1323,6 +1341,20 @@ impl<'a> BunnyUi<'a> {
             content_size: output.content_size,
             inner_rect: output.inner_rect,
         }
+    }
+
+    pub(crate) fn sides_show<RetL, RetR>(
+        &mut self,
+        sides: Sides,
+        mut add_contents_left: impl FnMut(&mut BunnyUi) -> RetL,
+        mut add_contents_right: impl FnMut(&mut BunnyUi) -> RetR,
+    ) -> (RetL, RetR) {
+        let mut ret_l = MaybeUninit::<RetL>::uninit();
+        let mut ret_r = MaybeUninit::<RetR>::uninit();
+        let closure_left = PluginClosure::new(&mut add_contents_left, &mut ret_l);
+        let closure_right = PluginClosure::new(&mut add_contents_right, &mut ret_r);
+        self.inner.sides_show(sides, closure_left, closure_right);
+        unsafe { (ret_l.assume_init(), ret_r.assume_init()) }
     }
 
     pub(crate) fn window_show<R>(

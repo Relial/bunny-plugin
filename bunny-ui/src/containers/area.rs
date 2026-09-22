@@ -213,8 +213,9 @@ impl Area {
     }
 }
 
-impl Area {
-    pub(crate) fn show_impl(self, ui: &mut egui::Ui, contents: PluginClosure) -> BunnyResponse {
+#[cfg(feature = "manager")]
+impl From<Area> for egui::Area {
+    fn from(value: Area) -> Self {
         let Area {
             id,
             info,
@@ -233,7 +234,7 @@ impl Area {
             fade_in,
             layout,
             sizing_pass,
-        } = self;
+        } = value;
         let mut area = egui::Area::new(id)
             .info(info.into())
             .enabled(enabled)
@@ -261,6 +262,14 @@ impl Area {
         if let RSome(new_pos) = new_pos {
             area = area.current_pos(new_pos);
         }
+        area
+    }
+}
+
+#[cfg(feature = "manager")]
+impl Area {
+    pub(crate) fn show_impl(self, ui: &mut egui::Ui, contents: PluginClosure) -> BunnyResponse {
+        let area: egui::Area = self.into();
         let response = area
             .show(ui, |ui| {
                 let mut b = BunnyUi::new(ui);

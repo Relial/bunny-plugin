@@ -10,8 +10,8 @@ use crate::{
         InputStateClosure, PanelAnimatedBetweenClosure, PluginClosure, ScrollAreaRowsClosure,
     },
     containers::{
-        Area, CentralPanel, CollapsingHeader, ComboBox, Frame, Grid, Panel, Popup, ScrollArea,
-        Window,
+        Area, CentralPanel, CollapsingHeader, ComboBox, Frame, Grid, Modal, Panel, Popup,
+        ScrollArea, Sides, Window,
     },
     galley::BunnyGalley,
     input::BunnyInputState,
@@ -240,20 +240,20 @@ pub struct UiFfiVTable {
 
     // run_ui
     // begin_pass
-    input: fn(VRefMut<UiFfiVTable>, InputStateClosure: InputStateClosure),
+    input: fn(VRef<UiFfiVTable>, InputStateClosure: InputStateClosure),
     // ...
-    fonts_layout_job: fn(VRefMut<UiFfiVTable>, job: LayoutJob) -> BunnyGalley,
+    fonts_layout_job: fn(VRef<UiFfiVTable>, job: LayoutJob) -> BunnyGalley,
     fonts_layout: fn(
-        VRefMut<UiFfiVTable>,
+        VRef<UiFfiVTable>,
         text: RString,
         font_id: FontId,
         color: Color32,
         wrap_width: f32,
     ) -> BunnyGalley,
     fonts_layout_no_wrap:
-        fn(VRefMut<UiFfiVTable>, text: RString, font_id: FontId, color: Color32) -> BunnyGalley,
+        fn(VRef<UiFfiVTable>, text: RString, font_id: FontId, color: Color32) -> BunnyGalley,
     fonts_layout_delayed_color:
-        fn(VRefMut<UiFfiVTable>, text: RString, font_id: FontId, wrap_width: f32) -> BunnyGalley,
+        fn(VRef<UiFfiVTable>, text: RString, font_id: FontId, wrap_width: f32) -> BunnyGalley,
     // ...
     read_response: fn(VRef<UiFfiVTable>, id: Id) -> ROption<BunnyResponse>,
     layer_painter: fn(VRef<UiFfiVTable>, layer_id: LayerId) -> BunnyPainter,
@@ -288,6 +288,7 @@ pub struct UiFfiVTable {
     ) -> Tuple2<BunnyResponse, bool>,
     frame_show: fn(VRefMut<UiFfiVTable>, frame: Frame, contents: PluginClosure) -> BunnyResponse,
     grid_show: fn(VRefMut<UiFfiVTable>, grid: Grid, contents: PluginClosure) -> BunnyResponse,
+    modal_show: fn(VRef<UiFfiVTable>, modal: Modal, contents: PluginClosure) -> ModalFfiResponse,
     central_panel_show: fn(
         VRefMut<UiFfiVTable>,
         central_panel: CentralPanel,
@@ -321,6 +322,12 @@ pub struct UiFfiVTable {
         total_rows: usize,
         contents: ScrollAreaRowsClosure,
     ) -> ScrollAreaFfiOutput,
+    sides_show: fn(
+        VRefMut<UiFfiVTable>,
+        sides: Sides,
+        contents_left: PluginClosure,
+        contents_right: PluginClosure,
+    ),
     window_show: fn(
         VRefMut<UiFfiVTable>,
         window: Window,
@@ -1263,49 +1270,46 @@ impl UiFfi for Ui {
     }
 
     #[inline]
-    fn input(&mut self, closure: InputStateClosure) {
-        self.input_mut(|i| {
+    fn input(&self, closure: InputStateClosure) {
+        self.ctx().input_mut(|i| {
             let mut b = BunnyInputState::new(i);
             closure.call(&mut b);
         });
     }
 
     #[inline]
-    fn fonts_layout_job(&mut self, job: LayoutJob) -> BunnyGalley {
-        self.fonts_mut(|f| BunnyGalley::new(f.layout_job(job.into())))
+    fn fonts_layout_job(&self, job: LayoutJob) -> BunnyGalley {
+        self.ctx()
+            .fonts_mut(|f| BunnyGalley::new(f.layout_job(job.into())))
     }
 
     #[inline]
     fn fonts_layout(
-        &mut self,
+        &self,
         text: RString,
         font_id: FontId,
         color: Color32,
         wrap_width: f32,
     ) -> BunnyGalley {
-        self.fonts_mut(|f| {
+        self.ctx().fonts_mut(|f| {
             BunnyGalley::new(f.layout(text.into(), font_id.into(), color, wrap_width))
         })
     }
 
     #[inline]
-    fn fonts_layout_no_wrap(
-        &mut self,
-        text: RString,
-        font_id: FontId,
-        color: Color32,
-    ) -> BunnyGalley {
-        self.fonts_mut(|f| BunnyGalley::new(f.layout_no_wrap(text.into(), font_id.into(), color)))
+    fn fonts_layout_no_wrap(&self, text: RString, font_id: FontId, color: Color32) -> BunnyGalley {
+        self.ctx()
+            .fonts_mut(|f| BunnyGalley::new(f.layout_no_wrap(text.into(), font_id.into(), color)))
     }
 
     #[inline]
     fn fonts_layout_delayed_color(
-        &mut self,
+        &self,
         text: RString,
         font_id: FontId,
         wrap_width: f32,
     ) -> BunnyGalley {
-        self.fonts_mut(|f| {
+        self.ctx().fonts_mut(|f| {
             BunnyGalley::new(f.layout_delayed_color(text.into(), font_id.into(), wrap_width))
         })
     }
@@ -1395,6 +1399,11 @@ impl UiFfi for Ui {
     }
 
     #[inline]
+    fn modal_show(&self, modal: Modal, contents: PluginClosure) -> ModalFfiResponse {
+        modal.show_impl(self.ctx(), contents)
+    }
+
+    #[inline]
     fn central_panel_show(
         &mut self,
         central_panel: CentralPanel,
@@ -1461,6 +1470,16 @@ impl UiFfi for Ui {
     }
 
     #[inline]
+    fn sides_show(
+        &mut self,
+        sides: Sides,
+        contents_left: PluginClosure,
+        contents_right: PluginClosure,
+    ) {
+        sides.show_impl(self, contents_left, contents_right);
+    }
+
+    #[inline]
     fn window_show(
         &mut self,
         window: Window,
@@ -1517,6 +1536,33 @@ impl ScrollAreaFfiOutput {
             offset: state.offset,
             velocity: state.velocity(),
             content_size,
+        }
+    }
+}
+
+#[repr(C)]
+pub struct ModalFfiResponse {
+    pub response: BunnyResponse,
+    pub backdrop_response: BunnyResponse,
+    pub is_top_modal: bool,
+    pub any_popup_open: bool,
+}
+
+impl ModalFfiResponse {
+    #[inline]
+    pub fn new<R>(response: egui::modal::ModalResponse<R>) -> Self {
+        let egui::modal::ModalResponse {
+            response,
+            backdrop_response,
+            inner: _,
+            is_top_modal,
+            any_popup_open,
+        } = response;
+        Self {
+            response: BunnyResponse::new(response),
+            backdrop_response: BunnyResponse::new(backdrop_response),
+            is_top_modal,
+            any_popup_open,
         }
     }
 }

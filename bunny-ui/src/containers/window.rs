@@ -43,9 +43,9 @@ impl<'open> TitleBar<'open> {
 #[repr(C)]
 pub struct Window<'open> {
     area: Area,
+    scroll: ScrollArea,
     title_bar: ROption<TitleBar<'open>>,
     frame: ROption<Frame>,
-    scroll: ScrollArea,
     resize: Resize,
     default_open: bool,
 }

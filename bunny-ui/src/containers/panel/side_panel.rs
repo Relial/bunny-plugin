@@ -22,10 +22,10 @@ enum PanelSide {
 #[repr(C)]
 pub struct Panel {
     frame: ROption<Frame>,
-    side: PanelSide,
     id: Id,
     default_size: ROption<f32>,
     size_range: Rangef,
+    side: PanelSide,
     resizable: bool,
     show_separator_line: bool,
 }
