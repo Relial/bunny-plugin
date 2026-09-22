@@ -1,5 +1,4 @@
 mod align;
-mod area;
 mod direction;
 mod image_source;
 mod input;
@@ -17,7 +16,6 @@ mod widget_text;
 mod ui_stack;
 
 pub use align::*;
-pub use area::*;
 pub use direction::*;
 pub use image_source::*;
 pub use input::*;

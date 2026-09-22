@@ -310,14 +310,15 @@ impl TitleBar<'_> {
         // manipulate global style we should leave it to the user to set their
         // desired style before a window show call
         let visuals = ui.visuals();
+        let window_rect = ui.max_rect();
         let title_bar_height = 24.0;
-        let mut rect = {
-            let mut rect = ui.max_rect();
-            rect += window_margin;
+        let title_rect = {
+            let mut rect = window_rect + window_margin;
             rect.max.y = rect.min.y + title_bar_height;
             rect
         };
-        let painter = ui.painter();
+        let mut painter = ui.painter().clone();
+        painter.set_clip_rect(title_rect.expand(window_stroke.width));
         if let RSome(open) = self.open {
             let close_button_id = window_id.with("close button");
             let widget_state = ui
@@ -326,7 +327,7 @@ impl TitleBar<'_> {
                 .unwrap_or_default();
             let close_color = visuals.widgets.state(widget_state).fg_stroke.color;
             let close_rect = painter.text(
-                rect.right_center() - egui::vec2(4.0, 0.0),
+                title_rect.right_center() - egui::vec2(4.0, 0.0),
                 egui::Align2::RIGHT_CENTER,
                 "❌",
                 egui::FontId::proportional(14.0),
@@ -341,17 +342,18 @@ impl TitleBar<'_> {
         }
 
         painter.text(
-            rect.center(),
+            title_rect.center(),
             egui::Align2::CENTER_CENTER,
             &self.title,
             egui::FontId::proportional(16.0),
             visuals.text_color(),
         );
-        painter.line_segment([rect.left_bottom(), rect.right_bottom()], window_stroke);
+        painter.line_segment(
+            [title_rect.left_bottom(), title_rect.right_bottom()],
+            window_stroke,
+        );
 
-        rect.min += window_margin.left_top();
-        rect.max.x -= window_margin.rightf();
-        ui.advance_cursor_after_rect(rect);
+        ui.add_space(title_bar_height);
     }
 }
 
@@ -415,11 +417,16 @@ impl Window<'_> {
             if let RSome(title_bar) = title_bar {
                 let (stroke, margin) = frame
                     .map(|f| (f.stroke.into(), f.inner_margin.into()))
-                    .unwrap_or((ui.visuals().window_stroke, ui.spacing().window_margin));
+                    .unwrap_or_else(|| (ui.visuals().window_stroke, ui.spacing().window_margin));
                 title_bar.show_impl(ui, area.id, stroke, margin);
+                ui.scope(|ui| {
+                    let mut b = BunnyUi::new(ui);
+                    contents.call(&mut b);
+                });
+            } else {
+                let mut b = BunnyUi::new(ui);
+                contents.call(&mut b);
             }
-            let mut b = BunnyUi::new(ui);
-            contents.call(&mut b);
         });
         inner
             .map(|inner| Tuple2(BunnyResponse::new(inner.response), inner.inner.is_some()))
