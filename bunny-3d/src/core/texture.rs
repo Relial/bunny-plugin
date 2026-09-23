@@ -1,8 +1,5 @@
-use abi_stable::std_types::{
-    ROption::{self, RSome},
-    RVec,
-};
-use shared::texture::{SharedTextureId, SharedTextures};
+use abi_stable::std_types::RVec;
+use shared::texture::SharedTextureId;
 
 use crate::GpuColor;
 
@@ -37,7 +34,6 @@ impl std::fmt::Display for TextureId3d {
 #[derive(Debug)]
 #[repr(C)]
 pub struct Textures {
-    shared_textures: ROption<SharedTextures>,
     allocations: RVec<TextureAllocation>,
     next_id: u64,
 }
@@ -47,7 +43,6 @@ impl Default for Textures {
         Self {
             allocations: Default::default(),
             next_id: 1,
-            shared_textures: Default::default(),
         }
     }
 }
@@ -77,21 +72,11 @@ impl Textures {
     pub fn allocations_len(&self) -> usize {
         self.allocations.len()
     }
-
-    /// Textures loaded by the manager
-    #[inline]
-    pub fn shared_textures(&self) -> Option<SharedTextures> {
-        self.shared_textures.clone().into_option()
-    }
 }
 
 impl Textures {
     pub fn extract_allocations(&mut self) -> impl Iterator<Item = TextureAllocation> {
         self.allocations.drain(..)
-    }
-
-    pub fn add_shared(&mut self, shared: SharedTextures) {
-        self.shared_textures = RSome(shared);
     }
 }
 

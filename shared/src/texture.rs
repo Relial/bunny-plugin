@@ -1,4 +1,4 @@
-use abi_stable::std_types::{RArc, RHashMap, RString, RVec};
+use abi_stable::std_types::{RHashMap, RString, RVec};
 use rapidhash::fast::RandomState;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -23,13 +23,13 @@ impl std::fmt::Display for SharedTextureId {
     }
 }
 
-#[derive(Clone, Debug, Default)]
+#[derive(Debug, Default)]
 #[repr(C)]
-pub struct SharedTextures(RArc<SharedTexturesImpl>);
+pub struct SharedTextures(SharedTexturesImpl);
 
 impl SharedTextures {
     pub fn new(textures: impl IntoIterator<Item = (RString, SharedSizedTexture)>) -> Self {
-        Self(RArc::new(SharedTexturesImpl::new(textures)))
+        Self(SharedTexturesImpl::new(textures))
     }
 
     /// Get a texture loaded by the manager by its filename
@@ -49,7 +49,7 @@ impl SharedTextures {
     }
 }
 
-#[derive(Clone, Debug, Default)]
+#[derive(Debug, Default)]
 #[repr(C)]
 struct SharedTexturesImpl {
     list: RVec<SharedTexture>,

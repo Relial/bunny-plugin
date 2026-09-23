@@ -1,23 +1,22 @@
-#[cfg(not(feature = "3d"))]
-use std::ffi::c_void;
-
 use abi_stable::std_types::ROption::{self, RSome};
 #[cfg(feature = "3d")]
 use bunny_3d::Bunny3d;
 #[cfg(feature = "ui")]
 use bunny_ui::ui::BunnyUi;
+#[cfg(any(feature = "ui", feature = "3d"))]
+use shared::BunnyContext;
 
 pub type SimpleCallback = unsafe extern "C" fn();
 
 #[cfg(feature = "ui")]
-pub type UiCallback = unsafe extern "C" fn(&mut BunnyUi);
+pub type UiCallback = unsafe extern "C" fn(&mut BunnyUi, &BunnyContext);
 #[cfg(not(feature = "ui"))]
-pub type UiCallback = unsafe extern "C" fn(*mut c_void);
+pub type UiCallback = unsafe extern "C" fn();
 
 #[cfg(feature = "3d")]
-pub type Bunny3dCallback = unsafe extern "C" fn(&mut Bunny3d);
+pub type Bunny3dCallback = unsafe extern "C" fn(&mut Bunny3d, &BunnyContext);
 #[cfg(not(feature = "3d"))]
-pub type Bunny3dCallback = unsafe extern "C" fn(*mut c_void);
+pub type Bunny3dCallback = unsafe extern "C" fn();
 
 #[repr(C)]
 #[derive(Clone, Debug, Default)]

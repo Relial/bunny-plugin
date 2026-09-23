@@ -3,13 +3,8 @@
 use std::{path::Path, str::FromStr};
 use abi_stable::std_types::{ROption::{self, RNone, RSome}, RString};
 
-pub use shared::{
-    camera::*,
-    texture::{SharedTexture, SharedSizedTexture, SharedTextureId},
-};
-
 #[cfg(any(feature = "ui", feature = "3d"))]
-pub use shared::glam;
+pub use shared::*;
 
 #[cfg(feature = "ui")]
 pub use bunny_ui;

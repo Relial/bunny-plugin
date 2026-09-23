@@ -5,7 +5,7 @@ edition = "2024"
 
 [features]
 default = ["manager"]
-manager = ["dep:egui", "dep:bytemuck"]
+manager = ["dep:egui", "dep:bytemuck", "shared/manager"]
 serde = ["dep:serde", "egui?/serde", "ecolor/serde", "emath/serde"]
 
 [dependencies]

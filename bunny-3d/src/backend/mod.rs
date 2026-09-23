@@ -1,6 +1,4 @@
-use abi_stable::std_types::RArc;
 use anyhow::{Context, Result, anyhow};
-use shared::{camera::Camera, texture::SharedTextures};
 use tracing::debug;
 use windows::Win32::Graphics::Direct3D9::{
     D3DPT_TRIANGLELIST, D3DTS_PROJECTION, D3DTS_VIEW, IDirect3DDevice9, IDirect3DTexture9,
@@ -8,7 +6,9 @@ use windows::Win32::Graphics::Direct3D9::{
 use windows_numerics::Matrix4x4;
 
 use crate::{
-    TextureId3d, VERTEX_SIZE, backend::{mesh::Buffers, state::GpuState, texture_manager::TextureManager}, core::{Bunny3d, draw_list::PrimitiveTopology},
+    TextureId3d, VERTEX_SIZE,
+    backend::{mesh::Buffers, state::GpuState, texture_manager::TextureManager},
+    core::{Bunny3d, draw_list::PrimitiveTopology},
 };
 
 mod mesh;
@@ -40,8 +40,8 @@ impl Bunny3dBackend {
         })
     }
 
-    pub fn start_frame(&mut self, camera: RArc<Camera>) {
-        self.data.start_frame(camera);
+    pub fn start_frame(&mut self) {
+        self.data.start_frame();
     }
 
     pub fn allocate_textures(
@@ -232,10 +232,6 @@ impl Bunny3dBackend {
         textures: impl IntoIterator<Item = (TextureId3d, IDirect3DTexture9)>,
     ) {
         self.texture_manager.add_shared(textures);
-    }
-
-    pub fn add_shared_textures(&mut self, textures: SharedTextures) {
-        self.data.add_shared(textures);
     }
 }
 

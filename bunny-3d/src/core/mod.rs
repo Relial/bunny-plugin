@@ -1,11 +1,9 @@
 use std::path::Path;
 
-use abi_stable::std_types::RArc;
 use anyhow::Result;
 use bytemuck::{Pod, Zeroable};
 use ecolor::Color32;
 use glam::{Quat, Vec3};
-use shared::{camera::Camera, texture::SharedTextures};
 
 #[cfg(feature = "backend")]
 use crate::texture::TextureAllocation;
@@ -36,7 +34,6 @@ pub struct Bunny3d {
     pub(crate) normal_draws: DrawList,
     pub(crate) no_depth_buffer_draws: DrawList,
     textures: Textures,
-    camera: RArc<Camera>,
 }
 
 impl Bunny3d {
@@ -62,11 +59,6 @@ impl Bunny3d {
         self.textures.allocations_len()
     }
 
-    #[inline]
-    pub fn shared_textures(&self) -> Option<SharedTextures> {
-        self.textures.shared_textures()
-    }
-
     /// Asynchronously load a texture from an image file path
     ///
     /// Loads are cached, so you can safely call this every frame
@@ -80,29 +72,18 @@ impl Bunny3d {
     pub fn load_obj(&mut self, path: impl AsRef<Path>, uv_origin: UvOrigin) -> Result<MeshPoll> {
         self.asset_loader.load_obj(path, uv_origin)
     }
-
-    /// Get information about the game camera
-    #[inline]
-    pub fn camera(&self) -> &Camera {
-        &self.camera
-    }
 }
 
 #[cfg(feature = "backend")]
 impl Bunny3d {
-    pub(crate) fn start_frame(&mut self, camera: RArc<Camera>) {
+    pub(crate) fn start_frame(&mut self) {
         self.normal_draws.start_frame();
         self.no_depth_buffer_draws.start_frame();
         self.asset_loader.initialize_loads();
-        self.camera = camera;
     }
 
     pub(crate) fn extract_allocations(&mut self) -> impl Iterator<Item = TextureAllocation> {
         self.textures.extract_allocations()
-    }
-
-    pub(crate) fn add_shared(&mut self, shared: SharedTextures) {
-        self.textures.add_shared(shared);
     }
 
     pub(crate) fn free_texture(&mut self, texture: TextureId3d) {
