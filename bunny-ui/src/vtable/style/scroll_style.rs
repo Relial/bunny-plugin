@@ -40,6 +40,7 @@ pub struct ScrollStyleFfiVTable {
     set_fade: fn(VRefMut<ScrollStyleFfiVTable>, fade: ScrollFadeStyle),
 }
 
+#[cfg(feature = "manager")]
 impl ScrollStyleFfi for egui::style::ScrollStyle {
     #[inline]
     fn floating(&self) -> bool {
@@ -202,4 +203,5 @@ impl ScrollStyleFfi for egui::style::ScrollStyle {
     }
 }
 
+#[cfg(feature = "manager")]
 ScrollStyleFfiVTable_static!(static SCROLLSTYLEFFI_VT for egui::style::ScrollStyle);

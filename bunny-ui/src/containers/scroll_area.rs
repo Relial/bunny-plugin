@@ -1,15 +1,13 @@
 use std::hash::Hash;
 
 use abi_stable::std_types::ROption::{self, RNone, RSome};
-use egui::{Id, Rect};
-use emath::Vec2;
+use emath::{Rect, Vec2};
 use mint::Vector2;
 
+use crate::{Id, Margin, Vec2b, ui::BunnyUi};
+#[cfg(feature = "manager")]
 use crate::{
-    Margin, Vec2b,
     closure::{PluginClosure, ScrollAreaRowsClosure},
-    id::hash_id_salt,
-    ui::BunnyUi,
     vtable::ui::ScrollAreaFfiOutput,
 };
 
@@ -104,7 +102,7 @@ impl From<ScrollSource> for egui::scroll_area::ScrollSource {
 #[repr(C)]
 pub struct ScrollArea {
     scroll_bar_rect: ROption<Rect>,
-    id_salt: ROption<u64>,
+    id: ROption<Id>,
     offset_x: ROption<f32>,
     offset_y: ROption<f32>,
     max_size: Vec2,
@@ -150,7 +148,7 @@ impl ScrollArea {
             scroll_source: ScrollSource::default(),
             content_margin: RNone,
             scroll_bar_rect: RNone,
-            id_salt: RNone,
+            id: RNone,
             offset_x: RNone,
             offset_y: RNone,
             wheel_scroll_multiplier: Vec2::splat(1.0),
@@ -195,9 +193,12 @@ impl ScrollArea {
         self
     }
 
+    /// A source for the Id.
+    ///
+    /// Note that this gets hashed twice, so the Id in the response won't match an Id created out of the same salt.
     #[inline]
     pub fn id_salt(mut self, id_salt: impl Hash) -> Self {
-        self.id_salt = RSome(hash_id_salt(id_salt));
+        self.id = RSome(Id::new(id_salt));
         self
     }
 
@@ -307,7 +308,7 @@ impl From<ScrollArea> for egui::ScrollArea {
     fn from(value: ScrollArea) -> Self {
         let ScrollArea {
             scroll_bar_rect,
-            id_salt: id,
+            id,
             offset_x,
             offset_y,
             max_size,
@@ -353,6 +354,7 @@ impl From<ScrollArea> for egui::ScrollArea {
     }
 }
 
+#[cfg(feature = "manager")]
 impl ScrollArea {
     #[inline]
     pub(crate) fn show_impl(

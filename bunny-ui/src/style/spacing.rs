@@ -1,4 +1,4 @@
-use egui::Vec2;
+use emath::Vec2;
 use mint::Vector2;
 use vtable::{VRef, VRefMut};
 
@@ -107,6 +107,7 @@ pub struct BunnySpacingRef<'a> {
     inner: VRef<'a, SpacingFfiVTable>,
 }
 
+#[cfg(feature = "manager")]
 impl<'a> BunnySpacingRef<'a> {
     #[inline]
     pub fn new(spacing: &'a egui::style::Spacing) -> Self {
@@ -140,6 +141,7 @@ pub struct BunnySpacingMut<'a> {
     inner: VRefMut<'a, SpacingFfiVTable>,
 }
 
+#[cfg(feature = "manager")]
 impl<'a> BunnySpacingMut<'a> {
     #[inline]
     pub fn new(spacing: &'a mut egui::style::Spacing) -> Self {

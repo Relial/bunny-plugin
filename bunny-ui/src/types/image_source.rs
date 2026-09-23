@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 
 use abi_stable::std_types::RCowStr;
-use shared::texture::{SharedSizedTexture, SharedTexture};
+use shared::textures::{SharedSizedTexture, SharedTexture};
 
 use crate::{paint::SizedTexture, types::load::Bytes};
 

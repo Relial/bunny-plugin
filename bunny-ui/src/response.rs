@@ -1,12 +1,13 @@
 use std::mem::MaybeUninit;
 
 use abi_stable::std_types::RStr;
-use egui::{Color32, Id, Pos2, Rect, Sense, Vec2};
+use ecolor::Color32;
+use emath::{Pos2, Rect, Vec2};
 use mint::Vector2;
 use vtable::VBox;
 
 use crate::{
-    Align, LayerId, PointerButton, SizeHint, WidgetText,
+    Align, Id, LayerId, PointerButton, Sense, SizeHint, WidgetText,
     closure::{InputStateClosure, PluginClosure, PluginNoReturnClosure},
     galley::BunnyGalley,
     input::BunnyInputState,
@@ -26,6 +27,7 @@ pub struct BunnyResponse {
     inner: VBox<ResponseFfiVTable>,
 }
 
+#[cfg(feature = "manager")]
 impl BunnyResponse {
     #[inline]
     pub fn new(response: egui::Response) -> Self {

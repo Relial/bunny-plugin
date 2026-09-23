@@ -1,4 +1,4 @@
-use egui::Color32;
+use ecolor::Color32;
 use vtable::{VRef, VRefMut};
 
 use crate::{
@@ -207,6 +207,7 @@ pub struct BunnyVisualsRef<'a> {
     inner: VRef<'a, VisualsFfiVTable>,
 }
 
+#[cfg(feature = "manager")]
 impl<'a> BunnyVisualsRef<'a> {
     #[inline]
     pub fn new(visuals: &'a egui::style::Visuals) -> Self {
@@ -227,6 +228,7 @@ pub struct BunnyVisualsMut<'a> {
     inner: VRefMut<'a, VisualsFfiVTable>,
 }
 
+#[cfg(feature = "manager")]
 impl<'a> BunnyVisualsMut<'a> {
     #[inline]
     pub fn new(visuals: &'a mut egui::style::Visuals) -> Self {
@@ -249,8 +251,7 @@ impl BunnyVisualsMut<'_> {
 
     #[inline]
     pub fn set_override_text_color(&mut self, color: Option<Color32>) {
-        self.inner
-            .set_override_text_color(color.into());
+        self.inner.set_override_text_color(color.into());
     }
 
     #[inline]

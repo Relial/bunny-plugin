@@ -1,11 +1,8 @@
 use abi_stable::std_types::ROption::{self, RNone, RSome};
 
-use crate::{
-    closure::PluginClosure,
-    containers::Frame,
-    response::{BunnyInnerResponse, BunnyResponse},
-    ui::BunnyUi,
-};
+#[cfg(feature = "manager")]
+use crate::{BunnyResponse, closure::PluginClosure};
+use crate::{containers::Frame, response::BunnyInnerResponse, ui::BunnyUi};
 
 #[derive(Default)]
 #[repr(C)]
@@ -42,6 +39,7 @@ impl CentralPanel {
     }
 }
 
+#[cfg(feature = "manager")]
 impl CentralPanel {
     pub(crate) fn show_impl(self, ui: &mut egui::Ui, contents: PluginClosure) -> BunnyResponse {
         let mut panel = egui::CentralPanel::default();

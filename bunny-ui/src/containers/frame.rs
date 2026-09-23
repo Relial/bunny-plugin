@@ -1,11 +1,11 @@
 use ecolor::Color32;
-use egui::{Rect, epaint::MarginF32};
 
+#[cfg(feature = "manager")]
+use crate::{BunnyResponse, closure::PluginClosure};
 use crate::{
     Margin, Shadow,
-    closure::PluginClosure,
     paint::{corner_radius::CornerRadius, stroke::Stroke},
-    response::{BunnyInnerResponse, BunnyResponse},
+    response::BunnyInnerResponse,
     style::{BunnyStyleRef, BunnyVisuals},
     ui::BunnyUi,
 };
@@ -155,29 +155,29 @@ impl Frame {
     }
 }
 
-impl Frame {
-    #[inline]
-    pub fn total_margin(&self) -> MarginF32 {
-        MarginF32::from(self.inner_margin)
-            + MarginF32::from(self.stroke.width)
-            + MarginF32::from(self.outer_margin)
-    }
+// impl Frame {
+//     #[inline]
+//     pub fn total_margin(&self) -> MarginF32 {
+//         MarginF32::from(self.inner_margin)
+//             + MarginF32::from(self.stroke.width)
+//             + MarginF32::from(self.outer_margin)
+//     }
 
-    #[inline]
-    pub fn fill_rect(&self, content_rect: Rect) -> Rect {
-        content_rect + self.inner_margin
-    }
+//     #[inline]
+//     pub fn fill_rect(&self, content_rect: Rect) -> Rect {
+//         content_rect + self.inner_margin
+//     }
 
-    #[inline]
-    pub fn widget_rect(&self, content_rect: Rect) -> Rect {
-        content_rect + self.inner_margin + MarginF32::from(self.stroke.width)
-    }
+//     #[inline]
+//     pub fn widget_rect(&self, content_rect: Rect) -> Rect {
+//         content_rect + self.inner_margin + MarginF32::from(self.stroke.width)
+//     }
 
-    #[inline]
-    pub fn outer_rect(&self, content_rect: Rect) -> Rect {
-        content_rect + self.inner_margin + MarginF32::from(self.stroke.width) + self.outer_margin
-    }
-}
+//     #[inline]
+//     pub fn outer_rect(&self, content_rect: Rect) -> Rect {
+//         content_rect + self.inner_margin + MarginF32::from(self.stroke.width) + self.outer_margin
+//     }
+// }
 
 #[cfg(feature = "manager")]
 impl From<Frame> for egui::Frame {
@@ -230,6 +230,7 @@ impl FrameStyle {
     }
 }
 
+#[cfg(feature = "manager")]
 impl Frame {
     #[inline]
     pub(crate) fn show_impl(self, ui: &mut egui::Ui, contents: PluginClosure) -> BunnyResponse {

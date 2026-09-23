@@ -1,7 +1,7 @@
 use std::ops::Deref;
 
 use abi_stable::std_types::{RCowSlice, ROption};
-use egui::Vec2;
+use emath::Vec2;
 
 use crate::paint::SizedTexture;
 

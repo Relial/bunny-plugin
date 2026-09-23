@@ -1,5 +1,5 @@
 use abi_stable::std_types::ROption;
-use egui::{Pos2, Rect, Vec2};
+use emath::{Pos2, Rect, Vec2};
 use vtable::vtable;
 
 use crate::PointerButton;
@@ -46,6 +46,7 @@ pub struct PointerStateFfiVTable {
     is_moving_towards_rect: fn(VRef<PointerStateFfiVTable>, rect: &Rect) -> bool,
 }
 
+#[cfg(feature = "manager")]
 impl PointerStateFfi for egui::PointerState {
     #[inline]
     fn delta(&self) -> Vec2 {
@@ -233,4 +234,5 @@ impl PointerStateFfi for egui::PointerState {
     }
 }
 
+#[cfg(feature = "manager")]
 PointerStateFfiVTable_static!(static POINTERSTATEFFI_VT for egui::PointerState);

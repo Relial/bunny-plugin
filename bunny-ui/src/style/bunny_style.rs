@@ -71,6 +71,7 @@ pub struct BunnyStyleRef<'a> {
     inner: VRef<'a, StyleFfiVTable>,
 }
 
+#[cfg(feature = "manager")]
 impl<'a> BunnyStyleRef<'a> {
     #[inline]
     pub fn new(style: &'a egui::Style) -> Self {
@@ -129,6 +130,7 @@ pub struct BunnyStyleMut<'a> {
     inner: VRefMut<'a, StyleFfiVTable>,
 }
 
+#[cfg(feature = "manager")]
 impl<'a> BunnyStyleMut<'a> {
     #[inline]
     pub fn new(style: &'a mut egui::Style) -> Self {

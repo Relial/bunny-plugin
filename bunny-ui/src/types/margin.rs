@@ -1,5 +1,4 @@
-use egui::{Rect, epaint::MarginF32, vec2};
-use emath::Vec2;
+use emath::{Rect, Vec2, vec2};
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -98,24 +97,6 @@ impl From<Vec2> for Margin {
     #[inline]
     fn from(value: Vec2) -> Self {
         Self::symmetric(value.x.round() as _, value.y.round() as _)
-    }
-}
-
-impl From<Margin> for MarginF32 {
-    #[inline]
-    fn from(value: Margin) -> Self {
-        let Margin {
-            left,
-            right,
-            top,
-            bottom,
-        } = value;
-        Self {
-            left: left as f32,
-            right: right as f32,
-            top: top as f32,
-            bottom: bottom as f32,
-        }
     }
 }
 

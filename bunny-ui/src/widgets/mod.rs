@@ -38,6 +38,7 @@ pub enum Widget<'a> {
     TextEdit(TextEdit<'a>),
 }
 
+#[cfg(feature = "manager")]
 impl egui::Widget for Widget<'_> {
     fn ui(self, ui: &mut egui::Ui) -> egui::Response {
         match self {

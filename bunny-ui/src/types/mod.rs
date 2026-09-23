@@ -14,6 +14,7 @@ mod ui_builder;
 mod vec2b;
 mod widget_text;
 mod ui_stack;
+mod sense;
 
 pub use align::*;
 pub use direction::*;
@@ -30,5 +31,6 @@ pub use ui_builder::*;
 pub use vec2b::*;
 pub use widget_text::*;
 pub use ui_stack::*;
+pub use sense::*;
 
 pub use load::SizeHint;

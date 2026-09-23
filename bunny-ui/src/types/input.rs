@@ -1,5 +1,5 @@
 use abi_stable::std_types::{ROption, RString};
-use egui::{Pos2, Vec2};
+use emath::{Pos2, Vec2};
 
 use crate::types::key::Key;
 

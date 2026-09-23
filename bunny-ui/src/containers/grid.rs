@@ -1,19 +1,18 @@
+use std::hash::Hash;
+
 use abi_stable::std_types::ROption::{self, RNone, RSome};
-use egui::Id;
 use emath::Vec2;
 use mint::Vector2;
 
-use crate::{
-    closure::PluginClosure,
-    response::{BunnyInnerResponse, BunnyResponse},
-    ui::BunnyUi,
-};
+#[cfg(feature = "manager")]
+use crate::{BunnyResponse, closure::PluginClosure};
+use crate::{Id, response::BunnyInnerResponse, ui::BunnyUi};
 
 #[repr(C)]
 pub struct Grid {
     num_columns: ROption<usize>,
     spacing: ROption<Vec2>,
-    id: Id,
+    id_salt: Id,
     min_col_width: ROption<f32>,
     min_row_height: ROption<f32>,
     max_col_width: f32,
@@ -23,9 +22,9 @@ pub struct Grid {
 
 impl Grid {
     #[inline]
-    pub fn new(id: impl Into<Id>) -> Self {
+    pub fn new(id_salt: impl Hash) -> Self {
         Self {
-            id: id.into(),
+            id_salt: Id::new(id_salt),
             num_columns: RNone,
             min_col_width: RNone,
             min_row_height: RNone,
@@ -88,12 +87,13 @@ impl Grid {
     }
 }
 
+#[cfg(feature = "manager")]
 impl Grid {
     pub(crate) fn show_impl(self, ui: &mut egui::Ui, contents: PluginClosure) -> BunnyResponse {
         let Grid {
             num_columns,
             spacing,
-            id,
+            id_salt: id,
             min_col_width,
             min_row_height,
             max_col_width,

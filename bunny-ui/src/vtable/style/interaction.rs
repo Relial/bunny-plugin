@@ -1,4 +1,3 @@
-use egui::style::Interaction;
 use vtable::{VRef, vtable};
 
 #[vtable]
@@ -25,7 +24,8 @@ pub struct InteractionFfiVTable {
     set_multi_widget_text_select: fn(VRefMut<InteractionFfiVTable>, multi_widget_text_select: bool),
 }
 
-impl InteractionFfi for Interaction {
+#[cfg(feature = "manager")]
+impl InteractionFfi for egui::style::Interaction {
     #[inline]
     fn interact_radius(&self) -> f32 {
         self.interact_radius
@@ -107,4 +107,5 @@ impl InteractionFfi for Interaction {
     }
 }
 
-InteractionFfiVTable_static!(static INTERACTIONFFI_VT for Interaction);
+#[cfg(feature = "manager")]
+InteractionFfiVTable_static!(static INTERACTIONFFI_VT for egui::style::Interaction);

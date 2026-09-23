@@ -1,10 +1,10 @@
 use abi_stable::std_types::ROption::{self, RNone, RSome};
-use egui::{Id, Sense};
 use emath::{Pos2, Rect};
 
+#[cfg(feature = "manager")]
+use crate::closure::PluginClosure;
 use crate::{
-    Align, LayerId, Layout, Order, RectAlign, UiStackInfo,
-    closure::PluginClosure,
+    Align, Id, LayerId, Layout, Order, RectAlign, Sense, UiStackInfo,
     containers::Frame,
     response::{BunnyInnerResponse, BunnyResponse},
     ui::BunnyUi,
@@ -331,6 +331,7 @@ impl<'a> Popup<'a> {
     }
 }
 
+#[cfg(feature = "manager")]
 impl Popup<'_> {
     pub(crate) fn show_impl(
         self,
@@ -353,11 +354,11 @@ impl Popup<'_> {
             sense,
             menu_style,
         } = self;
-        let mut popup = egui::Popup::new(id, ui.ctx().clone(), anchor, layer_id.into())
+        let mut popup = egui::Popup::new(id.into(), ui.ctx().clone(), anchor, layer_id.into())
             .align(rect_align.into())
             .kind(kind.into())
             .gap(gap)
-            .sense(sense)
+            .sense(sense.into())
             .layout(layout.into())
             .close_behavior(close_behavior.into());
         if menu_style {

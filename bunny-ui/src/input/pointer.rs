@@ -1,4 +1,4 @@
-use egui::{Pos2, Rect, Vec2};
+use emath::{Pos2, Rect, Vec2};
 use vtable::VRef;
 
 use crate::{PointerButton, vtable::input::pointer::PointerStateFfiVTable};
@@ -8,6 +8,7 @@ pub struct BunnyPointerState<'a> {
     inner: VRef<'a, PointerStateFfiVTable>,
 }
 
+#[cfg(feature = "manager")]
 impl<'a> BunnyPointerState<'a> {
     #[inline]
     pub fn new(pointer_state: &'a egui::PointerState) -> Self {

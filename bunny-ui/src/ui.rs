@@ -1,14 +1,13 @@
 use std::{hash::Hash, mem::MaybeUninit};
 
 use abi_stable::std_types::{RStr, Tuple2};
-use ecolor::Hsva;
-use egui::{Color32, Id, Pos2, Rangef, Rect, Sense, Vec2};
-use emath::TSTransform;
+use ecolor::{Color32, Hsva};
+use emath::{Pos2, Rangef, Rect, TSTransform, Vec2};
 use mint::Vector2;
 use vtable::VRefMut;
 
 use crate::{
-    Align, ImageSource, LayerId, Layout, RichText, SizeHint, UiBuilder, WidgetText,
+    Align, Id, ImageSource, LayerId, Layout, RichText, Sense, SizeHint, UiBuilder, WidgetText,
     closure::{
         InputStateClosure, PanelAnimatedBetweenClosure, PluginClosure, ScrollAreaRowsClosure,
     },
@@ -17,7 +16,6 @@ use crate::{
         CollapsingHeader, ComboBox, Frame, Grid, Modal, Panel, Popup, ScrollArea, Sides, Window,
     },
     galley::BunnyGalley,
-    id::hash_id_salt,
     input::BunnyInputState,
     load::TexturePoll,
     paint::{
@@ -42,6 +40,7 @@ pub struct BunnyUi<'a> {
     inner: VRefMut<'a, UiFfiVTable>,
 }
 
+#[cfg(feature = "manager")]
 impl<'a> BunnyUi<'a> {
     #[inline]
     pub fn new(ui: &'a mut egui::Ui) -> Self {
@@ -356,22 +355,22 @@ impl<'a> BunnyUi<'a> {
 }
 
 impl<'a> BunnyUi<'a> {
-    #[inline]
-    pub fn make_persistent_id(&self, id_salt: impl Hash) -> Id {
-        let hash = hash_id_salt(id_salt);
-        self.inner.make_persistent_id(hash)
-    }
+    // #[inline]
+    // pub fn make_persistent_id(&self, id_salt: impl Hash) -> Id {
+    //     let hash = hash_id_salt(id_salt);
+    //     self.inner.make_persistent_id(hash)
+    // }
 
     #[inline]
     pub fn next_auto_id(&self) -> Id {
         self.inner.next_auto_id()
     }
 
-    #[inline]
-    pub fn auto_id_with(&self, id_salt: impl Hash) -> Id {
-        let hash = hash_id_salt(id_salt);
-        self.inner.auto_id_with(hash)
-    }
+    // #[inline]
+    // pub fn auto_id_with(&self, id_salt: impl Hash) -> Id {
+    //     let hash = hash_id_salt(id_salt);
+    //     self.inner.auto_id_with(hash)
+    // }
 
     #[inline]
     pub fn skip_ahead_auto_ids(&mut self, count: usize) {
@@ -852,8 +851,8 @@ impl<'a> BunnyUi<'a> {
     ) -> BunnyInnerResponse<R> {
         let mut ret = MaybeUninit::<R>::uninit();
         let closure = PluginClosure::new(&mut add_contents, &mut ret);
-        let hash = hash_id_salt(id_salt);
-        let response = self.inner.push_id(hash, closure);
+        let salt = Id::new(id_salt).value();
+        let response = self.inner.push_id(salt, closure);
         let inner = unsafe { ret.assume_init() };
         BunnyInnerResponse::new(inner, response)
     }

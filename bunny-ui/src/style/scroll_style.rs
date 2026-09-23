@@ -91,6 +91,7 @@ pub struct BunnyScrollStyleRef<'a> {
     inner: VRef<'a, ScrollStyleFfiVTable>,
 }
 
+#[cfg(feature = "manager")]
 impl<'a> BunnyScrollStyleRef<'a> {
     #[inline]
     pub fn new(scroll_style: &'a egui::style::ScrollStyle) -> Self {
@@ -111,6 +112,7 @@ pub struct BunnyScrollStyleMut<'a> {
     inner: VRefMut<'a, ScrollStyleFfiVTable>,
 }
 
+#[cfg(feature = "manager")]
 impl<'a> BunnyScrollStyleMut<'a> {
     #[inline]
     pub fn new(scroll_style: &'a mut egui::style::ScrollStyle) -> Self {

@@ -1,5 +1,6 @@
 use abi_stable::std_types::RVec;
-use egui::{Color32, Vec2};
+use ecolor::Color32;
+use emath::Vec2;
 
 #[derive(Clone, Default, PartialEq, Eq)]
 #[repr(C)]

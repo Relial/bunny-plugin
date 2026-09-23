@@ -1,5 +1,6 @@
 use abi_stable::std_types::ROption;
-use egui::{Color32, Rangef, Vec2};
+use ecolor::Color32;
+use emath::{Rangef, Vec2};
 
 use crate::{
     Align, Margin, Shadow,

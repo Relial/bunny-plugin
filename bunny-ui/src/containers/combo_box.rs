@@ -1,23 +1,21 @@
-use abi_stable::std_types::{
-    ROption::{self, RNone, RSome},
-    Tuple2,
-};
-use egui::Id;
+use std::hash::Hash;
 
+use abi_stable::std_types::ROption::{self, RNone, RSome};
+#[cfg(feature = "manager")]
+use abi_stable::std_types::Tuple2;
+
+#[cfg(feature = "manager")]
+use crate::{BunnyResponse, closure::PluginClosure};
 use crate::{
-    WidgetText,
-    closure::PluginClosure,
-    containers::PopupCloseBehavior,
-    paint::text::text_layout_types::TextWrapMode,
-    response::{BunnyInnerResponse, BunnyResponse},
-    ui::BunnyUi,
+    Id, WidgetText, containers::PopupCloseBehavior, paint::text::text_layout_types::TextWrapMode,
+    response::BunnyInnerResponse, ui::BunnyUi,
 };
 
 #[repr(C)]
 pub struct ComboBox<'a> {
     label: ROption<WidgetText<'a>>,
     selected_text: WidgetText<'a>,
-    id: Id,
+    id_salt: Id,
     width: ROption<f32>,
     height: ROption<f32>,
     wrap_mode: ROption<TextWrapMode>,
@@ -26,9 +24,9 @@ pub struct ComboBox<'a> {
 
 impl<'a> ComboBox<'a> {
     #[inline]
-    pub fn new(id: impl Into<Id>, label: impl Into<WidgetText<'a>>) -> Self {
+    pub fn new(id_salt: impl Hash, label: impl Into<WidgetText<'a>>) -> Self {
         Self {
-            id: id.into(),
+            id_salt: Id::new(id_salt),
             label: RSome(label.into()),
             selected_text: Default::default(),
             width: RNone,
@@ -38,10 +36,13 @@ impl<'a> ComboBox<'a> {
         }
     }
 
+    /// A source for the Id.
+    ///
+    /// Note that this gets hashed twice, so the Id in the response won't match an Id created out of the same salt.
     #[inline]
-    pub fn from_id(id: impl Into<Id>) -> Self {
+    pub fn from_id_salt(id_salt: impl Hash) -> Self {
         Self {
-            id: id.into(),
+            id_salt: Id::new(id_salt),
             label: RNone,
             selected_text: Default::default(),
             width: RNone,
@@ -103,6 +104,7 @@ impl<'a> ComboBox<'a> {
     }
 }
 
+#[cfg(feature = "manager")]
 impl ComboBox<'_> {
     pub(crate) fn show_impl(
         self,
@@ -112,7 +114,7 @@ impl ComboBox<'_> {
         let ComboBox {
             label,
             selected_text,
-            id,
+            id_salt: id,
             width,
             height,
             wrap_mode,

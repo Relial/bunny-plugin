@@ -1,5 +1,5 @@
 use abi_stable::std_types::RVec;
-use egui::{Rect, Vec2};
+use emath::{Rect, Vec2};
 use vtable::{VRef, vtable};
 
 use crate::{Event, Key, KeyboardShortcut, Modifiers, input::BunnyPointerState};
@@ -44,6 +44,7 @@ pub struct InputStateFfiVTable {
     aim_radius: fn(VRef<InputStateFfiVTable>) -> f32,
 }
 
+#[cfg(feature = "manager")]
 impl InputStateFfi for egui::InputState {
     #[inline]
     fn pointer(&self) -> BunnyPointerState<'_> {
@@ -191,4 +192,5 @@ impl InputStateFfi for egui::InputState {
     }
 }
 
+#[cfg(feature = "manager")]
 InputStateFfiVTable_static!(static INPUTSTATEFFI_VT for egui::InputState);

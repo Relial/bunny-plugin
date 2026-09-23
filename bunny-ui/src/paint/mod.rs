@@ -1,13 +1,12 @@
-use egui::Vec2;
+use emath::Vec2;
 use mint::Vector2;
-use shared::texture::{SharedSizedTexture, SharedTextureId};
+use shared::textures::{SharedSizedTexture, SharedTextureId};
 
 pub mod brush;
 pub mod color;
 pub mod corner_radius;
-pub mod mesh;
-// pub mod paintlist;
 pub mod image;
+pub mod mesh;
 pub mod shape_transform;
 pub mod shapes;
 pub mod stroke;

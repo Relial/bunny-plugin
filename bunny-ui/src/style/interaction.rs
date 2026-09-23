@@ -51,6 +51,7 @@ pub struct BunnyInteractionRef<'a> {
     inner: VRef<'a, InteractionFfiVTable>,
 }
 
+#[cfg(feature = "manager")]
 impl<'a> BunnyInteractionRef<'a> {
     #[inline]
     pub fn new(interaction: &'a egui::style::Interaction) -> Self {
@@ -71,6 +72,7 @@ pub struct BunnyInteractionMut<'a> {
     inner: VRefMut<'a, InteractionFfiVTable>,
 }
 
+#[cfg(feature = "manager")]
 impl<'a> BunnyInteractionMut<'a> {
     #[inline]
     pub fn new(interaction: &'a mut egui::style::Interaction) -> Self {

@@ -2,7 +2,7 @@ use abi_stable::std_types::ROption::{self, RSome};
 #[cfg(feature = "3d")]
 use bunny_3d::Bunny3d;
 #[cfg(feature = "ui")]
-use bunny_ui::ui::BunnyUi;
+use bunny_ui::BunnyUi;
 #[cfg(any(feature = "ui", feature = "3d"))]
 use shared::BunnyContext;
 

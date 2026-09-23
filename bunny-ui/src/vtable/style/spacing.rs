@@ -1,4 +1,4 @@
-use egui::{Spacing, Vec2};
+use emath::Vec2;
 use vtable::{VRef, VRefMut, vtable};
 
 use crate::{
@@ -55,7 +55,8 @@ pub struct SpacingFfiVTable {
     set_scroll_style: fn(VRefMut<SpacingFfiVTable>, scroll_style: ScrollStyle),
 }
 
-impl SpacingFfi for Spacing {
+#[cfg(feature = "manager")]
+impl SpacingFfi for egui::style::Spacing {
     #[inline]
     fn item_spacing(&self) -> Vec2 {
         self.item_spacing
@@ -262,4 +263,5 @@ impl SpacingFfi for Spacing {
     }
 }
 
-SpacingFfiVTable_static!(static SPACINGFFI_VT for Spacing);
+#[cfg(feature = "manager")]
+SpacingFfiVTable_static!(static SPACINGFFI_VT for egui::style::Spacing);

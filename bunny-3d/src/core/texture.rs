@@ -1,5 +1,5 @@
 use abi_stable::std_types::RVec;
-use shared::texture::SharedTextureId;
+use shared::textures::SharedTextureId;
 
 use crate::GpuColor;
 

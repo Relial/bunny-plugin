@@ -4,12 +4,11 @@ use abi_stable::std_types::{
     RCowStr,
     ROption::{self, RNone, RSome},
 };
-use egui::Id;
 use emath::Rect;
 use mint::{Point2, Vector2};
 
 use crate::{
-    Align2, Order, Resize, UiKind, Vec2b,
+    Align2, Id, Order, Resize, UiKind, Vec2b,
     containers::{Area, Frame, ScrollArea, ScrollBarVisibility, ScrollSource},
     response::BunnyInnerResponse,
     ui::BunnyUi,
@@ -322,7 +321,7 @@ impl TitleBar<'_> {
         if let RSome(open) = self.open {
             let close_button_id = window_id.with("close button");
             let widget_state = ui
-                .read_response(close_button_id)
+                .read_response(close_button_id.into())
                 .map(|r| r.widget_state())
                 .unwrap_or_default();
             let close_color = visuals.widgets.state(widget_state).fg_stroke.color;
@@ -334,7 +333,7 @@ impl TitleBar<'_> {
                 close_color,
             );
             if ui
-                .interact(close_rect, close_button_id, egui::Sense::click())
+                .interact(close_rect, close_button_id.into(), egui::Sense::click())
                 .clicked()
             {
                 *open = false;
@@ -381,7 +380,7 @@ impl Window<'_> {
             return RNone;
         }
         let mut window = egui::Window::new("")
-            .id(area.id)
+            .id(area.id.into())
             .title_bar(false)
             .enabled(area.enabled)
             .interactable(area.interactable)

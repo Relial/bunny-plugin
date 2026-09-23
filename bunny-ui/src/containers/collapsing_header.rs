@@ -1,15 +1,15 @@
-use abi_stable::std_types::ROption::{self, RNone, RSome};
-use egui::Id;
+use std::hash::Hash;
 
-use crate::{
-    WidgetText, closure::PluginClosure, response::BunnyResponse, ui::BunnyUi,
-    vtable::ui::CollapsingFfiResponse,
-};
+use abi_stable::std_types::ROption::{self, RNone, RSome};
+
+use crate::{WidgetText, id::Id, response::BunnyResponse, ui::BunnyUi};
+#[cfg(feature = "manager")]
+use crate::{closure::PluginClosure, vtable::ui::CollapsingFfiResponse};
 
 #[repr(C)]
 pub struct CollapsingHeader<'a> {
     text: WidgetText<'a>,
-    id: ROption<Id>,
+    id_salt: ROption<Id>,
     open: ROption<bool>,
     show_background: bool,
     indented: bool,
@@ -21,7 +21,7 @@ impl<'a> CollapsingHeader<'a> {
         let text = text.into();
         Self {
             text,
-            id: RNone,
+            id_salt: RNone,
             default_open: false,
             open: RNone,
             show_background: false,
@@ -41,9 +41,12 @@ impl<'a> CollapsingHeader<'a> {
         self
     }
 
+    /// A source for the Id.
+    ///
+    /// Note that this gets hashed twice, so the Id in the response won't match an Id created out of the same salt.
     #[inline]
-    pub fn id(mut self, id: impl Into<Id>) -> Self {
-        self.id = RSome(id.into());
+    pub fn id_salt(mut self, id_salt: impl Hash) -> Self {
+        self.id_salt = RSome(Id::new(id_salt));
         self
     }
 
@@ -60,11 +63,16 @@ impl<'a> CollapsingHeader<'a> {
     }
 
     #[inline]
-    pub fn show<R>(self, ui: &mut BunnyUi, add_contents: impl FnMut(&mut BunnyUi) -> R) -> BunnyCollapsingResponse<R> {
+    pub fn show<R>(
+        self,
+        ui: &mut BunnyUi,
+        add_contents: impl FnMut(&mut BunnyUi) -> R,
+    ) -> BunnyCollapsingResponse<R> {
         ui.collapsing_header_show(self, add_contents)
     }
 }
 
+#[cfg(feature = "manager")]
 impl CollapsingHeader<'_> {
     pub(crate) fn show_impl(
         self,
@@ -75,7 +83,7 @@ impl CollapsingHeader<'_> {
             .default_open(self.default_open)
             .open(self.open.into())
             .show_background(self.show_background);
-        if let RSome(id) = self.id {
+        if let RSome(id) = self.id_salt {
             header = header.id_salt(id);
         }
         let res = if self.indented {

@@ -1,8 +1,9 @@
 use abi_stable::std_types::ROption::{self, RNone, RSome};
-use egui::{Color32, Id, Sense, Vec2};
+use ecolor::Color32;
+use emath::Vec2;
 
 use crate::{
-    Align2, Order, UiKind,
+    Align2, Id, Order, Sense, UiKind,
     containers::{Area, Frame},
     response::BunnyResponse,
     ui::BunnyUi,

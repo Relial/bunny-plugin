@@ -2,15 +2,15 @@ use abi_stable::std_types::{
     ROption::{self, RNone, RSome},
     Tuple2,
 };
-use egui::{Id, Pos2, Rect, Sense, Vec2};
+use emath::{Pos2, Rect, Vec2};
 use mint::{Point2, Vector2};
 
 use crate::{
-    Align2, LayerId, Layout, Order, UiKind, UiStackInfo,
-    closure::PluginClosure,
-    response::{BunnyInnerResponse, BunnyResponse},
+    Align2, Id, LayerId, Layout, Order, Sense, UiKind, UiStackInfo, response::BunnyInnerResponse,
     ui::BunnyUi,
 };
+#[cfg(feature = "manager")]
+use crate::{BunnyResponse, closure::PluginClosure};
 
 #[derive(Clone, Debug)]
 #[repr(C)]
@@ -235,7 +235,7 @@ impl From<Area> for egui::Area {
             layout,
             sizing_pass,
         } = value;
-        let mut area = egui::Area::new(id)
+        let mut area = egui::Area::new(id.into())
             .info(info.into())
             .enabled(enabled)
             .movable(movable)
@@ -248,7 +248,7 @@ impl From<Area> for egui::Area {
             .layout(layout.into())
             .sizing_pass(sizing_pass);
         if let RSome(sense) = sense {
-            area = area.sense(sense);
+            area = area.sense(sense.into());
         }
         if let RSome(constrain_rect) = constraint_rect {
             area = area.constrain_to(constrain_rect);

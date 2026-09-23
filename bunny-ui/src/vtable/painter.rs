@@ -1,9 +1,10 @@
 use abi_stable::std_types::{RStr, RVec};
-use egui::{Color32, Painter, Pos2, Rangef, Rect, Vec2, layers::ShapeIdx};
+use ecolor::Color32;
+use emath::{Pos2, Rangef, Rect, Vec2};
 use vtable::{VRef, VRefMut, vtable};
 
 use crate::{
-    Align2, LayerId,
+    Align2, LayerId, ShapeIdx,
     galley::BunnyGalley,
     paint::{
         TextureId,
@@ -116,7 +117,8 @@ pub struct PainterFfiVTable {
     drop: fn(VRefMut<PainterFfiVTable>),
 }
 
-impl PainterFfi for Painter {
+#[cfg(feature = "manager")]
+impl PainterFfi for egui::Painter {
     #[inline]
     fn with_clip_rect(&self, rect: Rect) -> BunnyPainter {
         let painter = self.with_clip_rect(rect);
@@ -185,7 +187,7 @@ impl PainterFfi for Painter {
 
     #[inline]
     fn add(&self, shape: Shape) -> ShapeIdx {
-        self.add(shape)
+        self.add(shape).into()
     }
 
     #[inline]
@@ -195,7 +197,7 @@ impl PainterFfi for Painter {
 
     #[inline]
     fn set(&self, idx: ShapeIdx, shape: Shape) {
-        self.set(idx, shape);
+        self.set(idx.into(), shape);
     }
 
     #[inline]
@@ -215,37 +217,37 @@ impl PainterFfi for Painter {
 
     #[inline]
     fn line_segment(&self, points: [Pos2; 2], stroke: Stroke) -> ShapeIdx {
-        self.line_segment(points, stroke)
+        self.line_segment(points, stroke).into()
     }
 
     #[inline]
     fn line(&self, points: RVec<Pos2>, stroke: PathStroke) -> ShapeIdx {
-        self.line(points.into(), stroke)
+        self.line(points.into(), stroke).into()
     }
 
     #[inline]
     fn hline(&self, x: Rangef, y: f32, stroke: Stroke) -> ShapeIdx {
-        self.hline(x, y, stroke)
+        self.hline(x, y, stroke).into()
     }
 
     #[inline]
     fn vline(&self, x: f32, y: Rangef, stroke: Stroke) -> ShapeIdx {
-        self.vline(x, y, stroke)
+        self.vline(x, y, stroke).into()
     }
 
     #[inline]
     fn circle(&self, center: Pos2, radius: f32, fill_color: Color32, stroke: Stroke) -> ShapeIdx {
-        self.circle(center, radius, fill_color, stroke)
+        self.circle(center, radius, fill_color, stroke).into()
     }
 
     #[inline]
     fn circle_filled(&self, center: Pos2, radius: f32, fill_color: Color32) -> ShapeIdx {
-        self.circle_filled(center, radius, fill_color)
+        self.circle_filled(center, radius, fill_color).into()
     }
 
     #[inline]
     fn circle_stroke(&self, center: Pos2, radius: f32, stroke: Stroke) -> ShapeIdx {
-        self.circle_stroke(center, radius, stroke)
+        self.circle_stroke(center, radius, stroke).into()
     }
 
     #[inline]
@@ -258,6 +260,7 @@ impl PainterFfi for Painter {
         stroke_kind: StrokeKind,
     ) -> ShapeIdx {
         self.rect(rect, corner_radius, fill_color, stroke, stroke_kind.into())
+            .into()
     }
 
     #[inline]
@@ -267,7 +270,7 @@ impl PainterFfi for Painter {
         corner_radius: CornerRadius,
         fill_color: Color32,
     ) -> ShapeIdx {
-        self.rect_filled(rect, corner_radius, fill_color)
+        self.rect_filled(rect, corner_radius, fill_color).into()
     }
 
     #[inline]
@@ -279,6 +282,7 @@ impl PainterFfi for Painter {
         stroke_kind: StrokeKind,
     ) -> ShapeIdx {
         self.rect_stroke(rect, corner_radius, stroke, stroke_kind.into())
+            .into()
     }
 
     #[inline]
@@ -288,7 +292,7 @@ impl PainterFfi for Painter {
 
     #[inline]
     fn image(&self, texture_id: TextureId, rect: Rect, uv: Rect, tint: Color32) -> ShapeIdx {
-        self.image(texture_id.into(), rect, uv, tint)
+        self.image(texture_id.into(), rect, uv, tint).into()
     }
 
     #[inline]
@@ -335,4 +339,5 @@ impl PainterFfi for Painter {
     }
 }
 
-PainterFfiVTable_static!(static PAINTERFFI_VT for Painter);
+#[cfg(feature = "manager")]
+PainterFfiVTable_static!(static PAINTERFFI_VT for egui::Painter);

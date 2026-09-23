@@ -1,11 +1,13 @@
+#[cfg(feature = "manager")]
+use crate::{BunnyInputState, BunnyUi};
 use abi_stable::std_types::{ROption, RStr, Tuple2};
-use ecolor::Hsva;
-use egui::{Color32, Id, Pos2, Rangef, Rect, Sense, Ui, Vec2, Widget as _};
-use emath::TSTransform;
+use ecolor::{Color32, Hsva};
+use emath::{Pos2, Rangef, Rect, TSTransform, Vec2};
 use vtable::{VRef, VRefMut, vtable};
 
 use crate::{
-    Align, ImageSource, LayerId, Layout as BunnyLayout, RichText, SizeHint, UiBuilder, WidgetText,
+    Align, Id, ImageSource, LayerId, Layout as BunnyLayout, RichText, Sense, SizeHint, UiBuilder,
+    WidgetText,
     closure::{
         InputStateClosure, PanelAnimatedBetweenClosure, PluginClosure, ScrollAreaRowsClosure,
     },
@@ -14,7 +16,6 @@ use crate::{
         ScrollArea, Sides, Window,
     },
     galley::BunnyGalley,
-    input::BunnyInputState,
     load::TexturePoll,
     paint::{
         text::{
@@ -29,8 +30,7 @@ use crate::{
         BunnyInteractionMut, BunnyInteractionRef, BunnySpacingMut, BunnySpacingRef, BunnyStyleMut,
         BunnyStyleRef, BunnyVisualsMut, BunnyVisualsRef, ScrollAnimation, Style, TextStyle,
     },
-    ui::BunnyUi,
-    widgets::{Widget, image::Image, text_edit::bunny_string::BunnyString},
+    widgets::{Widget, text_edit::bunny_string::BunnyString},
 };
 
 #[vtable]
@@ -101,9 +101,9 @@ pub struct UiFfiVTable {
     available_size_before_wrap: fn(VRef<UiFfiVTable>) -> Vec2,
     available_rect_before_wrap: fn(VRef<UiFfiVTable>) -> Rect,
 
-    make_persistent_id: fn(VRef<UiFfiVTable>, hash: u64) -> Id,
+    // make_persistent_id: fn(VRef<UiFfiVTable>, hash: u64) -> Id,
     next_auto_id: fn(VRef<UiFfiVTable>) -> Id,
-    auto_id_with: fn(VRef<UiFfiVTable>, hash: u64) -> Id,
+    // auto_id_with: fn(VRef<UiFfiVTable>, hash: u64) -> Id,
     skip_ahead_auto_ids: fn(VRefMut<UiFfiVTable>, count: usize),
 
     interact: fn(VRef<UiFfiVTable>, rect: Rect, id: Id, sense: Sense) -> BunnyResponse,
@@ -335,7 +335,8 @@ pub struct UiFfiVTable {
     ) -> ROption<Tuple2<BunnyResponse, bool>>,
 }
 
-impl UiFfi for Ui {
+#[cfg(feature = "manager")]
+impl UiFfi for egui::Ui {
     #[inline]
     fn is_sizing_pass(&self) -> bool {
         self.is_sizing_pass()
@@ -343,12 +344,12 @@ impl UiFfi for Ui {
 
     #[inline]
     fn id(&self) -> Id {
-        self.id()
+        self.id().into()
     }
 
     #[inline]
     fn unique_id(&self) -> Id {
-        self.unique_id()
+        self.unique_id().into()
     }
 
     #[inline]
@@ -634,20 +635,20 @@ impl UiFfi for Ui {
         self.available_rect_before_wrap()
     }
 
-    #[inline]
-    fn make_persistent_id(&self, hash: u64) -> Id {
-        self.make_persistent_id(hash)
-    }
+    // #[inline]
+    // fn make_persistent_id(&self, hash: u64) -> Id {
+    //     self.make_persistent_id(hash).into()
+    // }
 
     #[inline]
     fn next_auto_id(&self) -> Id {
-        self.next_auto_id()
+        self.next_auto_id().into()
     }
 
-    #[inline]
-    fn auto_id_with(&self, hash: u64) -> Id {
-        self.auto_id_with(hash)
-    }
+    // #[inline]
+    // fn auto_id_with(&self, hash: u64) -> Id {
+    //     self.auto_id_with(hash).into()
+    // }
 
     #[inline]
     fn skip_ahead_auto_ids(&mut self, count: usize) {
@@ -656,7 +657,7 @@ impl UiFfi for Ui {
 
     #[inline]
     fn interact(&self, rect: Rect, id: Id, sense: Sense) -> BunnyResponse {
-        let res = self.interact(rect, id, sense);
+        let res = self.interact(rect, id.into(), sense.into());
         BunnyResponse::new(res)
     }
 
@@ -693,7 +694,7 @@ impl UiFfi for Ui {
 
     #[inline]
     fn allocate_response(&mut self, desired_size: Vec2, sense: Sense) -> BunnyResponse {
-        let res = self.allocate_response(desired_size, sense);
+        let res = self.allocate_response(desired_size, sense.into());
         BunnyResponse::new(res)
     }
 
@@ -703,7 +704,7 @@ impl UiFfi for Ui {
         desired_size: Vec2,
         sense: Sense,
     ) -> Tuple2<Rect, BunnyResponse> {
-        let (rect, res) = self.allocate_exact_size(desired_size, sense);
+        let (rect, res) = self.allocate_exact_size(desired_size, sense.into());
         Tuple2(rect, BunnyResponse::new(res))
     }
 
@@ -713,25 +714,25 @@ impl UiFfi for Ui {
         desired_size: Vec2,
         sense: Sense,
     ) -> Tuple2<Rect, BunnyResponse> {
-        let (rect, res) = self.allocate_at_least(desired_size, sense);
+        let (rect, res) = self.allocate_at_least(desired_size, sense.into());
         Tuple2(rect, BunnyResponse::new(res))
     }
 
     #[inline]
     fn allocate_space(&mut self, desired_size: Vec2) -> Tuple2<Id, Rect> {
         let (id, rect) = self.allocate_space(desired_size);
-        Tuple2(id, rect)
+        Tuple2(id.into(), rect)
     }
 
     #[inline]
     fn allocate_rect(&mut self, rect: Rect, sense: Sense) -> BunnyResponse {
-        let res = self.allocate_rect(rect, sense);
+        let res = self.allocate_rect(rect, sense.into());
         BunnyResponse::new(res)
     }
 
     #[inline]
     fn advance_cursor_after_rect(&mut self, rect: Rect) -> Id {
-        self.advance_cursor_after_rect(rect)
+        self.advance_cursor_after_rect(rect).into()
     }
 
     #[inline]
@@ -777,7 +778,7 @@ impl UiFfi for Ui {
         desired_size: Vec2,
         sense: Sense,
     ) -> Tuple2<BunnyResponse, BunnyPainter> {
-        let (res, painter) = self.allocate_painter(desired_size, sense);
+        let (res, painter) = self.allocate_painter(desired_size, sense.into());
         Tuple2(BunnyResponse::new(res), BunnyPainter::new(painter))
     }
 
@@ -1006,7 +1007,7 @@ impl UiFfi for Ui {
 
     #[inline]
     fn image(&mut self, source: ImageSource) -> BunnyResponse {
-        let res = Image::new(source).ui(self);
+        let res = self.image(source);
         BunnyResponse::new(res)
     }
 
@@ -1316,7 +1317,10 @@ impl UiFfi for Ui {
 
     #[inline]
     fn read_response(&self, id: Id) -> ROption<BunnyResponse> {
-        self.ctx().read_response(id).map(BunnyResponse::new).into()
+        self.ctx()
+            .read_response(id.into())
+            .map(BunnyResponse::new)
+            .into()
     }
 
     #[inline]
@@ -1489,7 +1493,8 @@ impl UiFfi for Ui {
     }
 }
 
-UiFfiVTable_static!(static UIFFI_VT for Ui);
+#[cfg(feature = "manager")]
+UiFfiVTable_static!(static UIFFI_VT for egui::Ui);
 
 #[repr(C)]
 pub struct CollapsingFfiResponse {
@@ -1499,6 +1504,7 @@ pub struct CollapsingFfiResponse {
     pub body_returned: bool,
 }
 
+#[cfg(feature = "manager")]
 impl CollapsingFfiResponse {
     #[inline]
     pub fn new<R>(response: egui::CollapsingResponse<R>) -> Self {
@@ -1520,6 +1526,7 @@ pub struct ScrollAreaFfiOutput {
     pub content_size: Vec2,
 }
 
+#[cfg(feature = "manager")]
 impl ScrollAreaFfiOutput {
     #[inline]
     pub fn new<R>(output: egui::scroll_area::ScrollAreaOutput<R>) -> Self {
@@ -1532,7 +1539,7 @@ impl ScrollAreaFfiOutput {
         } = output;
         Self {
             inner_rect,
-            id,
+            id: id.into(),
             offset: state.offset,
             velocity: state.velocity(),
             content_size,
@@ -1548,6 +1555,7 @@ pub struct ModalFfiResponse {
     pub any_popup_open: bool,
 }
 
+#[cfg(feature = "manager")]
 impl ModalFfiResponse {
     #[inline]
     pub fn new<R>(response: egui::modal::ModalResponse<R>) -> Self {

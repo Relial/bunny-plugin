@@ -1,11 +1,10 @@
 use abi_stable::std_types::ROption::{self, RNone, RSome};
 use ecolor::Color32;
-use egui::Id;
 use emath::Vec2;
 use mint::Vector2;
 
 use crate::{
-    Align, Align2, Margin, WidgetText,
+    Align, Align2, Id, Margin, WidgetText,
     containers::Frame,
     paint::text::fonts::FontSelection,
     widgets::{Widget, text_edit::bunny_string::BunnyString},
@@ -216,7 +215,7 @@ impl egui::Widget for TextEdit<'_> {
         .min_size(self.min_size);
 
         if let RSome(id) = self.id {
-            text_edit = text_edit.id(id);
+            text_edit = text_edit.id(id.into());
         }
         if let RSome(frame) = self.frame {
             text_edit = text_edit.frame(frame.into());

@@ -1,4 +1,4 @@
-use egui::{Rect, Vec2};
+use emath::{Rect, Vec2};
 use vtable::VRefMut;
 
 use crate::{
@@ -11,6 +11,7 @@ pub struct BunnyInputState<'a> {
     inner: VRefMut<'a, InputStateFfiVTable>,
 }
 
+#[cfg(feature = "manager")]
 impl<'a> BunnyInputState<'a> {
     #[inline]
     pub fn new(input_state: &'a mut egui::InputState) -> Self {

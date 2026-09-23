@@ -1,12 +1,12 @@
 pub mod camera;
 pub mod fonts;
-pub mod texture;
+pub mod textures;
 pub use glam;
 
 use crate::{
     camera::Camera,
     fonts::{CustomFont, CustomFonts, NamedCustomFont},
-    texture::{SharedSizedTexture, SharedTexture, SharedTextures},
+    textures::{SharedSizedTexture, SharedTexture, SharedTextures},
 };
 
 #[derive(Debug)]

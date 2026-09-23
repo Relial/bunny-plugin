@@ -1,5 +1,5 @@
 use abi_stable::std_types::ROption;
-use egui::{Color32, Visuals};
+use ecolor::Color32;
 use vtable::vtable;
 
 use crate::{
@@ -56,8 +56,7 @@ pub struct VisualsFfiVTable {
     set_override_text_color: fn(VRefMut<VisualsFfiVTable>, color: ROption<Color32>),
     set_weak_text_alpha: fn(VRefMut<VisualsFfiVTable>, alpha: f32),
     set_weak_text_color: fn(VRefMut<VisualsFfiVTable>, color: ROption<Color32>),
-    set_widgets_noninteractive:
-        fn(VRefMut<VisualsFfiVTable>, noninteractive: WidgetVisuals),
+    set_widgets_noninteractive: fn(VRefMut<VisualsFfiVTable>, noninteractive: WidgetVisuals),
     set_widgets_inactive: fn(VRefMut<VisualsFfiVTable>, inactive: WidgetVisuals),
     set_widgets_hovered: fn(VRefMut<VisualsFfiVTable>, hovered: WidgetVisuals),
     set_widgets_active: fn(VRefMut<VisualsFfiVTable>, active: WidgetVisuals),
@@ -92,7 +91,8 @@ pub struct VisualsFfiVTable {
     set_disabled_alpha: fn(VRefMut<VisualsFfiVTable>, alpha: f32),
 }
 
-impl VisualsFfi for Visuals {
+#[cfg(feature = "manager")]
+impl VisualsFfi for egui::style::Visuals {
     #[inline]
     fn dark_mode(&self) -> bool {
         self.dark_mode
@@ -474,4 +474,5 @@ impl VisualsFfi for Visuals {
     }
 }
 
-VisualsFfiVTable_static!(static VISUALSFFI_VT for Visuals);
+#[cfg(feature = "manager")]
+VisualsFfiVTable_static!(static VISUALSFFI_VT for egui::style::Visuals);

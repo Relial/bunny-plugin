@@ -4,12 +4,11 @@ use abi_stable::std_types::{
     Tuple2,
 };
 use ecolor::Color32;
-use egui::Sense;
 use emath::{NumExt as _, Rect, Vec2, pos2};
 use mint::Vector2;
 
 use crate::{
-    ImageSource, SizeHint,
+    ImageSource, Sense, SizeHint,
     load::Bytes,
     paint::{corner_radius::CornerRadius, textures::TextureOptions},
     widgets::Widget,
@@ -164,13 +163,6 @@ impl<'a> Image<'a> {
     }
 }
 
-impl<'a, T: Into<ImageSource<'a>>> From<T> for Image<'a> {
-    #[inline]
-    fn from(value: T) -> Self {
-        Image::new(value)
-    }
-}
-
 #[cfg(feature = "manager")]
 impl egui::Widget for Image<'_> {
     fn ui(self, ui: &mut egui::Ui) -> egui::Response {
@@ -189,7 +181,7 @@ impl egui::Widget for Image<'_> {
             .bg_fill(image_options.bg_fill)
             .tint(image_options.tint)
             .corner_radius(image_options.corner_radius)
-            .sense(sense)
+            .sense(sense.into())
             .max_size(size.max_size)
             .maintain_aspect_ratio(size.maintain_aspect_ratio);
         if let RSome(Tuple2(angle, origin)) = image_options.rotation {

@@ -1,7 +1,6 @@
 use abi_stable::std_types::ROption::{self, RNone, RSome};
-use egui::Id;
 
-use crate::{KeyboardShortcut, paint::corner_radius::CornerRadius, widgets::Widget};
+use crate::{Id, KeyboardShortcut, paint::corner_radius::CornerRadius, widgets::Widget};
 
 #[repr(C)]
 pub struct ShortcutButton<'a> {

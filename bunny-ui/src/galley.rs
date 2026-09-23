@@ -1,5 +1,8 @@
-use egui::{Rect, Vec2};
-use std::{mem::ManuallyDrop, ptr::NonNull, sync::Arc};
+use std::ptr::NonNull;
+#[cfg(feature = "manager")]
+use std::{mem::ManuallyDrop, sync::Arc};
+
+use emath::{Rect, Vec2};
 
 /// This is an FFI safe wrapper around Arc<egui::Galley>, so cloning is cheap.
 #[derive(Clone)]
@@ -52,6 +55,7 @@ struct GalleyInner {
     drop: ArcGalleyDrop,
 }
 
+#[cfg(feature = "manager")]
 impl GalleyInner {
     #[inline]
     fn new(galley: Arc<egui::Galley>) -> Self {

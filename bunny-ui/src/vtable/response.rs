@@ -1,12 +1,12 @@
 use abi_stable::std_types::{ROption, RStr};
-use egui::{Color32, Id, Pos2, Rect, Response, Sense, Vec2};
+use ecolor::Color32;
+use emath::{Pos2, Rect, Vec2};
 use vtable::{VBox, VRef, VRefMut, vtable};
 
 use crate::{
-    Align, LayerId, PointerButton, SizeHint, WidgetText,
+    Align, Id, LayerId, PointerButton, Sense, SizeHint, WidgetText,
     closure::{InputStateClosure, PluginClosure, PluginNoReturnClosure},
     galley::BunnyGalley,
-    input::BunnyInputState,
     load::TexturePoll,
     paint::{
         text::{fonts::FontId, text_layout_types::LayoutJob},
@@ -15,8 +15,9 @@ use crate::{
     painter::BunnyPainter,
     response::BunnyResponse,
     style::ScrollAnimation,
-    ui::BunnyUi,
 };
+#[cfg(feature = "manager")]
+use crate::{BunnyInputState, BunnyUi};
 
 #[vtable]
 #[repr(C)]
@@ -129,7 +130,8 @@ pub struct ResponseFfiVTable {
     drop: fn(VRefMut<ResponseFfiVTable>),
 }
 
-impl ResponseFfi for Response {
+#[cfg(feature = "manager")]
+impl ResponseFfi for egui::Response {
     #[inline]
     fn layer_id(&self) -> LayerId {
         self.layer_id.into()
@@ -137,7 +139,7 @@ impl ResponseFfi for Response {
 
     #[inline]
     fn id(&self) -> Id {
-        self.id
+        self.id.into()
     }
 
     #[inline]
@@ -152,12 +154,12 @@ impl ResponseFfi for Response {
 
     #[inline]
     fn sense(&self) -> Sense {
-        self.sense
+        self.sense.into()
     }
 
     #[inline]
     fn parent_id(&self) -> Id {
-        self.parent_id()
+        self.parent_id().into()
     }
 
     #[inline]
@@ -415,7 +417,7 @@ impl ResponseFfi for Response {
 
     #[inline]
     fn interact(&self, sense: Sense) -> BunnyResponse {
-        let res = self.interact(sense);
+        let res = self.interact(sense.into());
         BunnyResponse::new(res)
     }
 
@@ -495,7 +497,10 @@ impl ResponseFfi for Response {
 
     #[inline]
     fn read_response(&self, id: Id) -> ROption<BunnyResponse> {
-        self.ctx.read_response(id).map(BunnyResponse::new).into()
+        self.ctx
+            .read_response(id.into())
+            .map(BunnyResponse::new)
+            .into()
     }
 
     #[inline]
@@ -545,4 +550,5 @@ impl ResponseFfi for Response {
     }
 }
 
-ResponseFfiVTable_static!(static RESPONSEFFI_VT for Response);
+#[cfg(feature = "manager")]
+ResponseFfiVTable_static!(static RESPONSEFFI_VT for egui::Response);

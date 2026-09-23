@@ -1,4 +1,4 @@
-use egui::Id;
+use crate::Id;
 
 #[derive(Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
@@ -79,7 +79,7 @@ impl From<LayerId> for egui::LayerId {
     fn from(value: LayerId) -> Self {
         Self {
             order: value.order.into(),
-            id: value.id,
+            id: value.id.into(),
         }
     }
 }
@@ -90,7 +90,27 @@ impl From<egui::LayerId> for LayerId {
     fn from(value: egui::LayerId) -> Self {
         Self {
             order: value.order.into(),
-            id: value.id,
+            id: value.id.into(),
         }
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(C)]
+pub struct ShapeIdx(pub usize);
+
+#[cfg(feature = "manager")]
+impl From<ShapeIdx> for egui::layers::ShapeIdx {
+    #[inline]
+    fn from(value: ShapeIdx) -> Self {
+        Self(value.0)
+    }
+}
+
+#[cfg(feature = "manager")]
+impl From<egui::layers::ShapeIdx> for ShapeIdx {
+    #[inline]
+    fn from(value: egui::layers::ShapeIdx) -> Self {
+        Self(value.0)
     }
 }

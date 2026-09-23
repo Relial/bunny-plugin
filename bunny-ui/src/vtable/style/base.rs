@@ -1,5 +1,4 @@
 use abi_stable::std_types::ROption;
-use egui::{Style, containers::menu::menu_style};
 use vtable::{VRef, VRefMut, vtable};
 
 use crate::{
@@ -61,7 +60,8 @@ pub struct StyleFfiVTable {
     menu_style: fn(VRefMut<StyleFfiVTable>),
 }
 
-impl StyleFfi for Style {
+#[cfg(feature = "manager")]
+impl StyleFfi for egui::Style {
     #[inline]
     fn override_text_style(&self) -> ROption<TextStyle> {
         self.override_text_style
@@ -239,8 +239,11 @@ impl StyleFfi for Style {
 
     #[inline]
     fn menu_style(&mut self) {
+        use egui::containers::menu::menu_style;
+
         menu_style(self);
     }
 }
 
-StyleFfiVTable_static!(static STYLEFFI_VT for Style);
+#[cfg(feature = "manager")]
+StyleFfiVTable_static!(static STYLEFFI_VT for egui::Style);

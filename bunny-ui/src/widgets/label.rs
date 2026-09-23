@@ -1,7 +1,8 @@
 use abi_stable::std_types::ROption::{self, RNone, RSome};
-use egui::Sense;
 
-use crate::{Align, WidgetText, paint::text::text_layout_types::TextWrapMode, widgets::Widget};
+use crate::{
+    Align, Sense, WidgetText, paint::text::text_layout_types::TextWrapMode, widgets::Widget,
+};
 
 #[repr(C)]
 pub struct Label<'a> {
@@ -84,7 +85,7 @@ impl egui::Widget for Label<'_> {
             label = label.wrap_mode(wrap_mode.into());
         }
         if let RSome(sense) = self.sense {
-            label = label.sense(sense);
+            label = label.sense(sense.into());
         }
         if let RSome(selectable) = self.selectable {
             label = label.selectable(selectable);

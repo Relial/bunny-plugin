@@ -1,14 +1,12 @@
 use abi_stable::std_types::ROption::{self, RNone, RSome};
-use egui::{Id, NumExt, Rangef};
+use emath::{NumExt, Rangef};
 
 #[cfg(feature = "manager")]
-use crate::closure::PanelAnimatedBetweenClosure;
 use crate::{
-    closure::PluginClosure,
-    containers::Frame,
-    response::{BunnyInnerResponse, BunnyResponse},
-    ui::BunnyUi,
+    BunnyResponse,
+    closure::{PanelAnimatedBetweenClosure, PluginClosure},
 };
+use crate::{Id, containers::Frame, response::BunnyInnerResponse, ui::BunnyUi};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[repr(C)]

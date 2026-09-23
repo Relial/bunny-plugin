@@ -47,6 +47,7 @@ impl<'a> PluginClosure<'a> {
         }
     }
 
+    #[cfg(feature = "manager")]
     #[inline]
     pub fn call(self, ui: &mut BunnyUi) {
         unsafe { (self.closure_trampoline)(ui, self.closure, self.output) }
@@ -91,6 +92,7 @@ impl<'a> PluginNoReturnClosure<'a> {
         }
     }
 
+    #[cfg(feature = "manager")]
     #[inline]
     pub fn call(self, ui: &mut BunnyUi) {
         unsafe { (self.closure_trampoline)(ui, self.closure) }
@@ -140,6 +142,7 @@ impl<'a> InputStateClosure<'a> {
         }
     }
 
+    #[cfg(feature = "manager")]
     #[inline]
     pub fn call(self, input_state: &mut BunnyInputState) {
         unsafe { (self.closure_trampoline)(input_state, self.closure, self.output) }
@@ -195,6 +198,7 @@ impl<'a> ScrollAreaRowsClosure<'a> {
         }
     }
 
+    #[cfg(feature = "manager")]
     #[inline]
     pub fn call(self, ui: &mut BunnyUi, range: &[usize; 2]) {
         unsafe { (self.closure_trampoline)(ui, range, self.closure, self.output) }
@@ -250,6 +254,7 @@ impl<'a> PanelAnimatedBetweenClosure<'a> {
         }
     }
 
+    #[cfg(feature = "manager")]
     #[inline]
     pub fn call(self, ui: &mut BunnyUi, how_expanded: f32) {
         unsafe { (self.closure_trampoline)(ui, how_expanded, self.closure, self.output) }

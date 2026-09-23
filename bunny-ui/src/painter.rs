@@ -1,10 +1,11 @@
 use abi_stable::std_types::RVec;
-use egui::{Color32, Rangef, Rect, layers::ShapeIdx};
+use ecolor::Color32;
+use emath::{Rangef, Rect};
 use mint::{Point2, Vector2};
 use vtable::{VBox, VRef};
 
 use crate::{
-    Align2, LayerId,
+    Align2, LayerId, ShapeIdx,
     galley::BunnyGalley,
     paint::{
         TextureId,
@@ -304,6 +305,7 @@ pub struct BunnyPainterRef<'a> {
     inner: VRef<'a, PainterFfiVTable>,
 }
 
+#[cfg(feature = "manager")]
 impl<'a> BunnyPainterRef<'a> {
     #[inline]
     pub fn new(painter: &'a egui::Painter) -> Self {
@@ -325,6 +327,7 @@ pub struct BunnyPainter {
     inner: VBox<PainterFfiVTable>,
 }
 
+#[cfg(feature = "manager")]
 impl BunnyPainter {
     #[inline]
     pub fn new(painter: egui::Painter) -> Self {
