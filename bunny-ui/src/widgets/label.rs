@@ -1,8 +1,6 @@
 use abi_stable::std_types::ROption::{self, RNone, RSome};
 
-use crate::{
-    Align, Sense, WidgetText, paint::text::text_layout_types::TextWrapMode, widgets::Widget,
-};
+use crate::{Align, Sense, Widget, WidgetText, paint::TextWrapMode};
 
 #[repr(C)]
 pub struct Label<'a> {

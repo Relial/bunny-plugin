@@ -2,14 +2,10 @@ use abi_stable::std_types::ROption;
 use vtable::{VRef, VRefMut, vtable};
 
 use crate::{
-    Align,
-    containers::FrameStyle,
-    paint::text::{fonts::FontId, text_layout_types::TextWrapMode},
-    style::{
-        BunnyInteractionMut, BunnyInteractionRef, BunnySpacingMut, BunnySpacingRef,
-        BunnyVisualsMut, BunnyVisualsRef, Interaction, ScrollAnimation, Spacing, TextStyle,
-        Visuals,
-    },
+    Align, BunnyInteractionMut, BunnyInteractionRef, BunnySpacingMut, BunnySpacingRef,
+    BunnyVisualsMut, BunnyVisualsRef, FrameStyle, Interaction, ScrollAnimation, Spacing, TextStyle,
+    Visuals,
+    paint::{FontId, TextWrapMode},
 };
 
 #[vtable]

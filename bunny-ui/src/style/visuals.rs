@@ -3,7 +3,7 @@ use vtable::{VRef, VRefMut};
 
 use crate::{
     Shadow,
-    paint::{corner_radius::CornerRadius, stroke::Stroke, text::TextOptions},
+    paint::{CornerRadius, Stroke, TextOptions},
     style::{HandleShape, NumericColorSpace, Selection, TextCursorStyle, WidgetVisuals},
     vtable::style::visuals::VisualsFfiVTable,
 };

@@ -2,9 +2,8 @@ use abi_stable::std_types::ROption::{self, RNone, RSome};
 use ecolor::Color32;
 
 use crate::{
-    WidgetText,
-    paint::{corner_radius::CornerRadius, stroke::Stroke},
-    widgets::Widget,
+    Widget, WidgetText,
+    paint::{CornerRadius, Stroke},
 };
 
 #[repr(C)]

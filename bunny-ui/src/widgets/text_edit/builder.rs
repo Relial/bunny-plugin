@@ -4,10 +4,7 @@ use emath::Vec2;
 use mint::Vector2;
 
 use crate::{
-    Align, Align2, Id, Margin, WidgetText,
-    containers::Frame,
-    paint::text::fonts::FontSelection,
-    widgets::{Widget, text_edit::bunny_string::BunnyString},
+    Align, Align2, BunnyString, Frame, Id, Margin, Widget, WidgetText, paint::FontSelection,
 };
 
 #[repr(C)]

@@ -4,7 +4,7 @@ use ecolor::Color32;
 use crate::{BunnyResponse, closure::PluginClosure};
 use crate::{
     Margin, Shadow,
-    paint::{corner_radius::CornerRadius, stroke::Stroke},
+    paint::{CornerRadius, Stroke},
     response::BunnyInnerResponse,
     style::{BunnyStyleRef, BunnyVisuals},
     ui::BunnyUi,

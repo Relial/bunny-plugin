@@ -3,9 +3,8 @@ use ecolor::Color32;
 use vtable::vtable;
 
 use crate::{
-    Shadow,
-    paint::{corner_radius::CornerRadius, stroke::Stroke, text::TextOptions},
-    style::{HandleShape, NumericColorSpace, Selection, TextCursorStyle, WidgetVisuals},
+    HandleShape, NumericColorSpace, Selection, Shadow, TextCursorStyle, WidgetVisuals,
+    paint::{CornerRadius, Stroke, TextOptions},
 };
 
 #[vtable]

@@ -1,4 +1,4 @@
-use crate::{WidgetText, widgets::Widget};
+use crate::{Widget, WidgetText};
 
 #[repr(C)]
 pub struct CheckBox<'a> {

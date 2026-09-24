@@ -1,7 +1,7 @@
 use abi_stable::std_types::ROption::{self, RSome};
 use ecolor::Color32;
 
-use crate::widgets::Widget;
+use crate::Widget;
 
 #[derive(Default)]
 #[repr(C)]

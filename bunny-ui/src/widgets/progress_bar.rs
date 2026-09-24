@@ -1,7 +1,7 @@
 use abi_stable::std_types::ROption::{self, RNone, RSome};
 use ecolor::Color32;
 
-use crate::{WidgetText, paint::corner_radius::CornerRadius, widgets::Widget};
+use crate::{Widget, WidgetText, paint::CornerRadius};
 
 #[repr(C)]
 pub enum ProgressBarText<'a> {

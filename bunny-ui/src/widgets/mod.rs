@@ -1,24 +1,32 @@
-use crate::widgets::{
-    button::Button, checkbox::CheckBox, color_picker::ColorPicker, drag_value::DragValue,
-    image::Image, label::Label, link::Link, progress_bar::ProgressBar, radio_button::RadioButton,
-    separator::Separator, shortcut_button::ShortcutButton, slider::Slider, spinner::Spinner,
-    text_edit::builder::TextEdit,
-};
+mod button;
+mod checkbox;
+mod color_picker;
+mod drag_value;
+mod image;
+mod label;
+mod link;
+mod progress_bar;
+mod radio_button;
+mod separator;
+mod shortcut_button;
+mod slider;
+mod spinner;
+mod text_edit;
 
-pub mod button;
-pub mod checkbox;
-pub mod color_picker;
-pub mod drag_value;
-pub mod image;
-pub mod label;
-pub mod link;
-pub mod progress_bar;
-pub mod radio_button;
-pub mod separator;
-pub mod shortcut_button;
-pub mod slider;
-pub mod spinner;
-pub mod text_edit;
+pub use button::*;
+pub use checkbox::*;
+pub use color_picker::*;
+pub use drag_value::*;
+pub use image::*;
+pub use label::*;
+pub use link::*;
+pub use progress_bar::*;
+pub use radio_button::*;
+pub use separator::*;
+pub use shortcut_button::*;
+pub use slider::*;
+pub use spinner::*;
+pub use text_edit::*;
 
 #[repr(C)]
 pub enum Widget<'a> {

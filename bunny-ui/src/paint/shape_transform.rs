@@ -2,17 +2,8 @@ use abi_stable::std_types::ROption::RSome;
 use ecolor::Color32;
 
 use crate::paint::{
-    color::ColorMode,
-    mesh::Mesh,
-    shapes::{
-        bezier_shape::{CubicBezierShape, QuadraticBezierShape},
-        circle_shape::CircleShape,
-        ellipse_shape::EllipseShape,
-        path_shape::PathShape,
-        rect_shape::RectShape,
-        shape::Shape,
-        text_shape::TextShape,
-    },
+    CircleShape, ColorMode, CubicBezierShape, EllipseShape, Mesh, PathShape, QuadraticBezierShape,
+    RectShape, Shape, TextShape,
 };
 
 pub fn adjust_colors(

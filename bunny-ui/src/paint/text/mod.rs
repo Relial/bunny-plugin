@@ -1,5 +1,8 @@
-pub mod fonts;
-pub mod text_layout_types;
+mod fonts;
+mod text_layout_types;
+
+pub use fonts::*;
+pub use text_layout_types::*;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]

@@ -2,16 +2,27 @@ use emath::Vec2;
 use mint::Vector2;
 use shared::textures::{SharedSizedTexture, SharedTextureId};
 
-pub mod brush;
-pub mod color;
-pub mod corner_radius;
-pub mod image;
-pub mod mesh;
-pub mod shape_transform;
-pub mod shapes;
-pub mod stroke;
-pub mod text;
-pub mod textures;
+mod brush;
+mod color;
+mod corner_radius;
+mod image;
+mod mesh;
+mod shape_transform;
+mod shapes;
+mod stroke;
+mod text;
+mod textures;
+
+pub use brush::*;
+pub use color::*;
+pub use corner_radius::*;
+pub use image::*;
+pub use mesh::*;
+pub use shape_transform::*;
+pub use shapes::*;
+pub use stroke::*;
+pub use text::*;
+pub use textures::*;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[repr(C)]

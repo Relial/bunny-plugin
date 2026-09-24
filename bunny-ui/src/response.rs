@@ -7,18 +7,11 @@ use mint::Vector2;
 use vtable::VBox;
 
 use crate::{
-    Align, Id, LayerId, PointerButton, Sense, SizeHint, WidgetText,
+    Align, BunnyGalley, BunnyInputState, BunnyPainter, BunnyUi, Id, LayerId, PointerButton,
+    ScrollAnimation, Sense, SizeHint, WidgetText,
     closure::{InputStateClosure, PluginClosure, PluginNoReturnClosure},
-    galley::BunnyGalley,
-    input::BunnyInputState,
     load::TexturePoll,
-    paint::{
-        text::{fonts::FontId, text_layout_types::LayoutJob},
-        textures::TextureOptions,
-    },
-    painter::BunnyPainter,
-    style::ScrollAnimation,
-    ui::BunnyUi,
+    paint::{FontId, LayoutJob, TextureOptions},
     vtable::response::ResponseFfiVTable,
 };
 

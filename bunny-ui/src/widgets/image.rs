@@ -8,10 +8,9 @@ use emath::{NumExt as _, Rect, Vec2, pos2};
 use mint::Vector2;
 
 use crate::{
-    ImageSource, Sense, SizeHint,
+    ImageSource, Sense, SizeHint, Widget,
     load::Bytes,
-    paint::{corner_radius::CornerRadius, textures::TextureOptions},
-    widgets::Widget,
+    paint::{CornerRadius, TextureOptions},
 };
 
 #[repr(C)]

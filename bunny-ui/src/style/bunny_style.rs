@@ -1,14 +1,10 @@
 use vtable::{VRef, VRefMut};
 
 use crate::{
-    Align,
-    containers::FrameStyle,
-    paint::text::{fonts::FontId, text_layout_types::TextWrapMode},
-    style::{
-        BunnyInteractionMut, BunnyInteractionRef, BunnySpacingMut, BunnySpacingRef,
-        BunnyVisualsMut, BunnyVisualsRef, Interaction, ScrollAnimation, Spacing, TextStyle,
-        Visuals,
-    },
+    Align, BunnyInteractionMut, BunnyInteractionRef, BunnySpacingMut, BunnySpacingRef,
+    BunnyVisualsMut, BunnyVisualsRef, FrameStyle, Interaction, ScrollAnimation, Spacing, TextStyle,
+    Visuals,
+    paint::{FontId, TextWrapMode},
     vtable::style::base::StyleFfiVTable,
 };
 

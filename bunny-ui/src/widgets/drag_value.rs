@@ -5,10 +5,7 @@ use abi_stable::std_types::{
     ROption::{self, RNone, RSome},
 };
 
-use crate::{
-    num::Num,
-    widgets::{Widget, slider::NumberCustomFormat},
-};
+use crate::{Num, NumberCustomFormat, Widget};
 
 #[repr(C)]
 pub struct DragValue<'a> {

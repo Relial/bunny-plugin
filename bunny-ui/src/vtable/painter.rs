@@ -4,16 +4,8 @@ use emath::{Pos2, Rangef, Rect, Vec2};
 use vtable::{VRef, VRefMut, vtable};
 
 use crate::{
-    Align2, LayerId, ShapeIdx,
-    galley::BunnyGalley,
-    paint::{
-        TextureId,
-        corner_radius::CornerRadius,
-        shapes::shape::Shape,
-        stroke::{PathStroke, Stroke, StrokeKind},
-        text::{fonts::FontId, text_layout_types::LayoutJob},
-    },
-    painter::BunnyPainter,
+    Align2, BunnyGalley, BunnyPainter, LayerId, ShapeIdx,
+    paint::{CornerRadius, FontId, LayoutJob, PathStroke, Shape, Stroke, StrokeKind, TextureId},
 };
 
 #[vtable]

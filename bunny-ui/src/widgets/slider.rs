@@ -5,7 +5,7 @@ use abi_stable::std_types::{
     ROption::{self, RNone, RSome},
 };
 
-use crate::{WidgetText, num::Num, style::HandleShape, widgets::Widget};
+use crate::{HandleShape, Num, Widget, WidgetText};
 
 #[derive(Clone, Copy)]
 #[repr(C)]

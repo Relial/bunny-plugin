@@ -8,24 +8,12 @@ use mint::{Point2, Vector2};
 use tracing::error;
 
 use crate::{
-    Align2, Direction,
-    galley::BunnyGalley,
+    Align2, BunnyGalley, BunnyUi, Direction,
     paint::{
-        TextureId,
-        corner_radius::CornerRadius,
-        mesh::{Mesh, Vertex},
-        shapes::{
-            bezier_shape::{CubicBezierShape, QuadraticBezierShape},
-            circle_shape::CircleShape,
-            ellipse_shape::EllipseShape,
-            path_shape::PathShape,
-            rect_shape::RectShape,
-            text_shape::TextShape,
-        },
-        stroke::{PathStroke, Stroke, StrokeKind},
-        text::fonts::FontId,
+        CircleShape, CornerRadius, CubicBezierShape, EllipseShape, FontId, Mesh, PathShape,
+        PathStroke, QuadraticBezierShape, RectShape, Stroke, StrokeKind, TextShape, TextureId,
+        Vertex,
     },
-    ui::BunnyUi,
 };
 
 #[repr(C)]

@@ -4,11 +4,7 @@ use emath::{Rangef, Vec2};
 
 use crate::{
     Align, Margin, Shadow,
-    paint::{
-        corner_radius::CornerRadius,
-        stroke::Stroke,
-        text::{TextOptions, text_layout_types::TextWrapMode},
-    },
+    paint::{CornerRadius, Stroke, TextOptions, TextWrapMode},
 };
 
 #[derive(Clone, Copy, Debug, PartialEq)]

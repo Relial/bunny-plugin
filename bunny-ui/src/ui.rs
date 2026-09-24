@@ -7,32 +7,19 @@ use mint::Vector2;
 use vtable::VRefMut;
 
 use crate::{
-    Align, Id, ImageSource, LayerId, Layout, RichText, Sense, SizeHint, UiBuilder, WidgetText,
+    Align, Area, BunnyCollapsingResponse, BunnyGalley, BunnyInnerResponse, BunnyInputState,
+    BunnyInteractionMut, BunnyInteractionRef, BunnyModalResponse, BunnyPainter, BunnyPainterRef,
+    BunnyResponse, BunnyScrollAreaOutput, BunnySpacingMut, BunnySpacingRef, BunnyString,
+    BunnyStyleMut, BunnyStyleRef, BunnyVisualsMut, BunnyVisualsRef, CentralPanel, CollapsingHeader,
+    ComboBox, Frame, Grid, Id, ImageSource, LayerId, Layout, Modal, Panel, Popup, RichText,
+    ScrollAnimation, ScrollArea, Sense, Sides, SizeHint, Style, TextStyle, UiBuilder, Widget,
+    WidgetText, Window,
     closure::{
         InputStateClosure, PanelAnimatedBetweenClosure, PluginClosure, ScrollAreaRowsClosure,
     },
-    containers::{
-        Area, BunnyCollapsingResponse, BunnyModalResponse, BunnyScrollAreaOutput, CentralPanel,
-        CollapsingHeader, ComboBox, Frame, Grid, Modal, Panel, Popup, ScrollArea, Sides, Window,
-    },
-    galley::BunnyGalley,
-    input::BunnyInputState,
     load::TexturePoll,
-    paint::{
-        text::{
-            fonts::FontId,
-            text_layout_types::{LayoutJob, TextWrapMode},
-        },
-        textures::TextureOptions,
-    },
-    painter::{BunnyPainter, BunnyPainterRef},
-    response::{BunnyInnerResponse, BunnyResponse},
-    style::{
-        BunnyInteractionMut, BunnyInteractionRef, BunnySpacingMut, BunnySpacingRef, BunnyStyleMut,
-        BunnyStyleRef, BunnyVisualsMut, BunnyVisualsRef, ScrollAnimation, Style, TextStyle,
-    },
+    paint::{FontId, LayoutJob, TextWrapMode, TextureOptions},
     vtable::ui::UiFfiVTable,
-    widgets::{Widget, text_edit::bunny_string::BunnyString},
 };
 
 #[repr(transparent)]

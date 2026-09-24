@@ -1,6 +1,6 @@
 use ecolor::Color32;
 
-use crate::widgets::Widget;
+use crate::Widget;
 
 #[repr(C)]
 pub struct ColorPicker<'a> {

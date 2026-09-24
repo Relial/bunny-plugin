@@ -1,6 +1,6 @@
 use abi_stable::std_types::ROption::{self, RNone, RSome};
 
-use crate::widgets::Widget;
+use crate::Widget;
 
 #[repr(C)]
 pub struct Separator {

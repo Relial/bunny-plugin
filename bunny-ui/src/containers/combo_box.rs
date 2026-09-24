@@ -7,7 +7,7 @@ use abi_stable::std_types::Tuple2;
 #[cfg(feature = "manager")]
 use crate::{BunnyResponse, closure::PluginClosure};
 use crate::{
-    Id, WidgetText, containers::PopupCloseBehavior, paint::text::text_layout_types::TextWrapMode,
+    Id, WidgetText, containers::PopupCloseBehavior, paint::TextWrapMode,
     response::BunnyInnerResponse, ui::BunnyUi,
 };
 

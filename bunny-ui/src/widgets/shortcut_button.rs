@@ -1,6 +1,6 @@
 use abi_stable::std_types::ROption::{self, RNone, RSome};
 
-use crate::{Id, KeyboardShortcut, paint::corner_radius::CornerRadius, widgets::Widget};
+use crate::{Id, KeyboardShortcut, Widget, paint::CornerRadius};
 
 #[repr(C)]
 pub struct ShortcutButton<'a> {

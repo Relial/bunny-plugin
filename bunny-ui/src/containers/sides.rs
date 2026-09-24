@@ -2,7 +2,7 @@ use abi_stable::std_types::ROption::{self, RSome};
 
 #[cfg(feature = "manager")]
 use crate::closure::PluginClosure;
-use crate::{paint::text::text_layout_types::TextWrapMode, ui::BunnyUi};
+use crate::{BunnyUi, paint::TextWrapMode};
 
 #[derive(Clone, Copy, Debug, Default)]
 #[repr(C)]

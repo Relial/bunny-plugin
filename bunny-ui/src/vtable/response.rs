@@ -4,17 +4,11 @@ use emath::{Pos2, Rect, Vec2};
 use vtable::{VBox, VRef, VRefMut, vtable};
 
 use crate::{
-    Align, Id, LayerId, PointerButton, Sense, SizeHint, WidgetText,
+    Align, BunnyGalley, BunnyPainter, BunnyResponse, Id, LayerId, PointerButton, ScrollAnimation,
+    Sense, SizeHint, WidgetText,
     closure::{InputStateClosure, PluginClosure, PluginNoReturnClosure},
-    galley::BunnyGalley,
     load::TexturePoll,
-    paint::{
-        text::{fonts::FontId, text_layout_types::LayoutJob},
-        textures::TextureOptions,
-    },
-    painter::BunnyPainter,
-    response::BunnyResponse,
-    style::ScrollAnimation,
+    paint::{FontId, LayoutJob, TextureOptions},
 };
 #[cfg(feature = "manager")]
 use crate::{BunnyInputState, BunnyUi};

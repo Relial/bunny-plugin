@@ -5,15 +5,8 @@ use mint::{Point2, Vector2};
 use vtable::{VBox, VRef};
 
 use crate::{
-    Align2, LayerId, ShapeIdx,
-    galley::BunnyGalley,
-    paint::{
-        TextureId,
-        corner_radius::CornerRadius,
-        shapes::shape::Shape,
-        stroke::{PathStroke, Stroke, StrokeKind},
-        text::{fonts::FontId, text_layout_types::LayoutJob},
-    },
+    Align2, BunnyGalley, LayerId, ShapeIdx,
+    paint::{CornerRadius, FontId, LayoutJob, PathStroke, Shape, Stroke, StrokeKind, TextureId},
     vtable::painter::PainterFfiVTable,
 };
 

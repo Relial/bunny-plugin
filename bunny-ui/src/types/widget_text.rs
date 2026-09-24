@@ -8,8 +8,8 @@ use abi_stable::std_types::{
 use ecolor::Color32;
 
 use crate::{
-    paint::text::fonts::{FontFamily, FontId},
-    style::TextStyle,
+    TextStyle,
+    paint::{FontFamily, FontId},
 };
 
 #[derive(Clone)]

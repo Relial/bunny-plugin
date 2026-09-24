@@ -6,31 +6,17 @@ use emath::{Pos2, Rangef, Rect, TSTransform, Vec2};
 use vtable::{VRef, VRefMut, vtable};
 
 use crate::{
-    Align, Id, ImageSource, LayerId, Layout as BunnyLayout, RichText, Sense, SizeHint, UiBuilder,
-    WidgetText,
+    Align, Area, BunnyGalley, BunnyInteractionMut, BunnyInteractionRef, BunnyPainter,
+    BunnyPainterRef, BunnyResponse, BunnySpacingMut, BunnySpacingRef, BunnyString, BunnyStyleMut,
+    BunnyStyleRef, BunnyVisualsMut, BunnyVisualsRef, CentralPanel, CollapsingHeader, ComboBox,
+    Frame, Grid, Id, ImageSource, LayerId, Layout as BunnyLayout, Modal, Panel, Popup, RichText,
+    ScrollAnimation, ScrollArea, Sense, Sides, SizeHint, Style, TextStyle, UiBuilder, Widget,
+    WidgetText, Window,
     closure::{
         InputStateClosure, PanelAnimatedBetweenClosure, PluginClosure, ScrollAreaRowsClosure,
     },
-    containers::{
-        Area, CentralPanel, CollapsingHeader, ComboBox, Frame, Grid, Modal, Panel, Popup,
-        ScrollArea, Sides, Window,
-    },
-    galley::BunnyGalley,
     load::TexturePoll,
-    paint::{
-        text::{
-            fonts::FontId,
-            text_layout_types::{LayoutJob, TextWrapMode},
-        },
-        textures::TextureOptions,
-    },
-    painter::{BunnyPainter, BunnyPainterRef},
-    response::BunnyResponse,
-    style::{
-        BunnyInteractionMut, BunnyInteractionRef, BunnySpacingMut, BunnySpacingRef, BunnyStyleMut,
-        BunnyStyleRef, BunnyVisualsMut, BunnyVisualsRef, ScrollAnimation, Style, TextStyle,
-    },
-    widgets::{Widget, text_edit::bunny_string::BunnyString},
+    paint::{FontId, LayoutJob, TextWrapMode, TextureOptions},
 };
 
 #[vtable]
