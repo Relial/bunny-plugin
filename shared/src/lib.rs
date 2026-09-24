@@ -3,6 +3,9 @@ pub mod fonts;
 pub mod textures;
 pub use glam;
 
+mod math_ext;
+pub use math_ext::*;
+
 use crate::{
     camera::Camera,
     fonts::{CustomFont, CustomFonts, NamedCustomFont},

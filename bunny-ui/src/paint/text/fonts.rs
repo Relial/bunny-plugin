@@ -73,6 +73,13 @@ pub enum FontFamily {
     Custom(CustomFont),
 }
 
+impl From<CustomFont> for FontFamily {
+    #[inline]
+    fn from(value: CustomFont) -> Self {
+        Self::Custom(value)
+    }
+}
+
 #[cfg(feature = "manager")]
 impl From<FontFamily> for egui::FontFamily {
     #[inline]

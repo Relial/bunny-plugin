@@ -1107,6 +1107,9 @@ name = "emath"
 version = "0.34.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b53f0d33a479321da6b0caa71366c9f67e8a2c149762d90bdc0d16e601ee8ecb"
+dependencies = [
+ "mint",
+]
 
 [[package]]
 name = "encase"
@@ -2424,6 +2427,7 @@ version = "0.1.0"
 dependencies = [
  "abi_stable",
  "anyhow",
+ "emath",
  "glam 0.33.2",
  "mint",
  "rapidhash",

@@ -2753,6 +2753,7 @@ version = "0.1.0"
 dependencies = [
  "abi_stable",
  "anyhow",
+ "emath",
  "glam 0.33.2",
  "mint",
  "rapidhash",
