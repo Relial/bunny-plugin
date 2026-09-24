@@ -124,18 +124,13 @@ impl Camera {
         (!ndc.is_nan()).then_some(ndc.into())
     }
 
-    pub fn screen_to_world(
-        &self,
-        screen_position: impl Into<Vector2<f32>>,
-        view: Mat4,
-        proj: Mat4,
-    ) -> Option<Ray> {
+    pub fn screen_to_world(&self, screen_position: impl Into<Vector2<f32>>) -> Option<Ray> {
         let ndc_xy = self.screen_to_ndc(screen_position);
         let ndc_point_near = ndc_xy.extend(f32::EPSILON).into();
         let ndc_point_far = ndc_xy.extend(1.0).into();
 
-        let view_from_clip = proj.inverse();
-        let world_from_view = view.inverse();
+        let view_from_clip = self.projection.inverse();
+        let world_from_view = self.view.inverse();
 
         let view_point_near = view_from_clip.project_point3a(ndc_point_near);
         let view_point_far = view_from_clip.project_point3a(ndc_point_far);
