@@ -2,7 +2,7 @@ use std::f32::consts::PI;
 
 use anyhow::{Context, Result, bail};
 use glam::{Mat3, Mat4, Quat, Vec2, Vec3, Vec3A};
-use mint::Vector2;
+use mint::{Point2, Vector2};
 
 // https://docs.rs/bevy_camera/0.19.1/src/bevy_camera/camera.rs.html
 
@@ -124,7 +124,7 @@ impl Camera {
         (!ndc.is_nan()).then_some(ndc.into())
     }
 
-    pub fn screen_to_world(&self, screen_position: impl Into<Vector2<f32>>) -> Option<Ray> {
+    pub fn screen_to_world(&self, screen_position: impl Into<Point2<f32>>) -> Option<Ray> {
         let ndc_xy = self.screen_to_ndc(screen_position);
         let ndc_point_near = ndc_xy.extend(f32::EPSILON).into();
         let ndc_point_far = ndc_xy.extend(1.0).into();
@@ -145,7 +145,7 @@ impl Camera {
     }
 
     #[inline]
-    pub fn screen_to_ndc(&self, screen_position: impl Into<Vector2<f32>>) -> Vec2 {
+    pub fn screen_to_ndc(&self, screen_position: impl Into<Point2<f32>>) -> Vec2 {
         let screen_position: Vec2 = screen_position.into().into();
         let relative = screen_position / self.screen_size;
         let mut ndc = relative * 2.0 - Vec2::ONE;
